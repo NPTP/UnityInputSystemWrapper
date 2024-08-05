@@ -1,0 +1,13 @@
+{
+    "name": "com.nptp.unity-input-system-wrapper",
+    "displayName": "Unity Input System Wrapper",
+    "version": "0.1.0",
+    "unity": "2021.3",
+    "description": "Make Input easier to use!",
+    "homepage": "https://github.com/NPTP/UnityInputSystemWrapper",
+    "author": {
+        "name": "Nick Perrin",
+        "email": "nickptperrin@outlook.com",
+        "url": "https://nptp.github.io/"
+    }
+}
