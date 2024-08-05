@@ -17,9 +17,6 @@ namespace UnityInputSystemWrapper.Data
         [SerializeField] private bool enableKeyboardTextInput;
         public bool EnableKeyboardTextInput => enableKeyboardTextInput;
 
-        [SerializeField] private EventSystemActions eventSystemActions;
-        public EventSystemActions EventSystemActions => eventSystemActions;
-        
 #if UNITY_EDITOR
         public void EDITOR_SetName(string n)
         {

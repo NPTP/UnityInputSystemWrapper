@@ -21,44 +21,11 @@ MonoBehaviour:
   - name: AllInputDisabled
     activeMaps: []
     enableKeyboardTextInput: 0
-    eventSystemActions:
-      point: {fileID: 0}
-      middleClick: {fileID: 0}
-      rightClick: {fileID: 0}
-      scrollWheel: {fileID: 0}
-      move: {fileID: 0}
-      submit: {fileID: 0}
-      cancel: {fileID: 0}
-      trackedDevicePosition: {fileID: 0}
-      trackedDeviceOrientation: {fileID: 0}
-      leftClick: {fileID: 0}
   - name: Player
     activeMaps:
     - Player
     enableKeyboardTextInput: 0
-    eventSystemActions:
-      point: {fileID: 0}
-      middleClick: {fileID: 0}
-      rightClick: {fileID: 0}
-      scrollWheel: {fileID: 0}
-      move: {fileID: 0}
-      submit: {fileID: 0}
-      cancel: {fileID: 0}
-      trackedDevicePosition: {fileID: 0}
-      trackedDeviceOrientation: {fileID: 0}
-      leftClick: {fileID: 0}
   - name: UI
     activeMaps:
     - UI
     enableKeyboardTextInput: 1
-    eventSystemActions:
-      point: {fileID: 0}
-      middleClick: {fileID: 0}
-      rightClick: {fileID: 0}
-      scrollWheel: {fileID: 0}
-      move: {fileID: 0}
-      submit: {fileID: 0}
-      cancel: {fileID: 0}
-      trackedDevicePosition: {fileID: 0}
-      trackedDeviceOrientation: {fileID: 0}
-      leftClick: {fileID: 0}

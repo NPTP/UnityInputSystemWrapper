@@ -31,7 +31,6 @@ namespace UnityInputSystemWrapper
         public static event Action OnAnyButtonPressed;
 
         public static bool AllowPlayerJoining { get; set; } = false;
-        public static bool UseContextEventSystemActions => runtimeInputData.UseContextEventSystemActions;
         
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
         public static event Action<ControlScheme> OnControlSchemeChanged
@@ -108,6 +107,8 @@ namespace UnityInputSystemWrapper
                 Object.DontDestroyOnLoad(inputMgmtGameObject);
             }
             
+            SetEventSystemActions(primaryUIInputModule);
+
             primaryPlayer.PlayerInput = primaryPlayerInput;
             primaryPlayer.UIInputModule = primaryUIInputModule;
             primaryPlayerInput.actions = PrimaryInputActionAsset;
@@ -115,6 +116,21 @@ namespace UnityInputSystemWrapper
             
             playerCollection.EnableContextForAll(DefaultContext);
             AddSubscriptions();
+        }
+
+        // TODO: Support setting these actions for multiple players/assets
+        private static void SetEventSystemActions(InputSystemUIInputModule uiInputModule)
+        {
+            uiInputModule.point = runtimeInputData.Point;
+            uiInputModule.middleClick = runtimeInputData.MiddleClick;
+            uiInputModule.rightClick = runtimeInputData.RightClick;
+            uiInputModule.scrollWheel = runtimeInputData.ScrollWheel;
+            uiInputModule.move = runtimeInputData.Move;
+            uiInputModule.submit = runtimeInputData.Submit;
+            uiInputModule.cancel = runtimeInputData.Cancel;
+            uiInputModule.trackedDevicePosition = runtimeInputData.TrackedDevicePosition;
+            uiInputModule.trackedDeviceOrientation = runtimeInputData.TrackedDeviceOrientation;
+            uiInputModule.leftClick = runtimeInputData.LeftClick;
         }
 
         private static void Terminate()

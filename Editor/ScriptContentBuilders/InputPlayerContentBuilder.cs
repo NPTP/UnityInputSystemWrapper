@@ -43,19 +43,6 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                             lines.Add($"                    {map.AsField()}Map.{(enable ? "Add" : "Remove")}Callbacks({map.AsType()});");
                         }
                         
-                        // Event System actions setting
-                        string actions = "                    SetUIEventSystemActions(";
-                        InputActionReference[] inputActionReferences = contextInfo.EventSystemActions.AllInputActionReferences;
-                        for (int j = 0; j < inputActionReferences.Length; j++)
-                        {
-                            InputActionReference inputActionReference = inputActionReferences[j];
-                            if (inputActionReference == null) actions += "null";
-                            else actions += $"{inputActionReference.action.actionMap.name.AsField()}Map.{inputActionReference.action.name.AsType()}";
-                            if (j < inputActionReferences.Length - 1) actions += ", ";
-                        }
-                        actions += ");";
-                        lines.Add(actions);
-                        
                         lines.Add($"                    break;");
                     }
                     break;

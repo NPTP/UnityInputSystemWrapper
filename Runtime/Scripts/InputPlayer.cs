@@ -254,7 +254,6 @@ namespace UnityInputSystemWrapper
                     playerMap.RemoveCallbacks(Player);
                     uIMap.Disable();
                     uIMap.RemoveCallbacks(UI);
-                    SetUIEventSystemActions(null, null, null, null, null, null, null, null, null, null);
                     break;
                 case InputContext.Player:
                     DisableKeyboardTextInput();
@@ -262,7 +261,6 @@ namespace UnityInputSystemWrapper
                     playerMap.AddCallbacks(Player);
                     uIMap.Disable();
                     uIMap.RemoveCallbacks(UI);
-                    SetUIEventSystemActions(null, null, null, null, null, null, null, null, null, null);
                     break;
                 case InputContext.UI:
                     EnableKeyboardTextInput();
@@ -270,43 +268,13 @@ namespace UnityInputSystemWrapper
                     playerMap.RemoveCallbacks(Player);
                     uIMap.Enable();
                     uIMap.AddCallbacks(UI);
-                    SetUIEventSystemActions(null, null, null, null, null, null, null, null, null, null);
                     break;
                 // MARKER.EnableContextSwitchMembers.End
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);
             }
         }
-        
-        private void SetUIEventSystemActions(
-            InputAction point,
-            InputAction leftClick,
-            InputAction middleClick,
-            InputAction rightClick,
-            InputAction scrollWheel,
-            InputAction move,
-            InputAction submit,
-            InputAction cancel,
-            InputAction trackedDevicePosition,
-            InputAction trackedDeviceOrientation)
-        {
-            if (uiInputModule == null || !Input.UseContextEventSystemActions)
-            {
-                return;
-            }
-            
-            uiInputModule.point = InputActionReference.Create(point);
-            uiInputModule.leftClick = InputActionReference.Create(leftClick);
-            uiInputModule.middleClick = InputActionReference.Create(middleClick);
-            uiInputModule.rightClick = InputActionReference.Create(rightClick);
-            uiInputModule.scrollWheel = InputActionReference.Create(scrollWheel);
-            uiInputModule.move = InputActionReference.Create(move);
-            uiInputModule.submit = InputActionReference.Create(submit);
-            uiInputModule.cancel = InputActionReference.Create(cancel);
-            uiInputModule.trackedDevicePosition = InputActionReference.Create(trackedDevicePosition);
-            uiInputModule.trackedDeviceOrientation = InputActionReference.Create(trackedDeviceOrientation);
-        }
-        
+
         #endregion
     }
 }
