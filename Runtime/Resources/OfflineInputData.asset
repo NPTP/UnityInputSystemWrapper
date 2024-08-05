@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35a0587628ac97441850631647acd26b, type: 3}
+  m_Name: OfflineInputData
+  m_EditorClassIdentifier: 
+  singlePlayerOnly: 1
+  runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
+  mapActionsTemplateFile: {fileID: 11500000, guid: 345a53b2445348a4bbf90afde04f31d5, type: 3}
+  mapCacheTemplateFile: {fileID: 11500000, guid: 2c9d9ee9d57e9c447a521fdcf0b6d088, type: 3}
+  defaultContext: 0
+  inputContextInfos:
+  - name: AllInputDisabled
+    activeMaps: []
+    enableKeyboardTextInput: 0
+    eventSystemActions:
+      point: {fileID: 0}
+      middleClick: {fileID: 0}
+      rightClick: {fileID: 0}
+      scrollWheel: {fileID: 0}
+      move: {fileID: 0}
+      submit: {fileID: 0}
+      cancel: {fileID: 0}
+      trackedDevicePosition: {fileID: 0}
+      trackedDeviceOrientation: {fileID: 0}
+      leftClick: {fileID: 0}
+  - name: Player
+    activeMaps:
+    - Player
+    enableKeyboardTextInput: 0
+    eventSystemActions:
+      point: {fileID: 0}
+      middleClick: {fileID: 0}
+      rightClick: {fileID: 0}
+      scrollWheel: {fileID: 0}
+      move: {fileID: 0}
+      submit: {fileID: 0}
+      cancel: {fileID: 0}
+      trackedDevicePosition: {fileID: 0}
+      trackedDeviceOrientation: {fileID: 0}
+      leftClick: {fileID: 0}
+  - name: UI
+    activeMaps:
+    - UI
+    enableKeyboardTextInput: 1
+    eventSystemActions:
+      point: {fileID: 0}
+      middleClick: {fileID: 0}
+      rightClick: {fileID: 0}
+      scrollWheel: {fileID: 0}
+      move: {fileID: 0}
+      submit: {fileID: 0}
+      cancel: {fileID: 0}
+      trackedDevicePosition: {fileID: 0}
+      trackedDeviceOrientation: {fileID: 0}
+      leftClick: {fileID: 0}
