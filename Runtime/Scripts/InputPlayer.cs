@@ -21,6 +21,7 @@ namespace UnityInputSystemWrapper
         public event Action<ControlScheme> OnControlSchemeChanged;
         public event Action<char> OnKeyboardTextInput;
 
+        // TODO: Can't let the game code change this at will, it will break things like correct pairing. Need a solution (e.g. internal property or manual pairing)
         private bool enabled;
         public bool Enabled
         {
@@ -34,8 +35,10 @@ namespace UnityInputSystemWrapper
             
                 enabled = value;
                 playerInputGameObject.SetActive(value);
-                if (value) CurrentContext = currentContext;
-                else asset.Disable();
+                if (value)
+                    CurrentContext = currentContext;
+                else
+                    asset.Disable();
                 UpdateLastUsedDevice();
                 OnEnabledOrDisabled?.Invoke(this);
             }
