@@ -9,7 +9,7 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] In SP, event system is automatically set up for all. In MP, each player can control their own event systems.
 - [✔] A player can be removed and their device returned to the pool of available devices for other players to use.
 - [✔] In SP or MP games, when there’s only one player, they can swap to any device seamlessly.
-- [ ] Event system actions get set for each player by their own actions asset.
+- [✔] Event system actions get set for each player by their own local actions asset.
 - [ ] When a player swaps device, an event is invoked that sends the new device and the player ID. In SP games, just the device is sent, no ID.
 - [ ] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
 - [ ] Controls be rebound, with a simple button press to rebind. Device->Binding combos are written to/read from disk.

@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
+using UnityInputSystemWrapper.Data;
 using UnityInputSystemWrapper.Generated.MapActions;
 using UnityInputSystemWrapper.Generated.MapCaches;
 using Object = UnityEngine.Object;
@@ -76,9 +77,9 @@ namespace UnityInputSystemWrapper
         #region Setup
 
         // TODO: make internal
-        public InputPlayer(InputActionAsset templateAsset, PlayerID id, bool isMultiplayer, Transform parent)
+        public InputPlayer(RuntimeInputData runtimeInputData, PlayerID id, bool isMultiplayer, Transform parent)
         {
-            asset = InstantiateNewActions(templateAsset);
+            asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
             ID = id;
 
             // MARKER.MapAndActionsInstantiation.Start
@@ -89,6 +90,8 @@ namespace UnityInputSystemWrapper
             // MARKER.MapAndActionsInstantiation.End
 
             SetUpInputPlayerGameObject(isMultiplayer, parent);
+            
+            SetEventSystemActions(runtimeInputData);
 
             // TODO: Is there a better solution to keep track of the last used device than this? If so, let's implement it
             playerInput.onActionTriggered += HandleAnyActionTriggered;
@@ -137,26 +140,29 @@ namespace UnityInputSystemWrapper
             playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
-            SetEventSystemActions();
             CurrentContext = currentContext;
         }
 
-        private void SetEventSystemActions()
+        private void SetEventSystemActions(RuntimeInputData runtimeInputData)
         {
-            // TODO
-            // MARKER.EventSystemActions.Start
-            // MARKER.EventSystemActions.End
-            
-            // uiInputModule.point = runtimeInputData.Point;
-            // uiInputModule.middleClick = runtimeInputData.MiddleClick;
-            // uiInputModule.rightClick = runtimeInputData.RightClick;
-            // uiInputModule.scrollWheel = runtimeInputData.ScrollWheel;
-            // uiInputModule.move = runtimeInputData.Move;
-            // uiInputModule.submit = runtimeInputData.Submit;
-            // uiInputModule.cancel = runtimeInputData.Cancel;
-            // uiInputModule.trackedDevicePosition = runtimeInputData.TrackedDevicePosition;
-            // uiInputModule.trackedDeviceOrientation = runtimeInputData.TrackedDeviceOrientation;
-            // uiInputModule.leftClick = runtimeInputData.LeftClick;
+            uiInputModule.point = createLocalAssetReference(runtimeInputData.Point);
+            uiInputModule.middleClick = createLocalAssetReference(runtimeInputData.MiddleClick);
+            uiInputModule.rightClick = createLocalAssetReference(runtimeInputData.RightClick);
+            uiInputModule.scrollWheel = createLocalAssetReference(runtimeInputData.ScrollWheel);
+            uiInputModule.move = createLocalAssetReference(runtimeInputData.Move);
+            uiInputModule.submit = createLocalAssetReference(runtimeInputData.Submit);
+            uiInputModule.cancel = createLocalAssetReference(runtimeInputData.Cancel);
+            uiInputModule.trackedDevicePosition = createLocalAssetReference(runtimeInputData.TrackedDevicePosition);
+            uiInputModule.trackedDeviceOrientation = createLocalAssetReference(runtimeInputData.TrackedDeviceOrientation);
+            uiInputModule.leftClick = createLocalAssetReference(runtimeInputData.LeftClick);
+
+            InputActionReference createLocalAssetReference(InputActionReference reference)
+            {
+                if (reference == null || reference.action == null)
+                    return null;
+                
+                return InputActionReference.Create(asset.FindAction(reference.action.name, throwIfNotFound: false));
+            }
         }
         
         // TODO: make internal
