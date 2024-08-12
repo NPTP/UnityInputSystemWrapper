@@ -76,7 +76,7 @@ namespace UnityInputSystemWrapper
         #region Setup
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void InitializeBeforeSceneLoad()
+        private static void InitializeBeforeSceneLoad()
         {
             SetUpTerminationConditions();
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
@@ -164,8 +164,7 @@ namespace UnityInputSystemWrapper
             return true;
         }
 
-        // TODO: make internal
-        public static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+        internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
             {

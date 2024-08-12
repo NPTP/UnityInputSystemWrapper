@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace UnityInputSystemWrapper
 {
-    public class InputPlayer
+    public sealed class InputPlayer
     {
         #region Field & Properties
 
@@ -21,12 +21,11 @@ namespace UnityInputSystemWrapper
         public event Action<ControlScheme> OnControlSchemeChanged;
         public event Action<char> OnKeyboardTextInput;
 
-        // TODO: Can't let the game code change this at will, it will break things like correct pairing. Need a solution (e.g. internal property or manual pairing)
         private bool enabled;
         public bool Enabled
         {
             get => enabled;
-            set
+            internal set
             {
                 if (playerInput == null)
                 {
@@ -58,6 +57,7 @@ namespace UnityInputSystemWrapper
         public ControlScheme CurrentControlScheme { get; private set; }
         public InputDevice LastUsedDevice { get; private set; }
 
+        // TODO: Can make this internal later. It's read-only so not a big deal, but the game code just doesn't need access to it outside of debugging.
         public ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
 
         // MARKER.MapActionsProperties.Start
@@ -77,10 +77,9 @@ namespace UnityInputSystemWrapper
 
         #endregion
         
-        #region Setup
+        #region Setup & Teardown
 
-        // TODO: make internal
-        public InputPlayer(RuntimeInputData runtimeInputData, PlayerID id, bool isMultiplayer, Transform parent)
+        internal InputPlayer(RuntimeInputData runtimeInputData, PlayerID id, bool isMultiplayer, Transform parent)
         {
             asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
             ID = id;
@@ -98,6 +97,15 @@ namespace UnityInputSystemWrapper
 
             // TODO: Is there a better solution to keep track of the last used device than this? If so, let's implement it
             playerInput.onActionTriggered += HandleAnyActionTriggered;
+        }
+        
+        internal void Terminate()
+        {
+            playerInput.onActionTriggered -= HandleAnyActionTriggered;
+            asset.Disable();
+            DisableKeyboardTextInput();
+            RemoveAllMapActionCallbacks();
+            Object.Destroy(playerInputGameObject);
         }
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
@@ -167,23 +175,17 @@ namespace UnityInputSystemWrapper
                 return InputActionReference.Create(asset.FindAction(reference.action.name, throwIfNotFound: false));
             }
         }
-        
-        // TODO: make internal
-        public void Terminate()
-        {
-            playerInput.onActionTriggered -= HandleAnyActionTriggered;
-            asset.Disable();
-            DisableKeyboardTextInput();
-            RemoveAllMapActionCallbacks();
-            Object.Destroy(playerInputGameObject);
-        }
 
         #endregion
         
-        #region Public Interface
+        #region Internal Interface
         
-        // TODO: make internal
-        public void PairDevice(InputDevice device)
+        internal bool IsUser(InputUser user)
+        {
+            return playerInput != null && playerInput.user.id == user.id;
+        }
+
+        internal void PairDevice(InputDevice device)
         {
             if (playerInput == null || !playerInput.user.valid)
             {
@@ -194,7 +196,7 @@ namespace UnityInputSystemWrapper
             UpdateLastUsedDevice();
         }
         
-        public void PairDevices(InputControlList<InputDevice> unpairedDevices)
+        internal void PairDevices(InputControlList<InputDevice> unpairedDevices)
         {
             if (playerInput == null || !playerInput.user.valid)
             {
@@ -207,7 +209,7 @@ namespace UnityInputSystemWrapper
             }
         }
 
-        public void UnpairDevice(InputDevice device)
+        internal void UnpairDevice(InputDevice device)
         {
             if (playerInput == null || !playerInput.user.valid)
             {
@@ -218,7 +220,7 @@ namespace UnityInputSystemWrapper
             UpdateLastUsedDevice();
         }
 
-        public void UnpairDevices()
+        internal void UnpairDevices()
         {
             if (playerInput == null || !playerInput.user.valid)
             {
@@ -229,8 +231,7 @@ namespace UnityInputSystemWrapper
             UpdateLastUsedDevice();
         }
 
-        // TODO: make internal
-        public void EnableAutoSwitching(bool enable)
+        internal void EnableAutoSwitching(bool enable)
         {
             if (playerInput == null)
             {
@@ -239,26 +240,34 @@ namespace UnityInputSystemWrapper
 
             playerInput.neverAutoSwitchControlSchemes = !enable;
         }
-
-        // TODO: make internal
-        public bool IsUser(InputUser user) => playerInput != null && playerInput.user.id == user.id;
-
-        private void EnableKeyboardTextInput()
+        
+        internal void ProcessControlsChange(InputDevice inputDevice)
         {
-            GetKeyboards().ForEach(keyboard =>
+            if (playerInput == null || inputDevice == null)
             {
-                keyboard.onTextInput -= HandleTextInput;
-                keyboard.onTextInput += HandleTextInput;
-            });
-        }
+                return;
+            }
 
-        private void DisableKeyboardTextInput()
-        {
-            GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
-        }
+            Debug.Log($"Last used device for {ID}: {inputDevice.name}");
+            LastUsedDevice = inputDevice;
+            
+            ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(playerInput.currentControlScheme);
+            if (controlSchemeNullable == null)
+            {
+                return;
+            }
 
-        // TODO: make internal
-        public void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+            ControlScheme controlScheme = controlSchemeNullable.Value;
+            if (controlScheme == CurrentControlScheme)
+            {
+                return;
+            }
+            
+            CurrentControlScheme = controlScheme;
+            OnControlSchemeChanged?.Invoke(controlScheme);
+        }
+        
+        internal void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             InputActionMap map = asset.FindActionMap(actionReference.action.actionMap.name);
             if (map == null) return;
@@ -348,7 +357,21 @@ namespace UnityInputSystemWrapper
         {
             LastUsedDevice = context.control.device;
         }
+        
+        private void EnableKeyboardTextInput()
+        {
+            GetKeyboards().ForEach(keyboard =>
+            {
+                keyboard.onTextInput -= HandleTextInput;
+                keyboard.onTextInput += HandleTextInput;
+            });
+        }
 
+        private void DisableKeyboardTextInput()
+        {
+            GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
+        }
+        
         private void UpdateLastUsedDevice()
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
@@ -394,33 +417,7 @@ namespace UnityInputSystemWrapper
         {
             OnKeyboardTextInput?.Invoke(c);
         }
-        
-        public void ProcessControlsChange(InputDevice inputDevice)
-        {
-            if (playerInput == null || inputDevice == null)
-            {
-                return;
-            }
 
-            Debug.Log($"Last used device for {ID}: {inputDevice.name}");
-            LastUsedDevice = inputDevice;
-            
-            ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(playerInput.currentControlScheme);
-            if (controlSchemeNullable == null)
-            {
-                return;
-            }
-
-            ControlScheme controlScheme = controlSchemeNullable.Value;
-            if (controlScheme == CurrentControlScheme)
-            {
-                return;
-            }
-            
-            CurrentControlScheme = controlScheme;
-            OnControlSchemeChanged?.Invoke(controlScheme);
-        }
-        
         private static ControlScheme? ControlSchemeNameToEnum(string controlSchemeName)
         {
             return controlSchemeName switch
@@ -472,6 +469,18 @@ namespace UnityInputSystemWrapper
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);
             }
         }
+
+        #endregion
+
+        #region Editor Debugging
+
+                
+#if UNITY_EDITOR
+        public bool EDITOR_Enabled
+        {
+            set => Enabled = value;
+        }
+#endif
 
         #endregion
     }

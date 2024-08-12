@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace InputSystemWrapper.Utilities
 {
-    public static class ObjectUtility
+    internal static class ObjectUtility
     {
         public static void DestroyAllObjectsOfType<T1>()
             where T1 : Object

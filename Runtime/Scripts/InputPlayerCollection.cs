@@ -9,7 +9,7 @@ using UnityInputSystemWrapper.Data;
 
 namespace UnityInputSystemWrapper
 {
-    public class InputPlayerCollection
+    internal sealed class InputPlayerCollection
     {
         private readonly InputPlayer[] players;
         

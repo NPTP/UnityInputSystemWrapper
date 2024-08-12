@@ -2,7 +2,7 @@ using System;
 
 namespace InputSystemWrapper.Utilities.Extensions
 {
-    public static class ArrayExtensions
+    internal static class ArrayExtensions
     {
         public static void ForEach<T>(this T[] array, Action<T> action)
         {

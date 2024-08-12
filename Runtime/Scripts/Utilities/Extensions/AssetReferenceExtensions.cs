@@ -3,7 +3,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace InputSystemWrapper.Utilities.Extensions
 {
-    public static class AssetReferenceExtensions
+    internal static class AssetReferenceExtensions
     {
         public static T LoadAssetSynchronous<T>(this AssetReference assetReference)
         {
