@@ -202,31 +202,19 @@ namespace UnityInputSystemWrapper
             
             InputDevice device = inputControl.device;
             
-            // Don't re-pair the mouse or keyboard to anyone else: Player 1 should always have it. 
-            if (device is Mouse or Keyboard)
+            if (device is Mouse or Keyboard ||
+                playerCollection.IsDeviceLastUsedByAnyPlayer(device) ||
+                !playerCollection.AnyPlayerDisabled())
             {
                 return;
             }
             
-            // Ignore presses on devices that are currently being used by a player.
-            if (playerCollection.IsDeviceLastUsedByAnyPlayer(device))
-            {
-                return;
-            }
-
-            // Don't unpair and move devices around if all players are already accounted for.
-            if (!playerCollection.AnyPlayerDisabled())
-            {
-                return;
-            }
-
-            // However, allow the new player to "steal" a device that is paired to, but currently unused by, another player.
+            // Allow "stealing" a device paired to, but currently unused by, another player.
             if (playerCollection.TryGetPlayerPairedWithDevice(device, out InputPlayer pairedPlayer))
             {
                 pairedPlayer.UnpairDevice(device);
             }
 
-            // And now pair the device to the first disabled player & enable them.
             if (playerCollection.TryPairDeviceToFirstDisabledPlayer(device, out InputPlayer disabledPlayer))
             {
                 disabledPlayer.Enabled = true;
