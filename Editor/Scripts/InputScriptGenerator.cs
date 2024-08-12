@@ -25,10 +25,13 @@ namespace UnityInputSystemWrapper.Editor
             Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
             
             InputActionAsset asset = Helper.InputActionAsset;
+            
             GenerateMapActionClasses(asset);
             GenerateMapCacheClasses(asset);
+            
             ModifyExistingFile(asset, Helper.ControlSchemeFileSystemPath, ControlSchemeContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputContextFileSystemPath, InputContextContentBuilder.AddContent);
+            ModifyExistingFile(asset, Helper.PlayerIDFileSystemPath, PlayerIDContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputPlayerFileSystemPath, InputPlayerContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputManagerFileSystemPath, InputManagerContentBuilder.AddContent);
             

@@ -13,7 +13,7 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
             {
                 case "Members":
                     OfflineInputData offlineInputData = EditorAssetGetter.GetFirst<OfflineInputData>();
-                    foreach (InputContextInfo contextInfo in offlineInputData.InputContextInfos)
+                    foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
                         lines.Add($"        {contextInfo.Name},");
                     break;
             }

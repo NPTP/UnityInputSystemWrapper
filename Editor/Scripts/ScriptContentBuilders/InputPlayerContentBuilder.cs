@@ -32,7 +32,7 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                     break;
                 case "EnableContextSwitchMembers":
                     OfflineInputData inputData = Helper.OfflineInputData;
-                    foreach (InputContextInfo contextInfo in inputData.InputContextInfos)
+                    foreach (InputContextInfo contextInfo in inputData.InputContexts)
                     {
                         lines.Add($"                case {nameof(InputContext)}.{contextInfo.Name}:");
                         lines.Add($"                    {(contextInfo.EnableKeyboardTextInput ? "Enable" : "Disable")}KeyboardTextInput();");
