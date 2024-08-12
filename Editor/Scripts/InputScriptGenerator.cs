@@ -10,16 +10,12 @@ namespace UnityInputSystemWrapper.Editor
 {
     public static class InputScriptGenerator
     {
-        private const string TOOLBAR_NAME = "Input";
-        private const string REGENERATE_INPUT_CODE = TOOLBAR_NAME + "/Regenerate C# Input Manager Code";
-        
         private enum ReadState
         {
             Normal = 0,
             WaitingForMarkerEnd
         }
         
-        [MenuItem(REGENERATE_INPUT_CODE)]
         public static void GenerateMapInstances()
         {
             Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
