@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
@@ -14,9 +15,30 @@ namespace UnityInputSystemWrapper
     public class InputPlayer
     {
         #region Field & Properties
-        
+
+        public event Action<InputPlayer> OnEnabledOrDisabled;
         public event Action<ControlScheme> OnControlSchemeChanged;
         public event Action<char> OnKeyboardTextInput;
+
+        private bool enabled;
+        public bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (playerInput == null)
+                {
+                    return;
+                }
+            
+                enabled = value;
+                playerInputGameObject.SetActive(value);
+                if (value) CurrentContext = currentContext;
+                else asset.Disable();
+                UpdateLastUsedDevice();
+                OnEnabledOrDisabled?.Invoke(this);
+            }
+        }
 
         public PlayerID ID { get; }
         private InputContext currentContext;
@@ -30,6 +52,7 @@ namespace UnityInputSystemWrapper
             }
         }
         public ControlScheme CurrentControlScheme { get; private set; }
+        public InputDevice LastUsedDevice { get; private set; }
 
         public ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
 
@@ -49,8 +72,11 @@ namespace UnityInputSystemWrapper
         private InputSystemUIInputModule uiInputModule;
 
         #endregion
+        
+        #region Setup
 
-        public InputPlayer(InputActionAsset templateAsset, PlayerID id, InputDevice initialPairedDevice)
+        // TODO: make internal
+        public InputPlayer(InputActionAsset templateAsset, PlayerID id, bool isMultiplayer, Transform parent)
         {
             asset = InstantiateNewActions(templateAsset);
             ID = id;
@@ -61,6 +87,11 @@ namespace UnityInputSystemWrapper
             UI = new UIActions();
             uIMap = new UIMapCache(asset);
             // MARKER.MapAndActionsInstantiation.End
+
+            SetUpInputPlayerGameObject(isMultiplayer, parent);
+
+            // TODO: Is there a better solution to keep track of the last used device than this? If so, let's implement it
+            playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
@@ -77,23 +108,39 @@ namespace UnityInputSystemWrapper
 
             return newActions;
         }
-
-        public void SetPlayerInputAndUIInputModule(GameObject playerInputGo, InputSystemUIInputModule newUIInputModule, PlayerInput newPlayerInput)
+        
+        private void SetUpInputPlayerGameObject(bool isMultiplayer, Transform parent)
         {
-            playerInputGameObject = playerInputGo;
+            if (playerInputGameObject != null)
+            {
+                return;
+            }
             
-            uiInputModule = newUIInputModule;
+            playerInputGameObject = new GameObject
+            {
+                name = $"{ID}Input",
+                transform = { position = Vector3.zero, parent = parent}
+            };
+
+            playerInput = playerInputGameObject.AddComponent<PlayerInput>();
+            playerInput.neverAutoSwitchControlSchemes = isMultiplayer;
+                
+            if (isMultiplayer)
+                playerInputGameObject.AddComponent<MultiplayerEventSystem>();
+            else
+                playerInputGameObject.AddComponent<EventSystem>();
+                
+            uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
             uiInputModule.actionsAsset = asset;
             
-            playerInput = newPlayerInput;
             playerInput.actions = asset;
-            playerInput.uiInputModule = newUIInputModule;
+            playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
             SetEventSystemActions();
             CurrentContext = currentContext;
         }
-        
+
         private void SetEventSystemActions()
         {
             // TODO
@@ -111,21 +158,81 @@ namespace UnityInputSystemWrapper
             // uiInputModule.trackedDeviceOrientation = runtimeInputData.TrackedDeviceOrientation;
             // uiInputModule.leftClick = runtimeInputData.LeftClick;
         }
-
-        #region Public Interface
-
-        public bool IsUser(InputUser user)
-        {
-            return playerInput != null && playerInput.user == user;
-        }
-
+        
+        // TODO: make internal
         public void Terminate()
         {
+            playerInput.onActionTriggered -= HandleAnyActionTriggered;
             asset.Disable();
             DisableKeyboardTextInput();
             RemoveAllMapActionCallbacks();
             Object.Destroy(playerInputGameObject);
         }
+
+        #endregion
+        
+        #region Public Interface
+        
+        // TODO: make internal
+        public void PairDevice(InputDevice device)
+        {
+            if (playerInput == null || !playerInput.user.valid)
+            {
+                return;
+            }
+         
+            InputUser.PerformPairingWithDevice(device, playerInput.user);
+            UpdateLastUsedDevice();
+        }
+        
+        public void PairDevices(InputControlList<InputDevice> unpairedDevices)
+        {
+            if (playerInput == null || !playerInput.user.valid)
+            {
+                return;
+            }
+
+            foreach (InputDevice device in unpairedDevices)
+            {
+                InputUser.PerformPairingWithDevice(device, playerInput.user);
+            }
+        }
+
+        public void UnpairDevice(InputDevice device)
+        {
+            if (playerInput == null || !playerInput.user.valid)
+            {
+                return;
+            }
+            
+            playerInput.user.UnpairDevice(device);
+            UpdateLastUsedDevice();
+        }
+
+        public void UnpairDevices()
+        {
+            if (playerInput == null || !playerInput.user.valid)
+            {
+                return;
+            }
+            
+            playerInput.user.UnpairDevices();
+            UpdateLastUsedDevice();
+        }
+
+        // TODO: make internal
+        public void EnableAutoSwitching(bool enable)
+        {
+            if (playerInput == null)
+            {
+                return;
+            }
+
+            playerInput.neverAutoSwitchControlSchemes = !enable;
+        }
+
+        // TODO: make internal
+        public bool IsUser(InputUser user) => playerInput != null && playerInput.user.id == user.id;
 
         private void EnableKeyboardTextInput()
         {
@@ -141,6 +248,7 @@ namespace UnityInputSystemWrapper
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
 
+        // TODO: make internal
         public void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             InputActionMap map = asset.FindActionMap(actionReference.action.actionMap.name);
@@ -226,7 +334,26 @@ namespace UnityInputSystemWrapper
         #endregion
 
         #region Private Functionality
+        
+        private void HandleAnyActionTriggered(InputAction.CallbackContext context)
+        {
+            LastUsedDevice = context.control.device;
+        }
 
+        private void UpdateLastUsedDevice()
+        {
+            ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
+            if (pairedDevices.Count == 0)
+            {
+                LastUsedDevice = null;
+            }
+            else if (pairedDevices.Count == 1 ||
+                     (pairedDevices.Count > 1 && (LastUsedDevice == null || !pairedDevices.ContainsReference(LastUsedDevice))))
+            {
+                LastUsedDevice = pairedDevices[0];
+            }
+        }
+        
         private void RemoveAllMapActionCallbacks()
         {
             // MARKER.MapActionsRemoveCallbacks.Start
@@ -261,10 +388,13 @@ namespace UnityInputSystemWrapper
         
         public void ProcessControlsChange(InputDevice inputDevice)
         {
-            if (playerInput == null)
+            if (playerInput == null || inputDevice == null)
             {
                 return;
             }
+
+            Debug.Log($"Last used device for {ID}: {inputDevice.name}");
+            LastUsedDevice = inputDevice;
             
             ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(playerInput.currentControlScheme);
             if (controlSchemeNullable == null)
@@ -299,6 +429,11 @@ namespace UnityInputSystemWrapper
 
         private void EnableMapsForContext(InputContext context)
         {
+            if (!Enabled)
+            {
+                return;
+            }
+            
             switch (context)
             {
                 // MARKER.EnableContextSwitchMembers.Start

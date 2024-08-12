@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using InputSystemWrapper.Utilities;
 using InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.InputSystem.Utilities;
 using UnityInputSystemWrapper.Data;
 using UnityInputSystemWrapper.Generated.MapActions;
-using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -29,14 +31,40 @@ namespace UnityInputSystemWrapper
         // This event will invoke regardless of contexts/maps being enabled/disabled.
         public static event Action OnAnyButtonPressed;
 
-        public static bool AllowPlayerJoining { get; set; } = false;
-        
+        private static bool allowPlayerJoining;
+        public static bool AllowPlayerJoining
+        {
+            get => allowPlayerJoining;
+            set
+            {
+                if (playerCollection.Count < 2) return;
+                allowPlayerJoining = value;
+                ListenForAnyButtonPress = value;
+            }
+        }
+
+        public static bool ListenForAnyButtonPress
+        {
+            set
+            {
+                if (value && anyButtonPressListener == null)
+                {
+                    anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
+                }
+                else if (!value && anyButtonPressListener != null)
+                {
+                    anyButtonPressListener.Dispose();
+                    anyButtonPressListener = null;
+                }
+            }
+        }
+
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-        public static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
+        public static InputPlayer Player(PlayerID id) => playerCollection[id];
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start
-        private static InputContext DefaultContext => InputContext.AllInputDisabled;
+        private static InputContext DefaultContext => InputContext.Player;
         // MARKER.DefaultContextProperty.End
 
         private static InputPlayerCollection playerCollection;
@@ -55,13 +83,12 @@ namespace UnityInputSystemWrapper
             InputActionAsset asset = runtimeInputData.InputActionAsset;
             if (asset == null) throw new Exception($"{runtimeInputData.GetType().Name} is missing its input action asset!");
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
+            ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             playerCollection = new InputPlayerCollection(asset, maxPlayers);
-            
-            Object.FindObjectsOfType<PlayerInput>().DestroyAll();
-            Object.FindObjectsOfType<InputSystemUIInputModule>().DestroyAll();
-            playerCollection.SetUpSceneObjects();
             EnableContextForAllPlayers(DefaultContext);
-            AddAnyButtonPressListener();
+            
+            ++InputUser.listenForUnpairedDeviceActivity;
+            InputUser.onChange += HandleControlsChanged;
         }
 
         private static void SetUpTerminationConditions()
@@ -81,21 +108,10 @@ namespace UnityInputSystemWrapper
 
         private static void Terminate()
         {
-            --InputUser.listenForUnpairedDeviceActivity;
-            RemoveAnyButtonPressListener();
+            ListenForAnyButtonPress = false;
             playerCollection.TerminateAll();
-        }
-
-        private static void AddAnyButtonPressListener()
-        {
-            // TODO: Bug in Input System 1.3.0 where text inputs cause an exception with this listener.
-            // anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
-        }
-
-        private static void RemoveAnyButtonPressListener()
-        {
-            // TODO: Bug in Input System 1.3.0 where text inputs cause an exception with this listener.
-            // anyButtonPressListener.Dispose();
+            --InputUser.listenForUnpairedDeviceActivity;
+            InputUser.onChange -= HandleControlsChanged;
         }
 
         #endregion
@@ -148,7 +164,7 @@ namespace UnityInputSystemWrapper
             return true;
         }
 
-        // TODO: Hide certain methods in internal assembly, like this one that should only be called from InputActionReferenceWrapper
+        // TODO: make internal
         public static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
@@ -169,6 +185,53 @@ namespace UnityInputSystemWrapper
         #endregion
 
         #region Private Runtime Functionality
+        
+        private static void HandleControlsChanged(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+        {
+            playerCollection.HandleControlsChanged(inputUser, inputUserChange, inputDevice);
+        }
+
+        private static void HandleAnyButtonPressed(InputControl inputControl)
+        {
+            OnAnyButtonPressed?.Invoke();
+            
+            if (!AllowPlayerJoining)
+            {
+                return;
+            }
+            
+            InputDevice device = inputControl.device;
+            
+            // Don't re-pair the mouse or keyboard to anyone else: Player 1 should always have it. 
+            if (device is Mouse or Keyboard)
+            {
+                return;
+            }
+            
+            // Ignore presses on devices that are currently being used by a player.
+            if (playerCollection.IsDeviceLastUsedByAnyPlayer(device))
+            {
+                return;
+            }
+
+            // Don't unpair and move devices around if all players are already accounted for.
+            if (!playerCollection.AnyPlayerDisabled())
+            {
+                return;
+            }
+
+            // However, allow the new player to "steal" a device that is paired to, but currently unused by, another player.
+            if (playerCollection.TryGetPlayerPairedWithDevice(device, out InputPlayer pairedPlayer))
+            {
+                pairedPlayer.UnpairDevice(device);
+            }
+
+            // And now pair the device to the first disabled player & enable them.
+            if (playerCollection.TryPairDeviceToFirstDisabledPlayer(device, out InputPlayer disabledPlayer))
+            {
+                disabledPlayer.Enabled = true;
+            }
+        }
 
         private static ControlScheme ResolveDeviceToControlScheme(string deviceName)
         {
@@ -185,32 +248,6 @@ namespace UnityInputSystemWrapper
         {
             deviceName = inputControl.device.name;
             controlPath = inputControl.path[(2 + deviceName.Length)..];
-        }
-
-        private static void HandleAnyButtonPressed(InputControl inputControl)
-        {
-            OnAnyButtonPressed?.Invoke();
-
-            if (!AllowPlayerJoining)
-            {
-                return;
-            }
-            
-            InputDevice device = inputControl.device;
-
-            // Ignore presses on devices that are already being used by a player.
-            if (playerCollection.IsDeviceCurrentlyUsed(device))
-            {
-                Debug.Log($"Device {device.name} is currently in use");
-                return;
-            }
-            
-            CreateNewNonPrimaryPlayer(device);
-        }
-
-        private static void CreateNewNonPrimaryPlayer(InputDevice device)
-        {
-            // TODO
         }
 
         #endregion

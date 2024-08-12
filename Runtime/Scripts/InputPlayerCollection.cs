@@ -1,8 +1,8 @@
 using System;
+using System.Linq;
+using InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 
@@ -11,99 +11,148 @@ namespace UnityInputSystemWrapper
     public class InputPlayerCollection
     {
         private readonly InputPlayer[] players;
-        private Transform inputPlayersParent;
         
         public InputPlayer this[PlayerID id] => players[(int)id];
+        public int Count => players.Length;
 
         public InputPlayerCollection(InputActionAsset asset, int size)
         {
+            Transform parent = CreateInputParentInScene();
+            bool isMultiplayer = size > 1;
+            
             players = new InputPlayer[size];
             for (int i = 0; i < size; i++)
             {
                 PlayerID id = (PlayerID)i;
-                InputPlayer newPlayer = new(asset, id, null);
+                InputPlayer newPlayer = new(asset, id, isMultiplayer, parent);
                 players[i] = newPlayer;
             }
 
-            ++InputUser.listenForUnpairedDeviceActivity;
-            InputUser.onChange += HandleControlsChanged;
+            // Loop again as the enabled/disabled handler requires a stable players array.
+            for (int i = 0; i < players.Length; i++)
+            {
+                InputPlayer player = players[i];
+                player.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
+                player.Enabled = player.ID == PlayerID.Player1;
+            }
         }
 
+        private Transform CreateInputParentInScene()
+        {
+            GameObject inputParentGameObject = new() { name = "InputPlayers", transform = { position = Vector3.zero } };
+            UnityEngine.Object.DontDestroyOnLoad(inputParentGameObject);
+            Transform parent = inputParentGameObject.transform;
+            return parent;
+        }
+        
         public void TerminateAll()
         {
-            ForEach(p => p.Terminate());
-
-            --InputUser.listenForUnpairedDeviceActivity;
-            InputUser.onChange += HandleControlsChanged;
+            players.ForEach(p =>
+            {
+                p.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
+                p.Terminate();
+            });
         }
 
-        public bool IsDeviceCurrentlyUsed(InputDevice device)
+        private void HandlePlayerEnabledOrDisabled(InputPlayer enabledOrDisabledPlayer)
+        {
+            // If the player is disabled, unpair all their devices to make them available to other players.
+            if (!enabledOrDisabledPlayer.Enabled)
+            {
+                enabledOrDisabledPlayer.UnpairDevices();
+            }
+            
+            int enabledPlayersCount = players.Count(player => player.Enabled);
+            if (enabledPlayersCount > 1)
+            {
+                players.ForEach(p => p.EnableAutoSwitching(false));
+                return;
+            }
+
+            InputPlayer soleEnabledPlayer = players.FirstOrDefault(player => player.Enabled);
+            if (soleEnabledPlayer != null)
+            {
+                soleEnabledPlayer.EnableAutoSwitching(true);
+                soleEnabledPlayer.PairDevices(InputUser.GetUnpairedInputDevices());
+            }
+        }
+
+        public bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
         {
             for (int i = 0; i < players.Length; i++)
             {
-                ReadOnlyArray<InputDevice> devices = players[i].PairedDevices;
-                for (int j = 0; j < devices.Count; j++)
+                if (players[i].LastUsedDevice == device)
                 {
-                    if (device == devices[j])
-                        return true;
+                    return true;
                 }
             }
 
             return false;
         }
+        
+        public bool AnyPlayerDisabled()
+        {
+            return players.Any(player => !player.Enabled);
+        }
+        
+        public bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i].PairedDevices.ContainsReference(device))
+                {
+                    player = players[i];
+                    return true;
+                }
+            }
 
-        private void HandleControlsChanged(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+            player = null;
+            return false;
+        }
+        
+        public bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer disabledPlayer)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                InputPlayer player = players[i];
+                if (player.Enabled)
+                {
+                    continue;
+                }
+                
+                player.PairDevice(device);
+                disabledPlayer = player;
+                return true;
+            }
+
+            disabledPlayer = null;
+            return false;
+        }
+
+        public void HandleControlsChanged(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
             if (inputUserChange != InputUserChange.ControlsChanged)
             {
                 return;
             }
 
-            ForEach(p => { if (p.IsUser(inputUser)) p.ProcessControlsChange(inputDevice); });
-        }
-
-        public void EnableContextForAll(InputContext inputContext) => ForEach(p => p.CurrentContext = inputContext);
-
-        public void FindActionEventAndSubscribeAll(InputActionReference actionReference,
-            Action<InputAction.CallbackContext> callback, bool subscribe) =>
-            ForEach(p => p.FindActionEventAndSubscribe(actionReference, callback, subscribe));
-
-        private void ForEach(Action<InputPlayer> action)
-        {
-            for (int i = 0; i < players.Length; i++)
+            players.ForEach(p =>
             {
-                action?.Invoke(players[i]);
-            }
-        }
-        
-        public void SetUpSceneObjects()
-        {
-            GameObject inputParentGameObject = new() { name = "InputPlayers", transform = { position = Vector3.zero } };
-            UnityEngine.Object.DontDestroyOnLoad(inputParentGameObject);
-            inputPlayersParent = inputParentGameObject.transform;
-            
-            foreach (InputPlayer player in players)
-            {
-                GameObject playerInputGameObject = new GameObject
+                if (p.IsUser(inputUser))
                 {
-                    name = $"{player.ID}Input",
-                    transform = { position = Vector3.zero, parent = inputPlayersParent }
-                };
+                    p.ProcessControlsChange(inputDevice);
+                }
+            });
+        }
 
-                bool isMultiplayer = players.Length > 1;
-                
-                PlayerInput playerInput = playerInputGameObject.AddComponent<PlayerInput>();
-                playerInput.neverAutoSwitchControlSchemes = isMultiplayer;
-                
-                if (isMultiplayer)
-                    playerInputGameObject.AddComponent<MultiplayerEventSystem>();
-                else
-                    playerInputGameObject.AddComponent<EventSystem>();
-                
-                InputSystemUIInputModule uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
+        public void EnableContextForAll(InputContext inputContext)
+        {
+            players.ForEach(p => p.CurrentContext = inputContext);
+        }
 
-                player.SetPlayerInputAndUIInputModule(playerInputGameObject, uiInputModule, playerInput);
-            }
+        public void FindActionEventAndSubscribeAll(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+        {
+            players.ForEach(p => p.FindActionEventAndSubscribe(actionReference, callback, subscribe));
         }
     }
 }

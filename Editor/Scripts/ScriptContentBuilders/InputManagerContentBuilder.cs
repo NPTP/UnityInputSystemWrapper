@@ -14,18 +14,23 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
                     break;
                 case "SingleOrMultiPlayerFieldsAndProperties":
-                    bool enableMp = Helper.OfflineInputData.EnableMultiplayer;
+                    OfflineInputData offlineInputData = Helper.OfflineInputData;
+                    bool enableMp = offlineInputData.EnableMultiplayer;
+                    int maxPlayers = offlineInputData.MaxPlayers;
                     
-                    lines.Add($"        {(enableMp ? "public" : "private")} static {nameof(InputPlayer)} GetPlayer({nameof(PlayerID)} id) => playerCollection[id];");
+                    lines.Add($"        {(enableMp ? "public" : "private")} static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => playerCollection[id];");
                     
-                    // Skip the rest for multiplayer setups - it's just convenience access to P1's internals for SP-only games, for a cleaner API.
                     if (enableMp)
+                    {
                         break;
+                    }
                     
                     lines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     foreach (string mapName in Helper.GetMapNames(asset))
+                    {
                         lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => GetPlayer({nameof(PlayerID)}.{PlayerID.Player1}).{mapName.AsType()};");
+                    }
                     lines.Add($"        public static {nameof(InputContext)} CurrentContext => GetPlayer({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext;");
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => GetPlayer({nameof(PlayerID)}.{PlayerID.Player1}).CurrentControlScheme;");
                     lines.Add($"        public static void EnableContext({nameof(InputContext)} context) => GetPlayer({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext = context;");
