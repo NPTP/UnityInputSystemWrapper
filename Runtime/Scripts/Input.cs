@@ -4,7 +4,7 @@ using InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.InputSystem.Utilities;
+using UnityEngine.InputSystem.Users;
 using UnityInputSystemWrapper.Data;
 using UnityInputSystemWrapper.Generated.MapActions;
 using Object = UnityEngine.Object;
@@ -17,15 +17,14 @@ namespace UnityInputSystemWrapper
 {
     /// <summary>
     /// Main point of usage for all input in the game.
-    /// DO NOT CHANGE the "MARKER" lines - they assist with code auto-generation.
     /// </summary>
     public static class Input
     {
         #region Fields & Properties
         
-        // MARKER.RuntimeInputAddress.Start
+        // MARKER.RuntimeInputDataPath.Start
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
-        // MARKER.RuntimeInputAddress.End
+        // MARKER.RuntimeInputDataPath.End
         
         // This event will invoke regardless of contexts/maps being enabled/disabled.
         public static event Action OnAnyButtonPressed;
@@ -33,46 +32,43 @@ namespace UnityInputSystemWrapper
         public static bool AllowPlayerJoining { get; set; } = false;
         
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-        public static event Action<ControlScheme> OnControlSchemeChanged
-        {
-            add => primaryPlayer.OnControlSchemeChanged += value;
-            remove => primaryPlayer.OnControlSchemeChanged -= value;
-        }
-        public static event Action<char> OnKeyboardTextInput
-        {
-            add => primaryPlayer.OnKeyboardTextInput += value;
-            remove => primaryPlayer.OnKeyboardTextInput -= value;
-        }
-        public static PlayerActions Player => primaryPlayer.Player;
-        public static UIActions UI => primaryPlayer.UI;
-        public static InputContext CurrentContext => primaryPlayer.CurrentContext;
-        public static ControlScheme CurrentControlScheme => primaryPlayer.CurrentControlScheme;
-        public static void EnableContext(InputContext context) => primaryPlayer.EnableContext(context);
+        public static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start
         private static InputContext DefaultContext => InputContext.AllInputDisabled;
         // MARKER.DefaultContextProperty.End
 
-        private static InputActionAsset PrimaryInputActionAsset => runtimeInputData.InputActionAsset;
-        
         private static InputPlayerCollection playerCollection;
-        private static InputPlayer primaryPlayer;
         private static RuntimeInputData runtimeInputData;
-        private static PlayerInput primaryPlayerInput;
-        private static InputSystemUIInputModule primaryUIInputModule;
         private static IDisposable anyButtonPressListener;
-        
+
         #endregion
 
         #region Setup
-        
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InitializeBeforeSceneLoad()
+        {
+            SetUpTerminationConditions();
+            runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
+            InputActionAsset asset = runtimeInputData.InputActionAsset;
+            if (asset == null) throw new Exception($"{runtimeInputData.GetType().Name} is missing its input action asset!");
+            int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
+            playerCollection = new InputPlayerCollection(asset, maxPlayers);
+            
+            Object.FindObjectsOfType<PlayerInput>().DestroyAll();
+            Object.FindObjectsOfType<InputSystemUIInputModule>().DestroyAll();
+            playerCollection.SetUpSceneObjects();
+            EnableContextForAllPlayers(DefaultContext);
+            AddAnyButtonPressListener();
+        }
+
+        private static void SetUpTerminationConditions()
         {
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged -= handlePlayModeStateChanged;
             EditorApplication.playModeStateChanged += handlePlayModeStateChanged;
-
             void handlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
             {
                 if (playModeStateChange is PlayModeStateChange.ExitingPlayMode) Terminate();
@@ -81,77 +77,35 @@ namespace UnityInputSystemWrapper
             Application.quitting -= Terminate;
             Application.quitting += Terminate;
 #endif
-            runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
-            InputActionAsset asset = runtimeInputData.InputActionAsset;
-            if (asset == null)
-            {
-                throw new Exception($"Input manager's {nameof(runtimeInputData)} is missing an input action asset!");
-            }
-
-            playerCollection = new InputPlayerCollection();
-            primaryPlayer = playerCollection.CreateAndAddPlayer(asset);
-        }
-
-        public static void InitializeAfterSceneLoad()
-        {
-            primaryPlayerInput = Object.FindObjectOfType<PlayerInput>();
-            primaryUIInputModule = Object.FindObjectOfType<InputSystemUIInputModule>();
-
-            if (primaryPlayerInput == null || primaryUIInputModule == null)
-            {
-                GameObject inputMgmtGameObject = new GameObject("Player [0] Input Management");
-                if (primaryPlayerInput == null)
-                    primaryPlayerInput = inputMgmtGameObject.AddComponent<PlayerInput>();
-                if (primaryUIInputModule == null)
-                    primaryUIInputModule = inputMgmtGameObject.AddComponent<InputSystemUIInputModule>();
-                Object.DontDestroyOnLoad(inputMgmtGameObject);
-            }
-            
-            SetEventSystemActions(primaryUIInputModule);
-
-            primaryPlayer.PlayerInput = primaryPlayerInput;
-            primaryPlayer.UIInputModule = primaryUIInputModule;
-            primaryPlayerInput.actions = PrimaryInputActionAsset;
-            primaryPlayerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-            
-            playerCollection.EnableContextForAll(DefaultContext);
-            AddSubscriptions();
-        }
-
-        // TODO: Support setting these actions for multiple players/assets
-        private static void SetEventSystemActions(InputSystemUIInputModule uiInputModule)
-        {
-            uiInputModule.point = runtimeInputData.Point;
-            uiInputModule.middleClick = runtimeInputData.MiddleClick;
-            uiInputModule.rightClick = runtimeInputData.RightClick;
-            uiInputModule.scrollWheel = runtimeInputData.ScrollWheel;
-            uiInputModule.move = runtimeInputData.Move;
-            uiInputModule.submit = runtimeInputData.Submit;
-            uiInputModule.cancel = runtimeInputData.Cancel;
-            uiInputModule.trackedDevicePosition = runtimeInputData.TrackedDevicePosition;
-            uiInputModule.trackedDeviceOrientation = runtimeInputData.TrackedDeviceOrientation;
-            uiInputModule.leftClick = runtimeInputData.LeftClick;
         }
 
         private static void Terminate()
         {
-            RemoveSubscriptions();
+            --InputUser.listenForUnpairedDeviceActivity;
+            RemoveAnyButtonPressListener();
             playerCollection.TerminateAll();
         }
 
-        private static void AddSubscriptions()
+        private static void AddAnyButtonPressListener()
         {
-            anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
+            // TODO: Bug in Input System 1.3.0 where text inputs cause an exception with this listener.
+            // anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
         }
 
-        private static void RemoveSubscriptions()
+        private static void RemoveAnyButtonPressListener()
         {
-            anyButtonPressListener.Dispose();
+            // TODO: Bug in Input System 1.3.0 where text inputs cause an exception with this listener.
+            // anyButtonPressListener.Dispose();
         }
 
         #endregion
 
         #region Public Interface
+
+        public static void EnableContextForAllPlayers(InputContext context)
+        {
+            playerCollection.EnableContextForAll(context);
+        }
 
         public static List<BindingPathInfo> GetAllBindingPathInfos(InputAction action)
         {
@@ -194,6 +148,7 @@ namespace UnityInputSystemWrapper
             return true;
         }
 
+        // TODO: Hide certain methods in internal assembly, like this one that should only be called from InputActionReferenceWrapper
         public static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
@@ -240,12 +195,13 @@ namespace UnityInputSystemWrapper
             {
                 return;
             }
-
+            
             InputDevice device = inputControl.device;
 
-            // Ignore presses on devices that are already used by a player.
-            if (PlayerInput.FindFirstPairedToDevice(device) != null)
+            // Ignore presses on devices that are already being used by a player.
+            if (playerCollection.IsDeviceCurrentlyUsed(device))
             {
+                Debug.Log($"Device {device.name} is currently in use");
                 return;
             }
             
@@ -254,22 +210,7 @@ namespace UnityInputSystemWrapper
 
         private static void CreateNewNonPrimaryPlayer(InputDevice device)
         {
-            // Note that 'PlayerInput.Instantiate' creates a new copy of the input actions asset for the new player.
-            PlayerInput playerInput = PlayerInput.Instantiate(primaryPlayerInput.gameObject, pairWithDevice: device);
-            
-            // (If the player did not end up with a valid input setup, it will return null)
-            if (playerInput == null)
-            {
-                return;
-            }
-            
-            InputPlayer newPlayer = playerCollection.CreateAndAddPlayer(playerInput.actions);
-            GameObject playerInputGameObject = playerInput.gameObject;
-            playerInputGameObject.name = $"Player [{newPlayer.ID}] Input Management";
-            newPlayer.PlayerInput = playerInput;
-            newPlayer.UIInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-            Object.DontDestroyOnLoad(playerInputGameObject);
+            // TODO
         }
 
         #endregion

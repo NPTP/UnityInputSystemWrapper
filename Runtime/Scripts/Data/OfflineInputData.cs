@@ -1,4 +1,7 @@
+using System;
+using InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UnityInputSystemWrapper.Data
 {
@@ -9,9 +12,13 @@ namespace UnityInputSystemWrapper.Data
     {
 #if UNITY_EDITOR
         public const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
+        public const int MAX_PLAYERS_LIMIT = 4;
+        
+        [SerializeField] private bool enableMultiplayer;
+        public bool EnableMultiplayer => enableMultiplayer;
 
-        [SerializeField] private bool singlePlayerOnly = true;
-        public bool SinglePlayerOnly => singlePlayerOnly;
+        [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
+        public int MaxPlayers => maxPlayers;
 
         [SerializeField] private RuntimeInputData runtimeInputData;
         public RuntimeInputData RuntimeInputData => runtimeInputData;
@@ -25,8 +32,16 @@ namespace UnityInputSystemWrapper.Data
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;
         
-        [SerializeField] private InputContextInfo[] inputContextInfos;
-        public InputContextInfo[] InputContextInfos => inputContextInfos;
+        [FormerlySerializedAs("inputContextInfos")] [SerializeField] private InputContextInfo[] inputContexts;
+        public InputContextInfo[] InputContexts => inputContexts;
+
+        private void OnValidate()
+        {
+            foreach (InputContextInfo inputContextInfo in inputContexts)
+            {
+                inputContextInfo.EDITOR_SetName(inputContextInfo.Name.AlphaNumericCharactersOnly().AllWhitespaceTrimmed());
+            }
+        }
 #endif
     }
 }

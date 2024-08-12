@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35a0587628ac97441850631647acd26b, type: 3}
   m_Name: OfflineInputData
   m_EditorClassIdentifier: 
-  singlePlayerOnly: 1
+  enableMultiplayer: 1
+  maxPlayers: 3
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
   mapActionsTemplateFile: {fileID: 11500000, guid: 345a53b2445348a4bbf90afde04f31d5, type: 3}
   mapCacheTemplateFile: {fileID: 11500000, guid: 2c9d9ee9d57e9c447a521fdcf0b6d088, type: 3}
   defaultContext: 0
-  inputContextInfos:
+  inputContexts:
   - name: AllInputDisabled
     activeMaps: []
     enableKeyboardTextInput: 0

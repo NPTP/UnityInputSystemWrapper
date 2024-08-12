@@ -12,7 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7040b43e86090f64ab12b4354d024341, type: 3}
   m_Name: RuntimeInputData
   m_EditorClassIdentifier: 
-  inputActionAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  useContextEventSystemActions: 0
+  inputActionAsset: {fileID: -944628639613478452, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
   bindingDataReferences:
     keyValueCombos: []
+  point: {fileID: 0}
+  middleClick: {fileID: 0}
+  rightClick: {fileID: 0}
+  scrollWheel: {fileID: 0}
+  move: {fileID: 0}
+  submit: {fileID: 0}
+  cancel: {fileID: 0}
+  trackedDevicePosition: {fileID: 0}
+  trackedDeviceOrientation: {fileID: 0}
+  leftClick: {fileID: 0}

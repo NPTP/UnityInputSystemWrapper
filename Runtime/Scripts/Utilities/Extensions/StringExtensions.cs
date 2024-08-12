@@ -34,11 +34,5 @@ namespace InputSystemWrapper.Utilities.Extensions
         {
             return Regex.Replace(s, "[^a-zA-Z0-9]", string.Empty);
         }
-        
-        // TODO: Delete if unused
-        public static string LeadingWhitespace(this string s)
-        {
-            return s == string.Empty ? string.Empty : s.Replace(s.TrimStart(), string.Empty);
-        }
     }
 }

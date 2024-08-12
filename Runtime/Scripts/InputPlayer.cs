@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.InputSystem.Users;
+using UnityEngine.InputSystem.Utilities;
 using UnityInputSystemWrapper.Generated.MapActions;
 using UnityInputSystemWrapper.Generated.MapCaches;
 using Object = UnityEngine.Object;
@@ -15,28 +18,21 @@ namespace UnityInputSystemWrapper
         public event Action<ControlScheme> OnControlSchemeChanged;
         public event Action<char> OnKeyboardTextInput;
 
-        public int ID { get; }
-        public InputContext CurrentContext { get; private set; }
+        public PlayerID ID { get; }
+        private InputContext currentContext;
+        public InputContext CurrentContext
+        {
+            get => currentContext;
+            set
+            {
+                currentContext = value;
+                EnableMapsForContext(value);
+            }
+        }
         public ControlScheme CurrentControlScheme { get; private set; }
-        public PlayerInput PlayerInput
-        {
-            set
-            {
-                if (playerInput == value) return;
-                if (playerInput != null) playerInput.onControlsChanged -= HandleControlsChanged;
-                playerInput = value;
-                if (playerInput != null) playerInput.onControlsChanged += HandleControlsChanged;
-            }
-        }
-        public InputSystemUIInputModule UIInputModule
-        {
-            set
-            {
-                uiInputModule = value;
-                if (playerInput != null) playerInput.uiInputModule = value;
-            }
-        }
-        
+
+        public ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
+
         // MARKER.MapActionsProperties.Start
         public PlayerActions Player { get; }
         public UIActions UI { get; }
@@ -46,16 +42,17 @@ namespace UnityInputSystemWrapper
         private readonly PlayerMapCache playerMap;
         private readonly UIMapCache uIMap;
         // MARKER.MapCacheFields.End
-        
+
         private readonly InputActionAsset asset;
+        private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
-        
+
         #endregion
 
-        public InputPlayer(InputActionAsset asset, int id)
+        public InputPlayer(InputActionAsset templateAsset, PlayerID id, InputDevice initialPairedDevice)
         {
-            this.asset = asset;
+            asset = InstantiateNewActions(templateAsset);
             ID = id;
 
             // MARKER.MapAndActionsInstantiation.Start
@@ -66,15 +63,68 @@ namespace UnityInputSystemWrapper
             // MARKER.MapAndActionsInstantiation.End
         }
 
-        #region Public Interface
+        private InputActionAsset InstantiateNewActions(InputActionAsset actions)
+        {
+            InputActionAsset oldActions = actions;
+            InputActionAsset newActions = Object.Instantiate(actions);
+            for (int actionMap = 0; actionMap < oldActions.actionMaps.Count; actionMap++)
+            {
+                for (int binding = 0; binding < oldActions.actionMaps[actionMap].bindings.Count; binding++)
+                {
+                    newActions.actionMaps[actionMap].ApplyBindingOverride(binding, oldActions.actionMaps[actionMap].bindings[binding]);
+                }
+            }
+
+            return newActions;
+        }
+
+        public void SetPlayerInputAndUIInputModule(GameObject playerInputGo, InputSystemUIInputModule newUIInputModule, PlayerInput newPlayerInput)
+        {
+            playerInputGameObject = playerInputGo;
+            
+            uiInputModule = newUIInputModule;
+            uiInputModule.actionsAsset = asset;
+            
+            playerInput = newPlayerInput;
+            playerInput.actions = asset;
+            playerInput.uiInputModule = newUIInputModule;
+            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+            
+            SetEventSystemActions();
+            CurrentContext = currentContext;
+        }
         
+        private void SetEventSystemActions()
+        {
+            // TODO
+            // MARKER.EventSystemActions.Start
+            // MARKER.EventSystemActions.End
+            
+            // uiInputModule.point = runtimeInputData.Point;
+            // uiInputModule.middleClick = runtimeInputData.MiddleClick;
+            // uiInputModule.rightClick = runtimeInputData.RightClick;
+            // uiInputModule.scrollWheel = runtimeInputData.ScrollWheel;
+            // uiInputModule.move = runtimeInputData.Move;
+            // uiInputModule.submit = runtimeInputData.Submit;
+            // uiInputModule.cancel = runtimeInputData.Cancel;
+            // uiInputModule.trackedDevicePosition = runtimeInputData.TrackedDevicePosition;
+            // uiInputModule.trackedDeviceOrientation = runtimeInputData.TrackedDeviceOrientation;
+            // uiInputModule.leftClick = runtimeInputData.LeftClick;
+        }
+
+        #region Public Interface
+
+        public bool IsUser(InputUser user)
+        {
+            return playerInput != null && playerInput.user == user;
+        }
+
         public void Terminate()
         {
             asset.Disable();
             DisableKeyboardTextInput();
             RemoveAllMapActionCallbacks();
-            Object.Destroy(playerInput);
-            Object.Destroy(uiInputModule);
+            Object.Destroy(playerInputGameObject);
         }
 
         private void EnableKeyboardTextInput()
@@ -90,13 +140,7 @@ namespace UnityInputSystemWrapper
         {
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
-        
-        public void EnableContext(InputContext context)
-        {
-            CurrentContext = context;
-            EnableMapsForContext(context);
-        }
-        
+
         public void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             InputActionMap map = asset.FindActionMap(actionReference.action.actionMap.name);
@@ -194,6 +238,11 @@ namespace UnityInputSystemWrapper
         private List<Keyboard> GetKeyboards()
         {
             List<Keyboard> keyboards = new();
+            if (playerInput == null)
+            {
+                return keyboards;
+            }
+            
             foreach (InputDevice inputDevice in playerInput.devices)
             {
                 if (inputDevice is Keyboard keyboard)
@@ -209,10 +258,15 @@ namespace UnityInputSystemWrapper
         {
             OnKeyboardTextInput?.Invoke(c);
         }
-
-        private void HandleControlsChanged(PlayerInput pi)
+        
+        public void ProcessControlsChange(InputDevice inputDevice)
         {
-            ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(pi.currentControlScheme);
+            if (playerInput == null)
+            {
+                return;
+            }
+            
+            ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(playerInput.currentControlScheme);
             if (controlSchemeNullable == null)
             {
                 return;
