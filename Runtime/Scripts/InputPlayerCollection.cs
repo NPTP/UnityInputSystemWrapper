@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
-using UnityInputSystemWrapper.Data;
 
 namespace UnityInputSystemWrapper
 {
@@ -16,7 +15,7 @@ namespace UnityInputSystemWrapper
         public InputPlayer this[PlayerID id] => players[(int)id];
         public int Count => players.Length;
 
-        public InputPlayerCollection(RuntimeInputData runtimeInputData, int size)
+        public InputPlayerCollection(InputActionAsset asset, int size)
         {
             Transform parent = CreateInputParentInScene();
             bool isMultiplayer = size > 1;
@@ -25,7 +24,7 @@ namespace UnityInputSystemWrapper
             for (int i = 0; i < size; i++)
             {
                 PlayerID id = (PlayerID)i;
-                InputPlayer newPlayer = new(runtimeInputData, id, isMultiplayer, parent);
+                InputPlayer newPlayer = new(asset, id, isMultiplayer, parent);
                 players[i] = newPlayer;
             }
 

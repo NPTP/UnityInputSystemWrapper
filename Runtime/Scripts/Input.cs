@@ -79,12 +79,17 @@ namespace UnityInputSystemWrapper
         private static void InitializeBeforeSceneLoad()
         {
             SetUpTerminationConditions();
+            
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
             InputActionAsset asset = runtimeInputData.InputActionAsset;
-            if (asset == null) throw new Exception($"{runtimeInputData.GetType().Name} is missing its input action asset!");
+            if (asset == null)
+            {
+                throw new Exception($"{runtimeInputData.GetType().Name} is missing its input action asset!");
+            }
+            
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
-            playerCollection = new InputPlayerCollection(runtimeInputData, maxPlayers);
+            playerCollection = new InputPlayerCollection(asset, maxPlayers);
             EnableContextForAllPlayers(DefaultContext);
             
             ++InputUser.listenForUnpairedDeviceActivity;

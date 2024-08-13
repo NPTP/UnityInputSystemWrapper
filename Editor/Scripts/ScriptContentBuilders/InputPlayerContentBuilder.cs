@@ -26,6 +26,28 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                         lines.Add($"            {map.AsField()}Map = new {map.AsType()}MapCache(asset);");
                     }
                     break;
+                case "EventSystemActions":
+                    OfflineInputData offlineInputData = Helper.OfflineInputData;
+                    addActionReference(offlineInputData.Point, nameof(offlineInputData.Point).AsField());
+                    addActionReference(offlineInputData.MiddleClick, nameof(offlineInputData.MiddleClick).AsField());
+                    addActionReference(offlineInputData.RightClick, nameof(offlineInputData.RightClick).AsField());
+                    addActionReference(offlineInputData.ScrollWheel, nameof(offlineInputData.ScrollWheel).AsField());
+                    addActionReference(offlineInputData.Move, nameof(offlineInputData.Move).AsField());
+                    addActionReference(offlineInputData.Submit, nameof(offlineInputData.Submit).AsField());
+                    addActionReference(offlineInputData.Cancel, nameof(offlineInputData.Cancel).AsField());
+                    addActionReference(offlineInputData.TrackedDevicePosition, nameof(offlineInputData.TrackedDevicePosition).AsField());
+                    addActionReference(offlineInputData.TrackedDeviceOrientation, nameof(offlineInputData.TrackedDeviceOrientation).AsField());
+                    addActionReference(offlineInputData.LeftClick, nameof(offlineInputData.LeftClick).AsField());
+                    
+                    void addActionReference(InputActionReference inputActionReference, string inputModulePropertyName)
+                    {
+                        if (inputActionReference == null)
+                            return;
+                        
+                        lines.Add($"            uiInputModule.{inputModulePropertyName} = createLocalAssetReference(\"{inputActionReference.action.id}\");");
+                    }
+                    
+                    break;
                 case "MapActionsRemoveCallbacks":
                     foreach (string map in Helper.GetMapNames(asset))
                         lines.Add($"            {map.AsField()}Map.RemoveCallbacks({map.AsType()});");

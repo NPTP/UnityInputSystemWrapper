@@ -15,6 +15,17 @@ namespace UnityInputSystemWrapper.Editor.CustomEditors
         private SerializedProperty mapCacheTemplateFile;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
+        
+        private SerializedProperty point;
+        private SerializedProperty middleClick;
+        private SerializedProperty rightClick;
+        private SerializedProperty scrollWheel;
+        private SerializedProperty move;
+        private SerializedProperty submit;
+        private SerializedProperty cancel;
+        private SerializedProperty trackedDevicePosition;
+        private SerializedProperty trackedDeviceOrientation;
+        private SerializedProperty leftClick;
 
         private void OnEnable()
         {
@@ -25,6 +36,17 @@ namespace UnityInputSystemWrapper.Editor.CustomEditors
             mapCacheTemplateFile = serializedObject.FindProperty(nameof(mapCacheTemplateFile));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
+            
+            point = serializedObject.FindProperty(nameof(point));
+            middleClick = serializedObject.FindProperty(nameof(middleClick));
+            rightClick = serializedObject.FindProperty(nameof(rightClick));
+            scrollWheel = serializedObject.FindProperty(nameof(scrollWheel));
+            move = serializedObject.FindProperty(nameof(move));
+            submit = serializedObject.FindProperty(nameof(submit));
+            cancel = serializedObject.FindProperty(nameof(cancel));
+            trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
+            trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
+            leftClick = serializedObject.FindProperty(nameof(leftClick));
         }
 
         public override void OnInspectorGUI()
@@ -44,8 +66,23 @@ namespace UnityInputSystemWrapper.Editor.CustomEditors
             
             EditorInspectorUtility.DrawHorizontalLine();
 
+            EditorGUILayout.Space();
             EditorGUILayout.PropertyField(defaultContext);
+            EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
+            
+            EditorInspectorUtility.DrawHorizontalLine();
+            
+            EditorGUILayout.PropertyField(point);
+            EditorGUILayout.PropertyField(middleClick);
+            EditorGUILayout.PropertyField(rightClick);
+            EditorGUILayout.PropertyField(scrollWheel);
+            EditorGUILayout.PropertyField(move);
+            EditorGUILayout.PropertyField(submit);
+            EditorGUILayout.PropertyField(cancel);
+            EditorGUILayout.PropertyField(trackedDevicePosition);
+            EditorGUILayout.PropertyField(trackedDeviceOrientation);
+            EditorGUILayout.PropertyField(leftClick);
 
             serializedObject.ApplyModifiedProperties();
         }
