@@ -198,19 +198,6 @@ namespace UnityInputSystemWrapper
             InputUser.PerformPairingWithDevice(device, playerInput.user);
             UpdateLastUsedDevice();
         }
-        
-        internal void PairDevices(InputControlList<InputDevice> unpairedDevices)
-        {
-            if (playerInput == null || !playerInput.user.valid)
-            {
-                return;
-            }
-
-            foreach (InputDevice device in unpairedDevices)
-            {
-                InputUser.PerformPairingWithDevice(device, playerInput.user);
-            }
-        }
 
         internal void UnpairDevice(InputDevice device)
         {

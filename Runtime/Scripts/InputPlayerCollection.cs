@@ -73,7 +73,6 @@ namespace UnityInputSystemWrapper
             if (soleEnabledPlayer != null)
             {
                 soleEnabledPlayer.EnableAutoSwitching(true);
-                soleEnabledPlayer.PairDevices(InputUser.GetUnpairedInputDevices());
             }
         }
 
