@@ -28,6 +28,7 @@ namespace UnityInputSystemWrapper.Editor
         public static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
         public static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
         public static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
+        public static string DeviceControlInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<DeviceControlInfo>();
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths

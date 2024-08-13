@@ -15,6 +15,6 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] A "join mode" can be enabled where any button press on a currently unused device causes that device to be assigned to a new player.
 - [✔] Remove Addressables dependencies
 - [✔] Remove Unity Localization dependencies (for now)
-- [ ] When a player swaps device, an event is invoked that sends the new device and the player ID. In SP games, just the device is sent, no ID. (This can be used for updating UI elements)
+- [✔] When a player swaps device, an event is invoked that sends the new device or control scheme and the player ID. In SP games, just the device is sent, no ID. (This can be used for updating UI elements)
 - [ ] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
 - [ ] Controls be rebound, with a simple button press to rebind. Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).

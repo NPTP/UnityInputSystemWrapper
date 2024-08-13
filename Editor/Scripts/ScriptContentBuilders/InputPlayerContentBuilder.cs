@@ -11,6 +11,16 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
         {
             switch (markerName)
             {
+                case "ControlSchemeEventDefinition":
+                    lines.Add(Helper.OfflineInputData.EnableMultiplayer
+                        ? $"        public event Action<{nameof(InputPlayer)}> OnControlSchemeChanged;"
+                        : $"        public event Action<{nameof(ControlScheme)}> OnControlSchemeChanged;");
+                    break;
+                case "ControlSchemeEventInvocation":
+                    lines.Add(Helper.OfflineInputData.EnableMultiplayer
+                    ? "                    OnControlSchemeChanged?.Invoke(this);"
+                    : "                    OnControlSchemeChanged?.Invoke(controlScheme);");
+                    break;
                 case "MapActionsProperties":
                     foreach (string mapName in Helper.GetMapNames(asset))
                         lines.Add($"        public {mapName.AsType()}Actions {mapName.AsType()}" + " { get; }");
@@ -27,17 +37,17 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     break;
                 case "EventSystemActions":
-                    OfflineInputData offlineInputData = Helper.OfflineInputData;
-                    addActionReference(offlineInputData.Point, nameof(offlineInputData.Point).AsField());
-                    addActionReference(offlineInputData.MiddleClick, nameof(offlineInputData.MiddleClick).AsField());
-                    addActionReference(offlineInputData.RightClick, nameof(offlineInputData.RightClick).AsField());
-                    addActionReference(offlineInputData.ScrollWheel, nameof(offlineInputData.ScrollWheel).AsField());
-                    addActionReference(offlineInputData.Move, nameof(offlineInputData.Move).AsField());
-                    addActionReference(offlineInputData.Submit, nameof(offlineInputData.Submit).AsField());
-                    addActionReference(offlineInputData.Cancel, nameof(offlineInputData.Cancel).AsField());
-                    addActionReference(offlineInputData.TrackedDevicePosition, nameof(offlineInputData.TrackedDevicePosition).AsField());
-                    addActionReference(offlineInputData.TrackedDeviceOrientation, nameof(offlineInputData.TrackedDeviceOrientation).AsField());
-                    addActionReference(offlineInputData.LeftClick, nameof(offlineInputData.LeftClick).AsField());
+                    OfflineInputData oid = Helper.OfflineInputData;
+                    addActionReference(oid.Point, nameof(oid.Point).AsField());
+                    addActionReference(oid.MiddleClick, nameof(oid.MiddleClick).AsField());
+                    addActionReference(oid.RightClick, nameof(oid.RightClick).AsField());
+                    addActionReference(oid.ScrollWheel, nameof(oid.ScrollWheel).AsField());
+                    addActionReference(oid.Move, nameof(oid.Move).AsField());
+                    addActionReference(oid.Submit, nameof(oid.Submit).AsField());
+                    addActionReference(oid.Cancel, nameof(oid.Cancel).AsField());
+                    addActionReference(oid.TrackedDevicePosition, nameof(oid.TrackedDevicePosition).AsField());
+                    addActionReference(oid.TrackedDeviceOrientation, nameof(oid.TrackedDeviceOrientation).AsField());
+                    addActionReference(oid.LeftClick, nameof(oid.LeftClick).AsField());
                     
                     void addActionReference(InputActionReference inputActionReference, string inputModulePropertyName)
                     {

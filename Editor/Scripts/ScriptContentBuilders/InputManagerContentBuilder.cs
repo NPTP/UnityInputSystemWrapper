@@ -41,7 +41,7 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
                     lines.Add($"        private static {nameof(InputPlayer)} {PrivatePlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
                     
-                    lines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));
+                    lines.Add(getSinglePlayerEventWrapperString(nameof(DeviceControlInfo), "OnDeviceControlChanged"));
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     foreach (string mapName in Helper.GetMapNames(asset))
                     {

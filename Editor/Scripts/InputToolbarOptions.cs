@@ -13,7 +13,7 @@ namespace UnityInputSystemWrapper.Editor
         [MenuItem(REGENERATE_INPUT_CODE)]
         private static void RegenerateInputCode()
         {
-            InputScriptGenerator.GenerateMapInstances();
+            InputScriptGenerator.GenerateInputScriptCode();
         }
 
         [MenuItem(OFFLINE_INPUT_DATA)]

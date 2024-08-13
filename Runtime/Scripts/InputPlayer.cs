@@ -16,8 +16,8 @@ namespace UnityInputSystemWrapper
     {
         #region Field & Properties
 
+        public event Action<DeviceControlInfo> OnDeviceControlChanged;
         public event Action<InputPlayer> OnEnabledOrDisabled;
-        public event Action<ControlScheme> OnControlSchemeChanged;
         public event Action<char> OnKeyboardTextInput;
 
         private bool enabled;
@@ -240,17 +240,20 @@ namespace UnityInputSystemWrapper
             
             switch (inputUserChange)
             {
+                case InputUserChange.DevicePaired:
+                    goto deviceChange;
+                case InputUserChange.DeviceUnpaired:
+                    goto deviceChange;
                 case InputUserChange.ControlSchemeChanged:
-                    LastUsedDevice = inputDevice;
-                    ControlScheme controlScheme = ControlSchemeNameToEnum(playerInput.currentControlScheme);
-                    if (controlScheme == CurrentControlScheme)
-                    {
-                        return;
-                    }
-                    OnControlSchemeChanged?.Invoke(controlScheme);
-                    break;
+                    CurrentControlScheme = ControlSchemeNameToEnum(playerInput.currentControlScheme);
+                    goto deviceChange;
                 case InputUserChange.ControlsChanged:
-                    // TODO?
+                    // TODO: Hits this case when the user bindings have changed (among other things). Might need for UI updates
+                    break;
+                
+                deviceChange:
+                    UpdateLastUsedDevice(inputDevice);
+                    OnDeviceControlChanged?.Invoke(new DeviceControlInfo(this));
                     break;
             }
         }
@@ -261,6 +264,11 @@ namespace UnityInputSystemWrapper
             if (map == null) return;
             InputAction action = map.FindAction(actionReference.action.name);
             if (action == null) return;
+            
+            // The auto-generated code below ensures that the action used is from the correct asset AND behaves
+            // identically to all direct action subscriptions in this wrapper system (where double subs are
+            // prevented, subs to actions can be made at any time regardless of map/action/player state, and the
+            // event signatures look the same as the ones subscribed to manually).
 
             // MARKER.ChangeSubscriptionIfStatements.Start
             if (playerMap.ActionMap == map)
@@ -360,7 +368,9 @@ namespace UnityInputSystemWrapper
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
         
-        private void UpdateLastUsedDevice()
+        // TODO: Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places.
+        // Enabling/disabling PlayerInput, pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
+        private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
             if (pairedDevices.Count == 0)
@@ -371,6 +381,10 @@ namespace UnityInputSystemWrapper
                      (pairedDevices.Count > 1 && (LastUsedDevice == null || !pairedDevices.ContainsReference(LastUsedDevice))))
             {
                 LastUsedDevice = pairedDevices[0];
+            }
+            else if (fallbackDevice != null)
+            {
+                LastUsedDevice = fallbackDevice;
             }
         }
         
@@ -408,7 +422,9 @@ namespace UnityInputSystemWrapper
 
         private static ControlScheme ControlSchemeNameToEnum(string controlSchemeName)
         {
+#pragma warning disable CS8509
             return controlSchemeName switch
+#pragma warning restore CS8509
             {
                 // MARKER.ControlSchemeSwitch.Start
                 "Keyboard&Mouse" => ControlScheme.KeyboardMouse,

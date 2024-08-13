@@ -16,7 +16,7 @@ namespace UnityInputSystemWrapper.Editor
             WaitingForMarkerEnd
         }
         
-        public static void GenerateMapInstances()
+        public static void GenerateInputScriptCode()
         {
             Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
             
@@ -30,6 +30,7 @@ namespace UnityInputSystemWrapper.Editor
             ModifyExistingFile(asset, Helper.PlayerIDFileSystemPath, PlayerIDContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputPlayerFileSystemPath, InputPlayerContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputManagerFileSystemPath, InputManagerContentBuilder.AddContent);
+            ModifyExistingFile(asset, Helper.DeviceControlInfoFileSystemPath, DeviceControlInfoContentBuilder.AddContent);
             
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }

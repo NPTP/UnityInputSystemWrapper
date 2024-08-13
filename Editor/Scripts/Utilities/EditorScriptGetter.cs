@@ -19,7 +19,7 @@ namespace InputSystemWrapper.Utilities.Editor
 
         private static string GetSystemPath(Type type, PathType pathType)
         {
-            bool isEnum = type.IsEnum;
+            bool typeIsEnum = type.IsEnum;
             
             string[] guids = AssetDatabase.FindAssets($"t:Script");
             foreach (string guid in guids)
@@ -32,8 +32,10 @@ namespace InputSystemWrapper.Utilities.Editor
                     continue;
                 }
 
-                if ((isEnum && scriptAsset.text.Contains($"enum {type.Name}")) ||
-                    scriptAsset.GetClass() == type || type.IsAssignableFrom(scriptAsset.GetClass()))
+                if (typeIsEnum && scriptAsset.text.Contains($"enum {type.Name}") ||
+                    scriptAsset.GetClass() == type ||
+                    type.IsAssignableFrom(scriptAsset.GetClass()) ||
+                    scriptAsset.text.Contains($"record {type.Name}"))
                 {
                     string path = Application.dataPath + assetPath.Replace("Assets", string.Empty);
                     if (pathType is PathType.Folder)

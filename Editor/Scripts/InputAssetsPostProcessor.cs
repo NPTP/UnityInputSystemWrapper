@@ -19,7 +19,7 @@ namespace UnityInputSystemWrapper.Editor
             if (importedAssets.Any(importedAsset => importedAsset.EndsWith($"{offlineInputData.RuntimeInputData.InputActionAsset.name}.inputactions") ||
                                                     importedAsset.EndsWith($"{offlineInputData.name}.asset")))
             {
-                InputScriptGenerator.GenerateMapInstances();
+                InputScriptGenerator.GenerateInputScriptCode();
             }
         }
     }
