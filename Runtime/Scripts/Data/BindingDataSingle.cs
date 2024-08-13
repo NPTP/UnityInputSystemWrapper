@@ -1,4 +1,3 @@
-using InputSystemWrapper.Utilities;
 using InputSystemWrapper.Utilities.Collections;
 using UnityEngine;
 

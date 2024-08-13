@@ -129,20 +129,17 @@ namespace UnityInputSystemWrapper
             return false;
         }
 
-        public void HandleControlsChanged(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+        public void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
-            if (inputUserChange != InputUserChange.ControlsChanged)
+            for (int i = 0; i < players.Length; i++)
             {
-                return;
-            }
-
-            players.ForEach(p =>
-            {
-                if (p.IsUser(inputUser))
+                InputPlayer player = players[i];
+                if (player.IsUser(inputUser))
                 {
-                    p.ProcessControlsChange(inputDevice);
+                    player.HandleInputUserChange(inputUserChange, inputDevice);
+                    break;
                 }
-            });
+            }
         }
 
         public void EnableContextForAll(InputContext inputContext)

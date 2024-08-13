@@ -12,7 +12,7 @@ namespace UnityInputSystemWrapper.Data
         [SerializeField] private InputActionAsset inputActionAsset;
         public InputActionAsset InputActionAsset => inputActionAsset;
 
-        [SerializeField] private SerializableDictionary<ControlScheme, BindingDataAssetReference> bindingDataReferences;
-        public SerializableDictionary<ControlScheme, BindingDataAssetReference> BindingDataReferences => bindingDataReferences;
+        [SerializeField] private SerializableDictionary<ControlScheme, BindingDataReference> bindingDataReferences;
+        public SerializableDictionary<ControlScheme, BindingDataReference> BindingDataReferences => bindingDataReferences;
     }
 }

@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
-using UnityInputSystemWrapper.Data;
 using UnityInputSystemWrapper.Generated.MapActions;
 using UnityInputSystemWrapper.Generated.MapCaches;
 using Object = UnityEngine.Object;
@@ -54,7 +53,9 @@ namespace UnityInputSystemWrapper
                 EnableMapsForContext(value);
             }
         }
+
         public ControlScheme CurrentControlScheme { get; private set; }
+
         public InputDevice LastUsedDevice { get; private set; }
 
         // TODO: Can make this internal later. It's read-only so not a big deal, but the game code just doesn't need access to it outside of debugging.
@@ -74,6 +75,7 @@ namespace UnityInputSystemWrapper
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
+        private ControlScheme previousControlScheme;
 
         #endregion
         
@@ -169,11 +171,11 @@ namespace UnityInputSystemWrapper
             uiInputModule.leftClick = createLocalAssetReference("3c7022bf-7922-4f7c-a998-c437916075ad");
             // MARKER.EventSystemActions.End
 
-            InputActionReference createLocalAssetReference(string actionName)
+            InputActionReference createLocalAssetReference(string actionID)
             {
-                return string.IsNullOrEmpty(actionName)
+                return string.IsNullOrEmpty(actionID)
                     ? null
-                    : InputActionReference.Create(asset.FindAction(actionName, throwIfNotFound: false));
+                    : InputActionReference.Create(asset.FindAction(actionID, throwIfNotFound: false));
             }
         }
 
@@ -242,30 +244,28 @@ namespace UnityInputSystemWrapper
             playerInput.neverAutoSwitchControlSchemes = !enable;
         }
         
-        internal void ProcessControlsChange(InputDevice inputDevice)
+        internal void HandleInputUserChange(InputUserChange inputUserChange, InputDevice inputDevice)
         {
-            if (playerInput == null || inputDevice == null)
-            {
-                return;
-            }
-
-            Debug.Log($"Last used device for {ID}: {inputDevice.name}");
-            LastUsedDevice = inputDevice;
-            
-            ControlScheme? controlSchemeNullable = ControlSchemeNameToEnum(playerInput.currentControlScheme);
-            if (controlSchemeNullable == null)
-            {
-                return;
-            }
-
-            ControlScheme controlScheme = controlSchemeNullable.Value;
-            if (controlScheme == CurrentControlScheme)
+            if (playerInput == null)
             {
                 return;
             }
             
-            CurrentControlScheme = controlScheme;
-            OnControlSchemeChanged?.Invoke(controlScheme);
+            switch (inputUserChange)
+            {
+                case InputUserChange.ControlSchemeChanged:
+                    LastUsedDevice = inputDevice;
+                    ControlScheme controlScheme = ControlSchemeNameToEnum(playerInput.currentControlScheme);
+                    if (controlScheme == CurrentControlScheme)
+                    {
+                        return;
+                    }
+                    OnControlSchemeChanged?.Invoke(controlScheme);
+                    break;
+                case InputUserChange.ControlsChanged:
+                    // TODO?
+                    break;
+            }
         }
         
         internal void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
@@ -419,7 +419,7 @@ namespace UnityInputSystemWrapper
             OnKeyboardTextInput?.Invoke(c);
         }
 
-        private static ControlScheme? ControlSchemeNameToEnum(string controlSchemeName)
+        private static ControlScheme ControlSchemeNameToEnum(string controlSchemeName)
         {
             return controlSchemeName switch
             {
@@ -430,7 +430,6 @@ namespace UnityInputSystemWrapper
                 "Joystick" => ControlScheme.Joystick,
                 "XR" => ControlScheme.XR,
                 // MARKER.ControlSchemeSwitch.End
-                _ => null
             };
         }
 

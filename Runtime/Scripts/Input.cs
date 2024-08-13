@@ -37,7 +37,6 @@ namespace UnityInputSystemWrapper
             get => allowPlayerJoining;
             set
             {
-                if (playerCollection.Count < 2) return;
                 allowPlayerJoining = value;
                 ListenForAnyButtonPress = value;
             }
@@ -93,7 +92,7 @@ namespace UnityInputSystemWrapper
             EnableContextForAllPlayers(DefaultContext);
             
             ++InputUser.listenForUnpairedDeviceActivity;
-            InputUser.onChange += HandleControlsChanged;
+            InputUser.onChange += HandleInputUserChange;
         }
 
         private static void SetUpTerminationConditions()
@@ -116,7 +115,7 @@ namespace UnityInputSystemWrapper
             ListenForAnyButtonPress = false;
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
-            InputUser.onChange -= HandleControlsChanged;
+            InputUser.onChange -= HandleInputUserChange;
         }
 
         #endregion
@@ -148,12 +147,12 @@ namespace UnityInputSystemWrapper
             ParseInputControlPath(inputControl, out string deviceName, out string controlPath);
             ControlScheme controlScheme = ResolveDeviceToControlScheme(deviceName);
 
-            if (!runtimeInputData.BindingDataReferences.TryGetValue(controlScheme, out BindingDataAssetReference bindingDataAssetReference))
+            if (!runtimeInputData.BindingDataReferences.TryGetValue(controlScheme, out BindingDataReference bindingDataReference))
             {
                 return false;
             }
             
-            BindingData bindingData = bindingDataAssetReference.LoadAssetSynchronous<BindingData>();
+            BindingData bindingData = bindingDataReference.Load();
             if (bindingData == null)
             {
                 return false;
@@ -190,16 +189,16 @@ namespace UnityInputSystemWrapper
 
         #region Private Runtime Functionality
         
-        private static void HandleControlsChanged(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+        private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
-            playerCollection.HandleControlsChanged(inputUser, inputUserChange, inputDevice);
+            playerCollection.HandleInputUserChange(inputUser, inputUserChange, inputDevice);
         }
 
         private static void HandleAnyButtonPressed(InputControl inputControl)
         {
             OnAnyButtonPressed?.Invoke();
             
-            if (!AllowPlayerJoining)
+            if (!AllowPlayerJoining || playerCollection.Count < 2)
             {
                 return;
             }
