@@ -2,8 +2,7 @@
     "name": "InputSystemWrapper",
     "rootNamespace": "InputSystemWrapper",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5"
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

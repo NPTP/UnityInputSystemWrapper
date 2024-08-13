@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Localization;
 
 namespace UnityInputSystemWrapper.Data
 {
@@ -10,10 +9,12 @@ namespace UnityInputSystemWrapper.Data
     [Serializable]
     public class BindingPathInfo
     {
-        public string RuntimeDisplayName => overrideDisplayName ? overrideName.ToString() : inputControlDisplayName;
+        public string RuntimeDisplayName => overrideDisplayName ? overrideName : inputControlDisplayName;
 
         [SerializeField] private bool overrideDisplayName;
-        [SerializeField] private LocalizedString overrideName;
+        
+        /// NOTE: This should be a localized string, using whatever localization system is in the project.
+        [SerializeField] private string overrideName;
 
         [SerializeField] private Sprite icon;
         public Sprite Icon => icon;
