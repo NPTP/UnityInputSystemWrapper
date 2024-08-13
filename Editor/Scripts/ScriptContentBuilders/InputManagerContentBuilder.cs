@@ -23,10 +23,22 @@ namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
                     
                     if (enableMp)
                     {
+                        lines.Add("        private static bool allowPlayerJoining;\n" +
+                                  "        public static bool AllowPlayerJoining\n" +
+                                  "        {\n" +
+                                  "            get => allowPlayerJoining;\n" +
+                                  "            set\n" +
+                                  "            {\n" +
+                                  "                if (value == allowPlayerJoining) return;\n" +
+                                  "                allowPlayerJoining = value;\n" +
+                                  "                ListenForAnyButtonPress = value ? listenForAnyButtonPress + 1 : listenForAnyButtonPress - 1;\n" +
+                                  "            }\n" +
+                                  "        }");
                         lines.Add($"        public static {nameof(InputPlayer)} {PublicPlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
                         break;
                     }
                     
+                    lines.Add($"        private static bool AllowPlayerJoining => false;");
                     lines.Add($"        private static {nameof(InputPlayer)} {PrivatePlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
                     
                     lines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));

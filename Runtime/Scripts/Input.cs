@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using InputSystemWrapper.Utilities;
-using InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -28,37 +27,43 @@ namespace UnityInputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
         
-        // This event will invoke regardless of contexts/maps being enabled/disabled.
         public static event Action OnAnyButtonPressed;
-
+        
+        private static int listenForAnyButtonPress;
+        public static int ListenForAnyButtonPress
+        {
+            set
+            {
+                if (value > 0 && anyButtonPressListener == null)
+                {
+                    anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
+                }
+                else if (value == 0 && anyButtonPressListener != null)
+                {
+                    anyButtonPressListener.Dispose();
+                    anyButtonPressListener = null;
+                }
+                else if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative");
+                }
+                
+                listenForAnyButtonPress = value;
+            }
+        }
+        
+        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
         private static bool allowPlayerJoining;
         public static bool AllowPlayerJoining
         {
             get => allowPlayerJoining;
             set
             {
+                if (value == allowPlayerJoining) return;
                 allowPlayerJoining = value;
-                ListenForAnyButtonPress = value;
+                ListenForAnyButtonPress = value ? listenForAnyButtonPress + 1 : listenForAnyButtonPress - 1;
             }
         }
-
-        public static bool ListenForAnyButtonPress
-        {
-            set
-            {
-                if (value && anyButtonPressListener == null)
-                {
-                    anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
-                }
-                else if (!value && anyButtonPressListener != null)
-                {
-                    anyButtonPressListener.Dispose();
-                    anyButtonPressListener = null;
-                }
-            }
-        }
-
-        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
         public static InputPlayer Player(PlayerID id) => playerCollection[id];
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
@@ -112,7 +117,7 @@ namespace UnityInputSystemWrapper
 
         private static void Terminate()
         {
-            ListenForAnyButtonPress = false;
+            ListenForAnyButtonPress = 0;
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
@@ -198,7 +203,8 @@ namespace UnityInputSystemWrapper
         {
             OnAnyButtonPressed?.Invoke();
             
-            if (!AllowPlayerJoining || playerCollection.Count < 2)
+            // Player joining is always disallowed in SP mode.
+            if (!AllowPlayerJoining)
             {
                 return;
             }
