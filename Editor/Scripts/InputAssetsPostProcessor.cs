@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEditor;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Editor
+namespace NPTP.InputSystemWrapper.Editor
 {
     public class InputAssetsPostProcessor : AssetPostprocessor
     {

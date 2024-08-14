@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
+namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     public static class InputContextContentBuilder
     {

@@ -1,7 +1,7 @@
-using InputSystemWrapper.Utilities.Collections;
+using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEngine;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
     /// For multi-device binding data that should be paired (e.g. Mouse + Keyboard)

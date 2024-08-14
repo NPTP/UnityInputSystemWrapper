@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 // MARKER.GeneratorNotice.Start
 // MARKER.GeneratorNotice.End
 // MARKER.Namespace.Start
-namespace UnityInputSystemWrapper.Generated.MapActions
+namespace NPTP.InputSystemWrapper.Generated.MapActions
 // MARKER.Namespace.End
 {
     // MARKER.InterfaceName.Start

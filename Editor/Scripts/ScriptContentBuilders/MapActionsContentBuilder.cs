@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEngine.InputSystem;
 
-namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
+namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     public static class MapActionsContentBuilder
     {

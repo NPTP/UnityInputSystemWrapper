@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
+namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     public static class InputManagerContentBuilder
     {

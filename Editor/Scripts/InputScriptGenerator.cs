@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Editor.ScriptContentBuilders;
 
-namespace UnityInputSystemWrapper.Editor
+namespace NPTP.InputSystemWrapper.Editor
 {
     public static class InputScriptGenerator
     {

@@ -1,9 +1,9 @@
 using System;
-using InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityInputSystemWrapper.Data.Editor
+namespace NPTP.InputSystemWrapper.Data.Editor
 {
     [CustomEditor(typeof(BindingDataSingle))]
     public class BindingDataSingleEditor : UnityEditor.Editor

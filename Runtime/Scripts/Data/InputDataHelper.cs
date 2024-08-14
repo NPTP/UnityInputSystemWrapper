@@ -1,4 +1,4 @@
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     public static class InputDataHelper
     {

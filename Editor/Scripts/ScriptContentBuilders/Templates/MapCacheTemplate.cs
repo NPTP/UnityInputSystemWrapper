@@ -2,8 +2,8 @@
 using System;
 // MARKER.Ignore.End
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Generated.MapActions;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Generated.MapActions;
 
 // MARKER.Ignore.Start
 // ---------------------------------- WARNING ! ---------------------------------------
@@ -14,7 +14,7 @@ using UnityInputSystemWrapper.Generated.MapActions;
 // MARKER.GeneratorNotice.Start
 // MARKER.GeneratorNotice.End
 // MARKER.Namespace.Start
-namespace UnityInputSystemWrapper.Generated.MapCaches
+namespace NPTP.InputSystemWrapper.Generated.MapCaches
 // MARKER.Namespace.End
 {
     // MARKER.ClassSignature.Start

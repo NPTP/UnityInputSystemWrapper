@@ -1,8 +1,8 @@
-using UnityInputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace InputSystemWrapper.Utilities.Editor
+namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
     [CustomPropertyDrawer(typeof(BindingPathInfo))]
     public class BindingPathInfoDrawer : PropertyDrawer

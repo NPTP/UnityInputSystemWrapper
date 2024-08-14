@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace InputSystemWrapper.Utilities
+namespace NPTP.InputSystemWrapper.Utilities
 {
     internal static class ObjectUtility
     {

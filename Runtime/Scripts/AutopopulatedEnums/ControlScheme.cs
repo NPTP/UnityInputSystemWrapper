@@ -1,4 +1,4 @@
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper.AutopopulatedEnums
 {
     public enum ControlScheme
     {

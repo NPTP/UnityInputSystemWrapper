@@ -1,8 +1,8 @@
 ﻿using System;
+using NPTP.InputSystemWrapper.Attributes;
 using UnityEngine;
-using UnityInputSystemWrapper.Attributes;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     [Serializable]
     public class InputContextInfo

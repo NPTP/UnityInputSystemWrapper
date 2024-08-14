@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     [Serializable]
     public class BindingDataReference

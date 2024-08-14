@@ -1,10 +1,10 @@
 ﻿using System.Linq;
-using InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEditor;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Attributes.Editor
+namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(BindingSelectorAttribute))]
     public class BindingSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer

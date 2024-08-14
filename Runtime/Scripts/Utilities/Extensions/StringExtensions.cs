@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace InputSystemWrapper.Utilities.Extensions
+namespace NPTP.InputSystemWrapper.Utilities.Extensions
 {
     public static class StringExtensions
     {

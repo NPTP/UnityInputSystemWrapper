@@ -1,9 +1,10 @@
-using InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
     /// Input Data used only in constructing classes from inside the editor. Not meant to be accessed at runtime.

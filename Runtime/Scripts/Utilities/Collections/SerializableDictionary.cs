@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace InputSystemWrapper.Utilities.Collections
+namespace NPTP.InputSystemWrapper.Utilities.Collections
 {
     /// <summary>
     /// Based on one of Unity's serializable dictionaries for a customizable/maintainable version.

@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
-using InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
-using UnityInputSystemWrapper.Data;
-using UnityInputSystemWrapper.Generated.MapActions;
+using NPTP.InputSystemWrapper.Generated.MapActions;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper
 {
     /// <summary>
     /// Main point of usage for all input in the game.

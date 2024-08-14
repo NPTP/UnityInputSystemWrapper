@@ -1,9 +1,9 @@
-﻿using InputSystemWrapper.Utilities.Editor;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 
-namespace UnityInputSystemWrapper.Attributes.Editor
+namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(InputMapSelectorAttribute))]
     public class InputMapSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer

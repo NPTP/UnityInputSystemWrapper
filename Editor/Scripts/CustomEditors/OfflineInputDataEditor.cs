@@ -1,9 +1,9 @@
-using InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Editor.CustomEditors
+namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
     [CustomEditor(typeof(OfflineInputData))]
     public class OfflineInputDataEditor : UnityEditor.Editor

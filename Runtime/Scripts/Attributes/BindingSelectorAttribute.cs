@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityInputSystemWrapper.Attributes
+namespace NPTP.InputSystemWrapper.Attributes
 {
     public class BindingSelectorAttribute : PropertyAttribute
     {

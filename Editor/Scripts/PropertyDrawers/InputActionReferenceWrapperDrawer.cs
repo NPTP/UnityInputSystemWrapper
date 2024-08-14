@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace UnityInputSystemWrapper.Attributes.Editor.PropertyDrawers
+namespace NPTP.InputSystemWrapper.Attributes.Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(InputActionReferenceWrapper))]
     public class InputActionReferenceWrapperDrawer : PropertyDrawer

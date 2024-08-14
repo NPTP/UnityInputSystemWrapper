@@ -1,8 +1,9 @@
-using InputSystemWrapper.Utilities.Collections;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
     /// Input Data used at runtime.

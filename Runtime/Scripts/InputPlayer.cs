@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Generated.MapActions;
+using NPTP.InputSystemWrapper.Generated.MapCaches;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
-using UnityInputSystemWrapper.Generated.MapActions;
-using UnityInputSystemWrapper.Generated.MapCaches;
 using Object = UnityEngine.Object;
 
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper
 {
     public sealed class InputPlayer
     {

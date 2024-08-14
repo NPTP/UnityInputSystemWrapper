@@ -1,6 +1,6 @@
 using System;
 
-namespace InputSystemWrapper.Utilities.Extensions
+namespace NPTP.InputSystemWrapper.Utilities.Extensions
 {
     internal static class ArrayExtensions
     {

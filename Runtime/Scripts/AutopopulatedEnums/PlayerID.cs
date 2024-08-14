@@ -1,4 +1,4 @@
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper.AutopopulatedEnums
 {
     /// <summary>
     /// An ID for all possible players which also serves as an integer index.

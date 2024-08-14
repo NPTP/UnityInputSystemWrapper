@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper
 {
     [Serializable]
     public struct InputActionReferenceWrapper

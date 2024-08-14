@@ -1,6 +1,7 @@
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
 using UnityEngine.InputSystem;
 
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper
 {
     public sealed record DeviceControlInfo
     {

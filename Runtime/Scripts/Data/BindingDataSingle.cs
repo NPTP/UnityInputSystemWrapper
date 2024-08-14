@@ -1,7 +1,7 @@
-using InputSystemWrapper.Utilities.Collections;
+using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEngine;
 
-namespace UnityInputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Data
 {
     public abstract class BindingData : ScriptableObject
     {

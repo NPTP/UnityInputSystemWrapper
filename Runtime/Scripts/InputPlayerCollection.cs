@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
-using InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 
-namespace UnityInputSystemWrapper
+namespace NPTP.InputSystemWrapper
 {
     internal sealed class InputPlayerCollection
     {

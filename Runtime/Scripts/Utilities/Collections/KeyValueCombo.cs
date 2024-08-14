@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace InputSystemWrapper.Utilities.Collections
+namespace NPTP.InputSystemWrapper.Utilities.Collections
 {
     /// <summary>
     /// Serializable version of a Key Value Pair struct.

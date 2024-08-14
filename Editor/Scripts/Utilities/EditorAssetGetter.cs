@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace InputSystemWrapper.Utilities.Editor
+namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
     public static class EditorAssetGetter
     {

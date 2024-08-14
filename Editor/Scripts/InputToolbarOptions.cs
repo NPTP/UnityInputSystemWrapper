@@ -1,7 +1,7 @@
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace UnityInputSystemWrapper.Editor
+namespace NPTP.InputSystemWrapper.Editor
 {
     public static class InputToolbarOptions
     {

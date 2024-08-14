@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
-namespace UnityInputSystemWrapper.Editor.ScriptContentBuilders
+namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     public static class ControlSchemeContentBuilder
     {

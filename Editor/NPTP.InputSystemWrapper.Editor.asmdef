@@ -1,10 +1,13 @@
 {
-    "name": "InputSystemWrapper",
-    "rootNamespace": "InputSystemWrapper",
+    "name": "InputSystemWrapper.Editor",
+    "rootNamespace": "NPTP.InputSystemWrapper.Editor",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:cab6c95d00a5a7749b53f3ecbd184da1"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

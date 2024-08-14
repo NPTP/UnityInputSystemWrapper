@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using InputSystemWrapper.Utilities.Editor;
-using InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityInputSystemWrapper.Data;
 
-namespace UnityInputSystemWrapper.Editor
+namespace NPTP.InputSystemWrapper.Editor
 {
     public static class Helper
     {
