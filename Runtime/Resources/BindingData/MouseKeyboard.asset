@@ -1,0 +1,498 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 800d417933f8ce5478812eb9eb01fb02, type: 3}
+  m_Name: MouseKeyboard
+  m_EditorClassIdentifier: 
+  bindingDataDictionary:
+    keyValueCombos:
+    - key: leftButton
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightButton
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: middleButton
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: forwardButton
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: backButton
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: scroll
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: scroll/up
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: scroll/down
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: position
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: position/x
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: position/y
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: anyKey
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: escape
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: space
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: enter
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: tab
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: backquote
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: quote
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: semicolon
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: comma
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: period
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: slash
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: backslash
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftBracket
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightBracket
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: minus
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: equals
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: upArrow
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: downArrow
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftArrow
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightArrow
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: a
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: b
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: c
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: d
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: e
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: g
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: h
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: i
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: j
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: k
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: l
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: m
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: n
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: o
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: p
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: q
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: r
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: s
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: t
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: u
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: v
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: w
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: x
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: y
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: z
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 1
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 2
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 3
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 4
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 5
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 6
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 7
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 8
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 9
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: 0
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftShift
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightShift
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: shift
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftAlt
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightAlt
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: alt
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftCtrl
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightCtrl
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: ctrl
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftMeta
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightMeta
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: contextMenu
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: backspace
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: pageDown
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: pageUp
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: home
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: end
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: insert
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: delete
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: capsLock
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numLock
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: printScreen
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: scrollLock
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: pause
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadEnter
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadDivide
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadMultiply
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadPlus
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadMinus
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadPeriod
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpadEquals
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad1
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad2
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad3
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad4
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad5
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad6
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad7
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad8
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad9
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: numpad0
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f1
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f2
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f3
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f4
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f5
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f6
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f7
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f8
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f9
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f10
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f11
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: f12
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+  isMKB: 0
+  isGamepad: 0

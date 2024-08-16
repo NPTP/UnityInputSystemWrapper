@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders

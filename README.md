@@ -16,5 +16,15 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Remove Addressables dependencies
 - [✔] Remove Unity Localization dependencies (for now)
 - [✔] When a player swaps device, an event is invoked that sends the new device or control scheme and the player ID. In SP games, just the device is sent, no ID. (This can be used for updating UI elements)
-- [ ] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
+- [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
+See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
+- [ ] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
 - [ ] Controls be rebound, with a simple button press to rebind. Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
+
+
+##### Multiplayer Additions:
+- [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player).
+
+##### With Addressables/Localization Dependencies:
+- [ ] Binding icon data only gets loaded in when needed instead of being always loaded
+- [ ] Display name in BindingInfo is a LocalizedString, or has an event requesting a localized string that can be hooked into

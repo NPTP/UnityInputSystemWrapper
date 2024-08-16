@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
 

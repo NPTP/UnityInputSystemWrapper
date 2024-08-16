@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
 
@@ -36,6 +36,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                                   "            }\n" +
                                   "        }");
                         lines.Add($"        public static {nameof(InputPlayer)} {PublicPlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
+                        lines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
                         break;
                     }
                     
@@ -50,10 +51,17 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     lines.Add($"        public static {nameof(InputContext)} CurrentContext => {PrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext;");
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => {PrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentControlScheme;");
+                    lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => {PrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).LastUsedDevice;");
                     lines.Add($"        public static void EnableContext({nameof(InputContext)} context) => {PrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext = context;");
                     break;
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");
+                    break;
+                case "TryGetActionBindingInfoPlayerDependent":
+                    bool isMultiplayer = Helper.OfflineInputData.EnableMultiplayer;
+                    lines.Add(isMultiplayer
+                        ? $"            return TryGetActionBindingInfo(action, {PublicPlayerGetter}(playerID).LastUsedDevice, out bindingInfo);"
+                        : $"            return TryGetActionBindingInfo(action, LastUsedDevice, out bindingInfo);");
                     break;
             }
 

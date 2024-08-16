@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
@@ -12,10 +13,11 @@ namespace NPTP.InputSystemWrapper
     internal sealed class InputPlayerCollection
     {
         private readonly InputPlayer[] players;
+        public IEnumerable<InputPlayer> Players => players;
         
         public InputPlayer this[PlayerID id] => players[(int)id];
         public int Count => players.Length;
-
+        
         public InputPlayerCollection(InputActionAsset asset, int size)
         {
             Transform parent = CreateInputParentInScene();
@@ -99,7 +101,7 @@ namespace NPTP.InputSystemWrapper
         {
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i].PairedDevices.ContainsReference(device))
+                if (players[i].IsDevicePaired(device))
                 {
                     player = players[i];
                     return true;

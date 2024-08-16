@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: RuntimeInputData
   m_EditorClassIdentifier: 
   inputActionAsset: {fileID: -944628639613478452, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  bindingDataReferences:
-    keyValueCombos: []
+  mouseKeyboardBindingData: {fileID: 11400000, guid: 93585b2b708f2a3419508e62f6184145, type: 2}
+  xboxBindingData: {fileID: 11400000, guid: 26dc9852e8459294a8a59905d3d3139d, type: 2}
+  playstationBindingData: {fileID: 11400000, guid: 129420a304a82044a9e5ee579b4bdcba, type: 2}
+  gamepadFallbackBindingData: {fileID: 11400000, guid: 26dc9852e8459294a8a59905d3d3139d, type: 2}

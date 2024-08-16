@@ -1,4 +1,4 @@
-namespace NPTP.InputSystemWrapper.AutopopulatedEnums
+namespace NPTP.InputSystemWrapper.Enums
 {
     public enum InputContext
     {

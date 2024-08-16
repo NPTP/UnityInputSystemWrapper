@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.MapActions;
 using NPTP.InputSystemWrapper.Generated.MapCaches;
 using UnityEngine;
@@ -55,12 +55,13 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
+        // TODO: Still relevant? Can we get rid of it?
         public ControlScheme CurrentControlScheme { get; private set; }
 
         public InputDevice LastUsedDevice { get; private set; }
 
-        // TODO: Can make this internal later. It's read-only so not a big deal, but the game code just doesn't need access to it outside of debugging.
-        public ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
+        private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
+        public bool IsDevicePaired(InputDevice device) => PairedDevices.ContainsReference(device);
 
         // MARKER.MapActionsProperties.Start
         public PlayerActions Player { get; }
@@ -98,7 +99,7 @@ namespace NPTP.InputSystemWrapper
             
             SetEventSystemActions();
 
-            // TODO: Is there a better solution to keep track of the last used device than this? If so, let's implement it
+            // TODO: We are keeping track of the last used device with other methods now, can we get rid of this?
             playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
         
@@ -241,20 +242,19 @@ namespace NPTP.InputSystemWrapper
             
             switch (inputUserChange)
             {
-                case InputUserChange.DevicePaired:
-                    goto deviceChange;
-                case InputUserChange.DeviceUnpaired:
-                    goto deviceChange;
                 case InputUserChange.ControlSchemeChanged:
+                    // TODO: ControlScheme update is basically getting ignored in favour of checking paired devices below. Remove ControlScheme tracking?
                     CurrentControlScheme = ControlSchemeNameToEnum(playerInput.currentControlScheme);
                     goto deviceChange;
-                case InputUserChange.ControlsChanged:
-                    // TODO: Hits this case when the user bindings have changed (among other things). Might need for UI updates
-                    break;
-                
+                case InputUserChange.DevicePaired:
+                case InputUserChange.DeviceUnpaired:
+                case InputUserChange.ControlsChanged: // When user bindings have changed (among other things)
                 deviceChange:
+                    InputDevice previousDevice = LastUsedDevice;
                     UpdateLastUsedDevice(inputDevice);
-                    OnDeviceControlChanged?.Invoke(new DeviceControlInfo(this));
+                    if (previousDevice == LastUsedDevice || (previousDevice is Mouse or Keyboard && LastUsedDevice is Mouse or Keyboard))
+                        break;
+                    OnDeviceControlChanged?.Invoke(new DeviceControlInfo(this, inputUserChange));
                     break;
             }
         }
@@ -369,8 +369,8 @@ namespace NPTP.InputSystemWrapper
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
         
-        // TODO: Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places.
-        // Enabling/disabling PlayerInput, pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
+        // TODO: Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places, since enabling/disabling PlayerInput,
+        // pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
         private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
@@ -476,9 +476,9 @@ namespace NPTP.InputSystemWrapper
 
         #endregion
 
+        // TODO: Remove section after debugging finished
         #region Editor Debugging
 
-                
 #if UNITY_EDITOR
         public bool EDITOR_Enabled
         {

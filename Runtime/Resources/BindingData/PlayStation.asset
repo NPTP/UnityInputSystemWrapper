@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 800d417933f8ce5478812eb9eb01fb02, type: 3}
+  m_Name: PlayStation
+  m_EditorClassIdentifier: 
+  bindingDataDictionary:
+    keyValueCombos:
+    - key: start
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: select
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftShoulder
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftTrigger
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightShoulder
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightTrigger
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: buttonSouth
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: buttonEast
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: buttonWest
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: buttonNorth
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStickPress
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/x
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/y
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/up
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/down
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/left
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: leftStick/right
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStickPress
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/x
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/y
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/up
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/down
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/left
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: rightStick/right
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/x
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/y
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/up
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/down
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/left
+      value:
+        displayName: 
+        sprite: {fileID: 0}
+    - key: dpad/right
+      value:
+        displayName: 
+        sprite: {fileID: 0}

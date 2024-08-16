@@ -1,4 +1,4 @@
-namespace NPTP.InputSystemWrapper.AutopopulatedEnums
+namespace NPTP.InputSystemWrapper.Enums
 {
     /// <summary>
     /// An ID for all possible players which also serves as an integer index.
@@ -7,8 +7,6 @@ namespace NPTP.InputSystemWrapper.AutopopulatedEnums
     {
         // MARKER.Members.Start
         Player1 = 0,
-        Player2 = 1,
-        Player3 = 2,
         // MARKER.Members.End
     }
 }

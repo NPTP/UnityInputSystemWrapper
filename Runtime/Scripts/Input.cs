@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 using NPTP.InputSystemWrapper.Generated.MapActions;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities;
 
@@ -54,18 +54,24 @@ namespace NPTP.InputSystemWrapper
         }
         
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-        private static bool allowPlayerJoining;
-        public static bool AllowPlayerJoining
+        private static bool AllowPlayerJoining => false;
+        private static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
+        public static event Action<DeviceControlInfo> OnDeviceControlChanged
         {
-            get => allowPlayerJoining;
-            set
-            {
-                if (value == allowPlayerJoining) return;
-                allowPlayerJoining = value;
-                ListenForAnyButtonPress = value ? listenForAnyButtonPress + 1 : listenForAnyButtonPress - 1;
-            }
+            add => GetPlayer(PlayerID.Player1).OnDeviceControlChanged += value;
+            remove => GetPlayer(PlayerID.Player1).OnDeviceControlChanged -= value;
         }
-        public static InputPlayer Player(PlayerID id) => playerCollection[id];
+        public static event Action<char> OnKeyboardTextInput
+        {
+            add => GetPlayer(PlayerID.Player1).OnKeyboardTextInput += value;
+            remove => GetPlayer(PlayerID.Player1).OnKeyboardTextInput -= value;
+        }
+        public static PlayerActions Player => GetPlayer(PlayerID.Player1).Player;
+        public static UIActions UI => GetPlayer(PlayerID.Player1).UI;
+        public static InputContext CurrentContext => GetPlayer(PlayerID.Player1).CurrentContext;
+        public static ControlScheme CurrentControlScheme => GetPlayer(PlayerID.Player1).CurrentControlScheme;
+        public static InputDevice LastUsedDevice => GetPlayer(PlayerID.Player1).LastUsedDevice;
+        public static void EnableContext(InputContext context) => GetPlayer(PlayerID.Player1).CurrentContext = context;
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start
@@ -132,48 +138,57 @@ namespace NPTP.InputSystemWrapper
         {
             playerCollection.EnableContextForAll(context);
         }
-
-        public static List<BindingPathInfo> GetAllBindingPathInfos(InputAction action)
+        
+        // TODO: Possible to make internal?
+        // TODO: Remove this overload entirely in SP, and remove device argument from params of 2nd overload, and use LastUsedDevice property instead
+        public static bool TryGetActionBindingInfo(InputAction action, PlayerID playerID, out BindingInfo bindingInfo)
         {
-            List<BindingPathInfo> bindingPathInfos = new();
-            foreach (InputControl inputControl in action.controls)
+            // MARKER.TryGetActionBindingInfoPlayerDependent.Start
+            return TryGetActionBindingInfo(action, LastUsedDevice, out bindingInfo);
+            // MARKER.TryGetActionBindingInfoPlayerDependent.End
+        }
+        
+        public static bool TryGetActionBindingInfo(InputAction action, InputDevice device, out BindingInfo bindingInfo)
+        {
+            bindingInfo = default;
+            
+            if (device == null)
             {
-                if (TryGetBindingPathInfo(inputControl, out BindingPathInfo bindingPathInfo))
+                return false;
+            }
+            
+            if (!runtimeInputData.TryGetBindingData(device, out BindingData bindingData))
+            {
+                return false;
+            }
+
+            // TODO: Support returning multiple control paths, since an action may have multiple bindings on a single device
+            if (!TryGetControlPath(action, device, out string controlPath))
+            {
+                return false;
+            }
+            
+            return bindingData.TryGetBindingInfo(controlPath, out bindingInfo);
+        }
+
+        private static bool TryGetControlPath(InputAction action, InputDevice device, out string controlPath)
+        {
+            controlPath = default;
+            
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                InputBinding binding = action.bindings[i];
+                InputControl control = InputControlPath.TryFindControl(device, binding.effectivePath);
+                if (control != null && control.device == device)
                 {
-                    bindingPathInfos.Add(bindingPathInfo);
+                    controlPath = ParseInputControlPath(control);
+                    return true;
                 }
             }
 
-            return bindingPathInfos;
+            return false;
         }
         
-        public static bool TryGetBindingPathInfo(InputControl inputControl, out BindingPathInfo bindingPathInfo)
-        {
-            bindingPathInfo = default;
-            ParseInputControlPath(inputControl, out string deviceName, out string controlPath);
-            ControlScheme controlScheme = ResolveDeviceToControlScheme(deviceName);
-
-            if (!runtimeInputData.BindingDataReferences.TryGetValue(controlScheme, out BindingDataReference bindingDataReference))
-            {
-                return false;
-            }
-            
-            BindingData bindingData = bindingDataReference.Load();
-            if (bindingData == null)
-            {
-                return false;
-            }
-            
-            if (!bindingData.BindingDisplayInfo.TryGetValue(controlPath, out bindingPathInfo))
-            {
-                return false;
-            }
-            
-            bindingPathInfo.SetInputControlDisplayName(inputControl.displayName);
-
-            return true;
-        }
-
         internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
@@ -241,11 +256,10 @@ namespace NPTP.InputSystemWrapper
                 _ => ControlScheme.Gamepad
             };
         }
-
-        private static void ParseInputControlPath(InputControl inputControl, out string deviceName, out string controlPath)
+        
+        private static string ParseInputControlPath(InputControl inputControl)
         {
-            deviceName = inputControl.device.name;
-            controlPath = inputControl.path[(2 + deviceName.Length)..];
+            return inputControl.path[(2 + inputControl.device.name.Length)..];
         }
 
         #endregion

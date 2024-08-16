@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEngine;
@@ -49,6 +49,7 @@ namespace NPTP.InputSystemWrapper.Editor
         public static string AsField(this string s) => s.AllWhitespaceTrimmed().LowercaseFirst();
         public static string AsType(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
         public static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly();
+        public static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
         
         public static void ClearFolder(string folderSystemPath)
         {

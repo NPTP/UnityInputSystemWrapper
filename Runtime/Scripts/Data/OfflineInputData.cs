@@ -1,5 +1,5 @@
 using NPTP.InputSystemWrapper.Utilities.Extensions;
-using NPTP.InputSystemWrapper.AutopopulatedEnums;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;

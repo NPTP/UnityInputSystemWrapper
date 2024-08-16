@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NPTP.InputSystemWrapper.Utilities.Extensions
@@ -10,6 +12,32 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
             if (string.IsNullOrEmpty(s)) return string.Empty;
             
             return new string(s.Where(c => !char.IsWhiteSpace(c)).ToArray());
+        }
+
+        public static string SpaceBetweenWords(this string s)
+        {
+            StringBuilder sb = new();
+            
+            for (int i = 0; i < s.Length; i++)
+            {
+                char cur = s[i];
+                if (char.IsWhiteSpace(cur))
+                {
+                    continue;
+                }
+                
+                if (i > 0)
+                {
+                    char prev = s[i - 1];
+                    if (char.IsLower(prev) && char.IsUpper(cur))
+                    {
+                        sb.Append(' ');
+                    }
+                }
+                sb.Append(cur);
+            }
+
+            return sb.ToString();
         }
 
         public static string CapitalizeFirst(this string s)
