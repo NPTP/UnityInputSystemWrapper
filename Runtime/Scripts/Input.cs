@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -28,32 +29,27 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
         
-        public static event Action OnAnyButtonPressed;
-        
-        private static int listenForAnyButtonPress;
-        public static int ListenForAnyButtonPress
+        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
+
+        public static event Action<InputControl> OnAnyButtonPress
         {
-            set
+            add
             {
-                if (value > 0 && anyButtonPressListener == null)
-                {
-                    anyButtonPressListener = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
-                }
-                else if (value == 0 && anyButtonPressListener != null)
-                {
-                    anyButtonPressListener.Dispose();
-                    anyButtonPressListener = null;
-                }
-                else if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative");
-                }
-                
-                listenForAnyButtonPress = value;
+                if (value == null || anyButtonPressListeners.Contains(value))
+                    return;
+                anyButtonPressListeners.Add(value);
+                if (anyButtonPressCaller == null)
+                    anyButtonPressCaller = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
+            }
+            remove
+            {
+                if (value == null || !anyButtonPressListeners.Contains(value))
+                    return;
+                anyButtonPressListeners.Remove(value);
+                TearDownAnyButtonPressCaller();
             }
         }
         
-        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
         private static bool AllowPlayerJoining => false;
         private static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
         public static event Action<DeviceControlInfo> OnDeviceControlChanged
@@ -78,9 +74,10 @@ namespace NPTP.InputSystemWrapper
         private static InputContext DefaultContext => InputContext.Player;
         // MARKER.DefaultContextProperty.End
 
+        private static readonly HashSet<Action<InputControl>> anyButtonPressListeners = new();
+        private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
         private static RuntimeInputData runtimeInputData;
-        private static IDisposable anyButtonPressListener;
 
         #endregion
 
@@ -124,7 +121,7 @@ namespace NPTP.InputSystemWrapper
 
         private static void Terminate()
         {
-            ListenForAnyButtonPress = 0;
+            UnregisterAllAnyButtonPressListeners();
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
@@ -132,14 +129,34 @@ namespace NPTP.InputSystemWrapper
 
         #endregion
 
-        #region Public Interface
+        #region Internal Interface
+        
+        internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+        {
+            if (actionReference == null)
+            {
+                Debug.LogError("Trying to subscribe to a nonexistent action reference.");
+                return;
+            }
 
+            if (callback == null)
+            {
+                Debug.LogError("Trying to subscribe with a nonexistent callback.");
+                return;
+            }
+            
+            playerCollection.FindActionEventAndSubscribeAll(actionReference, callback, subscribe);
+        }
+
+        #endregion
+
+        #region Public Interface
+        
         public static void EnableContextForAllPlayers(InputContext context)
         {
             playerCollection.EnableContextForAll(context);
         }
         
-        // TODO: Possible to make internal?
         // TODO: Remove this overload entirely in SP, and remove device argument from params of 2nd overload, and use LastUsedDevice property instead
         public static bool TryGetActionBindingInfo(InputAction action, PlayerID playerID, out BindingInfo bindingInfo)
         {
@@ -170,7 +187,11 @@ namespace NPTP.InputSystemWrapper
             
             return bindingData.TryGetBindingInfo(controlPath, out bindingInfo);
         }
+        
+        #endregion
 
+        #region Private Runtime Functionality
+        
         private static bool TryGetControlPath(InputAction action, InputDevice device, out string controlPath)
         {
             controlPath = default;
@@ -181,34 +202,28 @@ namespace NPTP.InputSystemWrapper
                 InputControl control = InputControlPath.TryFindControl(device, binding.effectivePath);
                 if (control != null && control.device == device)
                 {
-                    controlPath = ParseInputControlPath(control);
+                    controlPath = control.path[(2 + control.device.name.Length)..];
                     return true;
                 }
             }
 
             return false;
         }
-        
-        internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+
+        private static void TearDownAnyButtonPressCaller()
         {
-            if (actionReference == null)
+            if (anyButtonPressListeners.Count == 0 && anyButtonPressCaller != null)
             {
-                Debug.LogError("Trying to subscribe to a nonexistent action reference.");
-                return;
+                anyButtonPressCaller.Dispose();
+                anyButtonPressCaller = null;
             }
-
-            if (callback == null)
-            {
-                Debug.LogError("Trying to subscribe with a nonexistent callback.");
-                return;
-            }
-            
-            playerCollection.FindActionEventAndSubscribeAll(actionReference, callback, subscribe);
         }
-        
-        #endregion
 
-        #region Private Runtime Functionality
+        private static void UnregisterAllAnyButtonPressListeners()
+        {
+            anyButtonPressListeners.Clear();
+            TearDownAnyButtonPressCaller();
+        }
         
         private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
@@ -217,8 +232,11 @@ namespace NPTP.InputSystemWrapper
 
         private static void HandleAnyButtonPressed(InputControl inputControl)
         {
-            OnAnyButtonPressed?.Invoke();
-            
+            // Temp array for invocation since listeners can unsubscribe and modify the hashset during enumeration
+            Action<InputControl>[] listeners = anyButtonPressListeners.ToArray();
+            for (int i = 0; i < listeners.Length; i++)
+                listeners[i]?.Invoke(inputControl);
+
             // Player joining is always disallowed in SP mode.
             if (!AllowPlayerJoining)
             {
@@ -244,22 +262,6 @@ namespace NPTP.InputSystemWrapper
             {
                 disabledPlayer.Enabled = true;
             }
-        }
-
-        private static ControlScheme ResolveDeviceToControlScheme(string deviceName)
-        {
-            return deviceName switch
-            {
-                // TODO: Control scheme names may change. Have to discover these manually and update them in the generation step.
-                "Mouse" => ControlScheme.KeyboardMouse,
-                "Keyboard" => ControlScheme.KeyboardMouse,
-                _ => ControlScheme.Gamepad
-            };
-        }
-        
-        private static string ParseInputControlPath(InputControl inputControl)
-        {
-            return inputControl.path[(2 + inputControl.device.name.Length)..];
         }
 
         #endregion

@@ -19,11 +19,12 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
 See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
 - [ ] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
-- [ ] Controls be rebound, with a simple button press to rebind. Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
-
+- [ ] Controls be rebound, with a simple button press to rebind.
+- [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
+- [ ] General cleanup to make as many methods internal as possible
 
 ##### Multiplayer Additions:
-- [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player).
+- [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player), since players may each have unique bindings saved.
 
 ##### With Addressables/Localization Dependencies:
 - [ ] Binding icon data only gets loaded in when needed instead of being always loaded
