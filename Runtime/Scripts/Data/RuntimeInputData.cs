@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.DualShock;
-using UnityEngine.InputSystem.XInput;
 
 namespace NPTP.InputSystemWrapper.Data
 {
@@ -15,29 +13,15 @@ namespace NPTP.InputSystemWrapper.Data
         public InputActionAsset InputActionAsset => inputActionAsset;
 
         // TODO: Some kind of reference to load BindingData in/out, instead of just referencing them directly
-        // TODO: Support additional device "classes" explicitly, as needed. Avoids the need to use control schemes for binding info
+        // Support additional device "classes" explicitly as needed (avoids the need to use control schemes)
         [Header("Input Device Binding Data")] [Space]
         [SerializeField] private BindingData mouseKeyboardBindingData;
+        public BindingData MouseKeyboardBindingData => mouseKeyboardBindingData;
         [SerializeField] private BindingData xboxBindingData;
+        public BindingData XboxBindingData => xboxBindingData;
         [SerializeField] private BindingData playstationBindingData;
+        public BindingData PlaystationBindingData => playstationBindingData;
         [SerializeField] private BindingData gamepadFallbackBindingData;
-
-        public bool TryGetBindingData<TDevice>(TDevice device, out BindingData bindingData) where TDevice : InputDevice
-        {
-            bindingData = device switch
-            {
-                Mouse or Keyboard => mouseKeyboardBindingData,
-                XInputController => xboxBindingData,
-                DualShockGamepad => playstationBindingData,
-                Gamepad => gamepadFallbackBindingData,
-                _ => null
-            };
-
-            bool bindingDataNull = bindingData == null;
-            if (bindingDataNull)
-                Debug.LogWarning($"Input device {typeof(TDevice).Name} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
-            
-            return !bindingDataNull;
-        }
+        public BindingData GamepadFallbackBindingData => gamepadFallbackBindingData;
     }
 }

@@ -29,8 +29,6 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
         
-        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-
         public static event Action<InputControl> OnAnyButtonPress
         {
             add
@@ -49,7 +47,8 @@ namespace NPTP.InputSystemWrapper
                 TearDownAnyButtonPressCaller();
             }
         }
-        
+
+        // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
         private static bool AllowPlayerJoining => false;
         private static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
         public static event Action<DeviceControlInfo> OnDeviceControlChanged
@@ -157,59 +156,17 @@ namespace NPTP.InputSystemWrapper
             playerCollection.EnableContextForAll(context);
         }
         
-        // TODO: Remove this overload entirely in SP, and remove device argument from params of 2nd overload, and use LastUsedDevice property instead
-        public static bool TryGetActionBindingInfo(InputAction action, PlayerID playerID, out BindingInfo bindingInfo)
+        // MARKER.TryGetActionBindingInfo.Start
+        public static bool TryGetActionBindingInfo(InputAction action, out BindingInfo bindingInfo)
         {
-            // MARKER.TryGetActionBindingInfoPlayerDependent.Start
-            return TryGetActionBindingInfo(action, LastUsedDevice, out bindingInfo);
-            // MARKER.TryGetActionBindingInfoPlayerDependent.End
+            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfo);
         }
-        
-        public static bool TryGetActionBindingInfo(InputAction action, InputDevice device, out BindingInfo bindingInfo)
-        {
-            bindingInfo = default;
-            
-            if (device == null)
-            {
-                return false;
-            }
-            
-            if (!runtimeInputData.TryGetBindingData(device, out BindingData bindingData))
-            {
-                return false;
-            }
+        // MARKER.TryGetActionBindingInfo.End
 
-            // TODO: Support returning multiple control paths, since an action may have multiple bindings on a single device
-            if (!TryGetControlPath(action, device, out string controlPath))
-            {
-                return false;
-            }
-            
-            return bindingData.TryGetBindingInfo(controlPath, out bindingInfo);
-        }
-        
         #endregion
 
         #region Private Runtime Functionality
         
-        private static bool TryGetControlPath(InputAction action, InputDevice device, out string controlPath)
-        {
-            controlPath = default;
-            
-            for (int i = 0; i < action.bindings.Count; i++)
-            {
-                InputBinding binding = action.bindings[i];
-                InputControl control = InputControlPath.TryFindControl(device, binding.effectivePath);
-                if (control != null && control.device == device)
-                {
-                    controlPath = control.path[(2 + control.device.name.Length)..];
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static void TearDownAnyButtonPressCaller()
         {
             if (anyButtonPressListeners.Count == 0 && anyButtonPressCaller != null)

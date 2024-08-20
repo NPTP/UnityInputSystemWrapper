@@ -29,7 +29,9 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
                 if (i > 0)
                 {
                     char prev = s[i - 1];
-                    if (char.IsLower(prev) && char.IsUpper(cur))
+                    bool newWordCondition = char.IsLower(prev) && char.IsUpper(cur);
+                    bool numberStartCondition = char.IsLetter(prev) && char.IsNumber(cur);
+                    if (newWordCondition || numberStartCondition)
                     {
                         sb.Append(' ');
                     }

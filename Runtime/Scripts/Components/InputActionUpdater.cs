@@ -41,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void UpdateEvents(InputDevice device)
         {
-            if (Input.TryGetActionBindingInfo(inputActionReference.InputAction, device, out BindingInfo bindingInfo))
+            if (Input.TryGetActionBindingInfo(inputActionReference.InputAction, out BindingInfo bindingInfo))
             {
                 setSpriteEvent?.Invoke(bindingInfo.Sprite);
                 setTextEvent?.Invoke(bindingInfo.DisplayName);
