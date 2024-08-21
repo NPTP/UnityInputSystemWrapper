@@ -35,7 +35,7 @@ namespace NPTP.InputSystemWrapper
                 enabled = value;
                 playerInputGameObject.SetActive(value);
                 if (value)
-                    CurrentContext = currentContext;
+                    Context = context;
                 else
                     asset.Disable();
                 UpdateLastUsedDevice();
@@ -44,13 +44,13 @@ namespace NPTP.InputSystemWrapper
         }
 
         public PlayerID ID { get; }
-        private InputContext currentContext;
-        public InputContext CurrentContext
+        private InputContext context;
+        public InputContext Context
         {
-            get => currentContext;
+            get => context;
             set
             {
-                currentContext = value;
+                context = value;
                 EnableMapsForContext(value);
             }
         }
@@ -155,7 +155,7 @@ namespace NPTP.InputSystemWrapper
             playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
-            CurrentContext = currentContext;
+            Context = context;
         }
 
         private void SetEventSystemActions()

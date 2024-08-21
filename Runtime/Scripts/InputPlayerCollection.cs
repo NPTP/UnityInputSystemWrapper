@@ -146,7 +146,7 @@ namespace NPTP.InputSystemWrapper
 
         public void EnableContextForAll(InputContext inputContext)
         {
-            players.ForEach(p => p.CurrentContext = inputContext);
+            players.ForEach(p => p.Context = inputContext);
         }
 
         public void FindActionEventAndSubscribeAll(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)

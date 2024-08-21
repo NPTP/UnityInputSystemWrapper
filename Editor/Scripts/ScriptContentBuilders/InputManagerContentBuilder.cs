@@ -49,10 +49,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     {
                         lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).{mapName.AsType()};");
                     }
-                    lines.Add($"        public static {nameof(InputContext)} CurrentContext");
+                    lines.Add($"        public static {nameof(InputContext)} Context");
                     lines.Add("        {");
-                    lines.Add($"            get => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext;");
-                    lines.Add($"            set => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentContext = value;");
+                    lines.Add($"            get => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).Context;");
+                    lines.Add($"            set => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).Context = value;");
                     lines.Add("        }");
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentControlScheme;");
                     lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).LastUsedDevice;");

@@ -63,10 +63,10 @@ namespace NPTP.InputSystemWrapper
         }
         public static PlayerActions Player => GetPlayer(PlayerID.Player1).Player;
         public static UIActions UI => GetPlayer(PlayerID.Player1).UI;
-        public static InputContext CurrentContext
+        public static InputContext Context
         {
-            get => GetPlayer(PlayerID.Player1).CurrentContext;
-            set => GetPlayer(PlayerID.Player1).CurrentContext = value;
+            get => GetPlayer(PlayerID.Player1).Context;
+            set => GetPlayer(PlayerID.Player1).Context = value;
         }
         public static ControlScheme CurrentControlScheme => GetPlayer(PlayerID.Player1).CurrentControlScheme;
         public static InputDevice LastUsedDevice => GetPlayer(PlayerID.Player1).LastUsedDevice;
