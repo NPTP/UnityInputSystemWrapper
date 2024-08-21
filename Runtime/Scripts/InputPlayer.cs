@@ -173,7 +173,9 @@ namespace NPTP.InputSystemWrapper
             uiInputModule.leftClick = createLocalAssetReference("3c7022bf-7922-4f7c-a998-c437916075ad");
             // MARKER.EventSystemActions.End
 
+#pragma warning disable CS8321
             InputActionReference createLocalAssetReference(string actionID)
+#pragma warning restore CS8321
             {
                 return string.IsNullOrEmpty(actionID)
                     ? null
