@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine;
 using UnityEngine.Events;
@@ -41,10 +42,14 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void UpdateEvents(InputDevice device)
         {
-            if (Input.TryGetActionBindingInfo(inputActionReference.InputAction, out BindingInfo bindingInfo))
+            if (Input.TryGetActionBindingInfos(inputActionReference.InputAction, out IEnumerable<BindingInfo> bindingInfo))
             {
-                setSpriteEvent?.Invoke(bindingInfo.Sprite);
-                setTextEvent?.Invoke(bindingInfo.DisplayName);
+                int i = 0;
+                foreach (BindingInfo info in bindingInfo)
+                {
+                    Debug.Log($"{i}: {info.Sprite.name}, {info.DisplayName}");
+                    i++;
+                }
             }
         }
     }

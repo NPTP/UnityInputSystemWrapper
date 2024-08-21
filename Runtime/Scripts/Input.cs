@@ -157,9 +157,9 @@ namespace NPTP.InputSystemWrapper
         }
         
         // MARKER.TryGetActionBindingInfo.Start
-        public static bool TryGetActionBindingInfo(InputAction action, out BindingInfo bindingInfo)
+        public static bool TryGetActionBindingInfos(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfo);
+            return InputBindings.TryGetActionBindingInfos(runtimeInputData, action, LastUsedDevice, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfo.End
 

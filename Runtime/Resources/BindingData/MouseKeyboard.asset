@@ -16,8 +16,8 @@ MonoBehaviour:
     keyValueCombos:
     - key: leftButton
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Left Button!!!
+        sprite: {fileID: 21300000, guid: d24e7e0b75e1a244bb9687d6fd4315ef, type: 3}
     - key: rightButton
       value:
         displayName: 
@@ -68,8 +68,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: space
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Space!!!
+        sprite: {fileID: 21300000, guid: 0ac55f9f886d827408c102bdf33c5ff7, type: 3}
     - key: enter
       value:
         displayName: 
@@ -494,5 +494,3 @@ MonoBehaviour:
       value:
         displayName: 
         sprite: {fileID: 0}
-  isMKB: 0
-  isGamepad: 0

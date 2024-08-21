@@ -18,7 +18,7 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] When a player swaps device, an event is invoked that sends the new device or control scheme and the player ID. In SP games, just the device is sent, no ID. (This can be used for updating UI elements)
 - [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
 See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
-- [ ] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
+- [✔] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
 - [ ] Controls be rebound, with a simple button press to rebind.
 - [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
 - [ ] General cleanup to make as many methods internal as possible

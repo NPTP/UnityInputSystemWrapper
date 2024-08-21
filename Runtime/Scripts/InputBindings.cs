@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,9 +12,9 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal static class InputBindings
     {
-        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out BindingInfo bindingInfo)
+        internal static bool TryGetActionBindingInfos(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
-            bindingInfo = default;
+            bindingInfos = default;
             
             if (device == null)
             {
@@ -25,13 +26,25 @@ namespace NPTP.InputSystemWrapper
                 return false;
             }
 
-            // TODO: Support returning multiple control paths, since an action may have multiple bindings on a single device
-            if (!TryGetControlPath(action, device, out string controlPath))
+            if (!TryGetControlPaths(action, device, out List<string> controlPaths))
+            {
+                return false;
+            }
+
+            List<BindingInfo> bindingInfoList = new();
+            foreach (string controlPath in controlPaths)
+            {
+                if (bindingData.TryGetBindingInfo(controlPath, out BindingInfo bindingInfo))
+                    bindingInfoList.Add(bindingInfo);
+            }
+            
+            if (bindingInfoList.Count == 0)
             {
                 return false;
             }
             
-            return bindingData.TryGetBindingInfo(controlPath, out bindingInfo);
+            bindingInfos = bindingInfoList;
+            return true;
         }
         
         private static bool TryGetBindingData<TDevice>(RuntimeInputData runtimeInputData, TDevice device, out BindingData bindingData)
@@ -54,22 +67,35 @@ namespace NPTP.InputSystemWrapper
             return !bindingDataNull;
         }
         
-        private static bool TryGetControlPath(InputAction action, InputDevice device, out string controlPath)
+        private static bool TryGetControlPaths(InputAction action, InputDevice device, out List<string> controlPaths)
         {
-            controlPath = default;
-            
-            for (int i = 0; i < action.bindings.Count; i++)
+            List<string> paths = new();
+
+            if (device is Mouse or Keyboard)
             {
-                InputBinding binding = action.bindings[i];
-                InputControl control = InputControlPath.TryFindControl(device, binding.effectivePath);
-                if (control != null && control.device == device)
-                {
-                    controlPath = control.path[(2 + control.device.name.Length)..];
-                    return true;
-                }
+                getPathsForDevice(Mouse.current);
+                getPathsForDevice(Keyboard.current);
+            }
+            else
+            {
+                getPathsForDevice(device);
             }
 
-            return false;
+            controlPaths = paths;
+            return controlPaths.Count > 0;
+            
+            void getPathsForDevice(InputDevice inputDevice)
+            {
+                for (int i = 0; i < action.bindings.Count; i++)
+                {
+                    InputBinding binding = action.bindings[i];
+                    InputControl control = InputControlPath.TryFindControl(inputDevice, binding.effectivePath);
+                    if (control != null && control.device == inputDevice)
+                    {
+                        paths.Add(control.path[(2 + control.device.name.Length)..]);
+                    }
+                }
+            }
         }
     }
 }
