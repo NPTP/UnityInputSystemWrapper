@@ -11,6 +11,6 @@
         "url": "https://nptp.github.io/"
     },
     "dependencies": {
-        "com.unity.inputsystem": "1.3.0",
+        "com.unity.inputsystem": "1.3.0"
     }
 }
