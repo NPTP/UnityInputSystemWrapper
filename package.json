@@ -3,7 +3,7 @@
     "displayName": "Input System Wrapper",
     "version": "0.1.0",
     "unity": "2021.3",
-    "description": "Make Input easier to use!",
+    "description": "Make Input easier to use! Must import directly into assets.",
     "homepage": "https://github.com/NPTP/UnityInputSystemWrapper",
     "author": {
         "name": "Nick Perrin",

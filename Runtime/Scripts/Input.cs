@@ -156,12 +156,12 @@ namespace NPTP.InputSystemWrapper
             playerCollection.EnableContextForAll(context);
         }
         
-        // MARKER.TryGetActionBindingInfo.Start
+        // MARKER.TryGetActionBindingInfos.Start
         public static bool TryGetActionBindingInfos(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
         {
             return InputBindings.TryGetActionBindingInfos(runtimeInputData, action, LastUsedDevice, out bindingInfos);
         }
-        // MARKER.TryGetActionBindingInfo.End
+        // MARKER.TryGetActionBindingInfos.End
 
         #endregion
 
