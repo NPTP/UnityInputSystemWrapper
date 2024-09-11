@@ -12,7 +12,7 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal static class InputBindings
     {
-        internal static bool TryGetActionBindingInfos(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
             
@@ -21,32 +21,40 @@ namespace NPTP.InputSystemWrapper
                 return false;
             }
             
+            // Get the asset on disk containing binding data.
             if (!TryGetBindingData(runtimeInputData, device, out BindingData bindingData))
             {
                 return false;
             }
 
+            // Get the string paths to the used input action.
             if (!TryGetControlPaths(action, device, out List<string> controlPaths))
             {
                 return false;
             }
 
-            List<BindingInfo> bindingInfoList = new();
+            // Get the binding info (name, sprite, etc) for each control path.
+            if (!TryGetAllBindingInfo(controlPaths, bindingData, out List<BindingInfo> bindingInfoList))
+            {
+                return false;
+            }
+
+            bindingInfos = bindingInfoList;
+            return true;
+        }
+
+        private static bool TryGetAllBindingInfo(List<string> controlPaths, BindingData bindingData, out List<BindingInfo> bindingInfoList)
+        {
+            bindingInfoList = new List<BindingInfo>();
             foreach (string controlPath in controlPaths)
             {
                 if (bindingData.TryGetBindingInfo(controlPath, out BindingInfo bindingInfo))
                     bindingInfoList.Add(bindingInfo);
             }
-            
-            if (bindingInfoList.Count == 0)
-            {
-                return false;
-            }
-            
-            bindingInfos = bindingInfoList;
-            return true;
+
+            return bindingInfoList.Count > 0;
         }
-        
+
         private static bool TryGetBindingData<TDevice>(RuntimeInputData runtimeInputData, TDevice device, out BindingData bindingData)
             where TDevice : InputDevice
         {
@@ -73,18 +81,18 @@ namespace NPTP.InputSystemWrapper
 
             if (device is Mouse or Keyboard)
             {
-                getPathsForDevice(Mouse.current);
-                getPathsForDevice(Keyboard.current);
+                addPathsForDevice(Mouse.current);
+                addPathsForDevice(Keyboard.current);
             }
             else
             {
-                getPathsForDevice(device);
+                addPathsForDevice(device);
             }
 
             controlPaths = paths;
             return controlPaths.Count > 0;
             
-            void getPathsForDevice(InputDevice inputDevice)
+            void addPathsForDevice(InputDevice inputDevice)
             {
                 for (int i = 0; i < action.bindings.Count; i++)
                 {

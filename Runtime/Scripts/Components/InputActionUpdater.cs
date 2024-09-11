@@ -42,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void UpdateEvents(InputDevice device)
         {
-            if (Input.TryGetActionBindingInfos(inputActionReference.InputAction, out IEnumerable<BindingInfo> bindingInfo))
+            if (Input.TryGetBindingInfo(inputActionReference.InputAction, out IEnumerable<BindingInfo> bindingInfo))
             {
                 int i = 0;
                 foreach (BindingInfo info in bindingInfo)

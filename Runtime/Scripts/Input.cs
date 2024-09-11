@@ -31,21 +31,8 @@ namespace NPTP.InputSystemWrapper
         
         public static event Action<InputControl> OnAnyButtonPress
         {
-            add
-            {
-                if (value == null || anyButtonPressListeners.Contains(value))
-                    return;
-                anyButtonPressListeners.Add(value);
-                if (anyButtonPressCaller == null)
-                    anyButtonPressCaller = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
-            }
-            remove
-            {
-                if (value == null || !anyButtonPressListeners.Contains(value))
-                    return;
-                anyButtonPressListeners.Remove(value);
-                TearDownAnyButtonPressCaller();
-            }
+            add => AddAnyButtonPressListener(value);
+            remove => RemoveAnyButtonPressListener(value);
         }
 
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
@@ -132,7 +119,7 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Internal Interface
-        
+
         internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
@@ -160,9 +147,9 @@ namespace NPTP.InputSystemWrapper
         }
         
         // MARKER.TryGetActionBindingInfos.Start
-        public static bool TryGetActionBindingInfos(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
+        public static bool TryGetBindingInfo(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return InputBindings.TryGetActionBindingInfos(runtimeInputData, action, LastUsedDevice, out bindingInfos);
+            return InputBindings.TryGetBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfos.End
 
@@ -170,7 +157,24 @@ namespace NPTP.InputSystemWrapper
 
         #region Private Runtime Functionality
         
-        private static void TearDownAnyButtonPressCaller()
+        private static void AddAnyButtonPressListener(Action<InputControl> action)
+        {
+            if (action == null || anyButtonPressListeners.Contains(action))
+                return;
+            anyButtonPressListeners.Add(action);
+            if (anyButtonPressCaller == null)
+                anyButtonPressCaller = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
+        }
+        
+        private static void RemoveAnyButtonPressListener(Action<InputControl> value)
+        {
+            if (value == null || !anyButtonPressListeners.Contains(value))
+                return;
+            anyButtonPressListeners.Remove(value);
+            TearDownAnyButtonPressCallerIfNoListeners();
+        }
+        
+        private static void TearDownAnyButtonPressCallerIfNoListeners()
         {
             if (anyButtonPressListeners.Count == 0 && anyButtonPressCaller != null)
             {
@@ -182,36 +186,41 @@ namespace NPTP.InputSystemWrapper
         private static void UnregisterAllAnyButtonPressListeners()
         {
             anyButtonPressListeners.Clear();
-            TearDownAnyButtonPressCaller();
-        }
-        
-        private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
-        {
-            playerCollection.HandleInputUserChange(inputUser, inputUserChange, inputDevice);
+            TearDownAnyButtonPressCallerIfNoListeners();
         }
 
         private static void HandleAnyButtonPressed(InputControl inputControl)
         {
-            // Temp array for invocation since listeners can unsubscribe and modify the hashset during enumeration
-            Action<InputControl>[] listeners = anyButtonPressListeners.ToArray();
-            for (int i = 0; i < listeners.Length; i++)
-                listeners[i]?.Invoke(inputControl);
+            InvokeAnyButtonPressListeners(inputControl);
 
-            // Player joining is always disallowed in SP mode.
+            // Player joining is always disallowed in SinglePlayer mode.
             if (!AllowPlayerJoining)
             {
                 return;
             }
             
+            JoinPlayerByActivatedInputControl(inputControl);
+        }
+
+        private static void InvokeAnyButtonPressListeners(InputControl inputControl)
+        {
+            // Temp array for invocation instead of enumerating the anyButtonPressListeners hash set, since
+            // listeners could unsubscribe during invocation which would modify the hashset.
+            Action<InputControl>[] listeners = anyButtonPressListeners.ToArray();
+            for (int i = 0; i < listeners.Length; i++)
+                listeners[i]?.Invoke(inputControl);
+        }
+        
+        private static void JoinPlayerByActivatedInputControl(InputControl inputControl)
+        {
             InputDevice device = inputControl.device;
-            
-            if (device is Mouse or Keyboard ||
-                playerCollection.IsDeviceLastUsedByAnyPlayer(device) ||
-                !playerCollection.AnyPlayerDisabled())
+
+            // Mouse + Keyboard is always joined, currently used devices can't be stolen, and we can't join an inactive player if they're all already active.
+            if (device is Mouse or Keyboard || playerCollection.IsDeviceLastUsedByAnyPlayer(device) || !playerCollection.AnyPlayerDisabled())
             {
                 return;
             }
-            
+
             // Allow "stealing" a device paired to, but currently unused by, another player.
             if (playerCollection.TryGetPlayerPairedWithDevice(device, out InputPlayer pairedPlayer))
             {
@@ -224,6 +233,11 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
+        private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+        {
+            playerCollection.HandleInputUserChange(inputUser, inputUserChange, inputDevice);
+        }
+        
         #endregion
     }
 }

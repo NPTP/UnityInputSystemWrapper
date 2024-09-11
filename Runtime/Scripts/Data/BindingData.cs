@@ -12,8 +12,7 @@ namespace NPTP.InputSystemWrapper.Data
     {
         [SerializeField] private SerializableDictionary<string, BindingInfo> bindingDataDictionary = new();
 
-        public bool TryGetBindingInfo(string controlPath, out BindingInfo bindingInfo) =>
-            bindingDataDictionary.TryGetValue(controlPath, out bindingInfo);
+        public bool TryGetBindingInfo(string controlPath, out BindingInfo bindingInfo) => bindingDataDictionary.TryGetValue(controlPath, out bindingInfo);
         
 #if UNITY_EDITOR
         public void EDITOR_AddMouseBindings() => EDITOR_AddBindings(InputDataHelper.MouseControls);
