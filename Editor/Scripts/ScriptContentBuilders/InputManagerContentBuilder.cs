@@ -60,19 +60,19 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");
                     break;
-                case "TryGetActionBindingInfos":
+                case "TryGetActionBindingInfo":
                     bool isMultiplayer = Helper.OfflineInputData.EnableMultiplayer;
                     string methodHeader;
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfos({nameof(InputAction)} action, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfos(runtimeInputData, action, {MPPublicPlayerGetter}(playerID).LastUsedDevice, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, {MPPublicPlayerGetter}(playerID).LastUsedDevice, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfos({nameof(InputAction)} action, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfos(runtimeInputData, action, LastUsedDevice, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);

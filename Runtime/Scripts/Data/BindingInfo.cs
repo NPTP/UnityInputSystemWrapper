@@ -5,7 +5,8 @@ namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
     /// Tells us which strings and icons to display for a single binding.
-    /// E.g. "dpad/up" which should show a D-Pad pointing up and display "D-Pad Up".
+    /// E.g. Given the binding "dpad/up", this might show a sprite with a
+    /// D-Pad pointing up and use the display name "D-Pad Up".
     /// </summary>
     [Serializable]
     public class BindingInfo

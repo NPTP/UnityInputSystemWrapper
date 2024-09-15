@@ -63,7 +63,7 @@ namespace NPTP.InputSystemWrapper
         private static InputContext DefaultContext => InputContext.Player;
         // MARKER.DefaultContextProperty.End
 
-        private static readonly HashSet<Action<InputControl>> anyButtonPressListeners = new();
+        private static HashSet<Action<InputControl>> anyButtonPressListeners;
         private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
         private static RuntimeInputData runtimeInputData;
@@ -75,20 +75,27 @@ namespace NPTP.InputSystemWrapper
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeBeforeSceneLoad()
         {
+            // Allows input system to work even when domain reload is disabled in editor.
+            if (RuntimeSafeEditorUtility.IsDomainReloadDisabled())
+                ReflectionUtility.ResetStaticClassMembersToDefault(typeof(Input));
+            
             SetUpTerminationConditions();
             
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
-            InputActionAsset asset = runtimeInputData.InputActionAsset;
-            if (asset == null)
-            {
-                throw new Exception($"{runtimeInputData.GetType().Name} is missing its input action asset!");
-            }
-            
+            if (runtimeInputData == null)
+                throw new Exception($"{nameof(RuntimeInputData)} could not be loaded - input will not work!");
+            if (runtimeInputData.InputActionAsset == null)
+                throw new Exception($"{nameof(RuntimeInputData)} is missing an input action asset - input will not work!");
+
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
-            ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
-            playerCollection = new InputPlayerCollection(asset, maxPlayers);
-            EnableContextForAllPlayers(DefaultContext);
             
+            // TODO: Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out...
+            ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
+            
+            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
+            EnableContextForAllPlayers(DefaultContext);
+
+            anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
         }
@@ -146,12 +153,12 @@ namespace NPTP.InputSystemWrapper
             playerCollection.EnableContextForAll(context);
         }
         
-        // MARKER.TryGetActionBindingInfos.Start
+        // MARKER.TryGetActionBindingInfo.Start
         public static bool TryGetBindingInfo(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
         {
             return InputBindings.TryGetBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfos);
         }
-        // MARKER.TryGetActionBindingInfos.End
+        // MARKER.TryGetActionBindingInfo.End
 
         #endregion
 
@@ -171,10 +178,10 @@ namespace NPTP.InputSystemWrapper
             if (value == null || !anyButtonPressListeners.Contains(value))
                 return;
             anyButtonPressListeners.Remove(value);
-            TearDownAnyButtonPressCallerIfNoListeners();
+            DisposeAnyButtonPressCallerIfNoListeners();
         }
         
-        private static void TearDownAnyButtonPressCallerIfNoListeners()
+        private static void DisposeAnyButtonPressCallerIfNoListeners()
         {
             if (anyButtonPressListeners.Count == 0 && anyButtonPressCaller != null)
             {
@@ -186,7 +193,7 @@ namespace NPTP.InputSystemWrapper
         private static void UnregisterAllAnyButtonPressListeners()
         {
             anyButtonPressListeners.Clear();
-            TearDownAnyButtonPressCallerIfNoListeners();
+            DisposeAnyButtonPressCallerIfNoListeners();
         }
 
         private static void HandleAnyButtonPressed(InputControl inputControl)

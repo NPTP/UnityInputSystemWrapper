@@ -6,7 +6,6 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
-using UnityEngine.InputSystem.Utilities;
 
 namespace NPTP.InputSystemWrapper
 {

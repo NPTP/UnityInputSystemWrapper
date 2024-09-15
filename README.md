@@ -21,6 +21,8 @@ This package must be imported directly into the Assets of your project, or the c
 - [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
 See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
 - [✔] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
+- [✔] Clear static members of the Input static class when domain reload is disabled in editor.
+- 
 - [ ] Controls be rebound, with a simple button press to rebind.
 - [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
 - [ ] General cleanup to make as many methods internal as possible
