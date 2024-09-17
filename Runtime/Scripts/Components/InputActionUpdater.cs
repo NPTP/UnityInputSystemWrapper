@@ -1,37 +1,33 @@
+using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.DualShock;
 
 namespace NPTP.InputSystemWrapper.Components
 {
+    /// <summary>
+    /// Place this component, choose an input action, and subscribe to its OnBindingsUpdated event.
+    /// In the handler for that event, you will receive binding info (names & sprites) whenever the bindings
+    /// should change (device changes, bindings changed by player, etc.). You can then use the binding info
+    /// for your UI displays.
+    /// </summary>
     public class InputActionUpdater : MonoBehaviour
     {
-        [SerializeField] private InputActionReferenceWrapper inputActionReference;
+        public event Action<IEnumerable<BindingInfo>> OnBindingsUpdated;
         
-        [SerializeField] private UnityEvent<Sprite> setSpriteEvent;
-        [SerializeField] private UnityEvent<string> setTextEvent;
+        [SerializeField] private InputActionReferenceWrapper inputActionReference;
 
         private void OnEnable()
         {
-            Subscribe();
+            // TODO: Subscribe to bindings being changed
+            Input.OnDeviceControlChanged += HandleDeviceControlChanged;
             UpdateEvents(Input.LastUsedDevice);
         }
 
         private void OnDisable()
         {
-            Unsubscribe();
-        }
-
-        private void Subscribe()
-        {
-            Input.OnDeviceControlChanged += HandleDeviceControlChanged;
-        }
-
-        private void Unsubscribe()
-        {
+            // TODO: Unsubscribe from bindings being changed
             Input.OnDeviceControlChanged -= HandleDeviceControlChanged;
         }
 
@@ -47,19 +43,7 @@ namespace NPTP.InputSystemWrapper.Components
                 return;
             }
             
-            int i = 0;
-            foreach (BindingInfo info in bindingInfo)
-            {
-                if (info.Sprite != null)
-                    Debug.Log($"Got sprite binding {i} for {inputActionReference.InputAction.name}: {info.Sprite.name}");
-                setSpriteEvent?.Invoke(info.Sprite);
-
-                if (!string.IsNullOrEmpty(info.DisplayName))
-                    Debug.Log($"Got display name binding {i} for {inputActionReference.InputAction.name}: {info.DisplayName}");
-                setTextEvent?.Invoke(info.DisplayName);
-                    
-                i++;
-            }
+            OnBindingsUpdated?.Invoke(bindingInfo);
         }
     }
 }
