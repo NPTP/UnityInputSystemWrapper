@@ -9,6 +9,11 @@ using UnityEngine.InputSystem.Users;
 
 namespace NPTP.InputSystemWrapper
 {
+    /// <summary>
+    /// Useful interface layer for dealing with a collection of multiple players.
+    /// Note we avoid foreach & LINQ usage on the internal array to improve performance.
+    /// (Our ForEach extension is just a standard array for loop.)
+    /// </summary>
     internal sealed class InputPlayerCollection
     {
         private readonly InputPlayer[] players;
@@ -30,7 +35,8 @@ namespace NPTP.InputSystemWrapper
                 players[i] = newPlayer;
             }
 
-            // Loop again as the enabled/disabled handler requires a stable players array.
+            // Loop again as the enabled/disabled handler requires a stable players array, and we're
+            // changing the value of player.Enabled here.
             for (int i = 0; i < players.Length; i++)
             {
                 InputPlayer player = players[i];
@@ -93,7 +99,13 @@ namespace NPTP.InputSystemWrapper
         
         public bool AnyPlayerDisabled()
         {
-            return players.Any(player => !player.Enabled);
+            for (int i = 0; i < players.Length; i++)
+            {
+                InputPlayer player = players[i];
+                if (!player.Enabled) return true;
+            }
+
+            return false;
         }
         
         public bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
@@ -145,7 +157,7 @@ namespace NPTP.InputSystemWrapper
 
         public void EnableContextForAll(InputContext inputContext)
         {
-            players.ForEach(p => p.Context = inputContext);
+            players.ForEach(p => p.InputContext = inputContext);
         }
 
         public void FindActionEventAndSubscribeAll(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)

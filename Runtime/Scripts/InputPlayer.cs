@@ -35,7 +35,7 @@ namespace NPTP.InputSystemWrapper
                 enabled = value;
                 playerInputGameObject.SetActive(value);
                 if (value)
-                    Context = context;
+                    InputContext = inputContext;
                 else
                     asset.Disable();
                 UpdateLastUsedDevice();
@@ -44,13 +44,13 @@ namespace NPTP.InputSystemWrapper
         }
 
         public PlayerID ID { get; }
-        private InputContext context;
-        public InputContext Context
+        private InputContext inputContext;
+        public InputContext InputContext
         {
-            get => context;
+            get => inputContext;
             set
             {
-                context = value;
+                inputContext = value;
                 EnableMapsForContext(value);
             }
         }
@@ -155,7 +155,7 @@ namespace NPTP.InputSystemWrapper
             playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
-            Context = context;
+            InputContext = inputContext;
         }
 
         private void SetEventSystemActions()
@@ -352,9 +352,9 @@ namespace NPTP.InputSystemWrapper
 
         #region Private Functionality
         
-        private void HandleAnyActionTriggered(InputAction.CallbackContext context)
+        private void HandleAnyActionTriggered(InputAction.CallbackContext callbackContext)
         {
-            LastUsedDevice = context.control.device;
+            LastUsedDevice = callbackContext.control.device;
         }
         
         private void EnableKeyboardTextInput()
@@ -475,18 +475,6 @@ namespace NPTP.InputSystemWrapper
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);
             }
         }
-
-        #endregion
-
-        // TODO: Remove section after debugging finished
-        #region Editor Debugging
-
-#if UNITY_EDITOR
-        public bool EDITOR_Enabled
-        {
-            set => Enabled = value;
-        }
-#endif
 
         #endregion
     }

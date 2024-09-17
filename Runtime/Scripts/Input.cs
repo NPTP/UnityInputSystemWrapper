@@ -52,8 +52,8 @@ namespace NPTP.InputSystemWrapper
         public static UIActions UI => GetPlayer(PlayerID.Player1).UI;
         public static InputContext Context
         {
-            get => GetPlayer(PlayerID.Player1).Context;
-            set => GetPlayer(PlayerID.Player1).Context = value;
+            get => GetPlayer(PlayerID.Player1).InputContext;
+            set => GetPlayer(PlayerID.Player1).InputContext = value;
         }
         public static ControlScheme CurrentControlScheme => GetPlayer(PlayerID.Player1).CurrentControlScheme;
         public static InputDevice LastUsedDevice => GetPlayer(PlayerID.Player1).LastUsedDevice;
@@ -148,15 +148,17 @@ namespace NPTP.InputSystemWrapper
 
         #region Public Interface
         
-        public static void EnableContextForAllPlayers(InputContext context)
+        // MARKER.EnableContextForAllPlayersSignature.Start
+        private static void EnableContextForAllPlayers(InputContext inputContext)
+        // MARKER.EnableContextForAllPlayersSignature.End
         {
-            playerCollection.EnableContextForAll(context);
+            playerCollection.EnableContextForAll(inputContext);
         }
         
         // MARKER.TryGetActionBindingInfo.Start
-        public static bool TryGetBindingInfo(InputAction action, out IEnumerable<BindingInfo> bindingInfos)
+        public static bool TryGetActionBindingInfo(InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return InputBindings.TryGetBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfos);
+            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfo.End
 

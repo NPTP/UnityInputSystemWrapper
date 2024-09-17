@@ -12,7 +12,7 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal static class InputBindings
     {
-        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
             

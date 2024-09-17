@@ -3,16 +3,16 @@ using NPTP.InputSystemWrapper.Data;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.DualShock;
 
 namespace NPTP.InputSystemWrapper.Components
 {
-    // TODO: Support picking an individual player to find a binding
     public class InputActionUpdater : MonoBehaviour
     {
-        public UnityEvent<Sprite> setSpriteEvent;
-        public UnityEvent<string> setTextEvent;
-
         [SerializeField] private InputActionReferenceWrapper inputActionReference;
+        
+        [SerializeField] private UnityEvent<Sprite> setSpriteEvent;
+        [SerializeField] private UnityEvent<string> setTextEvent;
 
         private void OnEnable()
         {
@@ -42,14 +42,23 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void UpdateEvents(InputDevice device)
         {
-            if (Input.TryGetBindingInfo(inputActionReference.InputAction, out IEnumerable<BindingInfo> bindingInfo))
+            if (!Input.TryGetActionBindingInfo(inputActionReference.InputAction, device, out IEnumerable<BindingInfo> bindingInfo))
             {
-                int i = 0;
-                foreach (BindingInfo info in bindingInfo)
-                {
-                    Debug.Log($"{i}: {info.Sprite.name}, {info.DisplayName}");
-                    i++;
-                }
+                return;
+            }
+            
+            int i = 0;
+            foreach (BindingInfo info in bindingInfo)
+            {
+                if (info.Sprite != null)
+                    Debug.Log($"Got sprite binding {i} for {inputActionReference.InputAction.name}: {info.Sprite.name}");
+                setSpriteEvent?.Invoke(info.Sprite);
+
+                if (!string.IsNullOrEmpty(info.DisplayName))
+                    Debug.Log($"Got display name binding {i} for {inputActionReference.InputAction.name}: {info.DisplayName}");
+                setTextEvent?.Invoke(info.DisplayName);
+                    
+                i++;
             }
         }
     }

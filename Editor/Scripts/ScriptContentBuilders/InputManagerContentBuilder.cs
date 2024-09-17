@@ -20,7 +20,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "SingleOrMultiPlayerFieldsAndProperties":
                     OfflineInputData offlineInputData = Helper.OfflineInputData;
                     bool enableMp = offlineInputData.EnableMultiplayer;
-                    int maxPlayers = offlineInputData.MaxPlayers;
                     
                     if (enableMp)
                     {
@@ -51,8 +50,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     lines.Add($"        public static {nameof(InputContext)} Context");
                     lines.Add("        {");
-                    lines.Add($"            get => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).Context;");
-                    lines.Add($"            set => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).Context = value;");
+                    lines.Add($"            get => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).InputContext;");
+                    lines.Add($"            set => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).InputContext = value;");
                     lines.Add("        }");
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentControlScheme;");
                     lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).LastUsedDevice;");
@@ -60,19 +59,23 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");
                     break;
+                case "EnableContextForAllPlayersSignature":
+                    string accessor = Helper.OfflineInputData.EnableMultiplayer ? "public" : "private";
+                    lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
+                    break;
                 case "TryGetActionBindingInfo":
                     bool isMultiplayer = Helper.OfflineInputData.EnableMultiplayer;
                     string methodHeader;
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, {MPPublicPlayerGetter}(playerID).LastUsedDevice, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, LastUsedDevice, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);

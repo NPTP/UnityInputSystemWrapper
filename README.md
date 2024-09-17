@@ -1,9 +1,11 @@
 # Unity Input System Wrapper
 ### Nick Perrin (c) 2024
 
-A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and much more readable API.
+A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and more readable API.
 
-This package must be imported directly into the Assets of your project, or the code auto-generation won't work, and you won't have access to the Input Data scriptable objects required for setup.
+#### Advantages
+- Set the max number of players your game can have, and subscribe to any players' input events at any time in Awake or later without running into race conditions or null references.
+- 
 
 #### Features to-do list:
 - [✔] Change "Input Context" dynamically by a simple enum. No public access to particular action maps.
@@ -22,7 +24,6 @@ This package must be imported directly into the Assets of your project, or the c
 See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
 - [✔] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
 - [✔] Clear static members of the Input static class when domain reload is disabled in editor.
-- 
 - [ ] Controls be rebound, with a simple button press to rebind.
 - [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
 - [ ] General cleanup to make as many methods internal as possible
