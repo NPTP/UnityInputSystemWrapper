@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 // ------------------------------------------------------------------------
 namespace NPTP.InputSystemWrapper.Generated.MapCaches
 {
-    public class PlayerMapCache
+    internal class PlayerMapCache
     {
         private readonly List<IPlayerActions> interfaces = new();
 

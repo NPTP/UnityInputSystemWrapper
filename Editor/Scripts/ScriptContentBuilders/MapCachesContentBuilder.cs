@@ -23,7 +23,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"namespace {Helper.InputNamespace}.{Helper.GENERATED}.{Helper.MAP_CACHES}");
                     break;
                 case "ClassSignature":
-                    lines.Add($"    public class {className}");
+                    lines.Add($"    internal class {className}");
                     break;
                 case "InterfacesList":
                     lines.Add($"        private readonly List<{interfaceName}> interfaces = new();");

@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 // ------------------------------------------------------------------------
 namespace NPTP.InputSystemWrapper.Generated.MapCaches
 {
-    public class UIMapCache
+    internal class UIMapCache
     {
         private readonly List<IUIActions> interfaces = new();
 

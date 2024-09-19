@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.Generated.MapCaches
 // MARKER.Namespace.End
 {
     // MARKER.ClassSignature.Start
-    public class MapCacheTemplate
+    internal class MapCacheTemplate
     // MARKER.ClassSignature.End
     {
         // MARKER.InterfacesList.Start
