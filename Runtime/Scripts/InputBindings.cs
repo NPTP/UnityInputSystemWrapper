@@ -12,11 +12,17 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal static class InputBindings
     {
-        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputActionAsset playerAsset, string actionName, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
             
             if (device == null)
+            {
+                return false;
+            }
+
+            // Get the action from this specific player's action asset, since bindings can be different per-player/per-asset.
+            if (!TryGetActionInAssetWithMatchingName(playerAsset, actionName, out InputAction actionFromAsset))
             {
                 return false;
             }
@@ -27,8 +33,8 @@ namespace NPTP.InputSystemWrapper
                 return false;
             }
 
-            // Get the string paths to the used input action.
-            if (!TryGetControlPaths(action, device, out List<string> controlPaths))
+            // Get the string control paths to the used input action.
+            if (!TryGetControlPaths(actionFromAsset, device, out List<string> controlPaths))
             {
                 return false;
             }
@@ -41,6 +47,12 @@ namespace NPTP.InputSystemWrapper
 
             bindingInfos = bindingInfoList;
             return true;
+        }
+
+        private static bool TryGetActionInAssetWithMatchingName(InputActionAsset asset, string actionName, out InputAction actionFromAsset)
+        {
+            actionFromAsset = asset.FindAction(actionName);
+            return actionFromAsset != null;
         }
 
         private static bool TryGetAllBindingInfo(List<string> controlPaths, BindingData bindingData, out List<BindingInfo> bindingInfoList)

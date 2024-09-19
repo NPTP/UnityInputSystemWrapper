@@ -37,7 +37,7 @@ namespace NPTP.InputSystemWrapper
                 if (value)
                     InputContext = inputContext;
                 else
-                    asset.Disable();
+                    Asset.Disable();
                 UpdateLastUsedDevice();
                 OnEnabledOrDisabled?.Invoke(this);
             }
@@ -73,7 +73,8 @@ namespace NPTP.InputSystemWrapper
         private readonly UIMapCache uIMap;
         // MARKER.MapCacheFields.End
 
-        private readonly InputActionAsset asset;
+        public InputActionAsset Asset { get; }
+
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
@@ -85,14 +86,14 @@ namespace NPTP.InputSystemWrapper
 
         internal InputPlayer(InputActionAsset inputActionAsset, PlayerID id, bool isMultiplayer, Transform parent)
         {
-            asset = InstantiateNewActions(inputActionAsset);
+            Asset = InstantiateNewActions(inputActionAsset);
             ID = id;
 
             // MARKER.MapAndActionsInstantiation.Start
             Player = new PlayerActions();
-            playerMap = new PlayerMapCache(asset);
+            playerMap = new PlayerMapCache(Asset);
             UI = new UIActions();
-            uIMap = new UIMapCache(asset);
+            uIMap = new UIMapCache(Asset);
             // MARKER.MapAndActionsInstantiation.End
 
             SetUpInputPlayerGameObject(isMultiplayer, parent);
@@ -106,7 +107,7 @@ namespace NPTP.InputSystemWrapper
         internal void Terminate()
         {
             playerInput.onActionTriggered -= HandleAnyActionTriggered;
-            asset.Disable();
+            Asset.Disable();
             DisableKeyboardTextInput();
             RemoveAllMapActionCallbacks();
             Object.Destroy(playerInputGameObject);
@@ -114,6 +115,7 @@ namespace NPTP.InputSystemWrapper
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
         {
+            // TODO: Load bindings from disk based on player ID and use as overrides.
             InputActionAsset oldActions = actions;
             InputActionAsset newActions = Object.Instantiate(actions);
             for (int actionMap = 0; actionMap < oldActions.actionMaps.Count; actionMap++)
@@ -149,9 +151,9 @@ namespace NPTP.InputSystemWrapper
                 playerInputGameObject.AddComponent<EventSystem>();
                 
             uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
-            uiInputModule.actionsAsset = asset;
+            uiInputModule.actionsAsset = Asset;
             
-            playerInput.actions = asset;
+            playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
@@ -179,7 +181,7 @@ namespace NPTP.InputSystemWrapper
             {
                 return string.IsNullOrEmpty(actionID)
                     ? null
-                    : InputActionReference.Create(asset.FindAction(actionID, throwIfNotFound: false));
+                    : InputActionReference.Create(Asset.FindAction(actionID, throwIfNotFound: false));
             }
         }
 
@@ -263,7 +265,7 @@ namespace NPTP.InputSystemWrapper
         
         internal void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
-            InputActionMap map = asset.FindActionMap(actionReference.action.actionMap.name);
+            InputActionMap map = Asset.FindActionMap(actionReference.action.actionMap.name);
             if (map == null) return;
             InputAction action = map.FindAction(actionReference.action.name);
             if (action == null) return;

@@ -34,7 +34,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     foreach (string map in Helper.GetMapNames(asset))
                     {
                         lines.Add($"            {map.AsType()} = new {map.AsType()}Actions();");
-                        lines.Add($"            {map.AsField()}Map = new {map.AsType()}MapCache(asset);");
+                        lines.Add($"            {map.AsField()}Map = new {map.AsType()}MapCache(Asset);");
                     }
                     break;
                 case "EventSystemActions":

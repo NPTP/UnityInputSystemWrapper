@@ -35,28 +35,29 @@ namespace NPTP.InputSystemWrapper
             remove => RemoveAnyButtonPressListener(value);
         }
 
+        
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
+        private static InputPlayer Player1 => playerCollection[PlayerID.Player1];
         private static bool AllowPlayerJoining => false;
-        private static InputPlayer GetPlayer(PlayerID id) => playerCollection[id];
         public static event Action<DeviceControlInfo> OnDeviceControlChanged
         {
-            add => GetPlayer(PlayerID.Player1).OnDeviceControlChanged += value;
-            remove => GetPlayer(PlayerID.Player1).OnDeviceControlChanged -= value;
+            add => Player1.OnDeviceControlChanged += value;
+            remove => Player1.OnDeviceControlChanged -= value;
         }
         public static event Action<char> OnKeyboardTextInput
         {
-            add => GetPlayer(PlayerID.Player1).OnKeyboardTextInput += value;
-            remove => GetPlayer(PlayerID.Player1).OnKeyboardTextInput -= value;
+            add => Player1.OnKeyboardTextInput += value;
+            remove => Player1.OnKeyboardTextInput -= value;
         }
-        public static PlayerActions Player => GetPlayer(PlayerID.Player1).Player;
-        public static UIActions UI => GetPlayer(PlayerID.Player1).UI;
+        public static PlayerActions Player => Player1.Player;
+        public static UIActions UI => Player1.UI;
         public static InputContext Context
         {
-            get => GetPlayer(PlayerID.Player1).InputContext;
-            set => GetPlayer(PlayerID.Player1).InputContext = value;
+            get => Player1.InputContext;
+            set => Player1.InputContext = value;
         }
-        public static ControlScheme CurrentControlScheme => GetPlayer(PlayerID.Player1).CurrentControlScheme;
-        public static InputDevice LastUsedDevice => GetPlayer(PlayerID.Player1).LastUsedDevice;
+        public static ControlScheme CurrentControlScheme => Player1.CurrentControlScheme;
+        public static InputDevice LastUsedDevice => Player1.LastUsedDevice;
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start
@@ -158,7 +159,7 @@ namespace NPTP.InputSystemWrapper
         // MARKER.TryGetActionBindingInfo.Start
         public static bool TryGetActionBindingInfo(InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);
+            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player1.Asset, action.name, device, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfo.End
 

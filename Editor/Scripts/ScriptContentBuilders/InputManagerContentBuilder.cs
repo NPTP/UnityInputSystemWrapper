@@ -7,9 +7,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     public static class InputManagerContentBuilder
     {
-        private static string MPPublicPlayerGetter => "Player"; 
-        private static string SPPrivatePlayerGetter => "GetPlayer"; 
-        
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
             switch (markerName)
@@ -34,27 +31,27 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                                   "                ListenForAnyButtonPress = value ? listenForAnyButtonPress + 1 : listenForAnyButtonPress - 1;\n" +
                                   "            }\n" +
                                   "        }");
-                        lines.Add($"        public static {nameof(InputPlayer)} {MPPublicPlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
+                        lines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => playerCollection[id];");
                         lines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
                         break;
                     }
                     
+                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => playerCollection[{nameof(PlayerID)}.{nameof(PlayerID.Player1)}];");
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
-                    lines.Add($"        private static {nameof(InputPlayer)} {SPPrivatePlayerGetter}({nameof(PlayerID)} id) => playerCollection[id];");
                     
                     lines.Add(getSinglePlayerEventWrapperString(nameof(DeviceControlInfo), "OnDeviceControlChanged"));
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     foreach (string mapName in Helper.GetMapNames(asset))
                     {
-                        lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).{mapName.AsType()};");
+                        lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};");
                     }
                     lines.Add($"        public static {nameof(InputContext)} Context");
                     lines.Add("        {");
-                    lines.Add($"            get => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).InputContext;");
-                    lines.Add($"            set => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).InputContext = value;");
+                    lines.Add($"            get => Player1.InputContext;");
+                    lines.Add($"            set => Player1.InputContext = value;");
                     lines.Add("        }");
-                    lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).CurrentControlScheme;");
-                    lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).LastUsedDevice;");
+                    lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
+                    lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => Player1.LastUsedDevice;");
                     break;
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");
@@ -70,12 +67,12 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     if (isMultiplayer)
                     {
                         methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player(playerID).Asset, action.name, device, out bindingInfos);";
                     }
                     else
                     {
                         methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player1.Asset, action.name, device, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);
@@ -89,8 +86,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             {
                 return $"        public static event Action<{parameterName}> {eventName}\n" +
                        "        {\n" +
-                       $"            add => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).{eventName} += value;\n" +
-                       $"            remove => {SPPrivatePlayerGetter}({nameof(PlayerID)}.{PlayerID.Player1}).{eventName} -= value;\n" +
+                       $"            add => Player1.{eventName} += value;\n" +
+                       $"            remove => Player1.{eventName} -= value;\n" +
                        "        }";
             }
         }
