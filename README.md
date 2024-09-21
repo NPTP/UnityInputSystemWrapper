@@ -20,14 +20,13 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Remove Addressables dependencies
 - [✔] Remove Unity Localization dependencies (for now)
 - [✔] When a player swaps device, an event is invoked that sends the new device or control scheme and the player ID. In SP games, just the device is sent, no ID. (This can be used for updating UI elements)
-- [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI.
-See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
+- [✔] An input action reference can be translated to a binding on the currently active device, and that binding can be translated to a sprite for use on the UI. See: https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
 - [✔] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
 - [✔] Clear static members of the Input static class when domain reload is disabled in editor.
 - [✔] Combine Actions and MapCache classes into one.
 - [✔] Support wrapped input action properties and methods like polling input action state directly.
-- [ ] Controls be rebound, with a simple button press to rebind.
-- [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
+- [ ] Controls be rebound, with a simple button press to rebind. See: https://www.youtube.com/watch?v=qXbjyzBlduY
+- [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding). Input actions asset SaveBindingOverridesAsJson & LoadBindingOverridesFromJson. Saves binding overrides.
 - [ ] General cleanup to make as many methods internal as possible
 
 ##### Multiplayer Additions:
