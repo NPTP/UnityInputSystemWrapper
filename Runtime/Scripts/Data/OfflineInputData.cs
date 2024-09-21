@@ -24,11 +24,8 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private RuntimeInputData runtimeInputData;
         public RuntimeInputData RuntimeInputData => runtimeInputData;
 
-        [SerializeField] private TextAsset mapActionsTemplateFile;
-        public TextAsset MapActionsTemplateFile => mapActionsTemplateFile;
-        
-        [SerializeField] private TextAsset mapCacheTemplateFile;
-        public TextAsset MapCacheTemplateFile => mapCacheTemplateFile;
+        [SerializeField] private TextAsset actionsTemplateFile;
+        public TextAsset ActionsTemplateFile => actionsTemplateFile;
 
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;

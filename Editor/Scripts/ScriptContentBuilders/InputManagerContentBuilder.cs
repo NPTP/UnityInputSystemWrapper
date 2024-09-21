@@ -9,6 +9,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
     {
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
+            void addEmptyLine() => lines.Add(string.Empty);
+            
             switch (markerName)
             {
                 case "RuntimeInputDataPath":
@@ -31,27 +33,31 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                                   "                ListenForAnyButtonPress = value ? listenForAnyButtonPress + 1 : listenForAnyButtonPress - 1;\n" +
                                   "            }\n" +
                                   "        }");
+                        addEmptyLine();
                         lines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => playerCollection[id];");
+                        addEmptyLine();
                         lines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
+                        addEmptyLine();
                         break;
                     }
-                    
-                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => playerCollection[{nameof(PlayerID)}.{nameof(PlayerID.Player1)}];");
-                    lines.Add($"        private static bool AllowPlayerJoining => false;");
-                    
                     lines.Add(getSinglePlayerEventWrapperString(nameof(DeviceControlInfo), "OnDeviceControlChanged"));
+                    addEmptyLine();
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
+                    addEmptyLine();
                     foreach (string mapName in Helper.GetMapNames(asset))
-                    {
                         lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};");
-                    }
+                    addEmptyLine();
                     lines.Add($"        public static {nameof(InputContext)} Context");
                     lines.Add("        {");
                     lines.Add($"            get => Player1.InputContext;");
                     lines.Add($"            set => Player1.InputContext = value;");
                     lines.Add("        }");
+                    addEmptyLine();
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
                     lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => Player1.LastUsedDevice;");
+                    addEmptyLine();
+                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => playerCollection[{nameof(PlayerID)}.{nameof(PlayerID.Player1)}];");
+                    lines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");

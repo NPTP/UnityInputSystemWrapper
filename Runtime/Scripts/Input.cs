@@ -7,9 +7,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
-using NPTP.InputSystemWrapper.Generated.MapActions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Generated.Actions;
 using NPTP.InputSystemWrapper.Utilities;
 
 #if UNITY_EDITOR
@@ -34,30 +34,34 @@ namespace NPTP.InputSystemWrapper
             add => AddAnyButtonPressListener(value);
             remove => RemoveAnyButtonPressListener(value);
         }
-
         
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-        private static InputPlayer Player1 => playerCollection[PlayerID.Player1];
-        private static bool AllowPlayerJoining => false;
         public static event Action<DeviceControlInfo> OnDeviceControlChanged
         {
             add => Player1.OnDeviceControlChanged += value;
             remove => Player1.OnDeviceControlChanged -= value;
         }
+
         public static event Action<char> OnKeyboardTextInput
         {
             add => Player1.OnKeyboardTextInput += value;
             remove => Player1.OnKeyboardTextInput -= value;
         }
+
         public static PlayerActions Player => Player1.Player;
         public static UIActions UI => Player1.UI;
+
         public static InputContext Context
         {
             get => Player1.InputContext;
             set => Player1.InputContext = value;
         }
+
         public static ControlScheme CurrentControlScheme => Player1.CurrentControlScheme;
         public static InputDevice LastUsedDevice => Player1.LastUsedDevice;
+
+        private static InputPlayer Player1 => playerCollection[PlayerID.Player1];
+        private static bool AllowPlayerJoining => false;
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start

@@ -36,12 +36,12 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: rightTrigger
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: RT!
+        sprite: {fileID: 21300000, guid: 13052d76ffbbe8d4492b33e7948c6dab, type: 3}
     - key: buttonSouth
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: A!
+        sprite: {fileID: 21300000, guid: 7f4a7074b2e51dc4bbba134948fb7049, type: 3}
     - key: buttonEast
       value:
         displayName: 

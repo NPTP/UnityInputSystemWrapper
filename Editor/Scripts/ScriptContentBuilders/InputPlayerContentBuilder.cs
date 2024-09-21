@@ -22,20 +22,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     ? "                    OnControlSchemeChanged?.Invoke(this);"
                     : "                    OnControlSchemeChanged?.Invoke(controlScheme);");
                     break;
-                case "MapActionsProperties":
+                case "ActionsProperties":
                     foreach (string mapName in Helper.GetMapNames(asset))
-                        lines.Add($"        public {mapName.AsType()}Actions {mapName.AsType()}" + " { get; }");
+                        lines.Add($"        public {mapName.AsProperty()}Actions {mapName.AsProperty()}" + " { get; }");
                     break;
-                case "MapCacheFields":
+                case "ActionsInstantiation":
                     foreach (string map in Helper.GetMapNames(asset))
-                        lines.Add($"        private readonly {map.AsType()}MapCache {map.AsField()}Map;");
-                    break;
-                case "MapAndActionsInstantiation":
-                    foreach (string map in Helper.GetMapNames(asset))
-                    {
-                        lines.Add($"            {map.AsType()} = new {map.AsType()}Actions();");
-                        lines.Add($"            {map.AsField()}Map = new {map.AsType()}MapCache(Asset);");
-                    }
+                        lines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset);");
                     break;
                 case "EventSystemActions":
                     OfflineInputData oid = Helper.OfflineInputData;
@@ -59,9 +52,9 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     
                     break;
-                case "MapActionsRemoveCallbacks":
+                case "DisableAllMapsAndRemoveCallbacksBody":
                     foreach (string map in Helper.GetMapNames(asset))
-                        lines.Add($"            {map.AsField()}Map.RemoveCallbacks({map.AsType()});");
+                        lines.Add($"            {map.AsProperty()}.DisableAndUnregisterCallbacks();");
                     break;
                 case "EnableContextSwitchMembers":
                     OfflineInputData inputData = Helper.OfflineInputData;
@@ -72,10 +65,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         foreach (string map in Helper.GetMapNames(asset))
                         {
                             bool enable = contextInfo.ActiveMaps.Any(activeMapName => map == activeMapName);
-                            lines.Add($"                    {map.AsField()}Map.{(enable ? "Enable" : "Disable")}();");
-                            lines.Add($"                    {map.AsField()}Map.{(enable ? "Add" : "Remove")}Callbacks({map.AsType()});");
+                            lines.Add($"                    {map.AsProperty()}.{(enable ? "EnableAndRegisterCallbacks" : "DisableAndUnregisterCallbacks")}();");
                         }
-                        
                         lines.Add($"                    break;");
                     }
                     break;
@@ -88,8 +79,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     foreach (string map in Helper.GetMapNames(asset))
                     {
                         string ifElse = i == 0 ? "if" : "else if";
-                        string mapField = $"{map.AsField()}Map";
-                        lines.Add($"            {ifElse} ({mapField}.ActionMap == map)");
+                        string actionsProperty = map.AsProperty();
+                        lines.Add($"            {ifElse} ({actionsProperty}.ActionMap == map)");
                         lines.Add("            {");
                         int j = 0;
                         foreach (InputAction action in asset.FindActionMap(map).actions)
@@ -98,7 +89,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                             string eventName = $"On{actionType}";
                             string mapType = map.AsType();
                             string ifElseInner = j == 0 ? "if" : "else if";
-                            lines.Add($"                {ifElseInner} (action == {mapField}.{actionType})");
+                            lines.Add($"                {ifElseInner} (action == {actionsProperty}.{actionType}.InputAction)");
                             lines.Add("                {");
                             lines.Add($"                    {mapType}.{eventName} -= callback;");
                             lines.Add($"                    if (subscribe) {mapType}.{eventName} += callback;");

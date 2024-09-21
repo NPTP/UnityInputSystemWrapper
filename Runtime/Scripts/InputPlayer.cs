@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Enums;
-using NPTP.InputSystemWrapper.Generated.MapActions;
-using NPTP.InputSystemWrapper.Generated.MapCaches;
+using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -63,15 +62,10 @@ namespace NPTP.InputSystemWrapper
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
         public bool IsDevicePaired(InputDevice device) => PairedDevices.ContainsReference(device);
 
-        // MARKER.MapActionsProperties.Start
+        // MARKER.ActionsProperties.Start
         public PlayerActions Player { get; }
         public UIActions UI { get; }
-        // MARKER.MapActionsProperties.End
-        
-        // MARKER.MapCacheFields.Start
-        private readonly PlayerMapCache playerMap;
-        private readonly UIMapCache uIMap;
-        // MARKER.MapCacheFields.End
+        // MARKER.ActionsProperties.End
 
         public InputActionAsset Asset { get; }
 
@@ -84,22 +78,20 @@ namespace NPTP.InputSystemWrapper
         
         #region Setup & Teardown
 
-        internal InputPlayer(InputActionAsset inputActionAsset, PlayerID id, bool isMultiplayer, Transform parent)
+        internal InputPlayer(InputActionAsset asset, PlayerID id, bool isMultiplayer, Transform parent)
         {
-            Asset = InstantiateNewActions(inputActionAsset);
+            Asset = InstantiateNewActions(asset);
             ID = id;
-
-            // MARKER.MapAndActionsInstantiation.Start
-            Player = new PlayerActions();
-            playerMap = new PlayerMapCache(Asset);
-            UI = new UIActions();
-            uIMap = new UIMapCache(Asset);
-            // MARKER.MapAndActionsInstantiation.End
-
+            
+            // MARKER.ActionsInstantiation.Start
+            Player = new PlayerActions(Asset);
+            UI = new UIActions(Asset);
+            // MARKER.ActionsInstantiation.End
+            
             SetUpInputPlayerGameObject(isMultiplayer, parent);
             
             SetEventSystemActions();
-
+            
             // TODO: We are keeping track of the last used device with other methods now, can we get rid of this?
             playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
@@ -109,7 +101,7 @@ namespace NPTP.InputSystemWrapper
             playerInput.onActionTriggered -= HandleAnyActionTriggered;
             Asset.Disable();
             DisableKeyboardTextInput();
-            RemoveAllMapActionCallbacks();
+            DisableAllMapsAndRemoveCallbacks();
             Object.Destroy(playerInputGameObject);
         }
 
@@ -276,72 +268,72 @@ namespace NPTP.InputSystemWrapper
             // event signatures look the same as the ones subscribed to manually).
 
             // MARKER.ChangeSubscriptionIfStatements.Start
-            if (playerMap.ActionMap == map)
+            if (Player.ActionMap == map)
             {
-                if (action == playerMap.Move)
+                if (action == Player.Move.InputAction)
                 {
                     Player.OnMove -= callback;
                     if (subscribe) Player.OnMove += callback;
                 }
-                else if (action == playerMap.Look)
+                else if (action == Player.Look.InputAction)
                 {
                     Player.OnLook -= callback;
                     if (subscribe) Player.OnLook += callback;
                 }
-                else if (action == playerMap.Fire)
+                else if (action == Player.Fire.InputAction)
                 {
                     Player.OnFire -= callback;
                     if (subscribe) Player.OnFire += callback;
                 }
             }
-            else if (uIMap.ActionMap == map)
+            else if (UI.ActionMap == map)
             {
-                if (action == uIMap.Navigate)
+                if (action == UI.Navigate.InputAction)
                 {
                     UI.OnNavigate -= callback;
                     if (subscribe) UI.OnNavigate += callback;
                 }
-                else if (action == uIMap.Submit)
+                else if (action == UI.Submit.InputAction)
                 {
                     UI.OnSubmit -= callback;
                     if (subscribe) UI.OnSubmit += callback;
                 }
-                else if (action == uIMap.Cancel)
+                else if (action == UI.Cancel.InputAction)
                 {
                     UI.OnCancel -= callback;
                     if (subscribe) UI.OnCancel += callback;
                 }
-                else if (action == uIMap.Point)
+                else if (action == UI.Point.InputAction)
                 {
                     UI.OnPoint -= callback;
                     if (subscribe) UI.OnPoint += callback;
                 }
-                else if (action == uIMap.Click)
+                else if (action == UI.Click.InputAction)
                 {
                     UI.OnClick -= callback;
                     if (subscribe) UI.OnClick += callback;
                 }
-                else if (action == uIMap.ScrollWheel)
+                else if (action == UI.ScrollWheel.InputAction)
                 {
                     UI.OnScrollWheel -= callback;
                     if (subscribe) UI.OnScrollWheel += callback;
                 }
-                else if (action == uIMap.MiddleClick)
+                else if (action == UI.MiddleClick.InputAction)
                 {
                     UI.OnMiddleClick -= callback;
                     if (subscribe) UI.OnMiddleClick += callback;
                 }
-                else if (action == uIMap.RightClick)
+                else if (action == UI.RightClick.InputAction)
                 {
                     UI.OnRightClick -= callback;
                     if (subscribe) UI.OnRightClick += callback;
                 }
-                else if (action == uIMap.TrackedDevicePosition)
+                else if (action == UI.TrackedDevicePosition.InputAction)
                 {
                     UI.OnTrackedDevicePosition -= callback;
                     if (subscribe) UI.OnTrackedDevicePosition += callback;
                 }
-                else if (action == uIMap.TrackedDeviceOrientation)
+                else if (action == UI.TrackedDeviceOrientation.InputAction)
                 {
                     UI.OnTrackedDeviceOrientation -= callback;
                     if (subscribe) UI.OnTrackedDeviceOrientation += callback;
@@ -393,12 +385,12 @@ namespace NPTP.InputSystemWrapper
             }
         }
         
-        private void RemoveAllMapActionCallbacks()
+        private void DisableAllMapsAndRemoveCallbacks()
         {
-            // MARKER.MapActionsRemoveCallbacks.Start
-            playerMap.RemoveCallbacks(Player);
-            uIMap.RemoveCallbacks(UI);
-            // MARKER.MapActionsRemoveCallbacks.End
+            // MARKER.DisableAllMapsAndRemoveCallbacksBody.Start
+            Player.DisableAndUnregisterCallbacks();
+            UI.DisableAndUnregisterCallbacks();
+            // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
         }
         
         private List<Keyboard> GetKeyboards()
@@ -453,24 +445,18 @@ namespace NPTP.InputSystemWrapper
                 // MARKER.EnableContextSwitchMembers.Start
                 case InputContext.AllInputDisabled:
                     DisableKeyboardTextInput();
-                    playerMap.Disable();
-                    playerMap.RemoveCallbacks(Player);
-                    uIMap.Disable();
-                    uIMap.RemoveCallbacks(UI);
+                    Player.DisableAndUnregisterCallbacks();
+                    UI.DisableAndUnregisterCallbacks();
                     break;
                 case InputContext.Player:
                     DisableKeyboardTextInput();
-                    playerMap.Enable();
-                    playerMap.AddCallbacks(Player);
-                    uIMap.Disable();
-                    uIMap.RemoveCallbacks(UI);
+                    Player.EnableAndRegisterCallbacks();
+                    UI.DisableAndUnregisterCallbacks();
                     break;
                 case InputContext.UI:
                     EnableKeyboardTextInput();
-                    playerMap.Disable();
-                    playerMap.RemoveCallbacks(Player);
-                    uIMap.Enable();
-                    uIMap.AddCallbacks(UI);
+                    Player.DisableAndUnregisterCallbacks();
+                    UI.EnableAndRegisterCallbacks();
                     break;
                 // MARKER.EnableContextSwitchMembers.End
                 default:

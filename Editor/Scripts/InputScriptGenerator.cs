@@ -22,8 +22,7 @@ namespace NPTP.InputSystemWrapper.Editor
             
             InputActionAsset asset = Helper.InputActionAsset;
             
-            GenerateMapActionClasses(asset);
-            GenerateMapCacheClasses(asset);
+            GenerateActionClasses(asset);
             
             ModifyExistingFile(asset, Helper.ControlSchemeFileSystemPath, ControlSchemeContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputContextFileSystemPath, InputContextContentBuilder.AddContent);
@@ -35,25 +34,14 @@ namespace NPTP.InputSystemWrapper.Editor
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
-        private static void GenerateMapActionClasses(InputActionAsset asset)
+        private static void GenerateActionClasses(InputActionAsset asset)
         {
             foreach (InputActionMap map in asset.actionMaps)
             {
-                GenerateFile(map, 
-                    Helper.MapActionsTemplateFileSystemPath,
-                    MapActionsContentBuilder.AddContent,
-                    Helper.GeneratedMapActionsSystemPath + map.name.AsType() + "Actions.cs");
-            }
-        }
-        
-        private static void GenerateMapCacheClasses(InputActionAsset asset)
-        {
-            foreach (InputActionMap map in asset.actionMaps)
-            {
-                GenerateFile(map, 
-                    Helper.MapCacheTemplateFileSystemPath, 
-                    MapCachesContentBuilder.AddContent,
-                    Helper.GeneratedMapCacheSystemPath + map.name.AsType() + "MapCache.cs");
+                GenerateFile(map,
+                    Helper.ActionsTemplateFileSystemPath,
+                    ActionsContentBuilder.AddContent,
+                Helper.GeneratedActionsSystemPath + map.name.AsType() + "Actions.cs");
             }
         }
 

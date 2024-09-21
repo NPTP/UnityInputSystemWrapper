@@ -11,8 +11,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty enableMultiplayer;
         private SerializedProperty maxPlayers;
         private SerializedProperty runtimeInputData;
-        private SerializedProperty mapActionsTemplateFile;
-        private SerializedProperty mapCacheTemplateFile;
+        private SerializedProperty actionsTemplateFile;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
         
@@ -32,8 +31,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
             maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
             runtimeInputData = serializedObject.FindProperty(nameof(runtimeInputData));
-            mapActionsTemplateFile = serializedObject.FindProperty(nameof(mapActionsTemplateFile));
-            mapCacheTemplateFile = serializedObject.FindProperty(nameof(mapCacheTemplateFile));
+            actionsTemplateFile = serializedObject.FindProperty(nameof(actionsTemplateFile));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
@@ -61,8 +59,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
             
             EditorGUILayout.PropertyField(runtimeInputData);
-            EditorGUILayout.PropertyField(mapActionsTemplateFile);
-            EditorGUILayout.PropertyField(mapCacheTemplateFile);
+            EditorGUILayout.PropertyField(actionsTemplateFile);
             
             EditorInspectorUtility.DrawHorizontalLine();
 

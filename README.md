@@ -24,6 +24,9 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 See https://discussions.unity.com/t/get-action-bindings-for-specific-device/860105/2
 - [✔] Support reporting multiple binding infos for each action given, since an action may have multiple bindings on a single device.
 - [✔] Clear static members of the Input static class when domain reload is disabled in editor.
+- [✔] Combine Actions and MapCache classes into one.
+- [✔] Support wrapped input action properties and methods like polling input action state directly.
+- [ ] Generate input data in project local Resources folder, not inside the package folder. Generate the binding data assets, but don't let us change them in runtime input data. But let us choose the input asset.
 - [ ] Controls be rebound, with a simple button press to rebind.
 - [ ] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding).
 - [ ] General cleanup to make as many methods internal as possible
