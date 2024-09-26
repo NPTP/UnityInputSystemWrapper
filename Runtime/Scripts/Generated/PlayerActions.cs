@@ -8,8 +8,6 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
 {
     public class PlayerActions
     {
-        internal InputActionMap ActionMap { get; }
-        
         private event Action<InputAction.CallbackContext> @_OnMove;
         public event Action<InputAction.CallbackContext> @OnMove
         {
@@ -31,6 +29,8 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             remove => _OnFire -= value;
         }
 
+        internal InputActionMap ActionMap { get; }
+        
         public ActionWrapper Move { get; }
         public ActionWrapper Look { get; }
         public ActionWrapper Fire { get; }

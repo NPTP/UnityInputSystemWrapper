@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
@@ -10,8 +11,16 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             switch (markerName)
             {
                 case "Members":
-                    foreach (InputControlScheme inputControlScheme in asset.controlSchemes)
-                        lines.Add($"        {inputControlScheme.name.AsEnumMember()},");
+                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
+                        lines.Add($"        {controlScheme.name.AsEnumMember()},");
+                    break;
+                case "EnumToStringSwitch":
+                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
+                        lines.Add($"                {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()} => \"{controlScheme.name}\",");
+                    break;
+                case "StringToEnumSwitch":
+                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
+                        lines.Add($"                \"{controlScheme.name}\" => {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()},");
                     break;
             }
         }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
@@ -34,7 +35,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                                   "            }\n" +
                                   "        }");
                         addEmptyLine();
-                        lines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => playerCollection[id];");
+                        lines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => GetPlayer(id);");
                         addEmptyLine();
                         lines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
                         addEmptyLine();
@@ -56,7 +57,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
                     lines.Add($"        public static {nameof(InputDevice)} LastUsedDevice => Player1.LastUsedDevice;");
                     addEmptyLine();
-                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => playerCollection[{nameof(PlayerID)}.{nameof(PlayerID.Player1)}];");
+                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => GetPlayer({nameof(PlayerID)}.{nameof(PlayerID.Player1)});");
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
@@ -72,13 +73,15 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player(playerID).Asset, action.name, device, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo(string actionName, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, GetPlayer(playerID).Asset, actionName, device, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputAction)} action, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player1.Asset, action.name, device, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo(string actionName, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = "            bindingInfos = null;\n";
+                        methodBody += "            return Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&\n";
+                        methodBody += "                   InputBindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);

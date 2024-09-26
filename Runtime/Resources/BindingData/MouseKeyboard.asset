@@ -76,8 +76,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: tab
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Tab
+        sprite: {fileID: 21300000, guid: fce88ff02a4310b4c9eb533e249b9e21, type: 3}
     - key: backquote
       value:
         displayName: 
@@ -124,20 +124,20 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: upArrow
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Up
+        sprite: {fileID: 21300000, guid: c6a99058c9f060d4c995e15a13550e13, type: 3}
     - key: downArrow
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Down
+        sprite: {fileID: 21300000, guid: bb99426c76f61b44986fde804eeb17d2, type: 3}
     - key: leftArrow
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Left
+        sprite: {fileID: 21300000, guid: 4d245aec375082c478acc2b8deb423ad, type: 3}
     - key: rightArrow
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Right
+        sprite: {fileID: 21300000, guid: da302088b42a841438d93d50dbc6f2b3, type: 3}
     - key: a
       value:
         displayName: 

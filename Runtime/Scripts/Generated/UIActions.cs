@@ -8,8 +8,6 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
 {
     public class UIActions
     {
-        internal InputActionMap ActionMap { get; }
-        
         private event Action<InputAction.CallbackContext> @_OnNavigate;
         public event Action<InputAction.CallbackContext> @OnNavigate
         {
@@ -80,6 +78,8 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             remove => _OnTrackedDeviceOrientation -= value;
         }
 
+        internal InputActionMap ActionMap { get; }
+        
         public ActionWrapper Navigate { get; }
         public ActionWrapper Submit { get; }
         public ActionWrapper Cancel { get; }

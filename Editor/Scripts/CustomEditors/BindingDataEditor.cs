@@ -1,4 +1,4 @@
-using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Bindings;
 using UnityEditor;
 using UnityEngine;
 

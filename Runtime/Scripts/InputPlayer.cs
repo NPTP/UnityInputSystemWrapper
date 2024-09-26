@@ -67,7 +67,7 @@ namespace NPTP.InputSystemWrapper
         public UIActions UI { get; }
         // MARKER.ActionsProperties.End
 
-        public InputActionAsset Asset { get; }
+        internal InputActionAsset Asset { get; }
 
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
@@ -254,13 +254,22 @@ namespace NPTP.InputSystemWrapper
                     break;
             }
         }
+
+        internal bool TryGetMapAndActionInPlayerAsset(InputActionReference actionReference, out InputActionMap map, out InputAction action)
+        {
+            action = null;
+            map = Asset.FindActionMap(actionReference.action.actionMap.name);
+            if (map == null) return false;
+            action = map.FindAction(actionReference.action.name);
+            return action != null;
+        }
         
         internal void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
-            InputActionMap map = Asset.FindActionMap(actionReference.action.actionMap.name);
-            if (map == null) return;
-            InputAction action = map.FindAction(actionReference.action.name);
-            if (action == null) return;
+            if (!TryGetMapAndActionInPlayerAsset(actionReference, out InputActionMap map, out InputAction action))
+            {
+                return;
+            }
             
             // The auto-generated code below ensures that the action used is from the correct asset AND behaves
             // identically to all direct action subscriptions in this wrapper system (where double subs are

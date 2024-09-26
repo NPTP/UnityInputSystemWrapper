@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace NPTP.InputSystemWrapper.Data
+namespace NPTP.InputSystemWrapper.Bindings
 {
     /// <summary>
     /// Tells us which strings and icons to display for a single binding.

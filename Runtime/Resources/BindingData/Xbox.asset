@@ -16,44 +16,44 @@ MonoBehaviour:
     keyValueCombos:
     - key: start
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Start
+        sprite: {fileID: 21300000, guid: 7bf3b513205ddfe46ab94c026afa426d, type: 3}
     - key: select
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Select
+        sprite: {fileID: 21300000, guid: 940d31d0f6bad854bb982b01dfac63d5, type: 3}
     - key: leftShoulder
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Left Bumper
+        sprite: {fileID: 21300000, guid: 29adc5175609f9d428983ccce1297109, type: 3}
     - key: leftTrigger
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Left Trigger
+        sprite: {fileID: 21300000, guid: d6383a3629697d7458b295b7b7fe72d9, type: 3}
     - key: rightShoulder
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Right Bumper
+        sprite: {fileID: 21300000, guid: 9eaea2c5cfeecb741bc3a8844fa580e5, type: 3}
     - key: rightTrigger
       value:
-        displayName: RT!
+        displayName: Right Trigger
         sprite: {fileID: 21300000, guid: 13052d76ffbbe8d4492b33e7948c6dab, type: 3}
     - key: buttonSouth
       value:
-        displayName: A!
+        displayName: A
         sprite: {fileID: 21300000, guid: 7f4a7074b2e51dc4bbba134948fb7049, type: 3}
     - key: buttonEast
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: B
+        sprite: {fileID: 21300000, guid: b5f4194055ce6a742a9dbac82ac26fa8, type: 3}
     - key: buttonWest
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: X
+        sprite: {fileID: 21300000, guid: 4d24bbdce6593af49824bd41613286a1, type: 3}
     - key: buttonNorth
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Y
+        sprite: {fileID: 21300000, guid: 378f8d4c8a84fba48ad873426f13426e, type: 3}
     - key: leftStick
       value:
         displayName: 

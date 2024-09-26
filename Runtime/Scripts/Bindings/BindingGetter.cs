@@ -1,28 +1,21 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.DualShock;
 using UnityEngine.InputSystem.XInput;
 
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Bindings
 {
-    /// <summary>
-    /// Static bindings-related logic is addressed here.
-    /// </summary>
-    internal static class InputBindings
+    internal static class BindingGetter
     {
-        public static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputActionAsset playerAsset, string actionName, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        // TODO: Version that supports the SupportedDevice enum
+        public static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
             
             if (device == null)
-            {
-                return false;
-            }
-
-            // Get the action from this specific player's action asset, since bindings can be different per-player/per-asset.
-            if (!TryGetActionInAssetWithMatchingName(playerAsset, actionName, out InputAction actionFromAsset))
             {
                 return false;
             }
@@ -34,7 +27,7 @@ namespace NPTP.InputSystemWrapper
             }
 
             // Get the string control paths to the used input action.
-            if (!TryGetControlPaths(actionFromAsset, device, out List<string> controlPaths))
+            if (!TryGetControlPaths(action, device, out List<string> controlPaths))
             {
                 return false;
             }
@@ -116,6 +109,52 @@ namespace NPTP.InputSystemWrapper
                     }
                 }
             }
+        }
+        
+        public static bool TryGetBindingIndexForDevice(InputAction action, SupportedDevice device, out int bindingIndex)
+        {
+            bindingIndex = -1;
+            
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                string effectivePath = action.bindings[i].effectivePath;
+                if (TryGetSupportedDeviceFromBindingPath(effectivePath, out SupportedDevice bindingPathDevice) &&
+                    device == bindingPathDevice)
+                {
+                    bindingIndex = i;
+                    break;
+                }
+            }
+
+            return bindingIndex != -1;
+        }
+
+        private static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
+        {
+            supportedDevice = SupportedDevice.MouseKeyboard;
+
+            if (string.IsNullOrEmpty(bindingPath) || !bindingPath.StartsWith('<') || !bindingPath.Contains('>'))
+                return false;
+
+            string devicePartOfPath = bindingPath.Substring(1, bindingPath.IndexOf('>') - 1);
+
+            switch (devicePartOfPath)
+            {
+                case "Mouse" or "Keyboard":
+                    supportedDevice = SupportedDevice.MouseKeyboard;
+                    return true;
+                case "XInputController":
+                    supportedDevice = SupportedDevice.Xbox;
+                    return true;
+                case "DualShockGamepad":
+                    supportedDevice = SupportedDevice.PlayStation;
+                    return true;
+                case "Gamepad":
+                    supportedDevice = SupportedDevice.Gamepad;
+                    return true;
+            }
+
+            return false;
         }
     }
 }

@@ -16,8 +16,6 @@ namespace NPTP.InputSystemWrapper.Generated
     public class ActionsTemplate
     // MARKER.ClassSignature.End
     {
-        internal InputActionMap ActionMap { get; }
-        
         // MARKER.PublicEvents.Start
         private event Action<InputAction.CallbackContext> @_OnTemplateAction1;
         public event Action<InputAction.CallbackContext> @OnTemplateAction1
@@ -34,6 +32,8 @@ namespace NPTP.InputSystemWrapper.Generated
         }
         // MARKER.PublicEvents.End
 
+        internal InputActionMap ActionMap { get; }
+        
         // MARKER.ActionWrapperPublicProperties.Start
         public ActionWrapper TemplateAction1 { get; }
         public ActionWrapper TemplateAction2 { get; }

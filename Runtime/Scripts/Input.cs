@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -11,6 +12,7 @@ using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using NPTP.InputSystemWrapper.Utilities;
+using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -28,6 +30,8 @@ namespace NPTP.InputSystemWrapper
         // MARKER.RuntimeInputDataPath.Start
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
+
+        public static event Action OnBindingOperationEnded;
         
         public static event Action<InputControl> OnAnyButtonPress
         {
@@ -60,7 +64,7 @@ namespace NPTP.InputSystemWrapper
         public static ControlScheme CurrentControlScheme => Player1.CurrentControlScheme;
         public static InputDevice LastUsedDevice => Player1.LastUsedDevice;
 
-        private static InputPlayer Player1 => playerCollection[PlayerID.Player1];
+        private static InputPlayer Player1 => GetPlayer(PlayerID.Player1);
         private static bool AllowPlayerJoining => false;
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
         
@@ -72,6 +76,7 @@ namespace NPTP.InputSystemWrapper
         private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
         private static RuntimeInputData runtimeInputData;
+        private static RebindingOperation rebindingOperation;
 
         #endregion
 
@@ -87,22 +92,22 @@ namespace NPTP.InputSystemWrapper
             SetUpTerminationConditions();
             
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
-            if (runtimeInputData == null)
-                throw new Exception($"{nameof(RuntimeInputData)} could not be loaded - input will not work!");
-            if (runtimeInputData.InputActionAsset == null)
-                throw new Exception($"{nameof(RuntimeInputData)} is missing an input action asset - input will not work!");
-
+            if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
+                throw new Exception($"{nameof(RuntimeInputData)} is null or its input action asset is null - input will not work!");
+            
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
             
-            // TODO: Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out...
+            // TODO: Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out. Plus, this makes startup slower than it needs to be.
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
+            LoadBindingsFor(PlayerID.Player1);
             EnableContextForAllPlayers(DefaultContext);
 
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
+            BindingChanger.OnBindingOperationEnded += HandleBindingOperationEnded;
         }
 
         private static void SetUpTerminationConditions()
@@ -126,10 +131,59 @@ namespace NPTP.InputSystemWrapper
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
+            BindingChanger.OnBindingOperationEnded -= HandleBindingOperationEnded;
         }
 
         #endregion
+        
+        #region Public Interface
+        
+        // TODO: Singleplayer version doesn't take player ID, multiplayer version does
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device)
+        {
+            rebindingOperation?.Cancel();
+            
+            if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
+                BindingGetter.TryGetBindingIndexForDevice(action, device, out int bindingIndex))
+            {
+                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex);
+            }
+        }
 
+        public static void ResetAllBindings(PlayerID playerID, SupportedDevice device)
+        {
+            // TODO
+        }
+
+        public static void LoadBindingsFor(PlayerID playerID)
+        {
+            BindingSaveLoad.LoadBindingsFromDiskForPlayer(GetPlayer(playerID));
+        }
+
+        public static void SaveBindingsFor(PlayerID playerID)
+        {
+            BindingSaveLoad.SaveBindingsToDiskForPlayer(GetPlayer(playerID));
+        }
+        
+        // MARKER.EnableContextForAllPlayersSignature.Start
+        private static void EnableContextForAllPlayers(InputContext inputContext)
+        // MARKER.EnableContextForAllPlayersSignature.End
+        {
+            playerCollection.EnableContextForAll(inputContext);
+        }
+        
+        // TODO: MP version of this
+        // MARKER.TryGetActionBindingInfo.Start
+        public static bool TryGetActionBindingInfo(InputActionReferenceWrapper actionReference, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            bindingInfos = null;
+            return Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
+                   BindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);
+        }
+        // MARKER.TryGetActionBindingInfo.End
+
+        #endregion
+        
         #region Internal Interface
 
         internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
@@ -148,29 +202,16 @@ namespace NPTP.InputSystemWrapper
             
             playerCollection.FindActionEventAndSubscribeAll(actionReference, callback, subscribe);
         }
-
-        #endregion
-
-        #region Public Interface
         
-        // MARKER.EnableContextForAllPlayersSignature.Start
-        private static void EnableContextForAllPlayers(InputContext inputContext)
-        // MARKER.EnableContextForAllPlayersSignature.End
-        {
-            playerCollection.EnableContextForAll(inputContext);
-        }
-        
-        // MARKER.TryGetActionBindingInfo.Start
-        public static bool TryGetActionBindingInfo(InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
-        {
-            return InputBindings.TryGetActionBindingInfo(runtimeInputData, Player1.Asset, action.name, device, out bindingInfos);
-        }
-        // MARKER.TryGetActionBindingInfo.End
-
         #endregion
 
         #region Private Runtime Functionality
         
+        private static InputPlayer GetPlayer(PlayerID id)
+        {
+            return playerCollection[id];
+        }
+
         private static void AddAnyButtonPressListener(Action<InputControl> action)
         {
             if (action == null || anyButtonPressListeners.Contains(action))
@@ -203,6 +244,11 @@ namespace NPTP.InputSystemWrapper
             DisposeAnyButtonPressCallerIfNoListeners();
         }
 
+        private static void HandleBindingOperationEnded()
+        {
+            OnBindingOperationEnded?.Invoke();
+        }
+        
         private static void HandleAnyButtonPressed(InputControl inputControl)
         {
             InvokeAnyButtonPressListeners(inputControl);
