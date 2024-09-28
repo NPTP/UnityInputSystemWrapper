@@ -152,7 +152,7 @@ namespace NPTP.InputSystemWrapper
 
         public static void ResetAllBindings(PlayerID playerID, SupportedDevice device)
         {
-            // TODO
+            BindingChanger.ResetAllBindingsToDefaultForDevice(GetPlayer(playerID).Asset, device);
         }
 
         public static void LoadBindingsFor(PlayerID playerID)

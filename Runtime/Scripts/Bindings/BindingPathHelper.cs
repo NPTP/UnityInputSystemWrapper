@@ -1,6 +1,6 @@
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    public static class BindingHelper
+    internal static class BindingPathHelper
     {
         public static string[] MouseControls => new[]
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
@@ -133,6 +134,25 @@ namespace NPTP.InputSystemWrapper.Bindings
             BroadcastBindingOperationEnded();
         }
 
+        public static void ResetAllBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
+        {
+            string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
+            
+            foreach (InputAction action in asset)
+            {
+                for (int i = 0; i < action.bindings.Count; i++)
+                {
+                    string overridePath = action.bindings[i].overridePath;
+                    if (!string.IsNullOrEmpty(overridePath) && devicePathStrings.Any(deviceString => overridePath.Contains(deviceString)))
+                    {
+                        action.RemoveBindingOverride(i);
+                    }
+                }
+            }
+            
+            BroadcastBindingOperationEnded();
+        }
+        
         private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
         {
             foreach (InputAction action in asset)

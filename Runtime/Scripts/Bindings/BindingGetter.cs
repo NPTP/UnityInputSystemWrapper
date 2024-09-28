@@ -118,7 +118,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 string effectivePath = action.bindings[i].effectivePath;
-                if (TryGetSupportedDeviceFromBindingPath(effectivePath, out SupportedDevice bindingPathDevice) &&
+                if (BindingDeviceHelper.TryGetSupportedDeviceFromBindingPath(effectivePath, out SupportedDevice bindingPathDevice) &&
                     device == bindingPathDevice)
                 {
                     bindingIndex = i;
@@ -129,32 +129,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             return bindingIndex != -1;
         }
 
-        private static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
-        {
-            supportedDevice = SupportedDevice.MouseKeyboard;
 
-            if (string.IsNullOrEmpty(bindingPath) || !bindingPath.StartsWith('<') || !bindingPath.Contains('>'))
-                return false;
-
-            string devicePartOfPath = bindingPath.Substring(1, bindingPath.IndexOf('>') - 1);
-
-            switch (devicePartOfPath)
-            {
-                case "Mouse" or "Keyboard":
-                    supportedDevice = SupportedDevice.MouseKeyboard;
-                    return true;
-                case "XInputController":
-                    supportedDevice = SupportedDevice.Xbox;
-                    return true;
-                case "DualShockGamepad":
-                    supportedDevice = SupportedDevice.PlayStation;
-                    return true;
-                case "Gamepad":
-                    supportedDevice = SupportedDevice.Gamepad;
-                    return true;
-            }
-
-            return false;
-        }
     }
 }
