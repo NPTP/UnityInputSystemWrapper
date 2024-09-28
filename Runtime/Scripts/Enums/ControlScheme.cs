@@ -19,16 +19,16 @@ namespace NPTP.InputSystemWrapper.Enums
         /// Convert the enum to the string name in the asset from which the control scheme originates,
         /// so the string name can be used in the Input System API.
         /// </summary>
-        public static string ToNameInInputActionAsset(this ControlScheme controlSchemeEnum)
+        public static string ToInputAssetName(this ControlScheme controlSchemeEnum)
         {
             return controlSchemeEnum switch
             {
                 // MARKER.EnumToStringSwitch.Start
                 ControlScheme.KeyboardMouse => "KeyboardMouse",
-                ControlScheme.Gamepad => "KeyboardMouse",
-                ControlScheme.Touch => "KeyboardMouse",
-                ControlScheme.Joystick => "KeyboardMouse",
-                ControlScheme.XR => "KeyboardMouse",
+                ControlScheme.Gamepad => "Gamepad",
+                ControlScheme.Touch => "Touch",
+                ControlScheme.Joystick => "Joystick",
+                ControlScheme.XR => "XR",
                 // MARKER.EnumToStringSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeEnum), controlSchemeEnum, null)
             };

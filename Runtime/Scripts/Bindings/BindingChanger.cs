@@ -47,14 +47,6 @@ namespace NPTP.InputSystemWrapper.Bindings
                     BroadcastBindingOperationEnded();
                     CleanUpRebindOperation(ref rebindingOperation);
 
-                    if (RemoveDuplicateBindings(action, bindingIndex, allCompositeParts))
-                    {
-                        action.RemoveBindingOverride(bindingIndex);
-                        CleanUpRebindOperation(ref rebindingOperation);
-                        PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
-                        return;
-                    }
-
                     // If there's more composite parts we should bind, initiate a rebind for the next part.
                     if (allCompositeParts)
                     {
@@ -77,112 +69,43 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        private static bool RemoveDuplicateBindings(InputAction action, int bindingIndex, bool allCompositeParts = false)
-        {
-            InputBinding newBinding = action.bindings[bindingIndex];
-
-            foreach (InputAction otherAction in action.actionMap.asset)
-            {
-                if (action == otherAction)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < otherAction.bindings.Count; i++)
-                {
-                    if (newBinding.effectivePath == otherAction.bindings[i].effectivePath)
-                    {
-                        otherAction.RemoveBindingOverride(i);
-                    }
-                }
-            }
-
-            // TODO
-            // if (allCompositeParts)
-            // {
-            // for (int i = 1; i < bindingIndex; i++)
-            // {
-            // if (action.bindings[i].effectivePath == newBinding.effectivePath)
-            // return true;
-            // }
-            // }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove currently applied binding overrides.
-        /// </summary>
-        public static void ResetToDefault()
-        {
-            // if (!ResolveActionAndBinding(out InputAction action, out int bindingIndex))
-                // return;
-            
-            // ResetBinding(action, bindingIndex);
-
-            // if (action.bindings[bindingIndex].isComposite)
-            // {
-            //     // It's a composite. Remove overrides from part bindings.
-            //     for (var i = bindingIndex + 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; ++i)
-            //         action.RemoveBindingOverride(i);
-            // }
-            // else
-            // {
-            //     action.RemoveBindingOverride(bindingIndex);
-            // }
-
-            BroadcastBindingOperationEnded();
-        }
-
-        public static void ResetAllBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
+        public static void ResetBindingToDefaultForDevice(InputAction action, SupportedDevice device)
         {
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
-            
+            RemoveOverridesFromAction(action, devicePathStrings);
+            BroadcastBindingOperationEnded();
+        }
+
+        public static void ResetBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
+        {
+            string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
             foreach (InputAction action in asset)
             {
-                for (int i = 0; i < action.bindings.Count; i++)
+                RemoveOverridesFromAction(action, devicePathStrings);
+            }
+            BroadcastBindingOperationEnded();
+        }
+
+        private static void RemoveOverridesFromAction(InputAction action, string[] devices)
+        {
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                string overridePath = action.bindings[i].overridePath;
+                if (!string.IsNullOrEmpty(overridePath) && devices.Any(deviceString => overridePath.Contains(deviceString)))
                 {
-                    string overridePath = action.bindings[i].overridePath;
-                    if (!string.IsNullOrEmpty(overridePath) && devicePathStrings.Any(deviceString => overridePath.Contains(deviceString)))
-                    {
-                        action.RemoveBindingOverride(i);
-                    }
+                    action.RemoveBindingOverride(i);
                 }
             }
-            
-            BroadcastBindingOperationEnded();
         }
         
         private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
         {
             foreach (InputAction action in asset)
             {
-                action.RemoveBindingOverride(InputBinding.MaskByGroup(controlScheme.ToNameInInputActionAsset()));
+                action.RemoveBindingOverride(InputBinding.MaskByGroup(controlScheme.ToInputAssetName()));
             }
         }
-
-        private static void ResetBinding(InputAction action, int bindingIndex)
-        {
-            InputBinding newBinding = action.bindings[bindingIndex];
-
-            action.RemoveBindingOverride(bindingIndex);
-
-            foreach (InputAction otherAction in action.actionMap.asset)
-            {
-                if (otherAction == action)
-                    continue;
-
-                for (int i = 0; i < otherAction.bindings.Count; i++)
-                {
-                    InputBinding binding = otherAction.bindings[i];
-                    if (binding.overridePath == newBinding.path)
-                    {
-                        otherAction.RemoveBindingOverride(i);
-                    }
-                }
-            }
-        }
-
+        
         private static void BroadcastBindingOperationEnded()
         {
             OnBindingOperationEnded?.Invoke();

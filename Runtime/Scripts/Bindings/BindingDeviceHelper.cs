@@ -11,6 +11,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         private const string XBOX = "XInputController";
         private const string PLAYSTATION = "DualShockGamepad";
 
+        private static readonly string[] mouseKeyboardStrings = { MOUSE, KEYBOARD };
+        private static readonly string[] supportedGamepadStrings = { GAMEPAD, XBOX, PLAYSTATION };
+
         public static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
         {
             supportedDevice = SupportedDevice.MouseKeyboard;
@@ -44,11 +47,11 @@ namespace NPTP.InputSystemWrapper.Bindings
             switch (device)
             {
                 case SupportedDevice.MouseKeyboard:
-                    return new[] { MOUSE, KEYBOARD };
+                    return mouseKeyboardStrings;
                 case SupportedDevice.Gamepad:
                 case SupportedDevice.Xbox:
                 case SupportedDevice.PlayStation:
-                    return new[] { GAMEPAD, XBOX, PLAYSTATION };
+                    return supportedGamepadStrings;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(device), device, null);
             }

@@ -150,9 +150,17 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
+        public static void ResetBinding(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device)
+        {
+            if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
+            {
+                BindingChanger.ResetBindingToDefaultForDevice(action, device);
+            }
+        }
+
         public static void ResetAllBindings(PlayerID playerID, SupportedDevice device)
         {
-            BindingChanger.ResetAllBindingsToDefaultForDevice(GetPlayer(playerID).Asset, device);
+            BindingChanger.ResetBindingsToDefaultForDevice(GetPlayer(playerID).Asset, device);
         }
 
         public static void LoadBindingsFor(PlayerID playerID)
