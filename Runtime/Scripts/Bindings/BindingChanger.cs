@@ -12,9 +12,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         private const string MOUSE = "<Mouse>";
         private const string KEYBOARD_ESCAPE = "<Keyboard>/escape";
 
-        public static event Action OnBindingOperationEnded;
+        public static event Action OnBindingsChanged;
 
-        public static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex)
+        public static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
         {
             // If the binding is a composite, we need to rebind each part in turn.
             int firstPartIndex = bindingIndex + 1;
@@ -22,10 +22,10 @@ namespace NPTP.InputSystemWrapper.Bindings
                                      firstPartIndex < action.bindings.Count &&
                                      action.bindings[firstPartIndex].isPartOfComposite;
 
-            return PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
+            return PerformInteractiveRebind(action, bindingIndex, allCompositeParts, callback);
         }
 
-        private static RebindingOperation PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts = false)
+        private static RebindingOperation PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts, Action callback)
         {
             bool actionWasEnabled = action.enabled;
             action.Disable();
@@ -38,13 +38,12 @@ namespace NPTP.InputSystemWrapper.Bindings
                 .OnCancel(operation =>
                 {
                     if (actionWasEnabled) action.Enable();
-                    BroadcastBindingOperationEnded();
+                    callback?.Invoke();
                     CleanUpRebindOperation(ref rebindingOperation);
                 })
                 .OnComplete(operation =>
                 {
                     if (actionWasEnabled) action.Enable();
-                    BroadcastBindingOperationEnded();
                     CleanUpRebindOperation(ref rebindingOperation);
 
                     // If there's more composite parts we should bind, initiate a rebind for the next part.
@@ -53,10 +52,11 @@ namespace NPTP.InputSystemWrapper.Bindings
                         int nextBindingIndex = bindingIndex + 1;
                         if (nextBindingIndex < action.bindings.Count &&
                             action.bindings[nextBindingIndex].isPartOfComposite)
-                            PerformInteractiveRebind(action, nextBindingIndex, true);
+                            PerformInteractiveRebind(action, nextBindingIndex, true, null);
                     }
 
-                    BroadcastBindingOperationEnded();
+                    callback?.Invoke();
+                    OnBindingsChanged?.Invoke();
                 });
 
             rebindingOperation.Start();
@@ -72,30 +72,41 @@ namespace NPTP.InputSystemWrapper.Bindings
         public static void ResetBindingToDefaultForDevice(InputAction action, SupportedDevice device)
         {
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
-            RemoveOverridesFromAction(action, devicePathStrings);
-            BroadcastBindingOperationEnded();
+            if (RemoveOverridesFromAction(action, devicePathStrings))
+            {
+                OnBindingsChanged?.Invoke();
+            }
         }
 
         public static void ResetBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
         {
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
+            bool changed = false;
             foreach (InputAction action in asset)
             {
-                RemoveOverridesFromAction(action, devicePathStrings);
+                changed |= RemoveOverridesFromAction(action, devicePathStrings);
             }
-            BroadcastBindingOperationEnded();
+
+            if (changed)
+            {
+                OnBindingsChanged?.Invoke();
+            }
         }
 
-        private static void RemoveOverridesFromAction(InputAction action, string[] devices)
+        private static bool RemoveOverridesFromAction(InputAction action, string[] devices)
         {
+            bool changed = false;
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 string overridePath = action.bindings[i].overridePath;
                 if (!string.IsNullOrEmpty(overridePath) && devices.Any(deviceString => overridePath.Contains(deviceString)))
                 {
+                    changed = true;
                     action.RemoveBindingOverride(i);
                 }
             }
+
+            return changed;
         }
         
         private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
@@ -104,11 +115,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             {
                 action.RemoveBindingOverride(InputBinding.MaskByGroup(controlScheme.ToInputAssetName()));
             }
-        }
-        
-        private static void BroadcastBindingOperationEnded()
-        {
-            OnBindingOperationEnded?.Invoke();
         }
     }
 }

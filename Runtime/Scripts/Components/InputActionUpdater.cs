@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
-using NPTP.InputSystemWrapper.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,14 +26,14 @@ namespace NPTP.InputSystemWrapper.Components
         private void OnEnable()
         {
             Input.OnDeviceControlChanged += HandleDeviceControlChanged;
-            BindingChanger.OnBindingOperationEnded += HandleBindingOperationEnded;
+            BindingChanger.OnBindingsChanged += HandleBindingsChanged;
             UpdateEvents(Input.LastUsedDevice);
         }
 
         private void OnDisable()
         {
             Input.OnDeviceControlChanged -= HandleDeviceControlChanged;
-            BindingChanger.OnBindingOperationEnded -= HandleBindingOperationEnded;
+            BindingChanger.OnBindingsChanged -= HandleBindingsChanged;
         }
 
         private void HandleDeviceControlChanged(DeviceControlInfo deviceControlInfo)
@@ -42,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Components
             UpdateEvents(Input.LastUsedDevice);
         }
 
-        private void HandleBindingOperationEnded()
+        private void HandleBindingsChanged()
         {
             UpdateEvents(Input.LastUsedDevice);
         }

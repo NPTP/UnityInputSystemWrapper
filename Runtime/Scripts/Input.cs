@@ -31,7 +31,7 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
 
-        public static event Action OnBindingOperationEnded;
+        public static event Action OnBindingsChanged;
         
         public static event Action<InputControl> OnAnyButtonPress
         {
@@ -107,7 +107,7 @@ namespace NPTP.InputSystemWrapper
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
-            BindingChanger.OnBindingOperationEnded += HandleBindingOperationEnded;
+            BindingChanger.OnBindingsChanged += HandleBindingsChanged;
         }
 
         private static void SetUpTerminationConditions()
@@ -131,7 +131,7 @@ namespace NPTP.InputSystemWrapper
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
-            BindingChanger.OnBindingOperationEnded -= HandleBindingOperationEnded;
+            BindingChanger.OnBindingsChanged -= HandleBindingsChanged;
         }
 
         #endregion
@@ -139,14 +139,14 @@ namespace NPTP.InputSystemWrapper
         #region Public Interface
         
         // TODO: Singleplayer version doesn't take player ID, multiplayer version does
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device)
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device, Action callback = null)
         {
             rebindingOperation?.Cancel();
             
             if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
                 BindingGetter.TryGetBindingIndexForDevice(action, device, out int bindingIndex))
             {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex);
+                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
             }
         }
 
@@ -214,7 +214,12 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private Runtime Functionality
-        
+
+        private static void HandleBindingsChanged()
+        {
+            OnBindingsChanged?.Invoke();
+        }
+
         private static InputPlayer GetPlayer(PlayerID id)
         {
             return playerCollection[id];
@@ -252,11 +257,6 @@ namespace NPTP.InputSystemWrapper
             DisposeAnyButtonPressCallerIfNoListeners();
         }
 
-        private static void HandleBindingOperationEnded()
-        {
-            OnBindingOperationEnded?.Invoke();
-        }
-        
         private static void HandleAnyButtonPressed(InputControl inputControl)
         {
             InvokeAnyButtonPressListeners(inputControl);
