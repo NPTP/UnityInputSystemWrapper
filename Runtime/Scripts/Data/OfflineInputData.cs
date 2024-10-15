@@ -7,7 +7,8 @@ using UnityEngine.Serialization;
 namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
-    /// Input Data used only in constructing classes from inside the editor. Not meant to be accessed at runtime.
+    /// Input Data used only in constructing classes from inside the editor. It lives in the runtime assembly only
+    /// because it needs access to internal members of that assembly, but it is NOT to be accessed at runtime.
     /// </summary>
     public class OfflineInputData : ScriptableObject
     {
@@ -30,7 +31,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;
         
-        [FormerlySerializedAs("inputContextInfos")] [SerializeField] private InputContextInfo[] inputContexts;
+        [SerializeField] private InputContextInfo[] inputContexts;
         public InputContextInfo[] InputContexts => inputContexts;
         
         [Header("Event System Actions")]
