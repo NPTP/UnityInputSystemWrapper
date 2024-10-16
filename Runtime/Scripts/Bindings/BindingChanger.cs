@@ -33,13 +33,13 @@ namespace NPTP.InputSystemWrapper.Bindings
                 // TODO (bindings): Put this mouse exclusion back in if mouse rebinds with its own movement, but exclude only the movement
                 // .WithControlsExcluding(MOUSE)
                 .WithCancelingThrough(KEYBOARD_ESCAPE)
-                .OnCancel(operation =>
+                .OnCancel(_ =>
                 {
                     if (actionWasEnabled) action.Enable();
                     callback?.Invoke();
                     CleanUpRebindOperation(ref rebindingOperation);
                 })
-                .OnComplete(operation =>
+                .OnComplete(_ =>
                 {
                     if (actionWasEnabled) action.Enable();
                     CleanUpRebindOperation(ref rebindingOperation);
@@ -135,6 +135,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return changed;
         }
         
+        // TODO (control schemes)
         private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
         {
             foreach (InputAction action in asset)

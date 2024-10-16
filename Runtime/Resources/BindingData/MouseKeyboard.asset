@@ -140,8 +140,8 @@ MonoBehaviour:
         sprite: {fileID: 21300000, guid: da302088b42a841438d93d50dbc6f2b3, type: 3}
     - key: a
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: A (Keyboard)
+        sprite: {fileID: 21300000, guid: 714f895a1d5a8ca4098f191eee37199e, type: 3}
     - key: b
       value:
         displayName: 
@@ -152,8 +152,8 @@ MonoBehaviour:
         sprite: {fileID: 21300000, guid: 0c24340d1d696264dbc7cda2b6b21d4b, type: 3}
     - key: d
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: D (Keyboard)
+        sprite: {fileID: 21300000, guid: e04a976bf595ea54e8349db02bb02e50, type: 3}
     - key: e
       value:
         displayName: 
@@ -212,8 +212,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: s
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: S (Keyboard)
+        sprite: {fileID: 21300000, guid: 228f3449a94885c409610614f82a93dc, type: 3}
     - key: t
       value:
         displayName: 
@@ -228,8 +228,8 @@ MonoBehaviour:
         sprite: {fileID: 21300000, guid: e85e510443141ed40931567d6f0bd419, type: 3}
     - key: w
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: W (Keyboard)
+        sprite: {fileID: 21300000, guid: 73967ec149bd4fc4d93414e23fa64020, type: 3}
     - key: x
       value:
         displayName: X (Keyboard)
