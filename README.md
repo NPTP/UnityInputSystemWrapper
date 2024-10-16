@@ -33,8 +33,8 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Controls be rebound, with a simple button press to rebind. Currently support only 1 binding per action per device.
 - [✔] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding). Input actions asset SaveBindingOverridesAsJson & LoadBindingOverridesFromJson. Saves binding overrides.
 - [✔] Reset all bindings for a particular device.
+- [✔] General cleanup to make as many methods internal as possible
 - [ ] Sort out cases like composite bindings turned into a single binding button (e.g. "Move" binding, wiggle the joystick, maps to stick), and composites turned into multiple buttons (e.g. "Forward", "Left", "Down", "Right" for WASD on keyboard)
-- [ ] General cleanup to make as many methods internal as possible
 - [ ] Support control schemes: string control schemes get turned into enum as usual, but then runtime input data auto-generates a list of every control scheme with a slot to plug in binding data. Missing data fails silently. This will allow quick definition of of schemes in any game without needing manual device support like we currently have.
 
 ##### Multiplayer Additions:
