@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
 {
-    public static class InputScriptGenerator
+    internal static class InputScriptGenerator
     {
         private enum ReadState
         {

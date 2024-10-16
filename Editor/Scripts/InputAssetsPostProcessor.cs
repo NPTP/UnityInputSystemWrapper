@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace NPTP.InputSystemWrapper.Editor
 {
-    public class InputAssetsPostProcessor : AssetPostprocessor
+    internal class InputAssetsPostProcessor : AssetPostprocessor
     {
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets,
             string[] movedAssets, string[] movedFromAssetPaths)

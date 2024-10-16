@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
-    public abstract class InputNameStringSelectorAttributeDrawer : PropertyDrawer
+    internal abstract class InputNameStringSelectorAttributeDrawer : PropertyDrawer
     {
         private bool hasInitialized;
         private string[] names;

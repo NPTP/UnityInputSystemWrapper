@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(InputDeviceReference))]
-    public class InputDeviceReferenceDrawer : PropertyDrawer
+    internal class InputDeviceReferenceDrawer : PropertyDrawer
     {
         private bool hasInitialized;
         private string[] names;

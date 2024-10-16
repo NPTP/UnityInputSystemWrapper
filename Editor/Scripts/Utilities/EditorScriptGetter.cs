@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
-    public static class EditorScriptGetter
+    internal static class EditorScriptGetter
     {
         private enum PathType
         {

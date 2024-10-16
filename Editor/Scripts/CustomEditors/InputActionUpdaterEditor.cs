@@ -5,7 +5,7 @@ using UnityEditor;
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
     // [CustomEditor(typeof(InputActionUpdater))]
-    public class InputActionUpdaterEditor : UnityEditor.Editor
+    internal class InputActionUpdaterEditor : UnityEditor.Editor
     {
         private SerializedProperty setSpriteEvent;
         private SerializedProperty respondToAllPlayers;

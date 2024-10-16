@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
     [CustomEditor(typeof(OfflineInputData))]
-    public class OfflineInputDataEditor : UnityEditor.Editor
+    internal class OfflineInputDataEditor : UnityEditor.Editor
     {
         private SerializedProperty enableMultiplayer;
         private SerializedProperty maxPlayers;

@@ -6,7 +6,7 @@ using NPTP.InputSystemWrapper.Utilities.Editor;
 namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(InputMapSelectorAttribute))]
-    public class InputMapSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer
+    internal class InputMapSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer
     {
         protected override string[] GetNames()
         {

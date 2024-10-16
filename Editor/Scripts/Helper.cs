@@ -12,7 +12,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
 {
-    public static class Helper
+    internal static class Helper
     {
         private const string MARKER = "// MARKER";
         private const string START = "Start";

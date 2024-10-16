@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
     [CustomEditor(typeof(BindingData))]
-    public class BindingDataEditor : UnityEditor.Editor
+    internal class BindingDataEditor : UnityEditor.Editor
     {
         private BindingData targetBindingData;
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
-    public static class EditorAssetGetter
+    internal static class EditorAssetGetter
     {
         public static T GetFirst<T>() where T : Object
         {

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    public static class InputPlayerContentBuilder
+    internal static class InputPlayerContentBuilder
     {
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {

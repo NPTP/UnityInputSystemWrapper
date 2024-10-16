@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
-    public class EditorInspectorUtility : MonoBehaviour
+    internal class EditorInspectorUtility : MonoBehaviour
     {
         public static void DrawHorizontalLine()
         {

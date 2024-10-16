@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Attributes.Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(InputActionReferenceWrapper))]
-    public class InputActionReferenceWrapperDrawer : PropertyDrawer
+    internal class InputActionReferenceWrapperDrawer : PropertyDrawer
     {
         private const string INTERNAL_REFERENCE = "internalReference";
         

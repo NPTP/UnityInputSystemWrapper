@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    public static class InputContextContentBuilder
+    internal static class InputContextContentBuilder
     {
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {

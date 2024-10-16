@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(BindingSelectorAttribute))]
-    public class BindingSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer
+    internal class BindingSelectorAttributeDrawer : InputNameStringSelectorAttributeDrawer
     {
         protected override string[] GetNames()
         {

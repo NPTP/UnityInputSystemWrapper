@@ -3,7 +3,7 @@ using Object = UnityEngine.Object;
 
 namespace NPTP.InputSystemWrapper.Editor
 {
-    public static class InputToolbarOptions
+    internal static class InputToolbarOptions
     {
         private const string TOOLBAR_NAME = "Input";
         private const string REGENERATE_INPUT_CODE = TOOLBAR_NAME + "/Regenerate C# Input Manager Code";

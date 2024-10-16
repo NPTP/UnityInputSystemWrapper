@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    public static class ControlSchemeContentBuilder
+    internal static class ControlSchemeContentBuilder
     {
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
