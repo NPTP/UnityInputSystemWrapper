@@ -14,12 +14,19 @@ namespace NPTP.InputSystemWrapper.Bindings
         private static readonly string[] mouseKeyboardStrings = { MOUSE, KEYBOARD };
         private static readonly string[] supportedGamepadStrings = { GAMEPAD, XBOX, PLAYSTATION };
 
-        internal static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
+        internal static bool DoesPathMatchDevice(string bindingPath, SupportedDevice device)
+        {
+            return TryGetSupportedDeviceFromBindingPath(bindingPath, out SupportedDevice pathDevice) && pathDevice == device;
+        }
+
+        private static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
         {
             supportedDevice = SupportedDevice.MouseKeyboard;
 
             if (string.IsNullOrEmpty(bindingPath) || !bindingPath.StartsWith('<') || !bindingPath.Contains('>'))
+            {
                 return false;
+            }
 
             string devicePartOfPath = bindingPath.Substring(1, bindingPath.IndexOf('>') - 1);
 

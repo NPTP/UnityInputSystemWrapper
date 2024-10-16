@@ -8,30 +8,27 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingChanger
     {
-        private const string MOUSE = "<Mouse>";
         private const string KEYBOARD_ESCAPE = "<Keyboard>/escape";
 
         internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
         {
-            // If the binding is a composite, we need to rebind each part in turn.
-            int firstPartIndex = bindingIndex + 1;
-            bool allCompositeParts = action.bindings[bindingIndex].isComposite &&
-                                     firstPartIndex < action.bindings.Count &&
-                                     action.bindings[firstPartIndex].isPartOfComposite;
+            bool hasCompositeParts = action.bindings[bindingIndex].isComposite &&
+                                     bindingIndex + 1 < action.bindings.Count &&
+                                     action.bindings[bindingIndex + 1].isPartOfComposite;
 
-            return PerformInteractiveRebind(action, bindingIndex, allCompositeParts, callback);
+            return PerformInteractiveRebind(action, bindingIndex, hasCompositeParts, callback);
         }
 
-        private static RebindingOperation PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts, Action callback)
+        private static RebindingOperation PerformInteractiveRebind(InputAction action, int bindingIndex, bool hasCompositeParts, Action callback)
         {
             bool actionWasEnabled = action.enabled;
             action.Disable();
 
+            // Note that pointer movement (incl. touch) is already excluded in the internal Unity method from being bound in this operation. 
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
             
             rebindingOperation
-                // TODO (bindings): Put this mouse exclusion back in if mouse rebinds with its own movement, but exclude only the movement
-                // .WithControlsExcluding(MOUSE)
+                // TODO (bindings): Allow dev to define excluded controls (.WithControlsExcluding) and cancel controls (.WithCancelingThrough) per device.
                 .WithCancelingThrough(KEYBOARD_ESCAPE)
                 .OnCancel(_ =>
                 {
@@ -45,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                     CleanUpRebindOperation(ref rebindingOperation);
 
                     // If there's more composite parts we should bind, initiate a rebind for the next part.
-                    if (allCompositeParts)
+                    if (hasCompositeParts)
                     {
                         int nextBindingIndex = bindingIndex + 1;
                         if (nextBindingIndex < action.bindings.Count &&

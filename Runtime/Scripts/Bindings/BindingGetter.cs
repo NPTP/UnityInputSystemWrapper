@@ -111,22 +111,21 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
         }
         
-        internal static bool TryGetBindingIndexForDevice(InputAction action, SupportedDevice device, out int bindingIndex)
+        internal static bool TryGetFirstBindingIndexForDevice(InputAction action, SupportedDevice device, out int firstBindingIndex)
         {
-            bindingIndex = -1;
+            firstBindingIndex = -1;
             
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 string effectivePath = action.bindings[i].effectivePath;
-                if (BindingDeviceHelper.TryGetSupportedDeviceFromBindingPath(effectivePath, out SupportedDevice bindingPathDevice) &&
-                    device == bindingPathDevice)
+                if (BindingDeviceHelper.DoesPathMatchDevice(effectivePath, device))
                 {
-                    bindingIndex = i;
+                    firstBindingIndex = i;
                     break;
                 }
             }
 
-            return bindingIndex != -1;
+            return firstBindingIndex != -1;
         }
 
 

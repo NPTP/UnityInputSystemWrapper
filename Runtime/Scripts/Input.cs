@@ -153,9 +153,9 @@ namespace NPTP.InputSystemWrapper
             rebindingOperation?.Cancel();
 
             if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
-                BindingGetter.TryGetBindingIndexForDevice(action, device, out int bindingIndex))
+                BindingGetter.TryGetFirstBindingIndexForDevice(action, device, out int firstBindingIndex))
             {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
+                rebindingOperation = BindingChanger.StartInteractiveRebind(action, firstBindingIndex, callback);
             }
         }
         
