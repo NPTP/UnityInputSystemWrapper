@@ -31,6 +31,7 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
 
+        // TODO (optimization): Send only the changed bindings
         public static event Action OnBindingsChanged;
         
         public static event Action<InputControl> OnAnyButtonPress
@@ -97,17 +98,16 @@ namespace NPTP.InputSystemWrapper
             
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
             
-            // TODO: Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out. Plus, this makes startup slower than it needs to be.
+            // TODO (optimization): Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out. Plus, this makes startup slower than it needs to be.
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
-            LoadBindingsFor(PlayerID.Player1);
+            LoadBindingsForAllPlayers();
             EnableContextForAllPlayers(DefaultContext);
 
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
-            BindingChanger.OnBindingsChanged += HandleBindingsChanged;
         }
 
         private static void SetUpTerminationConditions()
@@ -131,56 +131,42 @@ namespace NPTP.InputSystemWrapper
             playerCollection.TerminateAll();
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
-            BindingChanger.OnBindingsChanged -= HandleBindingsChanged;
         }
 
         #endregion
         
         #region Public Interface
         
-        // TODO: Singleplayer version doesn't take player ID, multiplayer version does
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device, Action callback = null)
+        /// <summary>
+        /// Start an interactive rebind: wait for input from the given player & device to bind a new control to the action given in the action reference.
+        /// </summary>
+        /// <param name="actionReference">Action to be rebound.</param>
+        /// <param name="device">Device which is doing the rebinding.</param>
+        /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed.
+        /// It is intended to help you manage control flow on your UI or wherever rebinding is happening. Subscribe to Input.OnBindingsChanged to know when a
+        /// binding has actually been set to a new value.</param>
+        // MARKER.InteractiveRebind.Start
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)
         {
+            InputPlayer player = Player1;
+            // MARKER.InteractiveRebind.End
             rebindingOperation?.Cancel();
-            
-            if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
+
+            if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
                 BindingGetter.TryGetBindingIndexForDevice(action, device, out int bindingIndex))
             {
                 rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
             }
         }
-
-        public static void ResetBinding(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device)
-        {
-            if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
-            {
-                BindingChanger.ResetBindingToDefaultForDevice(action, device);
-            }
-        }
-
-        public static void ResetAllBindings(PlayerID playerID, SupportedDevice device)
-        {
-            BindingChanger.ResetBindingsToDefaultForDevice(GetPlayer(playerID).Asset, device);
-        }
-
-        public static void LoadBindingsFor(PlayerID playerID)
-        {
-            BindingSaveLoad.LoadBindingsFromDiskForPlayer(GetPlayer(playerID));
-        }
-
-        public static void SaveBindingsFor(PlayerID playerID)
-        {
-            BindingSaveLoad.SaveBindingsToDiskForPlayer(GetPlayer(playerID));
-        }
         
         // MARKER.EnableContextForAllPlayersSignature.Start
         private static void EnableContextForAllPlayers(InputContext inputContext)
-        // MARKER.EnableContextForAllPlayersSignature.End
+            // MARKER.EnableContextForAllPlayersSignature.End
         {
             playerCollection.EnableContextForAll(inputContext);
         }
         
-        // TODO: MP version of this
+        // TODO (multiplayer): MP version of this method in the content builder
         // MARKER.TryGetActionBindingInfo.Start
         public static bool TryGetActionBindingInfo(InputActionReferenceWrapper actionReference, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
@@ -189,11 +175,49 @@ namespace NPTP.InputSystemWrapper
                    BindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfo.End
+        
+        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, SupportedDevice device)
+        {
+            if (Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
+            {
+                BindingChanger.ResetBindingToDefaultForDevice(action, device);
+            }
+        }
+
+        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        public static void ResetAllBindingsForDevice(SupportedDevice device)
+        {
+            BindingChanger.ResetBindingsToDefaultForDevice(Player1.Asset, device);
+        }
+
+        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        public static void LoadAllBindings()
+        {
+            BindingSaveLoad.LoadBindingsFromDiskForPlayer(Player1);
+        }
+
+        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        public static void SaveAllBindings()
+        {
+            BindingSaveLoad.SaveBindingsToDiskForPlayer(Player1);
+        }
+
+        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        public static void ResetAllBindings()
+        {
+            BindingChanger.ResetBindingsToDefault(Player1.Asset);
+        }
 
         #endregion
         
         #region Internal Interface
 
+        internal static void BroadcastBindingsChanged()
+        {
+            OnBindingsChanged?.Invoke();
+        }
+        
         internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)
@@ -214,12 +238,7 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private Runtime Functionality
-
-        private static void HandleBindingsChanged()
-        {
-            OnBindingsChanged?.Invoke();
-        }
-
+        
         private static InputPlayer GetPlayer(PlayerID id)
         {
             return playerCollection[id];
@@ -277,6 +296,14 @@ namespace NPTP.InputSystemWrapper
             Action<InputControl>[] listeners = anyButtonPressListeners.ToArray();
             for (int i = 0; i < listeners.Length; i++)
                 listeners[i]?.Invoke(inputControl);
+        }
+
+        private static void LoadBindingsForAllPlayers()
+        {
+            foreach (PlayerID playerID in Enum.GetValues(typeof(PlayerID)))
+            {
+                BindingSaveLoad.LoadBindingsFromDiskForPlayer(GetPlayer(playerID));
+            }
         }
         
         private static void JoinPlayerByActivatedInputControl(InputControl inputControl)

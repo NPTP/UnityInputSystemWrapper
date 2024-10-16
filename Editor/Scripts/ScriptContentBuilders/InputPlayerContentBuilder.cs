@@ -70,10 +70,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         lines.Add($"                    break;");
                     }
                     break;
-                case "ControlSchemeSwitch":
-                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
-                        lines.Add($"                \"{controlScheme.name}\" => {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()},");
-                    break;
                 case "ChangeSubscriptionIfStatements":
                     int i = 0;
                     foreach (string map in Helper.GetMapNames(asset))

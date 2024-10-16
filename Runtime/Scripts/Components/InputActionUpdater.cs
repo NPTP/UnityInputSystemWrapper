@@ -14,7 +14,7 @@ namespace NPTP.InputSystemWrapper.Components
     /// </summary>
     public class InputActionUpdater : MonoBehaviour
     {
-        public static event Action<IEnumerable<BindingInfo>> OnBindingsUpdated;
+        public event Action<IEnumerable<BindingInfo>> OnBindingsUpdated;
         
         [SerializeField] private InputActionReferenceWrapper inputActionReference;
         
@@ -26,14 +26,14 @@ namespace NPTP.InputSystemWrapper.Components
         private void OnEnable()
         {
             Input.OnDeviceControlChanged += HandleDeviceControlChanged;
-            BindingChanger.OnBindingsChanged += HandleBindingsChanged;
+            Input.OnBindingsChanged += HandleBindingsChanged;
             UpdateEvents(Input.LastUsedDevice);
         }
 
         private void OnDisable()
         {
             Input.OnDeviceControlChanged -= HandleDeviceControlChanged;
-            BindingChanger.OnBindingsChanged -= HandleBindingsChanged;
+            Input.OnBindingsChanged -= HandleBindingsChanged;
         }
 
         private void HandleDeviceControlChanged(DeviceControlInfo deviceControlInfo)

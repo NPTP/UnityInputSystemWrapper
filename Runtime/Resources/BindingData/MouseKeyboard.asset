@@ -16,28 +16,28 @@ MonoBehaviour:
     keyValueCombos:
     - key: leftButton
       value:
-        displayName: LMB!
+        displayName: Left Mouse Button
         sprite: {fileID: 21300000, guid: e0bc4065044f02147814c0fb94add476, type: 3}
     - key: rightButton
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Right Mouse Button
+        sprite: {fileID: 21300000, guid: 43302d9445a0b2e48b46c8c3cd26d073, type: 3}
     - key: middleButton
       value:
-        displayName: 
+        displayName: Middle Mouse Button
         sprite: {fileID: 0}
     - key: forwardButton
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Mouse Forward
+        sprite: {fileID: 21300000, guid: cd8518f763458e04797890a191fea649, type: 3}
     - key: backButton
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Mouse Back
+        sprite: {fileID: 21300000, guid: 425927c3e292ab1419f2f93d1065b7a4, type: 3}
     - key: scroll
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Mouse Scroll Button
+        sprite: {fileID: 21300000, guid: 64044db780dda1c4dbc7bd91afb68d25, type: 3}
     - key: scroll/up
       value:
         displayName: 
@@ -148,8 +148,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: c
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: C (Keyboard)
+        sprite: {fileID: 21300000, guid: 0c24340d1d696264dbc7cda2b6b21d4b, type: 3}
     - key: d
       value:
         displayName: 
@@ -224,24 +224,24 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: v
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: V (Keyboard)
+        sprite: {fileID: 21300000, guid: e85e510443141ed40931567d6f0bd419, type: 3}
     - key: w
       value:
         displayName: 
         sprite: {fileID: 0}
     - key: x
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: X (Keyboard)
+        sprite: {fileID: 21300000, guid: 24b8c7e6fe5186d47a1216c2016c3c92, type: 3}
     - key: y
       value:
         displayName: 
         sprite: {fileID: 0}
     - key: z
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Z (Keyboard)
+        sprite: {fileID: 21300000, guid: 1e4a819a50e875940b91f31efcf19a32, type: 3}
     - key: 1
       value:
         displayName: 

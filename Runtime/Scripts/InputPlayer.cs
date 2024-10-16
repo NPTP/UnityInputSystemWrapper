@@ -54,7 +54,7 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        // TODO: Still relevant? Can we get rid of it?
+        // TODO (control schemes): Get control schemes working later, if needed
         public ControlScheme CurrentControlScheme { get; private set; }
 
         public InputDevice LastUsedDevice { get; private set; }
@@ -92,7 +92,7 @@ namespace NPTP.InputSystemWrapper
             
             SetEventSystemActions();
             
-            // TODO: We are keeping track of the last used device with other methods now, can we get rid of this?
+            // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
             playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
         
@@ -107,7 +107,6 @@ namespace NPTP.InputSystemWrapper
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
         {
-            // TODO: Load bindings from disk based on player ID and use as overrides.
             InputActionAsset oldActions = actions;
             InputActionAsset newActions = Object.Instantiate(actions);
             for (int actionMap = 0; actionMap < oldActions.actionMaps.Count; actionMap++)
@@ -239,8 +238,7 @@ namespace NPTP.InputSystemWrapper
             switch (inputUserChange)
             {
                 case InputUserChange.ControlSchemeChanged:
-                    // TODO: ControlScheme update is basically getting ignored in favour of checking paired devices below. Remove ControlScheme tracking?
-                    CurrentControlScheme = ControlSchemeNameToEnum(playerInput.currentControlScheme);
+                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
                     goto deviceChange;
                 case InputUserChange.DevicePaired:
                 case InputUserChange.DeviceUnpaired:
@@ -374,8 +372,7 @@ namespace NPTP.InputSystemWrapper
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
         
-        // TODO: Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places, since enabling/disabling PlayerInput,
-        // pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
+        // TODO (optimization): Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places, since enabling/disabling PlayerInput, pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
         private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
@@ -425,23 +422,7 @@ namespace NPTP.InputSystemWrapper
         {
             OnKeyboardTextInput?.Invoke(c);
         }
-
-        private static ControlScheme ControlSchemeNameToEnum(string controlSchemeName)
-        {
-#pragma warning disable CS8509
-            return controlSchemeName switch
-#pragma warning restore CS8509
-            {
-                // MARKER.ControlSchemeSwitch.Start
-                "Keyboard&Mouse" => ControlScheme.KeyboardMouse,
-                "Gamepad" => ControlScheme.Gamepad,
-                "Touch" => ControlScheme.Touch,
-                "Joystick" => ControlScheme.Joystick,
-                "XR" => ControlScheme.XR,
-                // MARKER.ControlSchemeSwitch.End
-            };
-        }
-
+        
         private void EnableMapsForContext(InputContext context)
         {
             if (!Enabled)

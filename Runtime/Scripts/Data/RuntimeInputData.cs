@@ -13,7 +13,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputActionAsset inputActionAsset;
         public InputActionAsset InputActionAsset => inputActionAsset;
 
-        // TODO: Some kind of reference to load BindingData in/out, instead of just referencing them directly
         // Support additional device "classes" explicitly as needed (avoids the need to use control schemes)
         [Header("Input Device Binding Data")] [Space]
         [SerializeField] private BindingData mouseKeyboardBindingData;

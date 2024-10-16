@@ -16,8 +16,6 @@ MonoBehaviour:
   maxPlayers: 3
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
-  mapActionsTemplateFile: {fileID: 11500000, guid: 345a53b2445348a4bbf90afde04f31d5, type: 3}
-  mapCacheTemplateFile: {fileID: 11500000, guid: 2c9d9ee9d57e9c447a521fdcf0b6d088, type: 3}
   defaultContext: 1
   inputContexts:
   - name: AllInputDisabled

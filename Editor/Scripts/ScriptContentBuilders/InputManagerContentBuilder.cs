@@ -11,17 +11,15 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
         public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
             void addEmptyLine() => lines.Add(string.Empty);
-            
+            OfflineInputData offlineInputData = Helper.OfflineInputData;
+
             switch (markerName)
             {
                 case "RuntimeInputDataPath":
                     lines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
                     break;
                 case "SingleOrMultiPlayerFieldsAndProperties":
-                    OfflineInputData offlineInputData = Helper.OfflineInputData;
-                    bool enableMp = offlineInputData.EnableMultiplayer;
-                    
-                    if (enableMp)
+                    if (offlineInputData.EnableMultiplayer)
                     {
                         lines.Add("        private static bool allowPlayerJoining;\n" +
                                   "        public static bool AllowPlayerJoining\n" +
@@ -61,27 +59,36 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
-                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Helper.OfflineInputData.DefaultContext};");
+                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
+                    break;
+                case "InteractiveRebind":
+                    string rebindMethodHeader = offlineInputData.EnableMultiplayer
+                        ? $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device, Action callback = null)"
+                        : $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)";
+                    string rebindPlayerGetter = $"            {nameof(InputPlayer)} player = {(offlineInputData.EnableMultiplayer ? "GetPlayer(playerID)" : "Player1")};";
+                    lines.Add(rebindMethodHeader);
+                    lines.Add("        {");
+                    lines.Add(rebindPlayerGetter);
                     break;
                 case "EnableContextForAllPlayersSignature":
-                    string accessor = Helper.OfflineInputData.EnableMultiplayer ? "public" : "private";
+                    string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
                     lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
                     break;
                 case "TryGetActionBindingInfo":
-                    bool isMultiplayer = Helper.OfflineInputData.EnableMultiplayer;
+                    bool isMultiplayer = offlineInputData.EnableMultiplayer;
                     string methodHeader;
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo(string actionName, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReference, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
                         methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, GetPlayer(playerID).Asset, actionName, device, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo(string actionName, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReference, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
                         methodBody = "            bindingInfos = null;\n";
                         methodBody += "            return Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&\n";
-                        methodBody += "                   InputBindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
+                        methodBody += "                   BindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);

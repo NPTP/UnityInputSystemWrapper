@@ -6,15 +6,12 @@ using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtension
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    // TODO: localization support
     internal static class BindingChanger
     {
         private const string MOUSE = "<Mouse>";
         private const string KEYBOARD_ESCAPE = "<Keyboard>/escape";
 
-        public static event Action OnBindingsChanged;
-
-        public static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
+        internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
         {
             // If the binding is a composite, we need to rebind each part in turn.
             int firstPartIndex = bindingIndex + 1;
@@ -33,7 +30,8 @@ namespace NPTP.InputSystemWrapper.Bindings
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
             
             rebindingOperation
-                // .WithControlsExcluding(MOUSE) // TODO: Put this back in if mouse rebinds with its own movement
+                // TODO (bindings): Put this mouse exclusion back in if mouse rebinds with its own movement, but exclude only the movement
+                // .WithControlsExcluding(MOUSE)
                 .WithCancelingThrough(KEYBOARD_ESCAPE)
                 .OnCancel(operation =>
                 {
@@ -56,7 +54,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                     }
 
                     callback?.Invoke();
-                    OnBindingsChanged?.Invoke();
+                    Input.BroadcastBindingsChanged();
                 });
 
             rebindingOperation.Start();
@@ -69,31 +67,59 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        public static void ResetBindingToDefaultForDevice(InputAction action, SupportedDevice device)
+        internal static void ResetBindingToDefaultForDevice(InputAction action, SupportedDevice device)
         {
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
-            if (RemoveOverridesFromAction(action, devicePathStrings))
+            if (RemoveDeviceOverridesFromAction(action, devicePathStrings))
             {
-                OnBindingsChanged?.Invoke();
+                Input.BroadcastBindingsChanged();
             }
         }
 
-        public static void ResetBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
+        internal static void ResetBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
         {
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
             bool changed = false;
             foreach (InputAction action in asset)
             {
-                changed |= RemoveOverridesFromAction(action, devicePathStrings);
+                changed |= RemoveDeviceOverridesFromAction(action, devicePathStrings);
             }
 
             if (changed)
             {
-                OnBindingsChanged?.Invoke();
+                Input.BroadcastBindingsChanged();
             }
         }
 
-        private static bool RemoveOverridesFromAction(InputAction action, string[] devices)
+        internal static void ResetBindingsToDefault(InputActionAsset asset)
+        {
+            bool changed = asset.Any(HasOverride);
+            asset.RemoveAllBindingOverrides();
+
+            if (changed)
+            {
+                Input.BroadcastBindingsChanged();
+            }
+        }
+
+        private static bool HasOverride(InputAction action)
+        {
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                string overridePath = action.bindings[i].overridePath;
+                if (!string.IsNullOrEmpty(overridePath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Return true if a binding was changed, ie, it actually had an override that was removed/returned to default.
+        /// </summary>
+        private static bool RemoveDeviceOverridesFromAction(InputAction action, string[] devices)
         {
             bool changed = false;
             for (int i = 0; i < action.bindings.Count; i++)

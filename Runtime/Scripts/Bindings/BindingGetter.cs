@@ -10,7 +10,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        // TODO: Version that supports the SupportedDevice enum
+        // TODO (bindings): Version that supports the SupportedDevice enum
         public static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
