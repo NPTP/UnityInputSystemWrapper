@@ -8,7 +8,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class InputManagerContentBuilder
     {
-        public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
             void addEmptyLine() => lines.Add(string.Empty);
             OfflineInputData offlineInputData = Helper.OfflineInputData;

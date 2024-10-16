@@ -7,7 +7,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class ActionsContentBuilder
     {
-        public static void AddContent(string markerName, InputActionMap map, List<string> lines)
+        internal static void AddContent(string markerName, InputActionMap map, List<string> lines)
         {
             IEnumerable<string> getActionNames() => map.actions.Select(inputAction => inputAction.name);
             IEnumerable<string> getActionNamesAsTypes() => map.actions.Select(inputAction => inputAction.name.AllWhitespaceTrimmed().CapitalizeFirst());

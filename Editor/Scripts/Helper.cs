@@ -19,37 +19,37 @@ namespace NPTP.InputSystemWrapper.Editor
         private const string END = "End";
         
         // Assets
-        public static InputActionAsset InputActionAsset => EditorAssetGetter.GetFirst<RuntimeInputData>().InputActionAsset;
-        public static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
-        public static string InputNamespace => GetNamespace(InputManagerFileSystemPath);
+        internal static InputActionAsset InputActionAsset => EditorAssetGetter.GetFirst<RuntimeInputData>().InputActionAsset;
+        internal static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
+        internal static string InputNamespace => GetNamespace(InputManagerFileSystemPath);
         
         // Existing script paths
-        public static string InputManagerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(Input));
-        public static string InputPlayerFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputPlayer>();
-        public static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
-        public static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
-        public static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
-        public static string DeviceControlInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<DeviceControlInfo>();
+        internal static string InputManagerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(Input));
+        internal static string InputPlayerFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputPlayer>();
+        internal static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
+        internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
+        internal static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
+        internal static string DeviceControlInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<DeviceControlInfo>();
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths
-        public static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);
+        internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);
         
         // Generated script paths
-        public const string GENERATED = "Generated";
-        public const string ACTIONS = "Actions";
-        public static string GeneratedFolderSystemPath => InputManagerFolderSystemPath + GENERATED + Sep;
-        public static string GeneratedActionsSystemPath => GeneratedFolderSystemPath;
+        internal const string GENERATED = "Generated";
+        internal const string ACTIONS = "Actions";
+        internal static string GeneratedFolderSystemPath => InputManagerFolderSystemPath + GENERATED + Sep;
+        internal static string GeneratedActionsSystemPath => GeneratedFolderSystemPath;
         private static char Sep => Path.DirectorySeparatorChar;
         
         // String extensions for code generation
-        public static string AsField(this string s) => s.AllWhitespaceTrimmed().LowercaseFirst();
-        public static string AsProperty(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
-        public static string AsType(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
-        public static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly();
-        public static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
+        internal static string AsField(this string s) => s.AllWhitespaceTrimmed().LowercaseFirst();
+        internal static string AsProperty(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
+        internal static string AsType(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
+        internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly();
+        internal static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
         
-        public static void ClearFolder(string folderSystemPath)
+        internal static void ClearFolder(string folderSystemPath)
         {
             if (!Directory.Exists(folderSystemPath))
             {
@@ -66,7 +66,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
         }
 
-        public static void WriteLinesToFile(List<string> newLines, string filePath)
+        internal static void WriteLinesToFile(List<string> newLines, string filePath)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
         }
 
-        public static List<string> GetGeneratorNoticeLines()
+        internal static List<string> GetGeneratorNoticeLines()
         {
             return new List<string>
             {
@@ -106,12 +106,12 @@ namespace NPTP.InputSystemWrapper.Editor
             };
         }
 
-        public static IEnumerable<string> GetMapNames(InputActionAsset asset)
+        internal static IEnumerable<string> GetMapNames(InputActionAsset asset)
         {
             return asset.actionMaps.Select(map => map.name);
         }
         
-        public static bool IsMarkerStart(string line, out string markerName)
+        internal static bool IsMarkerStart(string line, out string markerName)
         {
             string trimmedLine = line.Trim();
             bool isMarkerStart = trimmedLine.StartsWith(MARKER) && trimmedLine.EndsWith(START);
@@ -146,7 +146,7 @@ namespace NPTP.InputSystemWrapper.Editor
             return true;
         }
 
-        public static bool IsMarkerEnd(string line)
+        internal static bool IsMarkerEnd(string line)
         {
             string trimmedLine = line.Trim();
             return trimmedLine.StartsWith(MARKER) && trimmedLine.EndsWith(END);

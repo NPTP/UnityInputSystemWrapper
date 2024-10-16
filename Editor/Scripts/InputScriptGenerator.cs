@@ -16,7 +16,7 @@ namespace NPTP.InputSystemWrapper.Editor
             WaitingForMarkerEnd
         }
         
-        public static void GenerateInputScriptCode()
+        internal static void GenerateInputScriptCode()
         {
             Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
             

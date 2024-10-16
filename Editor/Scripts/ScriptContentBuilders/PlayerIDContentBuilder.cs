@@ -7,7 +7,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class PlayerIDContentBuilder
     {
-        public static void AddContent(InputActionAsset inputActionAsset, string markerName, List<string> lines)
+        internal static void AddContent(InputActionAsset inputActionAsset, string markerName, List<string> lines)
         {
             switch (markerName)
             {

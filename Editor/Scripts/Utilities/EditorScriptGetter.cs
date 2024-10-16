@@ -12,10 +12,10 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
             Folder
         }
 
-        public static string GetSystemFilePath<T>() => GetSystemFilePath(typeof(T));
-        public static string GetSystemFilePath(Type type) => GetSystemPath(type, PathType.File);
-        public static string GetSystemFolderPath<T>() => GetSystemFolderPath(typeof(T));
-        public static string GetSystemFolderPath(Type type) => GetSystemPath(type, PathType.Folder);
+        internal static string GetSystemFilePath<T>() => GetSystemFilePath(typeof(T));
+        internal static string GetSystemFilePath(Type type) => GetSystemPath(type, PathType.File);
+        internal static string GetSystemFolderPath<T>() => GetSystemFolderPath(typeof(T));
+        internal static string GetSystemFolderPath(Type type) => GetSystemPath(type, PathType.Folder);
 
         private static string GetSystemPath(Type type, PathType pathType)
         {

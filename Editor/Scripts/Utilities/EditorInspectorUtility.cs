@@ -5,12 +5,12 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
 {
     internal class EditorInspectorUtility : MonoBehaviour
     {
-        public static void DrawHorizontalLine()
+        internal static void DrawHorizontalLine()
         {
             EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider);
         }
         
-        public static void ShowScriptInspector<T>(T targetMonoBehaviour) where T : MonoBehaviour
+        internal static void ShowScriptInspector<T>(T targetMonoBehaviour) where T : MonoBehaviour
         {
             EditorGUI.BeginDisabledGroup(disabled: true);
             EditorGUILayout.ObjectField("Script:", MonoScript.FromMonoBehaviour(targetMonoBehaviour), typeof(T), false);

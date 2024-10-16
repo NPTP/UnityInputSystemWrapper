@@ -7,7 +7,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class InputContextContentBuilder
     {
-        public static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {
             switch (markerName)
             {
