@@ -5,7 +5,7 @@ namespace NPTP.InputSystemWrapper.Utilities
 {
     internal static class ObjectUtility
     {
-        public static void DestroyAllObjectsOfType<T1, T2, T3, T4>()
+        internal static void DestroyAllObjectsOfType<T1, T2, T3, T4>()
             where T1 : Object
             where T2 : Object
             where T3 : Object

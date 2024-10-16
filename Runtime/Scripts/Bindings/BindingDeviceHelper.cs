@@ -14,7 +14,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         private static readonly string[] mouseKeyboardStrings = { MOUSE, KEYBOARD };
         private static readonly string[] supportedGamepadStrings = { GAMEPAD, XBOX, PLAYSTATION };
 
-        public static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
+        internal static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)
         {
             supportedDevice = SupportedDevice.MouseKeyboard;
 
@@ -42,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return false;
         }
         
-        public static string[] GetDevicePathStrings(SupportedDevice device)
+        internal static string[] GetDevicePathStrings(SupportedDevice device)
         {
             switch (device)
             {

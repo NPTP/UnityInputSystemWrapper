@@ -2,7 +2,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingPathHelper
     {
-        public static string[] MouseControls => new[]
+        internal static string[] MouseControls => new[]
         {
             "leftButton",
             "rightButton",
@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             "position/y"
         };
         
-        public static string[] KeyboardControls => new []
+        internal static string[] KeyboardControls => new []
         {
             "anyKey",
             "escape",
@@ -130,7 +130,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             "f12",
         };
 
-        public static string[] GamepadControls => new[]
+        internal static string[] GamepadControls => new[]
         {
             "start",
             "select",

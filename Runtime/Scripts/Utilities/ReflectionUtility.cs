@@ -9,10 +9,10 @@ namespace NPTP.InputSystemWrapper.Utilities
         /// Sets static members of a static class to default values.
         /// For properties, only properties with a backing field will get reset.
         /// For events, only events with a backing field will get reset.
-        /// This avoids potential issues with invoking complex logic inside property/event setters.
-        /// Note that const and readonly fields will not be changed.
+        /// These restrictions avoid issues with property/event setters where complex logic may be called inside them when try to reset them.
+        /// Const and readonly fields will not be changed.
         /// </summary>
-        public static void ResetStaticClassMembersToDefault(Type staticType)
+        internal static void ResetStaticClassMembersToDefault(Type staticType)
         {
             if (!staticType.IsAbstract || !staticType.IsSealed)
                 return;

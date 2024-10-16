@@ -9,7 +9,7 @@ namespace NPTP.InputSystemWrapper.Utilities
     /// </summary>
     internal static class RuntimeSafeEditorUtility
     {
-        public static bool IsDomainReloadDisabled()
+        internal static bool IsDomainReloadDisabled()
         {
 #if UNITY_EDITOR
             return EditorSettings.enterPlayModeOptionsEnabled &&
