@@ -38,6 +38,7 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [ ] BindingInfo/UI elements/etc must support individual parts of composites as well
 - [ ] Sort out composites turned into a single binding (e.g. "Move" binding, wiggle the left stick and the whole binding maps correctly to left stick)
 - [ ] Support control schemes: string control schemes get turned into enum as usual, but then runtime input data auto-generates a list of every control scheme with a slot to plug in binding data. Missing data fails silently. This will allow quick definition of of schemes in any game without needing manual device support like we currently have, and more abstract usage of control schemes in developer code.
+- [ ] Support multiple bindings per action. Let developer choose how many bindings an action is allowed to have (runtime settings?).
 
 ##### Multiplayer Additions:
 - [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player), since players may each have unique bindings saved. By extension: Input.TryGetActionBindingInfo must support MP.

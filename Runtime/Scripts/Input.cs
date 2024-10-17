@@ -140,54 +140,32 @@ namespace NPTP.InputSystemWrapper
         /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
-        /// <param name="actionReference">Action to be rebound.</param>
+        /// <param name="actionReferenceWrapper">Contains action to be rebound.</param>
         /// <param name="device">Device which is doing the rebinding.</param>
         /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        /// TODO: Multiplayer version that takes PlayerID and rebinds specific player
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)
-        {
-            int bindingIndexGetter(InputAction action) => BindingGetter.GetFirstBindingIndexForDevice(action, device);
-            StartInteractiveRebindPrivate(actionReference, PlayerID.Player1, bindingIndexGetter, callback);
-        }
-
-        /// <summary>
-        /// Start an interactive rebind on a COMPOSITE part: wait for input from the given player and device to bind a new control to the COMPOSITE part of the action given in the action reference.
-        /// </summary>
-        /// <param name="actionReference">Action to be rebound.</param>
-        /// <param name="compositePart">The composite part of the action to be rebound.</param>
-        /// <param name="device">Device which is doing the rebinding.</param>
-        /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
-        /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
-        /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        /// TODO: Multiplayer version that takes PlayerID and rebinds specific player
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, CompositePart compositePart, SupportedDevice device, Action callback = null)
-        {
-            int bindingIndexGetter(InputAction action) => BindingGetter.GetFirstCompositePartBindingIndexForDevice(action, device, compositePart);
-            StartInteractiveRebindPrivate(actionReference, PlayerID.Player1, bindingIndexGetter, callback);
-        }
-        
-        private static void StartInteractiveRebindPrivate(InputActionReferenceWrapper actionReference, PlayerID playerID, Func<InputAction, int> bindingIndexGetter, Action callback = null)
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReferenceWrapper, SupportedDevice device, Action callback = null)
         {
             if (rebindingOperation != null)
             {
                 rebindingOperation.Cancel();
                 rebindingOperation.Dispose();
             }
-            
-            if (GetPlayer(playerID).TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
-            {
-                int bindingIndex = bindingIndexGetter.Invoke(action);
-                if (bindingIndex >= 0)
-                {
-                    rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
-                    return;
-                }
-            }
 
-            Debug.LogError("Rebinding failed: Action or binding index could not be found.");
-            callback?.Invoke();
+            // TODO: Multiplayer version that takes PlayerID and rebinds specific player
+            InputPlayer player = GetPlayer(PlayerID.Player1);
+
+            if (player.TryGetMapAndActionInPlayerAsset(actionReferenceWrapper.InternalReference, out InputActionMap _, out InputAction action) &&
+                BindingGetter.TryGetFirstBindingIndex(actionReferenceWrapper, action, device, out int bindingIndex))
+            {
+                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
+            }
+            else
+            {
+                Debug.LogError("Rebinding failed: Action or binding index could not be found.");
+                callback?.Invoke();
+            }
         }
         
         // MARKER.EnableContextForAllPlayersSignature.Start
@@ -197,24 +175,17 @@ namespace NPTP.InputSystemWrapper
             playerCollection.EnableContextForAll(inputContext);
         }
         
-        // TODO (multiplayer): MP version of this method in the content builder
-        // TODO (bindings): composite parts supported
         // MARKER.TryGetActionBindingInfo.Start
-        public static bool TryGetActionBindingInfo(InputActionReferenceWrapper actionReference, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        public static bool TryGetActionBindingInfo(InputActionReferenceWrapper actionReferenceWrapper, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
-            bindingInfos = null;
-            return Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&
-                   BindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);
+            return BindingGetter.TryGetActionBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, device, out bindingInfos);
         }
         // MARKER.TryGetActionBindingInfo.End
         
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
-        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, SupportedDevice device)
+        public static void ResetBindingForAction(InputActionReferenceWrapper actionReferenceWrapper, SupportedDevice device)
         {
-            if (Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
-            {
-                BindingChanger.ResetBindingToDefaultForDevice(action, device);
-            }
+            BindingChanger.ResetBindingToDefaultForDevice(Player1, actionReferenceWrapper, device);
         }
 
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)

@@ -45,10 +45,16 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForDevice(InputAction action, SupportedDevice device)
+        internal static void ResetBindingToDefaultForDevice(InputPlayer player, InputActionReferenceWrapper wrapper, SupportedDevice device)
         {
+            if (!player.TryGetMapAndActionInPlayerAsset(wrapper.InternalReference, out InputActionMap _, out InputAction action))
+            {
+                return;
+            }
+            
             string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
-            if (RemoveDeviceOverridesFromAction(action, devicePathStrings))
+            bool compositeCondition(InputBinding binding) => !wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding);
+            if (RemoveDeviceOverridesFromAction(action, devicePathStrings, compositeCondition))
             {
                 Input.BroadcastBindingsChanged();
             }
@@ -95,15 +101,17 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
-        /// Return true if a binding was changed, ie, it actually had an override that was removed/returned to default.
+        /// Return true only if a binding was changed, ie, it actually had an override that was removed/returned to default.
         /// </summary>
-        private static bool RemoveDeviceOverridesFromAction(InputAction action, string[] devices)
+        private static bool RemoveDeviceOverridesFromAction(InputAction action, string[] devices, Func<InputBinding, bool> additionalRemoveCondition = null)
         {
             bool changed = false;
             for (int i = 0; i < action.bindings.Count; i++)
             {
-                string overridePath = action.bindings[i].overridePath;
-                if (!string.IsNullOrEmpty(overridePath) && devices.Any(deviceString => overridePath.Contains(deviceString)))
+                InputBinding binding = action.bindings[i];
+                string overridePath = binding.overridePath;
+                if (!string.IsNullOrEmpty(overridePath) && devices.Any(deviceString => overridePath.Contains(deviceString)) &&
+                    (additionalRemoveCondition == null || additionalRemoveCondition.Invoke(binding)))
                 {
                     changed = true;
                     action.RemoveBindingOverride(i);

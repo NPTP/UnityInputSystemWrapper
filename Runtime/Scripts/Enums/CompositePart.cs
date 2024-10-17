@@ -18,7 +18,12 @@ namespace NPTP.InputSystemWrapper.Enums
     {
         internal static bool CorrespondsToBinding(this CompositePart compositePart, InputBinding binding)
         {
-            return binding.isPartOfComposite && binding.name == compositePart.ToString().ToLower();
+            return binding.isPartOfComposite && binding.name == compositePart.ToBindingName();
+        }
+
+        private static string ToBindingName(this CompositePart compositePart)
+        {
+            return compositePart.ToString().ToLower();
         }
     }
 }

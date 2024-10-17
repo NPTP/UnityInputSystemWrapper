@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
@@ -12,7 +11,8 @@ namespace NPTP.InputSystemWrapper.Bindings
     internal static class BindingGetter
     {
         // TODO (bindings): Version that supports the SupportedDevice enum
-        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputAction action, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        // TODO (control schemes): ...or instead of SupportedDevice, supports control schemes for the long term
+        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, InputActionReferenceWrapper wrapper, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
             
@@ -21,14 +21,20 @@ namespace NPTP.InputSystemWrapper.Bindings
                 return false;
             }
             
-            // Get the asset on disk containing binding data.
-            if (!TryGetBindingData(runtimeInputData, device, out BindingData bindingData))
+            // Get the correct action from the player asset based on the wrapper's internal reference.
+            if (!player.TryGetMapAndActionInPlayerAsset(wrapper.InternalReference, out InputActionMap map, out InputAction action))
             {
                 return false;
             }
 
-            // Get the string control paths to the used input action.
-            if (!TryGetControlPaths(action, device, out List<string> controlPaths))
+            // Get the string control paths for the used input action & composite part.
+            if (!TryGetControlPaths(wrapper, action, device, out List<string> controlPaths))
+            {
+                return false;
+            }
+            
+            // Get the asset on disk containing binding data.
+            if (!TryGetBindingData(runtimeInputData, device, out BindingData bindingData))
             {
                 return false;
             }
@@ -81,7 +87,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return !bindingDataNull;
         }
         
-        private static bool TryGetControlPaths(InputAction action, InputDevice device, out List<string> controlPaths)
+        private static bool TryGetControlPaths(InputActionReferenceWrapper wrapper, InputAction action, InputDevice device, out List<string> controlPaths)
         {
             List<string> paths = new();
 
@@ -104,7 +110,8 @@ namespace NPTP.InputSystemWrapper.Bindings
                 {
                     InputBinding binding = action.bindings[i];
                     InputControl control = InputControlPath.TryFindControl(inputDevice, binding.effectivePath);
-                    if (control != null && control.device == inputDevice)
+                    if (control != null && control.device == inputDevice &&
+                        (!wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding)))
                     {
                         paths.Add(control.path[(2 + control.device.name.Length)..]);
                     }
@@ -112,32 +119,23 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
         }
         
-        internal static int GetFirstBindingIndexForDevice(InputAction action, SupportedDevice device)
+        internal static bool TryGetFirstBindingIndex(InputActionReferenceWrapper wrapper, InputAction action, SupportedDevice device, out int firstBindingIndex)
         {
-            bool condition(InputBinding binding) => BindingDeviceHelper.DoesBindingMatchDevice(binding, device);
-            return GetFirstBindingIndexOnCondition(action, condition);
-        }
-
-        internal static int GetFirstCompositePartBindingIndexForDevice(InputAction action, SupportedDevice device, CompositePart compositePart)
-        {
-            bool condition(InputBinding binding) => BindingDeviceHelper.DoesBindingMatchDevice(binding, device) && compositePart.CorrespondsToBinding(binding);
-            return GetFirstBindingIndexOnCondition(action, condition);
-        }
-
-        private static int GetFirstBindingIndexOnCondition(InputAction action, Func<InputBinding, bool> condition)
-        {
-            int firstBindingIndex = -1;
+            firstBindingIndex = -1;
 
             for (int i = 0; i < action.bindings.Count; i++)
             {
-                if (condition.Invoke(action.bindings[i]))
+                InputBinding binding = action.bindings[i];
+
+                if (BindingDeviceHelper.DoesBindingMatchDevice(binding, device) &&
+                    (!wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding)))
                 {
                     firstBindingIndex = i;
                     break;
                 }
             }
 
-            return firstBindingIndex;
+            return firstBindingIndex != -1;
         }
     }
 }

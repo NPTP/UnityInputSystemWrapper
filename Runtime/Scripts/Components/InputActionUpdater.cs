@@ -38,7 +38,7 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void HandleDeviceControlChanged(DeviceControlInfo deviceControlInfo)
         {
-            UpdateEvents(Input.LastUsedDevice);
+            UpdateEvents(deviceControlInfo.InputDevice);
         }
 
         private void HandleBindingsChanged()

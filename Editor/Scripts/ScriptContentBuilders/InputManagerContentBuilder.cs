@@ -80,15 +80,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReference, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return InputBindings.TryGetActionBindingInfo(runtimeInputData, GetPlayer(playerID).Asset, actionName, device, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReferenceWrapper, {nameof(PlayerID)} playerID, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return BindingGetter.TryGetActionBindingInfo(runtimeInputData, GetPlayer(playerID), actionReferenceWrapper, device, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReference, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = "            bindingInfos = null;\n";
-                        methodBody += "            return Player1.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action) &&\n";
-                        methodBody += "                   BindingGetter.TryGetActionBindingInfo(runtimeInputData, action, device, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetActionBindingInfo({nameof(InputActionReferenceWrapper)} actionReferenceWrapper, InputDevice device, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return BindingGetter.TryGetActionBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, device, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);
