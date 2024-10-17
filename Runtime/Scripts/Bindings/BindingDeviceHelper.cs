@@ -1,5 +1,6 @@
 using System;
 using NPTP.InputSystemWrapper.Enums;
+using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
@@ -14,9 +15,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         private static readonly string[] mouseKeyboardStrings = { MOUSE, KEYBOARD };
         private static readonly string[] supportedGamepadStrings = { GAMEPAD, XBOX, PLAYSTATION };
 
-        internal static bool DoesPathMatchDevice(string bindingPath, SupportedDevice device)
+        internal static bool DoesBindingMatchDevice(InputBinding binding, SupportedDevice device)
         {
-            return TryGetSupportedDeviceFromBindingPath(bindingPath, out SupportedDevice pathDevice) && pathDevice == device;
+            return TryGetSupportedDeviceFromBindingPath(binding.effectivePath, out SupportedDevice pathDevice) && pathDevice == device;
         }
 
         private static bool TryGetSupportedDeviceFromBindingPath(string bindingPath, out SupportedDevice supportedDevice)

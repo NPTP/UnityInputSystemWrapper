@@ -12,15 +12,6 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
         {
-            bool hasCompositeParts = action.bindings[bindingIndex].isComposite &&
-                                     bindingIndex + 1 < action.bindings.Count &&
-                                     action.bindings[bindingIndex + 1].isPartOfComposite;
-
-            return PerformInteractiveRebind(action, bindingIndex, hasCompositeParts, callback);
-        }
-
-        private static RebindingOperation PerformInteractiveRebind(InputAction action, int bindingIndex, bool hasCompositeParts, Action callback)
-        {
             bool actionWasEnabled = action.enabled;
             action.Disable();
 
@@ -40,16 +31,6 @@ namespace NPTP.InputSystemWrapper.Bindings
                 {
                     if (actionWasEnabled) action.Enable();
                     CleanUpRebindOperation(ref rebindingOperation);
-
-                    // If there's more composite parts we should bind, initiate a rebind for the next part.
-                    if (hasCompositeParts)
-                    {
-                        int nextBindingIndex = bindingIndex + 1;
-                        if (nextBindingIndex < action.bindings.Count &&
-                            action.bindings[nextBindingIndex].isPartOfComposite)
-                            PerformInteractiveRebind(action, nextBindingIndex, true, null);
-                    }
-
                     callback?.Invoke();
                     Input.BroadcastBindingsChanged();
                 });

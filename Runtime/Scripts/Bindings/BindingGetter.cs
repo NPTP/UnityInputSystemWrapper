@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
@@ -111,23 +112,32 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
         }
         
-        internal static bool TryGetFirstBindingIndexForDevice(InputAction action, SupportedDevice device, out int firstBindingIndex)
+        internal static int GetFirstBindingIndexForDevice(InputAction action, SupportedDevice device)
         {
-            firstBindingIndex = -1;
-            
+            bool condition(InputBinding binding) => BindingDeviceHelper.DoesBindingMatchDevice(binding, device);
+            return GetFirstBindingIndexOnCondition(action, condition);
+        }
+
+        internal static int GetFirstCompositePartBindingIndexForDevice(InputAction action, SupportedDevice device, CompositePart compositePart)
+        {
+            bool condition(InputBinding binding) => BindingDeviceHelper.DoesBindingMatchDevice(binding, device) && compositePart.CorrespondsToBinding(binding);
+            return GetFirstBindingIndexOnCondition(action, condition);
+        }
+
+        private static int GetFirstBindingIndexOnCondition(InputAction action, Func<InputBinding, bool> condition)
+        {
+            int firstBindingIndex = -1;
+
             for (int i = 0; i < action.bindings.Count; i++)
             {
-                string effectivePath = action.bindings[i].effectivePath;
-                if (BindingDeviceHelper.DoesPathMatchDevice(effectivePath, device))
+                if (condition.Invoke(action.bindings[i]))
                 {
                     firstBindingIndex = i;
                     break;
                 }
             }
 
-            return firstBindingIndex != -1;
+            return firstBindingIndex;
         }
-
-
     }
 }

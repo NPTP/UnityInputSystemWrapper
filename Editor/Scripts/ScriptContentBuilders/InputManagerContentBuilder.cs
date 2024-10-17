@@ -61,7 +61,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
                     break;
-                case "InteractiveRebind":
+                case "InteractiveRebind": // TODO (multiplayer)
                     string rebindMethodHeader = offlineInputData.EnableMultiplayer
                         ? $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device, Action callback = null)"
                         : $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)";

@@ -34,7 +34,9 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Device->Binding combos are written to/read from disk. Rebind(InputAction Name, Binding). Input actions asset SaveBindingOverridesAsJson & LoadBindingOverridesFromJson. Saves binding overrides.
 - [✔] Reset all bindings for a particular device.
 - [✔] General cleanup to make as many methods internal as possible
-- [ ] Sort out cases like composite bindings turned into a single binding button (e.g. "Move" binding, wiggle the joystick, maps to stick), and composites turned into multiple buttons (e.g. "Forward", "Left", "Down", "Right" for WASD on keyboard)
+- [✔] Sort out composites turned into multiple buttons (e.g. "Forward", "Left", "Down", "Right" all separated for a single "Move" action using WASD on keyboard)
+- [ ] BindingInfo/UI elements/etc must support individual parts of composites as well
+- [ ] Sort out composites turned into a single binding (e.g. "Move" binding, wiggle the left stick and the whole binding maps correctly to left stick)
 - [ ] Support control schemes: string control schemes get turned into enum as usual, but then runtime input data auto-generates a list of every control scheme with a slot to plug in binding data. Missing data fails silently. This will allow quick definition of of schemes in any game without needing manual device support like we currently have, and more abstract usage of control schemes in developer code.
 
 ##### Multiplayer Additions:
