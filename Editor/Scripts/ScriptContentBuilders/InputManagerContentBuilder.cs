@@ -62,8 +62,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     break;
                 case "InteractiveRebind": // TODO (multiplayer)
                     string rebindMethodHeader = offlineInputData.EnableMultiplayer
-                        ? $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, SupportedDevice device, Action callback = null)"
-                        : $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)";
+                        ? $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, ControlScheme controlScheme, Action callback = null)"
+                        : $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, ControlScheme controlScheme, Action callback = null)";
                     string rebindPlayerGetter = $"            {nameof(InputPlayer)} player = {(offlineInputData.EnableMultiplayer ? "GetPlayer(playerID)" : "Player1")};";
                     lines.Add(rebindMethodHeader);
                     lines.Add("        {");

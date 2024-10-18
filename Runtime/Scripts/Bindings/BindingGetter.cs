@@ -112,7 +112,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                     InputBinding binding = action.bindings[i];
                     InputControl control = InputControlPath.TryFindControl(inputDevice, binding.effectivePath);
                     if (control != null && control.device == inputDevice &&
-                        (!wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding)))
+                        (!wrapper.UseCompositePart || wrapper.CompositePart.Matches(binding)))
                     {
                         paths.Add(control.path[(2 + control.device.name.Length)..]);
                     }
@@ -120,16 +120,16 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
         }
         
-        internal static bool TryGetFirstBindingIndex(InputActionReferenceWrapper wrapper, InputAction action, SupportedDevice device, out int firstBindingIndex)
+        internal static bool TryGetFirstBindingIndex(InputActionReferenceWrapper wrapper, InputAction action, ControlScheme controlScheme, out int firstBindingIndex)
         {
             firstBindingIndex = -1;
 
+            InputBinding bindingMask = controlScheme.ToBindingMask();
+            
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 InputBinding binding = action.bindings[i];
-
-                if (BindingDeviceHelper.DoesBindingMatchDevice(binding, device) &&
-                    (!wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding)))
+                if (bindingMask.Matches(binding) && (!wrapper.UseCompositePart || wrapper.CompositePart.Matches(binding)))
                 {
                     firstBindingIndex = i;
                     break;

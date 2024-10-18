@@ -140,11 +140,11 @@ namespace NPTP.InputSystemWrapper
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
         /// <param name="actionReference">Reference wrapper containing action to be rebound.</param>
-        /// <param name="device">Device which is doing the rebinding.</param>
+        /// <param name="controlScheme">Control scheme for which to do the rebinding.</param>
         /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, ControlScheme controlScheme, Action callback = null)
         {
             if (rebindingOperation != null)
             {
@@ -156,7 +156,7 @@ namespace NPTP.InputSystemWrapper
             InputPlayer player = GetPlayer(PlayerID.Player1);
 
             if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap _, out InputAction action) &&
-                BindingGetter.TryGetFirstBindingIndex(actionReference, action, device, out int bindingIndex))
+                BindingGetter.TryGetFirstBindingIndex(actionReference, action, controlScheme, out int bindingIndex))
             {
                 rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
             }
@@ -180,15 +180,15 @@ namespace NPTP.InputSystemWrapper
         // MARKER.TryGetCurrentBindingInfo.End
         
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
-        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, SupportedDevice device)
+        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, ControlScheme controlScheme)
         {
-            BindingChanger.ResetBindingToDefaultForDevice(Player1, actionReference, device);
+            BindingChanger.ResetBindingToDefaultForControlScheme(Player1, actionReference, controlScheme);
         }
 
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
-        public static void ResetAllBindingsForDevice(SupportedDevice device)
+        public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme)
         {
-            BindingChanger.ResetBindingsToDefaultForDevice(Player1.Asset, device);
+            BindingChanger.ResetBindingsToDefaultForControlScheme(Player1.Asset, controlScheme);
         }
 
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)

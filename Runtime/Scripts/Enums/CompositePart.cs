@@ -16,7 +16,7 @@ namespace NPTP.InputSystemWrapper.Enums
 
     internal static class CompositePartExtensions
     {
-        internal static bool CorrespondsToBinding(this CompositePart compositePart, InputBinding binding)
+        internal static bool Matches(this CompositePart compositePart, InputBinding binding)
         {
             return binding.isPartOfComposite && binding.name == compositePart.ToBindingName();
         }

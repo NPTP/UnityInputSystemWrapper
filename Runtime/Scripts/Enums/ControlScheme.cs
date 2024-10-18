@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Enums
 {
@@ -50,6 +51,11 @@ namespace NPTP.InputSystemWrapper.Enums
                 // MARKER.StringToEnumSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeName), controlSchemeName, null)
             };
+        }
+
+        internal static InputBinding ToBindingMask(this ControlScheme controlScheme)
+        {
+            return new InputBinding(groups: controlScheme.ToInputAssetName(), path: default);
         }
     }
 }

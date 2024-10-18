@@ -45,28 +45,26 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForDevice(InputPlayer player, InputActionReferenceWrapper wrapper, SupportedDevice device)
+        internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, InputActionReferenceWrapper wrapper, ControlScheme controlScheme)
         {
             if (!player.TryGetMapAndActionInPlayerAsset(wrapper.InternalReference, out InputActionMap _, out InputAction action))
             {
                 return;
             }
             
-            string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
-            bool compositeCondition(InputBinding binding) => !wrapper.UseCompositePart || wrapper.CompositePart.CorrespondsToBinding(binding);
-            if (RemoveDeviceOverridesFromAction(action, devicePathStrings, compositeCondition))
+            bool compositeCondition(InputBinding binding) => !wrapper.UseCompositePart || wrapper.CompositePart.Matches(binding);
+            if (RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask(), compositeCondition))
             {
                 Input.BroadcastBindingsChanged();
             }
         }
 
-        internal static void ResetBindingsToDefaultForDevice(InputActionAsset asset, SupportedDevice device)
+        internal static void ResetBindingsToDefaultForControlScheme(InputActionAsset asset, ControlScheme controlScheme)
         {
-            string[] devicePathStrings = BindingDeviceHelper.GetDevicePathStrings(device);
             bool changed = false;
             foreach (InputAction action in asset)
             {
-                changed |= RemoveDeviceOverridesFromAction(action, devicePathStrings);
+                changed |= RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask());
             }
 
             if (changed)
@@ -103,14 +101,14 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// <summary>
         /// Return true only if a binding was changed, ie, it actually had an override that was removed/returned to default.
         /// </summary>
-        private static bool RemoveDeviceOverridesFromAction(InputAction action, string[] devices, Func<InputBinding, bool> additionalRemoveCondition = null)
+        private static bool RemoveDeviceOverridesFromAction(InputAction action, InputBinding bindingMask, Func<InputBinding, bool> additionalRemoveCondition = null)
         {
             bool changed = false;
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 InputBinding binding = action.bindings[i];
                 string overridePath = binding.overridePath;
-                if (!string.IsNullOrEmpty(overridePath) && devices.Any(deviceString => overridePath.Contains(deviceString)) &&
+                if (bindingMask.Matches(binding) && !string.IsNullOrEmpty(overridePath) &&
                     (additionalRemoveCondition == null || additionalRemoveCondition.Invoke(binding)))
                 {
                     changed = true;
