@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 800d417933f8ce5478812eb9eb01fb02, type: 3}
-  m_Name: MouseKeyboard
+  m_Name: KeyboardMouse
   m_EditorClassIdentifier: 
   bindingDataDictionary:
     keyValueCombos:
