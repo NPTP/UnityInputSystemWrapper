@@ -56,8 +56,8 @@ MonoBehaviour:
         sprite: {fileID: 21300000, guid: 378f8d4c8a84fba48ad873426f13426e, type: 3}
     - key: leftStick
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Left Stick
+        sprite: {fileID: 21300000, guid: 668bcf13e7ec19f418f244739948234a, type: 3}
     - key: leftStickPress
       value:
         displayName: 
@@ -88,8 +88,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: rightStick
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: Right Stick
+        sprite: {fileID: 21300000, guid: 95f0cbd021978b04a91ce9f17a183658, type: 3}
     - key: rightStickPress
       value:
         displayName: 
@@ -120,8 +120,8 @@ MonoBehaviour:
         sprite: {fileID: 0}
     - key: dpad
       value:
-        displayName: 
-        sprite: {fileID: 0}
+        displayName: D-Pad
+        sprite: {fileID: 21300000, guid: e056744c1bb384a4b81a3288d4830271, type: 3}
     - key: dpad/x
       value:
         displayName: 
