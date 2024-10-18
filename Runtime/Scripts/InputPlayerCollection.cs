@@ -35,8 +35,9 @@ namespace NPTP.InputSystemWrapper
                 players[i] = newPlayer;
             }
 
-            // Loop again as the enabled/disabled handler requires a stable players array, and we're
-            // changing the value of player.Enabled here.
+            // Loop again as the enabled/disabled handler requires a stable players array,
+            // and we're changing the value of player.Enabled here.
+            // Player 1 is always enabled by default when a new InputPlayerCollection is created (game is started).
             for (int i = 0; i < players.Length; i++)
             {
                 InputPlayer player = players[i];
@@ -74,12 +75,11 @@ namespace NPTP.InputSystemWrapper
             if (enabledPlayersCount > 1)
             {
                 players.ForEach(p => p.EnableAutoSwitching(false));
-                return;
             }
-
-            InputPlayer soleEnabledPlayer = players.FirstOrDefault(player => player.Enabled);
-            if (soleEnabledPlayer != null)
+            else if (enabledPlayersCount == 1)
             {
+                // If there's only one player active, let them switch between all available devices.
+                InputPlayer soleEnabledPlayer = players.First(player => player.Enabled);
                 soleEnabledPlayer.EnableAutoSwitching(true);
             }
         }

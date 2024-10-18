@@ -10,13 +10,14 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        // TODO (bindings): Version that supports the SupportedDevice enum
-        // TODO (control schemes): ...or instead of SupportedDevice, supports control schemes for the long term
-        internal static bool TryGetActionBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, InputActionReferenceWrapper wrapper, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
+        // TODO (control schemes): Support control schemes instead of using device: player.CurrentControlScheme
+        internal static bool TryGetCurrentBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, InputActionReferenceWrapper wrapper, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
+
+            InputDevice lastUsedDevice = player.LastUsedDevice;
             
-            if (device == null)
+            if (lastUsedDevice == null)
             {
                 return false;
             }
@@ -28,13 +29,13 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
 
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(wrapper, action, device, out List<string> controlPaths))
+            if (!TryGetControlPaths(wrapper, action, lastUsedDevice, out List<string> controlPaths))
             {
                 return false;
             }
             
             // Get the asset on disk containing binding data.
-            if (!TryGetBindingData(runtimeInputData, device, out BindingData bindingData))
+            if (!TryGetBindingData(runtimeInputData, lastUsedDevice, out BindingData bindingData))
             {
                 return false;
             }

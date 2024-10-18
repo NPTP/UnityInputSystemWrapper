@@ -16,8 +16,20 @@ namespace NPTP.InputSystemWrapper
     {
         #region Field & Properties
 
-        public event Action<DeviceControlInfo> OnDeviceControlChanged;
+        /// <summary>
+        /// Corresponds to InputUser.onChange, for this player specifically.
+        /// </summary>
+        public event Action<InputUserChangeInfo> OnInputUserChange;
+        
+        /// <summary>
+        /// The input player can be used when enabled, and is ignored when disabled.
+        /// </summary>
         public event Action<InputPlayer> OnEnabledOrDisabled;
+        
+        /// <summary>
+        /// Sends the keyboard text character that was just input by this player,
+        /// but only if the current InputContext that allows keyboard text input is active.
+        /// </summary>
         public event Action<char> OnKeyboardTextInput;
 
         private bool enabled;
@@ -37,12 +49,11 @@ namespace NPTP.InputSystemWrapper
                     InputContext = inputContext;
                 else
                     Asset.Disable();
-                UpdateLastUsedDevice();
+                // UpdateLastUsedDevice();
                 OnEnabledOrDisabled?.Invoke(this);
             }
         }
-
-        public PlayerID ID { get; }
+        
         private InputContext inputContext;
         public InputContext InputContext
         {
@@ -54,26 +65,33 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        // TODO (control schemes): Get control schemes working later, if needed
+        public PlayerID ID { get; }
         public ControlScheme CurrentControlScheme { get; private set; }
-
-        public InputDevice LastUsedDevice { get; private set; }
-
-        private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
-        public bool IsDevicePaired(InputDevice device) => PairedDevices.ContainsReference(device);
-
+        
         // MARKER.ActionsProperties.Start
         public PlayerActions Player { get; }
         public UIActions UI { get; }
         // MARKER.ActionsProperties.End
 
-        internal InputActionAsset Asset { get; }
+        private InputDevice lastUsedDevice;
+        internal InputDevice LastUsedDevice
+        {
+            get
+            {
+                UpdateLastUsedDevice();
+                return lastUsedDevice;
+            }
+        }
 
+        internal InputActionAsset Asset { get; }
+        
+        private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
+        
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
         private ControlScheme previousControlScheme;
-
+        
         #endregion
         
         #region Setup & Teardown
@@ -93,12 +111,12 @@ namespace NPTP.InputSystemWrapper
             SetEventSystemActions();
             
             // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
-            playerInput.onActionTriggered += HandleAnyActionTriggered;
+            // playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
         
         internal void Terminate()
         {
-            playerInput.onActionTriggered -= HandleAnyActionTriggered;
+            // playerInput.onActionTriggered -= HandleAnyActionTriggered;
             Asset.Disable();
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
@@ -177,8 +195,13 @@ namespace NPTP.InputSystemWrapper
         }
 
         #endregion
+
+        #region Internal
         
-        #region Internal Interface
+        internal bool IsDevicePaired(InputDevice device)
+        {
+            return PairedDevices.ContainsReference(device);
+        }
         
         internal bool IsUser(InputUser user)
         {
@@ -193,7 +216,7 @@ namespace NPTP.InputSystemWrapper
             }
          
             InputUser.PerformPairingWithDevice(device, playerInput.user);
-            UpdateLastUsedDevice();
+            // UpdateLastUsedDevice();
         }
 
         internal void UnpairDevice(InputDevice device)
@@ -204,7 +227,7 @@ namespace NPTP.InputSystemWrapper
             }
             
             playerInput.user.UnpairDevice(device);
-            UpdateLastUsedDevice();
+            // UpdateLastUsedDevice();
         }
 
         internal void UnpairDevices()
@@ -215,7 +238,7 @@ namespace NPTP.InputSystemWrapper
             }
             
             playerInput.user.UnpairDevices();
-            UpdateLastUsedDevice();
+            // UpdateLastUsedDevice();
         }
 
         internal void EnableAutoSwitching(bool enable)
@@ -228,6 +251,10 @@ namespace NPTP.InputSystemWrapper
             playerInput.neverAutoSwitchControlSchemes = !enable;
         }
         
+        /// <summary>
+        /// Called by the InputPlayerCollection. If we got here, it means we have already checked that the input user
+        /// experiencing a change refers to this player.
+        /// </summary>
         internal void HandleInputUserChange(InputUserChange inputUserChange, InputDevice inputDevice)
         {
             if (playerInput == null)
@@ -238,17 +265,15 @@ namespace NPTP.InputSystemWrapper
             switch (inputUserChange)
             {
                 case InputUserChange.ControlSchemeChanged:
-                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-                    goto deviceChange;
                 case InputUserChange.DevicePaired:
                 case InputUserChange.DeviceUnpaired:
-                case InputUserChange.ControlsChanged: // When user bindings have changed (among other things)
-                deviceChange:
-                    InputDevice previousDevice = LastUsedDevice;
+                case InputUserChange.DeviceLost:
+                case InputUserChange.DeviceRegained:
+                case InputUserChange.ControlsChanged:
+                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
                     UpdateLastUsedDevice(inputDevice);
-                    if (previousDevice == LastUsedDevice || (previousDevice is Mouse or Keyboard && LastUsedDevice is Mouse or Keyboard))
-                        break;
-                    OnDeviceControlChanged?.Invoke(new DeviceControlInfo(this, inputUserChange));
+                    // TODO (optimization): Gate this behind a check that control scheme/device/bindings has actually changed?
+                    OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
                     break;
             }
         }
@@ -351,12 +376,12 @@ namespace NPTP.InputSystemWrapper
 
         #endregion
 
-        #region Private Functionality
+        #region Private
         
-        private void HandleAnyActionTriggered(InputAction.CallbackContext callbackContext)
-        {
-            LastUsedDevice = callbackContext.control.device;
-        }
+        // private void HandleAnyActionTriggered(InputAction.CallbackContext callbackContext)
+        // {
+        //     lastUsedDevice = callbackContext.control.device;
+        // }
         
         private void EnableKeyboardTextInput()
         {
@@ -372,22 +397,25 @@ namespace NPTP.InputSystemWrapper
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
         }
         
-        // TODO (optimization): Check if this only needs to be used in one place (HandleInputUserChange) instead of 5 places, since enabling/disabling PlayerInput, pairing/unpairing devices, these will all call HandleInputUserChange, right? Check, and avoid redundancy if so
+        // TODO (optimization): Currently commented out in this class in a few places, since enabling/disabling PlayerInput,
+        // TODO: pairing/unpairing devices, etc. should all call HandleInputUserChange. Uncomment those calls if HandleInputUserChange
+        // TODO: isn't cutting it, and delete the commented calls outright if it is!
         private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
+            
             if (pairedDevices.Count == 0)
             {
-                LastUsedDevice = null;
+                lastUsedDevice = null;
             }
             else if (pairedDevices.Count == 1 ||
-                     (pairedDevices.Count > 1 && (LastUsedDevice == null || !pairedDevices.ContainsReference(LastUsedDevice))))
+                     (pairedDevices.Count > 1 && (lastUsedDevice == null || !pairedDevices.ContainsReference(lastUsedDevice))))
             {
-                LastUsedDevice = pairedDevices[0];
+                lastUsedDevice = pairedDevices[0];
             }
             else if (fallbackDevice != null)
             {
-                LastUsedDevice = fallbackDevice;
+                lastUsedDevice = fallbackDevice;
             }
         }
         

@@ -20,35 +20,35 @@ namespace NPTP.InputSystemWrapper.Components
         
         private void Start()
         {
-            UpdateEvents(Input.LastUsedDevice);
+            UpdateEvents();
         }
 
         private void OnEnable()
         {
-            Input.OnDeviceControlChanged += HandleDeviceControlChanged;
+            Input.OnInputUserChange += HandleInputUserChange;
             Input.OnBindingsChanged += HandleBindingsChanged;
-            UpdateEvents(Input.LastUsedDevice);
+            UpdateEvents();
         }
 
         private void OnDisable()
         {
-            Input.OnDeviceControlChanged -= HandleDeviceControlChanged;
+            Input.OnInputUserChange -= HandleInputUserChange;
             Input.OnBindingsChanged -= HandleBindingsChanged;
         }
 
-        private void HandleDeviceControlChanged(DeviceControlInfo deviceControlInfo)
+        private void HandleInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
-            UpdateEvents(deviceControlInfo.InputDevice);
+            UpdateEvents();
         }
 
         private void HandleBindingsChanged()
         {
-            UpdateEvents(Input.LastUsedDevice);
+            UpdateEvents();
         }
 
-        private void UpdateEvents(InputDevice device)
+        private void UpdateEvents()
         {
-            if (!Input.TryGetActionBindingInfo(inputActionReference, device, out IEnumerable<BindingInfo> bindingInfo))
+            if (!Input.TryGetCurrentBindingInfo(inputActionReference, out IEnumerable<BindingInfo> bindingInfo))
             {
                 return;
             }

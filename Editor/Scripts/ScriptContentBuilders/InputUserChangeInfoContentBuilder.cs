@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class DeviceControlInfoContentBuilder
+    internal static class InputUserChangeInfoContentBuilder
     {
         internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
         {

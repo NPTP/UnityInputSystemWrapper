@@ -29,7 +29,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
         internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
         internal static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
-        internal static string DeviceControlInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<DeviceControlInfo>();
+        internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths

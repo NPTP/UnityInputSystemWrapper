@@ -35,7 +35,8 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
                 if (typeIsEnum && scriptAsset.text.Contains($"enum {type.Name}") ||
                     scriptAsset.GetClass() == type ||
                     type.IsAssignableFrom(scriptAsset.GetClass()) ||
-                    scriptAsset.text.Contains($"record {type.Name}"))
+                    scriptAsset.text.Contains($"record {type.Name}") ||
+                    scriptAsset.text.Contains($"struct {type.Name}"))
                 {
                     string path = Application.dataPath + assetPath.Replace("Assets", string.Empty);
                     if (pathType is PathType.Folder)

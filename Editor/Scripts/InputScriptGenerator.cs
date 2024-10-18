@@ -29,7 +29,7 @@ namespace NPTP.InputSystemWrapper.Editor
             ModifyExistingFile(asset, Helper.PlayerIDFileSystemPath, PlayerIDContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputPlayerFileSystemPath, InputPlayerContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.InputManagerFileSystemPath, InputManagerContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.DeviceControlInfoFileSystemPath, DeviceControlInfoContentBuilder.AddContent);
+            ModifyExistingFile(asset, Helper.InputUserChangeInfoFileSystemPath, InputUserChangeInfoContentBuilder.AddContent);
             
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }

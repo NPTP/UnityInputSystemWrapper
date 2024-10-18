@@ -25,12 +25,12 @@ namespace NPTP.InputSystemWrapper.Bindings
                 {
                     if (actionWasEnabled) action.Enable();
                     callback?.Invoke();
-                    CleanUpRebindOperation(ref rebindingOperation);
+                    CleanUpRebindingOperation(ref rebindingOperation);
                 })
                 .OnComplete(_ =>
                 {
                     if (actionWasEnabled) action.Enable();
-                    CleanUpRebindOperation(ref rebindingOperation);
+                    CleanUpRebindingOperation(ref rebindingOperation);
                     callback?.Invoke();
                     Input.BroadcastBindingsChanged();
                 });
@@ -39,7 +39,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return rebindingOperation;
         }
 
-        private static void CleanUpRebindOperation(ref RebindingOperation rebindingOperation)
+        private static void CleanUpRebindingOperation(ref RebindingOperation rebindingOperation)
         {
             rebindingOperation?.Dispose();
             rebindingOperation = null;

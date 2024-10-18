@@ -1,23 +1,21 @@
 using NPTP.InputSystemWrapper.Enums;
-using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
 namespace NPTP.InputSystemWrapper
 {
-    public sealed record DeviceControlInfo
+    public struct InputUserChangeInfo
     {
-        public InputDevice InputDevice { get; }
         public ControlScheme ControlScheme { get; }
         public InputUserChange InputUserChange { get; }
         
         // MARKER.PlayerIDProperty.Start
         // MARKER.PlayerIDProperty.End
         
-        private DeviceControlInfo() { }
-        
-        public DeviceControlInfo(InputPlayer inputPlayer, InputUserChange inputUserChange)
+        // We pass in the entire inputPlayer because this code can change when multiplayer is activated
+        // in the input system wrapper package, and we get more properties from the inputPlayer.
+        // Feeding it in this way just makes the code auto-generation easier and exist in less places.
+        public InputUserChangeInfo(InputPlayer inputPlayer, InputUserChange inputUserChange)
         {
-            InputDevice = inputPlayer.LastUsedDevice;
             ControlScheme = inputPlayer.CurrentControlScheme;
             InputUserChange = inputUserChange;
             

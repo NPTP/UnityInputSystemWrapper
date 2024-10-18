@@ -31,7 +31,7 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
 
-        // TODO (optimization): Send only the changed bindings
+        // TODO: Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well. Can we consolidate these events into a higher-level abstraction?
         public static event Action OnBindingsChanged;
         
         public static event Action<InputControl> OnAnyButtonPress
@@ -41,10 +41,10 @@ namespace NPTP.InputSystemWrapper
         }
         
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.Start
-        public static event Action<DeviceControlInfo> OnDeviceControlChanged
+        public static event Action<InputUserChangeInfo> OnInputUserChange
         {
-            add => Player1.OnDeviceControlChanged += value;
-            remove => Player1.OnDeviceControlChanged -= value;
+            add => Player1.OnInputUserChange += value;
+            remove => Player1.OnInputUserChange -= value;
         }
 
         public static event Action<char> OnKeyboardTextInput
@@ -63,7 +63,6 @@ namespace NPTP.InputSystemWrapper
         }
 
         public static ControlScheme CurrentControlScheme => Player1.CurrentControlScheme;
-        public static InputDevice LastUsedDevice => Player1.LastUsedDevice;
 
         private static InputPlayer Player1 => GetPlayer(PlayerID.Player1);
         private static bool AllowPlayerJoining => false;
@@ -140,12 +139,12 @@ namespace NPTP.InputSystemWrapper
         /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
-        /// <param name="actionReferenceWrapper">Contains action to be rebound.</param>
+        /// <param name="actionReference">Reference wrapper containing action to be rebound.</param>
         /// <param name="device">Device which is doing the rebinding.</param>
         /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReferenceWrapper, SupportedDevice device, Action callback = null)
+        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, SupportedDevice device, Action callback = null)
         {
             if (rebindingOperation != null)
             {
@@ -153,39 +152,37 @@ namespace NPTP.InputSystemWrapper
                 rebindingOperation.Dispose();
             }
 
-            // TODO: Multiplayer version that takes PlayerID and rebinds specific player
+            // TODO: Multiplayer version that takes PlayerID in method signature to rebind specific player selected here.
             InputPlayer player = GetPlayer(PlayerID.Player1);
 
-            if (player.TryGetMapAndActionInPlayerAsset(actionReferenceWrapper.InternalReference, out InputActionMap _, out InputAction action) &&
-                BindingGetter.TryGetFirstBindingIndex(actionReferenceWrapper, action, device, out int bindingIndex))
+            if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap _, out InputAction action) &&
+                BindingGetter.TryGetFirstBindingIndex(actionReference, action, device, out int bindingIndex))
             {
                 rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
             }
             else
             {
                 Debug.LogError("Rebinding failed: Action or binding index could not be found.");
+                rebindingOperation?.Dispose();
+                rebindingOperation = null;
                 callback?.Invoke();
             }
         }
-        
-        // MARKER.EnableContextForAllPlayersSignature.Start
-        private static void EnableContextForAllPlayers(InputContext inputContext)
-            // MARKER.EnableContextForAllPlayersSignature.End
+
+        /// <summary>
+        /// Try to get the current binding info for the given action reference.
+        /// </summary>
+        // MARKER.TryGetCurrentBindingInfo.Start
+        public static bool TryGetCurrentBindingInfo(InputActionReferenceWrapper actionReferenceWrapper, out IEnumerable<BindingInfo> bindingInfos)
         {
-            playerCollection.EnableContextForAll(inputContext);
+            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, out bindingInfos);
         }
-        
-        // MARKER.TryGetActionBindingInfo.Start
-        public static bool TryGetActionBindingInfo(InputActionReferenceWrapper actionReferenceWrapper, InputDevice device, out IEnumerable<BindingInfo> bindingInfos)
-        {
-            return BindingGetter.TryGetActionBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, device, out bindingInfos);
-        }
-        // MARKER.TryGetActionBindingInfo.End
+        // MARKER.TryGetCurrentBindingInfo.End
         
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
-        public static void ResetBindingForAction(InputActionReferenceWrapper actionReferenceWrapper, SupportedDevice device)
+        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, SupportedDevice device)
         {
-            BindingChanger.ResetBindingToDefaultForDevice(Player1, actionReferenceWrapper, device);
+            BindingChanger.ResetBindingToDefaultForDevice(Player1, actionReference, device);
         }
 
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
@@ -241,6 +238,13 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private Runtime Functionality
+        
+        // MARKER.EnableContextForAllPlayersSignature.Start
+        private static void EnableContextForAllPlayers(InputContext inputContext)
+            // MARKER.EnableContextForAllPlayersSignature.End
+        {
+            playerCollection.EnableContextForAll(inputContext);
+        }
         
         private static InputPlayer GetPlayer(PlayerID id)
         {

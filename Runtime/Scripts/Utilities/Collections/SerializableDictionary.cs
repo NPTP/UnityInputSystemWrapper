@@ -92,7 +92,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             {
                 if (EqualityComparer<TKey>.Default.Equals(keyValueCombo.Key, key))
                 {
-                    Debug.Log($"Couldn't add {key} because value already exists in dictionary");
+                    Debug.LogError($"Couldn't add {key} because value already exists in dictionary");
                     return;
                 }
             }
