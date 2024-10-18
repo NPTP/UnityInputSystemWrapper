@@ -3,39 +3,29 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.DualShock;
-using UnityEngine.InputSystem.XInput;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        // TODO (control schemes): Support control schemes instead of using device: player.CurrentControlScheme
         internal static bool TryGetCurrentBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, InputActionReferenceWrapper wrapper, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
 
-            InputDevice lastUsedDevice = player.LastUsedDevice;
-            
-            if (lastUsedDevice == null)
-            {
-                return false;
-            }
-            
             // Get the correct action from the player asset based on the wrapper's internal reference.
             if (!player.TryGetMapAndActionInPlayerAsset(wrapper.InternalReference, out InputActionMap map, out InputAction action))
             {
                 return false;
             }
-
+            
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(wrapper, action, lastUsedDevice, out List<string> controlPaths))
+            if (!TryGetControlPaths(wrapper, action, player.CurrentControlScheme, out List<string> controlPaths))
             {
                 return false;
             }
             
             // Get the asset on disk containing binding data.
-            if (!TryGetBindingData(runtimeInputData, lastUsedDevice, out BindingData bindingData))
+            if (!TryGetBindingData(runtimeInputData, player.CurrentControlScheme, out BindingData bindingData))
             {
                 return false;
             }
@@ -68,56 +58,33 @@ namespace NPTP.InputSystemWrapper.Bindings
             return bindingInfoList.Count > 0;
         }
 
-        private static bool TryGetBindingData<TDevice>(RuntimeInputData runtimeInputData, TDevice device, out BindingData bindingData)
-            where TDevice : InputDevice
+        private static bool TryGetBindingData(RuntimeInputData runtimeInputData, ControlScheme controlScheme, out BindingData bindingData)
         {
-            bindingData = device switch
-            {
-                // Support additional device "classes" explicitly as needed (avoids the need to use control schemes)
-                Mouse or Keyboard => runtimeInputData.MouseKeyboardBindingData,
-                XInputController => runtimeInputData.XboxBindingData,
-                DualShockGamepad => runtimeInputData.PlaystationBindingData,
-                Gamepad => runtimeInputData.GamepadFallbackBindingData,
-                _ => runtimeInputData.GamepadFallbackBindingData
-            };
-
+            bindingData = runtimeInputData.GetControlSchemeBindingData(controlScheme);
             bool bindingDataNull = bindingData == null;
             if (bindingDataNull)
-                Debug.LogWarning($"Input device {typeof(TDevice).Name} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
+                Debug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
             
             return !bindingDataNull;
         }
         
-        private static bool TryGetControlPaths(InputActionReferenceWrapper wrapper, InputAction action, InputDevice device, out List<string> controlPaths)
+        private static bool TryGetControlPaths(InputActionReferenceWrapper wrapper, InputAction action, ControlScheme controlScheme, out List<string> controlPaths)
         {
             List<string> paths = new();
-
-            if (device is Mouse or Keyboard)
+            InputBinding bindingMask = controlScheme.ToBindingMask();
+                
+            for (int i = 0; i < action.bindings.Count; i++)
             {
-                addPathsForDevice(Mouse.current);
-                addPathsForDevice(Keyboard.current);
-            }
-            else
-            {
-                addPathsForDevice(device);
+                InputBinding binding = action.bindings[i];
+                if (bindingMask.Matches(binding) && (!wrapper.UseCompositePart || wrapper.CompositePart.Matches(binding)))
+                {
+                    string effectivePath = binding.effectivePath;
+                    paths.Add(effectivePath.Remove(0, effectivePath.IndexOf('>') + 2));
+                }
             }
 
             controlPaths = paths;
             return controlPaths.Count > 0;
-            
-            void addPathsForDevice(InputDevice inputDevice)
-            {
-                for (int i = 0; i < action.bindings.Count; i++)
-                {
-                    InputBinding binding = action.bindings[i];
-                    InputControl control = InputControlPath.TryFindControl(inputDevice, binding.effectivePath);
-                    if (control != null && control.device == inputDevice &&
-                        (!wrapper.UseCompositePart || wrapper.CompositePart.Matches(binding)))
-                    {
-                        paths.Add(control.path[(2 + control.device.name.Length)..]);
-                    }
-                }
-            }
         }
         
         internal static bool TryGetFirstBindingIndex(InputActionReferenceWrapper wrapper, InputAction action, ControlScheme controlScheme, out int firstBindingIndex)

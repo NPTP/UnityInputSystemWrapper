@@ -1,4 +1,6 @@
+using System;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,15 +15,28 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputActionAsset inputActionAsset;
         public InputActionAsset InputActionAsset => inputActionAsset;
 
-        // Support additional device "classes" explicitly as needed (avoids the need to use control schemes)
-        [Header("Input Device Binding Data")] [Space]
-        [SerializeField] private BindingData mouseKeyboardBindingData;
-        public BindingData MouseKeyboardBindingData => mouseKeyboardBindingData;
-        [SerializeField] private BindingData xboxBindingData;
-        public BindingData XboxBindingData => xboxBindingData;
-        [SerializeField] private BindingData playstationBindingData;
-        public BindingData PlaystationBindingData => playstationBindingData;
-        [SerializeField] private BindingData gamepadFallbackBindingData;
-        public BindingData GamepadFallbackBindingData => gamepadFallbackBindingData;
+        [Header("Input Device Binding Data (Auto-Generated List)")] [Space]
+        // MARKER.ControlSchemeBindingData.Start
+        [SerializeField] private BindingData keyboardMouseBindingData;
+        [SerializeField] private BindingData gamepadBindingData;
+        [SerializeField] private BindingData touchBindingData;
+        [SerializeField] private BindingData joystickBindingData;
+        [SerializeField] private BindingData xRBindingData;
+        // MARKER.ControlSchemeBindingData.End
+
+        public BindingData GetControlSchemeBindingData(ControlScheme controlScheme)
+        {
+            return controlScheme switch
+            {
+                // MARKER.EnumToBindingDataSwitch.Start
+                ControlScheme.KeyboardMouse => keyboardMouseBindingData,
+                ControlScheme.Gamepad => gamepadBindingData,
+                ControlScheme.Touch => touchBindingData,
+                ControlScheme.Joystick => joystickBindingData,
+                ControlScheme.XR => xRBindingData,
+                // MARKER.EnumToBindingDataSwitch.End
+                _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
+            };
+        }
     }
 }

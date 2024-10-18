@@ -30,6 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
         internal static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
         internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
+        internal static string RuntimeInputData => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths
@@ -43,10 +44,10 @@ namespace NPTP.InputSystemWrapper.Editor
         private static char Sep => Path.DirectorySeparatorChar;
         
         // String extensions for code generation
-        internal static string AsField(this string s) => s.AllWhitespaceTrimmed().LowercaseFirst();
+        internal static string AsField(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber().AllWhitespaceTrimmed().LowercaseFirst();
         internal static string AsProperty(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
         internal static string AsType(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
-        internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly();
+        internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber();
         internal static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
         
         internal static void ClearFolder(string folderSystemPath)

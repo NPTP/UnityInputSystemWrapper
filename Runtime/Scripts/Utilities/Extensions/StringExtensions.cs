@@ -64,5 +64,12 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
         {
             return Regex.Replace(s, "[^a-zA-Z0-9]", string.Empty);
         }
+
+        public static string RemoveFirstCharacterIfNumber(this string s)
+        {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
+            if (!char.IsNumber(s[0])) return s;
+            return s.Length > 1 ? s[1..] : string.Empty;
+        }
     }
 }

@@ -119,7 +119,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             return changed;
         }
         
-        // TODO (control schemes)
         private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
         {
             foreach (InputAction action in asset)
