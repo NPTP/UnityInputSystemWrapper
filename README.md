@@ -40,7 +40,7 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Support control schemes, use these instead of InputDevice, SupportedDevice etc. Refactor out.
 - [✔] String control schemes get turned into enum as usual, but then runtime input data auto-generates a list of every control scheme with a slot to plug in binding data. Missing data fails silently. This will allow quick definition of binding behaviour in any game without needing manual device support like we currently have, and more abstract usage of control schemes in developer code.
 - [✔] Allow dev to define excluded and canceling controls for interactive rebinds in offline input data
-- [ ] Update Input System package version to fix some binding bugs and "any button pressed" exception bug with keyboard input
+- [✔] Update Input System package version to fix some binding bugs and "any button pressed" exception bug with keyboard input
 
 #### Nice-to-haves:
 - [ ] OfflineInputData excluded and cancel controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields
