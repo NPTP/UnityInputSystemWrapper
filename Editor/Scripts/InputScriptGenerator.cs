@@ -18,10 +18,9 @@ namespace NPTP.InputSystemWrapper.Editor
         
         internal static void GenerateInputScriptCode()
         {
-            Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
-            
             InputActionAsset asset = Helper.InputActionAsset;
             
+            Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
             GenerateActionClasses(asset);
             
             ModifyExistingFile(asset, Helper.ControlSchemeFileSystemPath, ControlSchemeContentBuilder.AddContent);
