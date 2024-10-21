@@ -14,6 +14,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty actionsTemplateFile;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
+        private SerializedProperty bindingExcludedPaths;
+        private SerializedProperty bindingCancelPaths;
         
         private SerializedProperty point;
         private SerializedProperty middleClick;
@@ -34,6 +36,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             actionsTemplateFile = serializedObject.FindProperty(nameof(actionsTemplateFile));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
+            bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
+            bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
             
             point = serializedObject.FindProperty(nameof(point));
             middleClick = serializedObject.FindProperty(nameof(middleClick));
@@ -68,6 +72,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
             
+            EditorInspectorUtility.DrawHorizontalLine();
+            
+            EditorGUILayout.LabelField("Excluded Path format: \"<Device>/path\"");
+            EditorGUILayout.PropertyField(bindingExcludedPaths);
+            EditorGUILayout.LabelField("Cancel Path format: \"/Device/path\"");
+            EditorGUILayout.PropertyField(bindingCancelPaths);
+
             EditorInspectorUtility.DrawHorizontalLine();
             
             EditorGUILayout.PropertyField(point);

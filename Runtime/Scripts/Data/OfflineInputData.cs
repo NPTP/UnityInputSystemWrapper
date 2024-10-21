@@ -2,7 +2,6 @@ using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace NPTP.InputSystemWrapper.Data
 {
@@ -33,6 +32,12 @@ namespace NPTP.InputSystemWrapper.Data
         
         [SerializeField] private InputContextInfo[] inputContexts;
         public InputContextInfo[] InputContexts => inputContexts;
+
+        [SerializeField] private string[] bindingExcludedPaths;
+        public string[] BindingExcludedPaths => bindingExcludedPaths;
+
+        [SerializeField] private string[] bindingCancelPaths;
+        public string[] BindingCancelPaths => bindingCancelPaths;
         
         [Header("Event System Actions")]
         [SerializeField] private InputActionReference point;

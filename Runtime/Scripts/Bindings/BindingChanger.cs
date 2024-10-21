@@ -6,37 +6,77 @@ using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtension
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    internal static class BindingChanger
+    public static class BindingChanger
     {
-        private const string KEYBOARD_ESCAPE = "<Keyboard>/escape";
+        private static string[] ExcludedPaths => new string[]
+        {
+            // MARKER.BindingExcludedPaths.Start
+            // MARKER.BindingExcludedPaths.End
+        };
+        
+        private static string[] CancelPaths => new string[]
+        {
+            // MARKER.BindingCancelPaths.Start
+            "/Keyboard/escape"
+            // MARKER.BindingCancelPaths.End
+        };
 
         internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
         {
             bool actionWasEnabled = action.enabled;
             action.Disable();
 
-            // Note that pointer movement (incl. touch) is already excluded in the internal Unity method from being bound in this operation. 
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
-            
-            rebindingOperation
-                // TODO (bindings): Allow dev to define excluded controls (.WithControlsExcluding) and cancel controls (.WithCancelingThrough) per device.
-                .WithCancelingThrough(KEYBOARD_ESCAPE)
-                .OnCancel(_ =>
-                {
-                    if (actionWasEnabled) action.Enable();
-                    callback?.Invoke();
-                    CleanUpRebindingOperation(ref rebindingOperation);
-                })
-                .OnComplete(_ =>
-                {
-                    if (actionWasEnabled) action.Enable();
-                    CleanUpRebindingOperation(ref rebindingOperation);
-                    callback?.Invoke();
-                    Input.BroadcastBindingsChanged();
-                });
 
+            // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
+            rebindingOperation.WithControlsExcludingMultiple(ExcludedPaths);
+            rebindingOperation.WithCancelingThroughMultiple(CancelPaths);
+
+            rebindingOperation
+                .OnCancel(onCancel)
+                .OnComplete(onComplete);
+            
             rebindingOperation.Start();
             return rebindingOperation;
+            
+            void onCancel(RebindingOperation op)
+            {
+                if (actionWasEnabled) action.Enable();
+                callback?.Invoke();
+                CleanUpRebindingOperation(ref rebindingOperation);
+            }
+
+            void onComplete(RebindingOperation op)
+            {
+                if (actionWasEnabled) action.Enable();
+                callback?.Invoke();
+                CleanUpRebindingOperation(ref rebindingOperation);
+                Input.BroadcastBindingsChanged();
+            }
+        }
+
+        private static void WithControlsExcludingMultiple(this RebindingOperation rebindingOperation, string[] paths)
+        {
+            foreach (string excludedPath in paths) rebindingOperation.WithControlsExcluding(excludedPath);
+            
+            // Handles excluded keyboard keys coming in as "anyKey" and still completing the binding operation.
+            rebindingOperation.WithControlsExcluding("<Keyboard>/anyKey");
+        }
+        
+        private static void WithCancelingThroughMultiple(this RebindingOperation rebindingOperation, string[] paths)
+        {
+            rebindingOperation.WithCancelingThrough(string.Empty);
+            
+            // Unity's rebinding operation extension method "WithCancelingThrough" to choose a control path
+            // that cancels an interactive rebind only supports ONE control path at a time.
+            // This is a workaround to support multiple control paths.
+            rebindingOperation.OnPotentialMatch(op =>
+            {
+                if (paths.Any(path => op.selectedControl.path == path))
+                {
+                    op.Cancel();
+                }
+            });
         }
 
         private static void CleanUpRebindingOperation(ref RebindingOperation rebindingOperation)

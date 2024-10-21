@@ -29,6 +29,9 @@ MonoBehaviour:
     activeMaps:
     - UI
     enableKeyboardTextInput: 1
+  bindingExcludedPaths: []
+  bindingCancelPaths:
+  - /Keyboard/escape
   point: {fileID: -1654692200621890270, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
   middleClick: {fileID: -2185481485913320682, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
   rightClick: {fileID: -4090225696740746782, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
