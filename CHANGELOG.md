@@ -1,5 +1,4 @@
 # Input System Wrapper
 ## Changelog
 
-#### TODOs
-- Create documentation
+1.0.0
