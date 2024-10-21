@@ -19,8 +19,6 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
 
         private static string GetSystemPath(Type type, PathType pathType)
         {
-            bool typeIsEnum = type.IsEnum;
-            
             string[] guids = AssetDatabase.FindAssets($"t:Script");
             foreach (string guid in guids)
             {
@@ -32,11 +30,11 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
                     continue;
                 }
 
-                if (typeIsEnum && scriptAsset.text.Contains($"enum {type.Name}") ||
+                if (IsEnum(type, scriptAsset) ||
                     scriptAsset.GetClass() == type ||
                     type.IsAssignableFrom(scriptAsset.GetClass()) ||
-                    scriptAsset.text.Contains($"record {type.Name}") ||
-                    scriptAsset.text.Contains($"struct {type.Name}"))
+                    IsRecord(type, scriptAsset) ||
+                    type.IsStruct())
                 {
                     string path = Application.dataPath + assetPath.Replace("Assets", string.Empty);
                     if (pathType is PathType.Folder)
@@ -49,6 +47,21 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
             }
 
             return string.Empty;
+        }
+
+        private static bool IsEnum(Type type, MonoScript scriptAsset)
+        {
+            return type.IsEnum && scriptAsset.text.Contains($"enum {type.Name}");
+        }
+
+        private static bool IsStruct(this Type type)
+        {
+            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
+        }
+
+        private static bool IsRecord(Type type, MonoScript scriptAsset)
+        {
+            return type.IsClass && scriptAsset.text.Contains($"record {type.Name}");
         }
     }
 }
