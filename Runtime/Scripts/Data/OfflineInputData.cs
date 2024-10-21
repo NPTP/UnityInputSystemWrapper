@@ -41,6 +41,7 @@ namespace NPTP.InputSystemWrapper.Data
         
         [Header("Event System Actions")]
         [SerializeField] private InputActionReference point;
+        [SerializeField] private InputActionReference leftClick;
         [SerializeField] private InputActionReference middleClick;
         [SerializeField] private InputActionReference rightClick;
         [SerializeField] private InputActionReference scrollWheel;
@@ -49,7 +50,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputActionReference cancel;
         [SerializeField] private InputActionReference trackedDevicePosition;
         [SerializeField] private InputActionReference trackedDeviceOrientation;
-        [SerializeField] private InputActionReference leftClick;
         public InputActionReference Point => point;
         public InputActionReference LeftClick => leftClick;
         public InputActionReference MiddleClick => middleClick;

@@ -33,6 +33,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "EventSystemActions":
                     OfflineInputData oid = Helper.OfflineInputData;
                     addActionReference(oid.Point, nameof(oid.Point).AsField());
+                    addActionReference(oid.LeftClick, nameof(oid.LeftClick).AsField());
                     addActionReference(oid.MiddleClick, nameof(oid.MiddleClick).AsField());
                     addActionReference(oid.RightClick, nameof(oid.RightClick).AsField());
                     addActionReference(oid.ScrollWheel, nameof(oid.ScrollWheel).AsField());
@@ -41,7 +42,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     addActionReference(oid.Cancel, nameof(oid.Cancel).AsField());
                     addActionReference(oid.TrackedDevicePosition, nameof(oid.TrackedDevicePosition).AsField());
                     addActionReference(oid.TrackedDeviceOrientation, nameof(oid.TrackedDeviceOrientation).AsField());
-                    addActionReference(oid.LeftClick, nameof(oid.LeftClick).AsField());
                     
                     void addActionReference(InputActionReference inputActionReference, string inputModulePropertyName)
                     {

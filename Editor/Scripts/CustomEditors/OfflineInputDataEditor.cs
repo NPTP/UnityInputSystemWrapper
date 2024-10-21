@@ -18,6 +18,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty bindingCancelPaths;
         
         private SerializedProperty point;
+        private SerializedProperty leftClick;
         private SerializedProperty middleClick;
         private SerializedProperty rightClick;
         private SerializedProperty scrollWheel;
@@ -26,7 +27,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty cancel;
         private SerializedProperty trackedDevicePosition;
         private SerializedProperty trackedDeviceOrientation;
-        private SerializedProperty leftClick;
 
         private void OnEnable()
         {
@@ -40,6 +40,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
             
             point = serializedObject.FindProperty(nameof(point));
+            leftClick = serializedObject.FindProperty(nameof(leftClick));
             middleClick = serializedObject.FindProperty(nameof(middleClick));
             rightClick = serializedObject.FindProperty(nameof(rightClick));
             scrollWheel = serializedObject.FindProperty(nameof(scrollWheel));
@@ -48,7 +49,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             cancel = serializedObject.FindProperty(nameof(cancel));
             trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
-            leftClick = serializedObject.FindProperty(nameof(leftClick));
         }
 
         public override void OnInspectorGUI()
@@ -82,6 +82,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
             
             EditorGUILayout.PropertyField(point);
+            EditorGUILayout.PropertyField(leftClick);
             EditorGUILayout.PropertyField(middleClick);
             EditorGUILayout.PropertyField(rightClick);
             EditorGUILayout.PropertyField(scrollWheel);
@@ -90,7 +91,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(cancel);
             EditorGUILayout.PropertyField(trackedDevicePosition);
             EditorGUILayout.PropertyField(trackedDeviceOrientation);
-            EditorGUILayout.PropertyField(leftClick);
 
             serializedObject.ApplyModifiedProperties();
         }
