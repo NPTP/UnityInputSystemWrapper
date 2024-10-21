@@ -39,7 +39,7 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Sort out composites turned into a single binding (e.g. "Move" binding, wiggle the left stick and the whole binding maps correctly to left stick)
 - [✔] Support control schemes, use these instead of InputDevice, SupportedDevice etc. Refactor out.
 - [✔] String control schemes get turned into enum as usual, but then runtime input data auto-generates a list of every control scheme with a slot to plug in binding data. Missing data fails silently. This will allow quick definition of binding behaviour in any game without needing manual device support like we currently have, and more abstract usage of control schemes in developer code.
-- [✔] Allow dev to define excluded and canceling controls for interactive rebinds
+- [✔] Allow dev to define excluded and canceling controls for interactive rebinds in offline input data
 - [ ] Update Input System package version to fix some binding bugs and "any button pressed" exception bug with keyboard input
 
 #### Nice-to-haves:
