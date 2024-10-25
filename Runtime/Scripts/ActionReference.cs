@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper
         
         internal InputActionReference InternalReference => reference;
         
-        public event Action<InputAction.CallbackContext> OnAction
+        public event Action<InputAction.CallbackContext> OnEvent
         {
             add => Input.ChangeSubscription(reference, value, subscribe: true);
             remove => Input.ChangeSubscription(reference, value, subscribe: false);
