@@ -1,5 +1,4 @@
-﻿using System;
-using NPTP.InputSystemWrapper.Actions;
+﻿using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
@@ -42,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Generated
             TemplateAction2 = new (ActionMap.FindAction("TemplateAction2", throwIfNotFound: true));
             // MARKER.ActionWrapperAssignments.End
             // MARKER.Ignore.Start
-            throw new NotImplementedException($"This template class {nameof(ActionsTemplate)} should never be instantiated!");
+            throw new System.NotImplementedException($"This template class {nameof(ActionsTemplate)} should never be instantiated!");
             // MARKER.Ignore.End
         }
         
