@@ -17,9 +17,6 @@ namespace NPTP.InputSystemWrapper
         
         internal InputActionReference InternalReference => reference;
         
-        // TODO (cleanup): can probably remove this property, unlikely to need it beyond the debugging stages.
-        public string ActionName => reference.action.name;
-
         public event Action<InputAction.CallbackContext> OnAction
         {
             add => Input.ChangeSubscription(reference, value, subscribe: true);
