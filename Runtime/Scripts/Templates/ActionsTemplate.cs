@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Numerics;
 using NPTP.InputSystemWrapper.Actions;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using Button = UnityEngine.InputSystem.HID.HID.Button;
