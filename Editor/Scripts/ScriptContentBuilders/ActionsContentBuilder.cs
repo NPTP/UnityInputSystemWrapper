@@ -36,10 +36,11 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         else if (action.type is InputActionType.Value or InputActionType.PassThrough)
                         {
                             string expectedControlType = action.expectedControlType;
-                            // TODO: Converted expected control type to correct type string (e.g. "Integer" -> "int")
-                            string type = string.IsNullOrEmpty(expectedControlType)
-                                ? $"{nameof(AnyValueActionWrapper)}"
-                                : $"{nameof(ValueActionWrapper)}<{expectedControlType}>";
+                            string type;
+                            // Null/empty string means the "Any" control type.
+                            type = string.IsNullOrEmpty(expectedControlType)
+                                ? nameof(AnyValueActionWrapper)
+                                : $"{nameof(ValueActionWrapper)}<{controlTypeToTypeString(expectedControlType)}>";
                             lines.Add($"        public {type} {action.name.AsProperty()} " + "{ get; }");
                         }
                     }
@@ -62,6 +63,31 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     foreach (string action in getActionNames())
                         lines.Add($"            {action.AsProperty()}.UnregisterCallbacks();");
                     break;
+            }
+
+            // Converts Unity's InputAction.expectedControlType string into another string that matches the Type keyword
+            // for the expected type in code (e.g. "Integer" becomes "int")
+            string controlTypeToTypeString(string controlType)
+            {
+                return controlType switch
+                {
+                    "Analog" => "float",
+                    "Axis" => "float",
+                    "Bone" => "Bone",
+                    "Delta" => "Vector2",
+                    "Digital" => "int",
+                    "Double" => "double",
+                    "Dpad" => "Vector2",
+                    "Eyes" => "Eyes",
+                    "Integer" => "int",
+                    "Pose" => "Pose",
+                    "Quaternion" => "Quaternion",
+                    "Stick" => "Vector2",
+                    "Touch" => "float", // TODO (control types): Unknown
+                    "Vector2" => "Vector2",
+                    "Vector3" => "Vector3",
+                    _ => controlType
+                };
             }
         }
     }

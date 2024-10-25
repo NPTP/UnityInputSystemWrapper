@@ -400,8 +400,8 @@ namespace NPTP.InputSystemWrapper
         }
         
         // TODO (optimization): Currently commented out in this class in a few places, since enabling/disabling PlayerInput,
-        // TODO: pairing/unpairing devices, etc. should all call HandleInputUserChange. Uncomment those calls if HandleInputUserChange
-        // TODO: isn't cutting it, and delete the commented calls outright if it is!
+        // pairing/unpairing devices, etc. should all call HandleInputUserChange. Uncomment those calls if HandleInputUserChange
+        // isn't cutting it, and delete the commented calls outright if it is!
         private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;

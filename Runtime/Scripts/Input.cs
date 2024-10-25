@@ -31,7 +31,8 @@ namespace NPTP.InputSystemWrapper
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
 
-        // TODO: Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well. Can we consolidate these events into a higher-level abstraction?
+        // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
+        // Can we consolidate these events into a higher-level abstraction? Or separate them by desired events (binding change, control scheme change, etc with more granularity)
         public static event Action OnBindingsChanged;
         
         public static event Action<InputControl> OnAnyButtonPress
@@ -153,7 +154,7 @@ namespace NPTP.InputSystemWrapper
                 rebindingOperation.Dispose();
             }
 
-            // TODO: Multiplayer version that takes PlayerID in method signature to rebind specific player selected here.
+            // TODO (multiplayer): MP version that takes PlayerID in method signature to rebind specific player selected here.
             InputPlayer player = GetPlayer(PlayerID.Player1);
 
             if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap _, out InputAction action) &&
