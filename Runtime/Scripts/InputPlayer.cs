@@ -82,7 +82,7 @@ namespace NPTP.InputSystemWrapper
                 return lastUsedDevice;
             }
         }
-
+        
         internal InputActionAsset Asset { get; }
         
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
@@ -116,6 +116,7 @@ namespace NPTP.InputSystemWrapper
         
         internal void Terminate()
         {
+            // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
             // playerInput.onActionTriggered -= HandleAnyActionTriggered;
             Asset.Disable();
             DisableKeyboardTextInput();
@@ -173,6 +174,7 @@ namespace NPTP.InputSystemWrapper
         {
             // MARKER.EventSystemActions.Start
             uiInputModule.point = createLocalAssetReference("32b35790-4ed0-4e9a-aa41-69ac6d629449");
+            uiInputModule.leftClick = createLocalAssetReference("3c7022bf-7922-4f7c-a998-c437916075ad");
             uiInputModule.middleClick = createLocalAssetReference("dad70c86-b58c-4b17-88ad-f5e53adf419e");
             uiInputModule.rightClick = createLocalAssetReference("44b200b1-1557-4083-816c-b22cbdf77ddf");
             uiInputModule.scrollWheel = createLocalAssetReference("0489e84a-4833-4c40-bfae-cea84b696689");
@@ -181,7 +183,6 @@ namespace NPTP.InputSystemWrapper
             uiInputModule.cancel = createLocalAssetReference("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
             uiInputModule.trackedDevicePosition = createLocalAssetReference("24908448-c609-4bc3-a128-ea258674378a");
             uiInputModule.trackedDeviceOrientation = createLocalAssetReference("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
-            uiInputModule.leftClick = createLocalAssetReference("3c7022bf-7922-4f7c-a998-c437916075ad");
             // MARKER.EventSystemActions.End
 
 #pragma warning disable CS8321
@@ -304,71 +305,71 @@ namespace NPTP.InputSystemWrapper
             {
                 if (action == Player.Move.InputAction)
                 {
-                    Player.OnMove -= callback;
-                    if (subscribe) Player.OnMove += callback;
+                    Player.Move.OnEvent -= callback;
+                    if (subscribe) Player.Move.OnEvent += callback;
                 }
                 else if (action == Player.Look.InputAction)
                 {
-                    Player.OnLook -= callback;
-                    if (subscribe) Player.OnLook += callback;
+                    Player.Look.OnEvent -= callback;
+                    if (subscribe) Player.Look.OnEvent += callback;
                 }
                 else if (action == Player.Fire.InputAction)
                 {
-                    Player.OnFire -= callback;
-                    if (subscribe) Player.OnFire += callback;
+                    Player.Fire.OnEvent -= callback;
+                    if (subscribe) Player.Fire.OnEvent += callback;
                 }
             }
             else if (UI.ActionMap == map)
             {
                 if (action == UI.Navigate.InputAction)
                 {
-                    UI.OnNavigate -= callback;
-                    if (subscribe) UI.OnNavigate += callback;
+                    UI.Navigate.OnEvent -= callback;
+                    if (subscribe) UI.Navigate.OnEvent += callback;
                 }
                 else if (action == UI.Submit.InputAction)
                 {
-                    UI.OnSubmit -= callback;
-                    if (subscribe) UI.OnSubmit += callback;
+                    UI.Submit.OnEvent -= callback;
+                    if (subscribe) UI.Submit.OnEvent += callback;
                 }
                 else if (action == UI.Cancel.InputAction)
                 {
-                    UI.OnCancel -= callback;
-                    if (subscribe) UI.OnCancel += callback;
+                    UI.Cancel.OnEvent -= callback;
+                    if (subscribe) UI.Cancel.OnEvent += callback;
                 }
                 else if (action == UI.Point.InputAction)
                 {
-                    UI.OnPoint -= callback;
-                    if (subscribe) UI.OnPoint += callback;
+                    UI.Point.OnEvent -= callback;
+                    if (subscribe) UI.Point.OnEvent += callback;
                 }
                 else if (action == UI.Click.InputAction)
                 {
-                    UI.OnClick -= callback;
-                    if (subscribe) UI.OnClick += callback;
+                    UI.Click.OnEvent -= callback;
+                    if (subscribe) UI.Click.OnEvent += callback;
                 }
                 else if (action == UI.ScrollWheel.InputAction)
                 {
-                    UI.OnScrollWheel -= callback;
-                    if (subscribe) UI.OnScrollWheel += callback;
+                    UI.ScrollWheel.OnEvent -= callback;
+                    if (subscribe) UI.ScrollWheel.OnEvent += callback;
                 }
                 else if (action == UI.MiddleClick.InputAction)
                 {
-                    UI.OnMiddleClick -= callback;
-                    if (subscribe) UI.OnMiddleClick += callback;
+                    UI.MiddleClick.OnEvent -= callback;
+                    if (subscribe) UI.MiddleClick.OnEvent += callback;
                 }
                 else if (action == UI.RightClick.InputAction)
                 {
-                    UI.OnRightClick -= callback;
-                    if (subscribe) UI.OnRightClick += callback;
+                    UI.RightClick.OnEvent -= callback;
+                    if (subscribe) UI.RightClick.OnEvent += callback;
                 }
                 else if (action == UI.TrackedDevicePosition.InputAction)
                 {
-                    UI.OnTrackedDevicePosition -= callback;
-                    if (subscribe) UI.OnTrackedDevicePosition += callback;
+                    UI.TrackedDevicePosition.OnEvent -= callback;
+                    if (subscribe) UI.TrackedDevicePosition.OnEvent += callback;
                 }
                 else if (action == UI.TrackedDeviceOrientation.InputAction)
                 {
-                    UI.OnTrackedDeviceOrientation -= callback;
-                    if (subscribe) UI.OnTrackedDeviceOrientation += callback;
+                    UI.TrackedDeviceOrientation.OnEvent -= callback;
+                    if (subscribe) UI.TrackedDeviceOrientation.OnEvent += callback;
                 }
             }
             // MARKER.ChangeSubscriptionIfStatements.End
@@ -378,6 +379,7 @@ namespace NPTP.InputSystemWrapper
 
         #region Private
         
+        // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
         // private void HandleAnyActionTriggered(InputAction.CallbackContext callbackContext)
         // {
         //     lastUsedDevice = callbackContext.control.device;

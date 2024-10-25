@@ -63,6 +63,7 @@ namespace NPTP.InputSystemWrapper
         }
 
         public static ControlScheme CurrentControlScheme => Player1.CurrentControlScheme;
+        public static Vector2 MousePosition => Mouse.current.position.ReadValue();
 
         private static InputPlayer Player1 => GetPlayer(PlayerID.Player1);
         private static bool AllowPlayerJoining => false;
@@ -171,6 +172,7 @@ namespace NPTP.InputSystemWrapper
 
         /// <summary>
         /// Try to get the current binding info for the given action reference.
+        /// If this returns true, the binding infos IEnumerable is guaranteed to have at least one element.
         /// </summary>
         // MARKER.TryGetCurrentBindingInfo.Start
         public static bool TryGetCurrentBindingInfo(InputActionReferenceWrapper actionReferenceWrapper, out IEnumerable<BindingInfo> bindingInfos)

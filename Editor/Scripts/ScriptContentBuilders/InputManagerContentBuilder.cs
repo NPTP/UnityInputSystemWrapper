@@ -53,6 +53,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add("        }");
                     addEmptyLine();
                     lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
+                    lines.Add($"        public static Vector2 MousePosition => Mouse.current.position.ReadValue();");
                     addEmptyLine();
                     lines.Add($"        private static {nameof(InputPlayer)} Player1 => GetPlayer({nameof(PlayerID)}.{nameof(PlayerID.Player1)});");
                     lines.Add($"        private static bool AllowPlayerJoining => false;");

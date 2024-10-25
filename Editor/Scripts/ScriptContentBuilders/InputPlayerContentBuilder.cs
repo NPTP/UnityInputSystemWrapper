@@ -81,14 +81,14 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         int j = 0;
                         foreach (InputAction action in asset.FindActionMap(map).actions)
                         {
-                            string actionType = action.name.AsType();
-                            string eventName = $"On{actionType}";
+                            string actionProperty = action.name.AsProperty();
+                            string eventName = "OnEvent";
                             string mapType = map.AsType();
                             string ifElseInner = j == 0 ? "if" : "else if";
-                            lines.Add($"                {ifElseInner} (action == {actionsProperty}.{actionType}.InputAction)");
+                            lines.Add($"                {ifElseInner} (action == {actionsProperty}.{actionProperty}.InputAction)");
                             lines.Add("                {");
-                            lines.Add($"                    {mapType}.{eventName} -= callback;");
-                            lines.Add($"                    if (subscribe) {mapType}.{eventName} += callback;");
+                            lines.Add($"                    {mapType}.{actionProperty}.{eventName} -= callback;");
+                            lines.Add($"                    if (subscribe) {mapType}.{actionProperty}.{eventName} += callback;");
                             lines.Add("                }");
                             j++;
                         }

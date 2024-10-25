@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Actions;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
@@ -10,12 +10,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
         internal static void AddContent(string markerName, InputActionMap map, List<string> lines)
         {
             IEnumerable<string> getActionNames() => map.actions.Select(inputAction => inputAction.name);
-            IEnumerable<string> getActionNamesAsTypes() => map.actions.Select(inputAction => inputAction.name.AllWhitespaceTrimmed().CapitalizeFirst());
-            IEnumerable<string> getActionNamesAsProperties() => getActionNamesAsTypes();
-            
-            string mapName = map.name.AllWhitespaceTrimmed().CapitalizeFirst();
-            string className = $"{mapName}Actions";
-            string actionMapProperty = "ActionMap";
+            string className() => $"{map.name.AsType()}Actions";
+            string actionMapProperty() => "ActionMap";
 
             switch (markerName)
             {
@@ -28,62 +24,43 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"namespace {Helper.InputNamespace}.{Helper.GENERATED}.{Helper.ACTIONS}");
                     break;
                 case "ClassSignature":
-                    lines.Add($"    public class {className}");
-                    break;
-                case "PublicEvents":
-                    int i = 0;
-                    IEnumerable<string> actions = getActionNamesAsTypes();
-                    foreach (string action in actions)
-                    {
-                        string eventName = $"On{action}";
-                        string privateEventName = "_" + eventName;
-                        lines.Add($"        private event Action<InputAction.CallbackContext> @{privateEventName};");
-                        lines.Add($"        public event Action<InputAction.CallbackContext> @{eventName}");
-                        lines.Add("        {");
-                        lines.Add($"            add {'{'} {privateEventName} -= value; {privateEventName} += value; {'}'}");
-                        lines.Add($"            remove => {privateEventName} -= value;");
-                        lines.Add("        }");
-                        if (i < actions.Count() - 1) lines.Add(string.Empty);
-                        i++;
-                    }
+                    lines.Add($"    public class {className()}");
                     break;
                 case "ActionWrapperPublicProperties":
-                    foreach (string action in getActionNamesAsProperties())
-                        lines.Add($"        public {nameof(ActionWrapper)} {action} " + "{ get; }");
+                    foreach (InputAction action in map)
+                    {
+                        if (action.type is InputActionType.Button)
+                        {
+                            lines.Add($"        public {nameof(ButtonActionWrapper)} {action.name.AsProperty()} " + "{ get; }");
+                        }
+                        else if (action.type is InputActionType.Value or InputActionType.PassThrough)
+                        {
+                            string expectedControlType = action.expectedControlType;
+                            // TODO: Converted expected control type to correct type string (e.g. "Integer" -> "int")
+                            string type = string.IsNullOrEmpty(expectedControlType)
+                                ? $"{nameof(AnyValueActionWrapper)}"
+                                : $"{nameof(ValueActionWrapper)}<{expectedControlType}>";
+                            lines.Add($"        public {type} {action.name.AsProperty()} " + "{ get; }");
+                        }
+                    }
                     break;
                 case "ConstructorSignature":
-                    lines.Add($"        internal {className}({nameof(InputActionAsset)} asset)");
+                    lines.Add($"        internal {className()}({nameof(InputActionAsset)} asset)");
                     break;
                 case "ActionMapAssignment":
-                    lines.Add($"            {actionMapProperty} = asset.FindActionMap(\"{map.name}\", throwIfNotFound: true);");
+                    lines.Add($"            {actionMapProperty()} = asset.FindActionMap(\"{map.name}\", throwIfNotFound: true);");
                     break;
                 case "ActionWrapperAssignments":
                     foreach (string action in getActionNames())
-                        lines.Add($"            {action.AsProperty()} = new {nameof(ActionWrapper)}({actionMapProperty}.FindAction(\"{action}\", throwIfNotFound: true));");
+                        lines.Add($"            {action.AsProperty()} = new ({actionMapProperty()}.FindAction(\"{action}\", throwIfNotFound: true));");
                     break;
-                case "ActionsSubscribe":
+                case "RegisterCallbacks":
                     foreach (string action in getActionNames())
-                    {
-                        lines.Add($"            {action.AsProperty()}.InputAction.started += Handle{action.AsProperty()};");
-                        lines.Add($"            {action.AsProperty()}.InputAction.performed += Handle{action.AsProperty()};");
-                        lines.Add($"            {action.AsProperty()}.InputAction.canceled += Handle{action.AsProperty()};");
-                    }
+                        lines.Add($"            {action.AsProperty()}.RegisterCallbacks();");
                     break;
-                case "ActionsUnsubscribe":
+                case "UnregisterCallbacks":
                     foreach (string action in getActionNames())
-                    {
-                        lines.Add($"            {action.AsProperty()}.InputAction.started -= Handle{action.AsProperty()};");
-                        lines.Add($"            {action.AsProperty()}.InputAction.performed -= Handle{action.AsProperty()};");
-                        lines.Add($"            {action.AsProperty()}.InputAction.canceled -= Handle{action.AsProperty()};");
-                    }
-                    break;
-                case "PrivateEventHandlers":
-                    foreach (string action in getActionNamesAsTypes())
-                    {
-                        string methodName = $"Handle{action}";
-                        string privateEventName = $"_On{action}";
-                        lines.Add($"        private void {methodName}(InputAction.CallbackContext context) => {privateEventName}?.Invoke(context);");
-                    }
+                        lines.Add($"            {action.AsProperty()}.UnregisterCallbacks();");
                     break;
             }
         }

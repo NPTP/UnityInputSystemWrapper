@@ -11,7 +11,7 @@ namespace NPTP.InputSystemWrapper.Bindings
     [Serializable]
     public class BindingInfo
     {
-        /// NOTE: This should be a localized string, using whatever localization system is in the project.
+        // TODO (localization): This should be a localized string, using whatever localization system is in the project.
         [SerializeField] private string displayName;
         public string DisplayName => displayName;
 

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEditor;

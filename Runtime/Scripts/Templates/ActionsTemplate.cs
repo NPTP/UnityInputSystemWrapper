@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Numerics;
+using NPTP.InputSystemWrapper.Actions;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using Button = UnityEngine.InputSystem.HID.HID.Button;
 // MARKER.Ignore.Start
 // ---------------------------------- WARNING ! ---------------------------------------
 // This template script is used to auto-generate new C# input classes and their respective
@@ -16,27 +20,11 @@ namespace NPTP.InputSystemWrapper.Generated
     public class ActionsTemplate
     // MARKER.ClassSignature.End
     {
-        // MARKER.PublicEvents.Start
-        private event Action<InputAction.CallbackContext> @_OnTemplateAction1;
-        public event Action<InputAction.CallbackContext> @OnTemplateAction1
-        {
-            add { _OnTemplateAction1 -= value; _OnTemplateAction1 += value; }
-            remove => _OnTemplateAction1 -= value;
-        }
-        
-        private event Action<InputAction.CallbackContext> @_OnTemplateAction2;
-        public event Action<InputAction.CallbackContext> @OnTemplateAction2
-        {
-            add { _OnTemplateAction2 -= value; _OnTemplateAction2 += value; }
-            remove => _OnTemplateAction2 -= value;
-        }
-        // MARKER.PublicEvents.End
-
         internal InputActionMap ActionMap { get; }
         
         // MARKER.ActionWrapperPublicProperties.Start
-        public ActionWrapper TemplateAction1 { get; }
-        public ActionWrapper TemplateAction2 { get; }
+        public ButtonActionWrapper TemplateAction1 { get; }
+        public ValueActionWrapper<Vector2> TemplateAction2 { get; }
         // MARKER.ActionWrapperPublicProperties.End
         
         private bool enabled;
@@ -50,8 +38,8 @@ namespace NPTP.InputSystemWrapper.Generated
             // MARKER.ActionMapAssignment.End
             
             // MARKER.ActionWrapperAssignments.Start
-            TemplateAction1 = new ActionWrapper(ActionMap.FindAction("TemplateAction1", throwIfNotFound: true));
-            TemplateAction2 = new ActionWrapper(ActionMap.FindAction("TemplateAction2", throwIfNotFound: true));
+            TemplateAction1 = new (ActionMap.FindAction("TemplateAction1", throwIfNotFound: true));
+            TemplateAction2 = new (ActionMap.FindAction("TemplateAction2", throwIfNotFound: true));
             // MARKER.ActionWrapperAssignments.End
             // MARKER.Ignore.Start
             throw new NotImplementedException($"This template class {nameof(ActionsTemplate)} should never be instantiated!");
@@ -68,14 +56,10 @@ namespace NPTP.InputSystemWrapper.Generated
             enabled = true;
             ActionMap.Enable();
             
-            // MARKER.ActionsSubscribe.Start
-            TemplateAction1.InputAction.started += HandleTemplateAction1;
-            TemplateAction1.InputAction.performed += HandleTemplateAction1;
-            TemplateAction1.InputAction.canceled += HandleTemplateAction1;
-            TemplateAction2.InputAction.started += HandleTemplateAction2;
-            TemplateAction2.InputAction.performed += HandleTemplateAction2;
-            TemplateAction2.InputAction.canceled += HandleTemplateAction2;
-            // MARKER.ActionsSubscribe.End
+            // MARKER.RegisterCallbacks.Start
+            TemplateAction1.RegisterCallbacks();
+            TemplateAction2.RegisterCallbacks();
+            // MARKER.RegisterCallbacks.End
         }
         
         internal void DisableAndUnregisterCallbacks()
@@ -88,19 +72,10 @@ namespace NPTP.InputSystemWrapper.Generated
             enabled = false;
             ActionMap.Disable();
 
-            // MARKER.ActionsUnsubscribe.Start
-            TemplateAction1.InputAction.started -= HandleTemplateAction1;
-            TemplateAction1.InputAction.performed -= HandleTemplateAction1;
-            TemplateAction1.InputAction.canceled -= HandleTemplateAction1;
-            TemplateAction2.InputAction.started -= HandleTemplateAction2;
-            TemplateAction2.InputAction.performed -= HandleTemplateAction2;
-            TemplateAction2.InputAction.canceled -= HandleTemplateAction2;
-            // MARKER.ActionsUnsubscribe.End
+            // MARKER.UnregisterCallbacks.Start
+            TemplateAction1.UnregisterCallbacks();
+            TemplateAction2.UnregisterCallbacks();
+            // MARKER.UnregisterCallbacks.End
         }
-
-        // MARKER.PrivateEventHandlers.Start
-        private void HandleTemplateAction1(InputAction.CallbackContext context) => _OnTemplateAction1?.Invoke(context);
-        private void HandleTemplateAction2(InputAction.CallbackContext context) => _OnTemplateAction2?.Invoke(context);
-        // MARKER.PrivateEventHandlers.End
     }
 }
