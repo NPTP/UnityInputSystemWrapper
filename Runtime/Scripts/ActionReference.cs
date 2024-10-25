@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper
 {
     [Serializable]
-    public class InputActionReferenceWrapper
+    public class ActionReference
     {
         [SerializeField] private InputActionReference reference;
         [SerializeField] private bool useCompositePart; 

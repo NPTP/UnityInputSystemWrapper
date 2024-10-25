@@ -140,12 +140,12 @@ namespace NPTP.InputSystemWrapper
         /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
-        /// <param name="actionReference">Reference wrapper containing action to be rebound.</param>
+        /// <param name="actionReference">Action reference wrapper containing action to be rebound.</param>
         /// <param name="controlScheme">Control scheme for which to do the rebinding.</param>
         /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, ControlScheme controlScheme, Action callback = null)
+        public static void StartInteractiveRebind(ActionReference actionReference, ControlScheme controlScheme, Action callback = null)
         {
             if (rebindingOperation != null)
             {
@@ -175,14 +175,14 @@ namespace NPTP.InputSystemWrapper
         /// If this returns true, the binding infos IEnumerable is guaranteed to have at least one element.
         /// </summary>
         // MARKER.TryGetCurrentBindingInfo.Start
-        public static bool TryGetCurrentBindingInfo(InputActionReferenceWrapper actionReferenceWrapper, out IEnumerable<BindingInfo> bindingInfos)
+        public static bool TryGetCurrentBindingInfo(ActionReference actionReference, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, out bindingInfos);
+            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReference, out bindingInfos);
         }
         // MARKER.TryGetCurrentBindingInfo.End
         
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
-        public static void ResetBindingForAction(InputActionReferenceWrapper actionReference, ControlScheme controlScheme)
+        public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
         {
             BindingChanger.ResetBindingToDefaultForControlScheme(Player1, actionReference, controlScheme);
         }

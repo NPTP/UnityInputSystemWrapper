@@ -63,8 +63,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     break;
                 case "InteractiveRebind": // TODO (multiplayer)
                     string rebindMethodHeader = offlineInputData.EnableMultiplayer
-                        ? $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, PlayerID playerID, ControlScheme controlScheme, Action callback = null)"
-                        : $"        public static void StartInteractiveRebind(InputActionReferenceWrapper actionReference, ControlScheme controlScheme, Action callback = null)";
+                        ? $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, {nameof(ControlScheme)} controlScheme, Action callback = null)"
+                        : $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(ControlScheme)} controlScheme, Action callback = null)";
                     string rebindPlayerGetter = $"            {nameof(InputPlayer)} player = {(offlineInputData.EnableMultiplayer ? "GetPlayer(playerID)" : "Player1")};";
                     lines.Add(rebindMethodHeader);
                     lines.Add("        {");
@@ -80,13 +80,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     string methodBody;
                     if (isMultiplayer)
                     {
-                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(InputActionReferenceWrapper)} actionReferenceWrapper, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, GetPlayer(playerID), actionReferenceWrapper, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, GetPlayer(playerID), actionReference, out bindingInfos);";
                     }
                     else
                     {
-                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(InputActionReferenceWrapper)} actionReferenceWrapper, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReferenceWrapper, out bindingInfos);";
+                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
+                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReference, out bindingInfos);";
                     }
 
                     lines.Add(methodHeader);

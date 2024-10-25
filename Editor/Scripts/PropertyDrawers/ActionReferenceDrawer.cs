@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Attributes.Editor.PropertyDrawers
 {
-    [CustomPropertyDrawer(typeof(InputActionReferenceWrapper))]
-    internal class InputActionReferenceWrapperDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ActionReference))]
+    internal class ActionReferenceDrawer : PropertyDrawer
     {
         private const float INDENT = 15f;
         private const string REFERENCE = "reference";
