@@ -3,7 +3,7 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Actions
 {
     [Serializable]
     public class ActionReference

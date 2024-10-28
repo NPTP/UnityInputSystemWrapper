@@ -7,9 +7,6 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         internal InputAction InputAction { get; }
         
-        // MARKER.ActionReferenceProperty.Start
-        // MARKER.ActionReferenceProperty.End
-        
         private event Action<InputAction.CallbackContext> onEvent;
         public event Action<InputAction.CallbackContext> OnEvent
         {
@@ -20,9 +17,6 @@ namespace NPTP.InputSystemWrapper.Actions
         internal ActionWrapper(InputAction inputAction)
         {
             InputAction = inputAction;
-            
-            // MARKER.ActionReferenceInitializer.Start
-            // MARKER.ActionReferenceInitializer.End
         }
         
         internal void RegisterCallbacks()

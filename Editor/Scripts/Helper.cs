@@ -34,7 +34,6 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
         internal static string RuntimeInputDataFileSystemPath => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
         internal static string BindingChangerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(BindingChanger));
-        internal static string ActionWrapperFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(ActionWrapper));
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths

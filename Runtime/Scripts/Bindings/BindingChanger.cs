@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;

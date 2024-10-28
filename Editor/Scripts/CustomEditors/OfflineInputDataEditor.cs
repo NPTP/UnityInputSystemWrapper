@@ -9,7 +9,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     internal class OfflineInputDataEditor : UnityEditor.Editor
     {
         private SerializedProperty enableMultiplayer;
-        private SerializedProperty actionReferencesInActionWrappers;
         private SerializedProperty maxPlayers;
         private SerializedProperty runtimeInputData;
         private SerializedProperty actionsTemplateFile;
@@ -35,7 +34,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
             runtimeInputData = serializedObject.FindProperty(nameof(runtimeInputData));
             actionsTemplateFile = serializedObject.FindProperty(nameof(actionsTemplateFile));
-            actionReferencesInActionWrappers = serializedObject.FindProperty(nameof(actionReferencesInActionWrappers));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
@@ -67,7 +65,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             
             EditorGUILayout.PropertyField(runtimeInputData);
             EditorGUILayout.PropertyField(actionsTemplateFile);
-            EditorGUILayout.PropertyField(actionReferencesInActionWrappers);
             
             EditorInspectorUtility.DrawHorizontalLine();
 

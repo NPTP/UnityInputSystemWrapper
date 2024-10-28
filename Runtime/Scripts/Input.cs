@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
 using UnityEngine.EventSystems;

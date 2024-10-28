@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
 using UnityEngine.InputSystem;

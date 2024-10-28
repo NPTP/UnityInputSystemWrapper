@@ -27,9 +27,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;
 
-        [SerializeField] private bool actionReferencesInActionWrappers;
-        public bool ActionReferencesInActionWrappers => actionReferencesInActionWrappers;
-        
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;
         

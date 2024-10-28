@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
