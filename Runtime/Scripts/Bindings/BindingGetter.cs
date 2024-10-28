@@ -14,7 +14,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             bindingInfos = default;
 
             // Get the correct action from the player asset based on the action reference wrapper's internal reference.
-            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap map, out InputAction action))
+            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap map, out InputAction action))
             {
                 return false;
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;
@@ -279,20 +280,20 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        internal bool TryGetMapAndActionInPlayerAsset(InputActionReference actionReference, out InputActionMap map, out InputAction action)
+        internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputActionMap map, out InputAction action)
         {
             action = null;
-            map = Asset.FindActionMap(actionReference.action.actionMap.name);
+            map = Asset.FindActionMap(actionFromReference.actionMap.name);
             if (map == null) return false;
-            action = map.FindAction(actionReference.action.name);
+            action = map.FindAction(actionFromReference.name);
             return action != null;
         }
         
-        internal void FindActionEventAndSubscribe(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
+        internal ActionWrapper FindActionWrapper(ActionReference actionReference)
         {
-            if (!TryGetMapAndActionInPlayerAsset(actionReference, out InputActionMap map, out InputAction action))
+            if (!TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap map, out InputAction action))
             {
-                return;
+                return null;
             }
             
             // The auto-generated code below ensures that the action used is from the correct asset AND behaves
@@ -300,79 +301,29 @@ namespace NPTP.InputSystemWrapper
             // prevented, subs to actions can be made at any time regardless of map/action/player state, and the
             // event signatures look the same as the ones subscribed to manually).
 
-            // MARKER.ChangeSubscriptionIfStatements.Start
+            // MARKER.FindActionWrapperIfElse.Start
             if (Player.ActionMap == map)
             {
-                if (action == Player.Move.InputAction)
-                {
-                    if (subscribe) Player.Move.OnEvent += callback;
-                    else Player.Move.OnEvent -= callback;
-                }
-                else if (action == Player.Look.InputAction)
-                {
-                    if (subscribe) Player.Look.OnEvent += callback;
-                    else Player.Look.OnEvent -= callback;
-                }
-                else if (action == Player.Fire.InputAction)
-                {
-                    if (subscribe) Player.Fire.OnEvent += callback;
-                    else Player.Fire.OnEvent -= callback;
-                }
+                if (action == Player.Move.InputAction) return Player.Move;
+                if (action == Player.Look.InputAction) return Player.Look;
+                if (action == Player.Fire.InputAction) return Player.Fire;
             }
             else if (UI.ActionMap == map)
             {
-                if (action == UI.Navigate.InputAction)
-                {
-                    if (subscribe) UI.Navigate.OnEvent += callback;
-                    else UI.Navigate.OnEvent -= callback;
-                }
-                else if (action == UI.Submit.InputAction)
-                {
-                    if (subscribe) UI.Submit.OnEvent += callback;
-                    else UI.Submit.OnEvent -= callback;
-                }
-                else if (action == UI.Cancel.InputAction)
-                {
-                    if (subscribe) UI.Cancel.OnEvent += callback;
-                    else UI.Cancel.OnEvent -= callback;
-                }
-                else if (action == UI.Point.InputAction)
-                {
-                    if (subscribe) UI.Point.OnEvent += callback;
-                    else UI.Point.OnEvent -= callback;
-                }
-                else if (action == UI.Click.InputAction)
-                {
-                    if (subscribe) UI.Click.OnEvent += callback;
-                    else UI.Click.OnEvent -= callback;
-                }
-                else if (action == UI.ScrollWheel.InputAction)
-                {
-                    if (subscribe) UI.ScrollWheel.OnEvent += callback;
-                    else UI.ScrollWheel.OnEvent -= callback;
-                }
-                else if (action == UI.MiddleClick.InputAction)
-                {
-                    if (subscribe) UI.MiddleClick.OnEvent += callback;
-                    else UI.MiddleClick.OnEvent -= callback;
-                }
-                else if (action == UI.RightClick.InputAction)
-                {
-                    if (subscribe) UI.RightClick.OnEvent += callback;
-                    else UI.RightClick.OnEvent -= callback;
-                }
-                else if (action == UI.TrackedDevicePosition.InputAction)
-                {
-                    if (subscribe) UI.TrackedDevicePosition.OnEvent += callback;
-                    else UI.TrackedDevicePosition.OnEvent -= callback;
-                }
-                else if (action == UI.TrackedDeviceOrientation.InputAction)
-                {
-                    if (subscribe) UI.TrackedDeviceOrientation.OnEvent += callback;
-                    else UI.TrackedDeviceOrientation.OnEvent -= callback;
-                }
+                if (action == UI.Navigate.InputAction) return UI.Navigate;
+                if (action == UI.Submit.InputAction) return UI.Submit;
+                if (action == UI.Cancel.InputAction) return UI.Cancel;
+                if (action == UI.Point.InputAction) return UI.Point;
+                if (action == UI.Click.InputAction) return UI.Click;
+                if (action == UI.ScrollWheel.InputAction) return UI.ScrollWheel;
+                if (action == UI.MiddleClick.InputAction) return UI.MiddleClick;
+                if (action == UI.RightClick.InputAction) return UI.RightClick;
+                if (action == UI.TrackedDevicePosition.InputAction) return UI.TrackedDevicePosition;
+                if (action == UI.TrackedDeviceOrientation.InputAction) return UI.TrackedDeviceOrientation;
             }
-            // MARKER.ChangeSubscriptionIfStatements.End
+            // MARKER.FindActionWrapperIfElse.End
+
+            return null;
         }
 
         #endregion

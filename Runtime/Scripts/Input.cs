@@ -158,7 +158,7 @@ namespace NPTP.InputSystemWrapper
             // TODO (multiplayer): MP version that takes PlayerID in method signature to rebind specific player selected here.
             InputPlayer player = GetPlayer(PlayerID.Player1);
 
-            if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap _, out InputAction action) &&
+            if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action) &&
                 BindingGetter.TryGetFirstBindingIndex(actionReference, action, controlScheme, out int bindingIndex))
             {
                 rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
@@ -221,23 +221,13 @@ namespace NPTP.InputSystemWrapper
         {
             OnBindingsChanged?.Invoke();
         }
-        
-        // TODO (architecture): Use action.id instead of actionReference. Skips the map checking step too.
-        internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
-        {
-            if (actionReference == null)
-            {
-                Debug.LogError("Trying to subscribe to a nonexistent action reference.");
-                return;
-            }
 
-            if (callback == null)
-            {
-                Debug.LogError("Trying to subscribe with a nonexistent callback.");
-                return;
-            }
-            
-            playerCollection.FindActionEventAndSubscribeAll(actionReference, callback, subscribe);
+        // TODO (architecture): Use action.id instead of actionReference. Skips the map checking step too.
+        internal static ActionWrapper GetActionWrapperFromReference(ActionReference actionReference)
+        {
+            // TODO (multiplayer): Get correct player, method signature takes player ID
+            InputPlayer player = Player1;
+            return player.FindActionWrapper(actionReference);
         }
         
         #endregion

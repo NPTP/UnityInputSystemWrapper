@@ -159,10 +159,5 @@ namespace NPTP.InputSystemWrapper
         {
             players.ForEach(p => p.InputContext = inputContext);
         }
-
-        public void FindActionEventAndSubscribeAll(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
-        {
-            players.ForEach(p => p.FindActionEventAndSubscribe(actionReference, callback, subscribe));
-        }
     }
 }

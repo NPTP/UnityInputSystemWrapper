@@ -70,27 +70,18 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         lines.Add($"                    break;");
                     }
                     break;
-                case "ChangeSubscriptionIfStatements":
+                case "FindActionWrapperIfElse":
                     int i = 0;
                     foreach (string map in Helper.GetMapNames(asset))
                     {
                         string ifElse = i == 0 ? "if" : "else if";
-                        string actionsProperty = map.AsProperty();
-                        lines.Add($"            {ifElse} ({actionsProperty}.ActionMap == map)");
+                        string mapProperty = map.AsProperty();
+                        lines.Add($"            {ifElse} ({mapProperty}.ActionMap == map)");
                         lines.Add("            {");
-                        int j = 0;
                         foreach (InputAction action in asset.FindActionMap(map).actions)
                         {
                             string actionProperty = action.name.AsProperty();
-                            string eventName = "OnEvent";
-                            string mapType = map.AsType();
-                            string ifElseInner = j == 0 ? "if" : "else if";
-                            lines.Add($"                {ifElseInner} (action == {actionsProperty}.{actionProperty}.InputAction)");
-                            lines.Add("                {");
-                            lines.Add($"                    if (subscribe) {mapType}.{actionProperty}.{eventName} += callback;");
-                            lines.Add($"                    else {mapType}.{actionProperty}.{eventName} -= callback;");
-                            lines.Add("                }");
-                            j++;
+                            lines.Add($"                if (action == {mapProperty}.{actionProperty}.InputAction) return {mapProperty}.{actionProperty};");
                         }
                         lines.Add("            }");
                         i++;

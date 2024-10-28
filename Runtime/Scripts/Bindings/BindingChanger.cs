@@ -88,7 +88,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, ActionReference actionReference, ControlScheme controlScheme)
         {
-            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalReference, out InputActionMap _, out InputAction action))
+            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action))
             {
                 return;
             }
