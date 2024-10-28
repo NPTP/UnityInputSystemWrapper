@@ -30,7 +30,15 @@ namespace NPTP.InputSystemWrapper
         {
             return new ActionReference(inputActionReference.action);
         }
-
+        
+        /// <summary>
+        /// Convert an InputAction to an ActionReference.
+        /// </summary>
+        public static implicit operator ActionReference(InputAction inputAction)
+        {
+            return new ActionReference(inputAction);
+        }
+        
         private ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);
