@@ -13,7 +13,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public T ReadValue() => InputAction.ReadValue<T>();
 
-        public ValueActionWrapper(InputAction inputAction) : base(inputAction)
+        internal ValueActionWrapper(InputAction inputAction) : base(inputAction)
         {
         }
     }
@@ -22,7 +22,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public object ReadValue() => InputAction.ReadValueAsObject();
         
-        public AnyValueActionWrapper(InputAction inputAction) : base(inputAction)
+        internal AnyValueActionWrapper(InputAction inputAction) : base(inputAction)
         {
         }
     }

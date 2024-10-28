@@ -7,6 +7,6 @@ namespace NPTP.InputSystemWrapper.Actions
         public bool DownThisFrame => InputAction.WasPerformedThisFrame();
         public bool IsDown => InputAction.phase == InputActionPhase.Performed;
 
-        public ButtonActionWrapper(InputAction inputAction) : base(inputAction) { }
+        internal ButtonActionWrapper(InputAction inputAction) : base(inputAction) { }
     }
 }
