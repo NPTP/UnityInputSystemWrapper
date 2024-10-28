@@ -34,5 +34,10 @@ namespace NPTP.InputSystemWrapper.Actions
         }
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);
+
+        public static implicit operator ActionWrapper(ActionReference actionReference)
+        {
+            return Input.GetActionWrapperFromReference(actionReference);
+        }
     }
 }
