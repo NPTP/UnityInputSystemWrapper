@@ -87,8 +87,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                             string ifElseInner = j == 0 ? "if" : "else if";
                             lines.Add($"                {ifElseInner} (action == {actionsProperty}.{actionProperty}.InputAction)");
                             lines.Add("                {");
-                            lines.Add($"                    {mapType}.{actionProperty}.{eventName} -= callback;");
                             lines.Add($"                    if (subscribe) {mapType}.{actionProperty}.{eventName} += callback;");
+                            lines.Add($"                    else {mapType}.{actionProperty}.{eventName} -= callback;");
                             lines.Add("                }");
                             j++;
                         }

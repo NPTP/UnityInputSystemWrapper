@@ -305,71 +305,71 @@ namespace NPTP.InputSystemWrapper
             {
                 if (action == Player.Move.InputAction)
                 {
-                    Player.Move.OnEvent -= callback;
                     if (subscribe) Player.Move.OnEvent += callback;
+                    else Player.Move.OnEvent -= callback;
                 }
                 else if (action == Player.Look.InputAction)
                 {
-                    Player.Look.OnEvent -= callback;
                     if (subscribe) Player.Look.OnEvent += callback;
+                    else Player.Look.OnEvent -= callback;
                 }
                 else if (action == Player.Fire.InputAction)
                 {
-                    Player.Fire.OnEvent -= callback;
                     if (subscribe) Player.Fire.OnEvent += callback;
+                    else Player.Fire.OnEvent -= callback;
                 }
             }
             else if (UI.ActionMap == map)
             {
                 if (action == UI.Navigate.InputAction)
                 {
-                    UI.Navigate.OnEvent -= callback;
                     if (subscribe) UI.Navigate.OnEvent += callback;
+                    else UI.Navigate.OnEvent -= callback;
                 }
                 else if (action == UI.Submit.InputAction)
                 {
-                    UI.Submit.OnEvent -= callback;
                     if (subscribe) UI.Submit.OnEvent += callback;
+                    else UI.Submit.OnEvent -= callback;
                 }
                 else if (action == UI.Cancel.InputAction)
                 {
-                    UI.Cancel.OnEvent -= callback;
                     if (subscribe) UI.Cancel.OnEvent += callback;
+                    else UI.Cancel.OnEvent -= callback;
                 }
                 else if (action == UI.Point.InputAction)
                 {
-                    UI.Point.OnEvent -= callback;
                     if (subscribe) UI.Point.OnEvent += callback;
+                    else UI.Point.OnEvent -= callback;
                 }
                 else if (action == UI.Click.InputAction)
                 {
-                    UI.Click.OnEvent -= callback;
                     if (subscribe) UI.Click.OnEvent += callback;
+                    else UI.Click.OnEvent -= callback;
                 }
                 else if (action == UI.ScrollWheel.InputAction)
                 {
-                    UI.ScrollWheel.OnEvent -= callback;
                     if (subscribe) UI.ScrollWheel.OnEvent += callback;
+                    else UI.ScrollWheel.OnEvent -= callback;
                 }
                 else if (action == UI.MiddleClick.InputAction)
                 {
-                    UI.MiddleClick.OnEvent -= callback;
                     if (subscribe) UI.MiddleClick.OnEvent += callback;
+                    else UI.MiddleClick.OnEvent -= callback;
                 }
                 else if (action == UI.RightClick.InputAction)
                 {
-                    UI.RightClick.OnEvent -= callback;
                     if (subscribe) UI.RightClick.OnEvent += callback;
+                    else UI.RightClick.OnEvent -= callback;
                 }
                 else if (action == UI.TrackedDevicePosition.InputAction)
                 {
-                    UI.TrackedDevicePosition.OnEvent -= callback;
                     if (subscribe) UI.TrackedDevicePosition.OnEvent += callback;
+                    else UI.TrackedDevicePosition.OnEvent -= callback;
                 }
                 else if (action == UI.TrackedDeviceOrientation.InputAction)
                 {
-                    UI.TrackedDeviceOrientation.OnEvent -= callback;
                     if (subscribe) UI.TrackedDeviceOrientation.OnEvent += callback;
+                    else UI.TrackedDeviceOrientation.OnEvent -= callback;
                 }
             }
             // MARKER.ChangeSubscriptionIfStatements.End
