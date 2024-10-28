@@ -22,5 +22,18 @@ namespace NPTP.InputSystemWrapper
             add => Input.ChangeSubscription(reference, value, subscribe: true);
             remove => Input.ChangeSubscription(reference, value, subscribe: false);
         }
+
+        /// <summary>
+        /// Convert an InputActionReference to this type ActionReference.
+        /// </summary>
+        public static implicit operator ActionReference(InputActionReference inputActionReference)
+        {
+            return new ActionReference(inputActionReference.action);
+        }
+
+        private ActionReference(InputAction action)
+        {
+            reference = InputActionReference.Create(action);
+        }
     }
 }
