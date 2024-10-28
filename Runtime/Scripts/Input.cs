@@ -221,6 +221,7 @@ namespace NPTP.InputSystemWrapper
             OnBindingsChanged?.Invoke();
         }
         
+        // TODO (architecture): Use action.id instead of actionReference. Skips the map checking step too.
         internal static void ChangeSubscription(InputActionReference actionReference, Action<InputAction.CallbackContext> callback, bool subscribe)
         {
             if (actionReference == null)

@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper.Data
         
         [SerializeField] private bool enableMultiplayer;
         public bool EnableMultiplayer => enableMultiplayer;
-
+        
         [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
         public int MaxPlayers => maxPlayers;
 
@@ -27,6 +27,9 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;
 
+        [SerializeField] private bool actionReferencesInActionWrappers;
+        public bool ActionReferencesInActionWrappers => actionReferencesInActionWrappers;
+        
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;
         

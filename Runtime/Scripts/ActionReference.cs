@@ -8,6 +8,7 @@ namespace NPTP.InputSystemWrapper
     [Serializable]
     public class ActionReference
     {
+        // TODO (architecture): Use action.id instead of actionReference. Skips the map checking step too.
         [SerializeField] private InputActionReference reference;
         [SerializeField] private bool useCompositePart; 
         [SerializeField] private CompositePart compositePart;
@@ -39,7 +40,7 @@ namespace NPTP.InputSystemWrapper
             return new ActionReference(inputAction);
         }
         
-        private ActionReference(InputAction action)
+        internal ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);
         }

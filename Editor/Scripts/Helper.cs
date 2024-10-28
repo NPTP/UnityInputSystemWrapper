@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
@@ -33,6 +34,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
         internal static string RuntimeInputDataFileSystemPath => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
         internal static string BindingChangerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(BindingChanger));
+        internal static string ActionWrapperFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(ActionWrapper));
         private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
         
         // Template paths
@@ -42,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal const string GENERATED = "Generated";
         internal const string ACTIONS = "Actions";
         internal static string GeneratedFolderSystemPath => InputManagerFolderSystemPath + GENERATED + Sep;
-        internal static string GeneratedActionsSystemPath => GeneratedFolderSystemPath;
+        internal static string GeneratedActionsSystemPath => GeneratedFolderSystemPath + Sep + ACTIONS + Sep;
         private static char Sep => Path.DirectorySeparatorChar;
         
         // String extensions for code generation

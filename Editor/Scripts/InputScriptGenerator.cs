@@ -31,6 +31,7 @@ namespace NPTP.InputSystemWrapper.Editor
             ModifyExistingFile(asset, Helper.InputUserChangeInfoFileSystemPath, InputUserChangeInfoContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.RuntimeInputDataFileSystemPath, RuntimeInputDataContentBuilder.AddContent);
             ModifyExistingFile(asset, Helper.BindingChangerFileSystemPath, BindingChangerContentBuilder.AddContent);
+            ModifyExistingFile(asset, Helper.ActionWrapperFileSystemPath, ActionWrapperContentBuilder.AddContent);
             
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
