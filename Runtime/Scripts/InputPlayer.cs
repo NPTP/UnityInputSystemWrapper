@@ -22,6 +22,8 @@ namespace NPTP.InputSystemWrapper
         /// </summary>
         public event Action<InputUserChangeInfo> OnInputUserChange;
         
+        public event Action<ControlScheme> OnControlSchemeChanged;
+
         /// <summary>
         /// The input player can be used when enabled, and is ignored when disabled.
         /// </summary>
@@ -263,21 +265,17 @@ namespace NPTP.InputSystemWrapper
             {
                 return;
             }
-            
-            switch (inputUserChange)
+
+            UpdateLastUsedDevice(inputDevice);
+            ControlScheme previous = CurrentControlScheme;
+            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+            if (previous != CurrentControlScheme)
             {
-                case InputUserChange.ControlSchemeChanged:
-                case InputUserChange.DevicePaired:
-                case InputUserChange.DeviceUnpaired:
-                case InputUserChange.DeviceLost:
-                case InputUserChange.DeviceRegained:
-                case InputUserChange.ControlsChanged:
-                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-                    UpdateLastUsedDevice(inputDevice);
-                    // TODO (optimization): Gate this behind a check that control scheme/device/bindings has actually changed?
-                    OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
-                    break;
+                OnControlSchemeChanged?.Invoke(CurrentControlScheme);
             }
+            
+            // TODO (optimization): Gate this behind a check that device/bindings has actually changed?
+            OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
         internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputActionMap map, out InputAction action)

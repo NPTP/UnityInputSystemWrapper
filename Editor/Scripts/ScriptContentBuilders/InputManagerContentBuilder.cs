@@ -42,6 +42,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     lines.Add(getSinglePlayerEventWrapperString(nameof(InputUserChangeInfo), "OnInputUserChange"));
                     addEmptyLine();
+                    lines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));
+                    addEmptyLine();
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     addEmptyLine();
                     foreach (string mapName in Helper.GetMapNames(asset))
@@ -83,14 +85,16 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     if (isMultiplayer)
                     {
                         methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, GetPlayer(playerID), actionReference, out bindingInfos);";
+                        methodBody = $"            InputPlayer player = GetPlayer(playerID);\n";
                     }
                     else
                     {
                         methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReference, out bindingInfos);";
+                        methodBody = $"            InputPlayer player = Player1;\n";
                     }
 
+                    methodBody += $"            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, player.CurrentControlScheme, out bindingInfos);";
+                    
                     lines.Add(methodHeader);
                     lines.Add("        {");
                     lines.Add(methodBody);

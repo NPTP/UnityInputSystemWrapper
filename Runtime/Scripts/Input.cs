@@ -49,6 +49,12 @@ namespace NPTP.InputSystemWrapper
             remove => Player1.OnInputUserChange -= value;
         }
 
+        public static event Action<ControlScheme> OnControlSchemeChanged
+        {
+            add => Player1.OnControlSchemeChanged += value;
+            remove => Player1.OnControlSchemeChanged -= value;
+        }
+
         public static event Action<char> OnKeyboardTextInput
         {
             add => Player1.OnKeyboardTextInput += value;
@@ -140,6 +146,27 @@ namespace NPTP.InputSystemWrapper
         #region Public Interface
         
         /// <summary>
+        /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient
+        /// </summary>
+        public class WaitForAnyButtonPress : CustomYieldInstruction
+        {
+            public override bool keepWaiting => !anyButtonPressed;
+            private bool anyButtonPressed;
+            ~WaitForAnyButtonPress() => OnAnyButtonPress -= HandleAnyButtonPress;
+
+            public WaitForAnyButtonPress()
+            {
+                OnAnyButtonPress += HandleAnyButtonPress;
+            }
+
+            private void HandleAnyButtonPress(InputControl inputControl)
+            {
+                anyButtonPressed = true;
+                OnAnyButtonPress -= HandleAnyButtonPress;
+            }
+        }
+
+        /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
         /// <param name="actionReference">Action reference wrapper containing action to be rebound.</param>
@@ -174,14 +201,24 @@ namespace NPTP.InputSystemWrapper
 
         /// <summary>
         /// Try to get the current binding info for the given action reference.
-        /// If this returns true, the binding infos IEnumerable is guaranteed to have at least one element.
+        /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
         /// </summary>
         // MARKER.TryGetCurrentBindingInfo.Start
         public static bool TryGetCurrentBindingInfo(ActionReference actionReference, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return BindingGetter.TryGetCurrentBindingInfo(runtimeInputData, Player1, actionReference, out bindingInfos);
+            InputPlayer player = Player1;
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, player.CurrentControlScheme, out bindingInfos);
         }
         // MARKER.TryGetCurrentBindingInfo.End
+
+        /// <summary>
+        /// Try to get the binding info for the given action reference and control scheme.
+        /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
+        /// </summary>
+        public static bool TryGetBindingInfo(ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, Player1, actionReference, controlScheme, out bindingInfos);
+        }
         
         // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
         public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
