@@ -106,7 +106,7 @@ namespace NPTP.InputSystemWrapper
             
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
             
-            // TODO (optimization): Is this really necessary? It should probably just be a requirement of using this package that you clear your old input modules & event systems out. Plus, this makes startup slower than it needs to be.
+            // TODO (optimization): Could make startup slow. It should probably just be a requirement of using this package that you clear your old input modules & event systems out.
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
@@ -174,7 +174,9 @@ namespace NPTP.InputSystemWrapper
         /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
+        // MARKER.StartInteractiveRebind.Start
         public static void StartInteractiveRebind(ActionReference actionReference, ControlScheme controlScheme, Action callback = null)
+        // MARKER.StartInteractiveRebind.End
         {
             if (rebindingOperation != null)
             {
@@ -182,8 +184,9 @@ namespace NPTP.InputSystemWrapper
                 rebindingOperation.Dispose();
             }
 
-            // TODO (multiplayer): MP version that takes PlayerID in method signature to rebind specific player selected here.
-            InputPlayer player = GetPlayer(PlayerID.Player1);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
 
             if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action) &&
                 BindingGetter.TryGetFirstBindingIndex(actionReference, action, controlScheme, out int bindingIndex))
@@ -205,49 +208,70 @@ namespace NPTP.InputSystemWrapper
         /// </summary>
         // MARKER.TryGetCurrentBindingInfo.Start
         public static bool TryGetCurrentBindingInfo(ActionReference actionReference, out IEnumerable<BindingInfo> bindingInfos)
+        // MARKER.TryGetCurrentBindingInfo.End
         {
+            // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
             return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, player.CurrentControlScheme, out bindingInfos);
         }
-        // MARKER.TryGetCurrentBindingInfo.End
 
         /// <summary>
         /// Try to get the binding info for the given action reference and control scheme.
         /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
         /// </summary>
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static bool TryGetBindingInfo(ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, Player1, actionReference, controlScheme, out bindingInfos);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, controlScheme, out bindingInfos);
         }
         
-        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
         {
-            BindingChanger.ResetBindingToDefaultForControlScheme(Player1, actionReference, controlScheme);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference, controlScheme);
         }
 
-        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme)
         {
-            BindingChanger.ResetBindingsToDefaultForControlScheme(Player1.Asset, controlScheme);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            BindingChanger.ResetBindingsToDefaultForControlScheme(player.Asset, controlScheme);
         }
 
-        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void LoadAllBindings()
         {
-            BindingSaveLoad.LoadBindingsFromDiskForPlayer(Player1);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
         }
 
-        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void SaveAllBindings()
         {
-            BindingSaveLoad.SaveBindingsToDiskForPlayer(Player1);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            BindingSaveLoad.SaveBindingsToDiskForPlayer(player);
         }
 
-        // TODO (multiplayer): MP version which takes a PlayerID and uses GetPlayer(id)
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void ResetAllBindings()
         {
-            BindingChanger.ResetBindingsToDefault(Player1.Asset);
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            BindingChanger.ResetBindingsToDefault(player.Asset);
         }
 
         #endregion
@@ -259,11 +283,13 @@ namespace NPTP.InputSystemWrapper
             OnBindingsChanged?.Invoke();
         }
 
-        // TODO (architecture): Use action.id instead of actionReference. Skips the map checking step too.
+        // TODO (multiplayer): MP method signature which takes a PlayerID
         internal static ActionWrapper GetActionWrapperFromReference(ActionReference actionReference)
         {
-            // TODO (multiplayer): Get correct player, method signature takes player ID
+            // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            
             return player.FindActionWrapper(actionReference);
         }
         

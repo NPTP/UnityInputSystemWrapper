@@ -112,15 +112,10 @@ namespace NPTP.InputSystemWrapper
             SetUpInputPlayerGameObject(isMultiplayer, parent);
             
             SetEventSystemActions();
-            
-            // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
-            // playerInput.onActionTriggered += HandleAnyActionTriggered;
         }
         
         internal void Terminate()
         {
-            // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
-            // playerInput.onActionTriggered -= HandleAnyActionTriggered;
             Asset.Disable();
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
@@ -274,7 +269,6 @@ namespace NPTP.InputSystemWrapper
                 OnControlSchemeChanged?.Invoke(CurrentControlScheme);
             }
             
-            // TODO (optimization): Gate this behind a check that device/bindings has actually changed?
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
@@ -327,12 +321,6 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private
-        
-        // TODO (optimization): We are keeping track of the last used device with other methods now, can we get rid of this? Would probably be a big performance benefit to do so.
-        // private void HandleAnyActionTriggered(InputAction.CallbackContext callbackContext)
-        // {
-        //     lastUsedDevice = callbackContext.control.device;
-        // }
         
         private void EnableKeyboardTextInput()
         {

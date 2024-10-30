@@ -43,8 +43,8 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - [✔] Update Input System package version to fix some binding bugs and "any button pressed" exception bug with keyboard input
 
 #### Nice-to-haves:
-- [ ] OfflineInputData excluded and cancel controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields
-- [ ] Support multiple bindings per action. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
+- [ ] OfflineInputData "excluded" and "cancel" controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields
+- [ ] Support multiple player re-binds per action. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 
 ##### Multiplayer:
 - [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player), since players may each have unique bindings saved. By extension: Input.TryGetActionBindingInfo must support MP.

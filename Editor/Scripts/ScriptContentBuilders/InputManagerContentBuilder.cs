@@ -64,41 +64,27 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
                     break;
-                // TODO (multiplayer): MP version working properly
-                case "InteractiveRebind": 
+                case "StartInteractiveRebind": 
                     string rebindMethodHeader = offlineInputData.EnableMultiplayer
                         ? $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, {nameof(ControlScheme)} controlScheme, Action callback = null)"
                         : $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(ControlScheme)} controlScheme, Action callback = null)";
-                    string rebindPlayerGetter = $"            {nameof(InputPlayer)} player = {(offlineInputData.EnableMultiplayer ? "GetPlayer(playerID)" : "Player1")};";
                     lines.Add(rebindMethodHeader);
-                    lines.Add("        {");
-                    lines.Add(rebindPlayerGetter);
                     break;
                 case "EnableContextForAllPlayersSignature":
                     string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
                     lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
                     break;
                 case "TryGetCurrentBindingInfo":
-                    bool isMultiplayer = offlineInputData.EnableMultiplayer;
-                    string methodHeader;
-                    string methodBody;
-                    if (isMultiplayer)
-                    {
-                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            InputPlayer player = GetPlayer(playerID);\n";
-                    }
-                    else
-                    {
-                        methodHeader = $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                        methodBody = $"            InputPlayer player = Player1;\n";
-                    }
-
-                    methodBody += $"            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, player.CurrentControlScheme, out bindingInfos);";
-                    
+                    string methodHeader = offlineInputData.EnableMultiplayer
+                        ? $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)"
+                        : $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
                     lines.Add(methodHeader);
-                    lines.Add("        {");
-                    lines.Add(methodBody);
-                    lines.Add("        }");
+                    break;
+                case "PlayerGetter":
+                    string playerGetter = offlineInputData.EnableMultiplayer
+                        ? $"            {nameof(InputPlayer)} player = GetPlayer(playerID);"
+                        : $"            {nameof(InputPlayer)} player = Player1;";
+                    lines.Add(playerGetter);
                     break;
             }
 
