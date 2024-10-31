@@ -14,18 +14,21 @@ namespace NPTP.InputSystemWrapper.Data
 #if UNITY_EDITOR
         public const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
         public const int MAX_PLAYERS_LIMIT = 4;
-        
-        [SerializeField] private bool enableMultiplayer;
-        public bool EnableMultiplayer => enableMultiplayer;
-        
-        [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
-        public int MaxPlayers => maxPlayers;
+
+        [SerializeField] private string assetsPathToPackage = "Assets/InputSystemWrapper";
+        public string AssetsPathToPackage => assetsPathToPackage;
 
         [SerializeField] private RuntimeInputData runtimeInputData;
         public RuntimeInputData RuntimeInputData => runtimeInputData;
 
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;
+
+        [SerializeField] private bool enableMultiplayer;
+        public bool EnableMultiplayer => enableMultiplayer;
+        
+        [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
+        public int MaxPlayers => maxPlayers;
 
         [SerializeField] private InputContext defaultContext;
         public InputContext DefaultContext => defaultContext;

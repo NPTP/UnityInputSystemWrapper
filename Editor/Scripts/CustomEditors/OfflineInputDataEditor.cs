@@ -8,6 +8,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     [CustomEditor(typeof(OfflineInputData))]
     internal class OfflineInputDataEditor : UnityEditor.Editor
     {
+        private SerializedProperty assetsPathToPackage;
         private SerializedProperty enableMultiplayer;
         private SerializedProperty maxPlayers;
         private SerializedProperty runtimeInputData;
@@ -30,6 +31,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void OnEnable()
         {
+            assetsPathToPackage = serializedObject.FindProperty(nameof(assetsPathToPackage));
             enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
             maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
             runtimeInputData = serializedObject.FindProperty(nameof(runtimeInputData));
@@ -53,19 +55,22 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.LabelField("Warning! Multiplayer support is currently incomplete.");
+            EditorGUILayout.PropertyField(assetsPathToPackage);
+            EditorGUILayout.PropertyField(runtimeInputData);
+            EditorGUILayout.PropertyField(actionsTemplateFile);
+            
+            EditorInspectorUtility.DrawHorizontalLine();
+
+            // TODO (multiplayer): Remove these warning labels when MP support is ready.
+            EditorGUILayout.LabelField("Warning! Multiplayer support is currently incomplete.", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
+            EditorGUILayout.LabelField("Enable at your own risk.", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold });
             EditorGUILayout.PropertyField(enableMultiplayer);
             if (enableMultiplayer.boolValue)
             {
                 EditorGUILayout.PropertyField(maxPlayers);
                 maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
             }
-            
-            EditorInspectorUtility.DrawHorizontalLine();
-            
-            EditorGUILayout.PropertyField(runtimeInputData);
-            EditorGUILayout.PropertyField(actionsTemplateFile);
-            
+
             EditorInspectorUtility.DrawHorizontalLine();
 
             EditorGUILayout.Space();
