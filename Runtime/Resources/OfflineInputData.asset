@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35a0587628ac97441850631647acd26b, type: 3}
   m_Name: OfflineInputData
   m_EditorClassIdentifier: 
-  enableMultiplayer: 0
-  maxPlayers: 3
+  assetsPathToPackage: Assets/InputSystemWrapper
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
-  actionReferencesInActionWrappers: 0
+  enableMultiplayer: 0
+  maxPlayers: 3
   defaultContext: 1
   inputContexts:
   - name: AllInputDisabled
