@@ -213,7 +213,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, player.CurrentControlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.ToActionInfo(), player.CurrentControlScheme, out bindingInfos);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference, controlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.ToActionInfo(), controlScheme, out bindingInfos);
         }
         
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -235,7 +235,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference, controlScheme);
+            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference.ToActionInfo(), controlScheme);
         }
 
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -281,6 +281,50 @@ namespace NPTP.InputSystemWrapper
         internal static void BroadcastBindingsChanged()
         {
             OnBindingsChanged?.Invoke();
+        }
+        
+        internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, false), player.CurrentControlScheme, out bindingInfos);
+        }
+
+        internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, true, compositePart), player.CurrentControlScheme, out bindingInfos);
+        }
+        
+        internal static bool TryGetBindingInfo(ActionWrapper actionWrapper, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, false), controlScheme, out bindingInfos);
+        }
+
+        internal static bool TryGetBindingInfo(ActionWrapper actionWrapper, ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, true, compositePart), controlScheme, out bindingInfos);
         }
 
         // TODO (multiplayer): MP method signature which takes a PlayerID

@@ -86,14 +86,14 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, ActionReference actionReference, ControlScheme controlScheme)
+        internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme)
         {
-            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action))
+            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputActionMap _, out InputAction action))
             {
                 return;
             }
             
-            bool compositeCondition(InputBinding binding) => !actionReference.UseCompositePart || actionReference.CompositePart.Matches(binding);
+            bool compositeCondition(InputBinding binding) => !actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding);
             if (RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask(), compositeCondition))
             {
                 Input.BroadcastBindingsChanged();

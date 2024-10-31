@@ -9,18 +9,18 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
 
             // Get the correct action from the player asset based on the action reference wrapper's internal reference.
-            if (!player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action))
+            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputActionMap _, out InputAction action))
             {
                 return false;
             }
             
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(actionReference, action, controlScheme, out List<string> controlPaths))
+            if (!TryGetControlPaths(actionInfo, action, controlScheme, out List<string> controlPaths))
             {
                 return false;
             }
@@ -69,7 +69,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return !bindingDataNull;
         }
         
-        private static bool TryGetControlPaths(ActionReference actionReference, InputAction action, ControlScheme controlScheme, out List<string> controlPaths)
+        private static bool TryGetControlPaths(ActionInfo actionInfo, InputAction action, ControlScheme controlScheme, out List<string> controlPaths)
         {
             List<string> paths = new();
             InputBinding bindingMask = controlScheme.ToBindingMask();
@@ -77,7 +77,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 InputBinding binding = action.bindings[i];
-                if (bindingMask.Matches(binding) && (!actionReference.UseCompositePart || actionReference.CompositePart.Matches(binding)))
+                if (bindingMask.Matches(binding) && (!actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding)))
                 {
                     string effectivePath = binding.effectivePath;
                     paths.Add(effectivePath.Remove(0, effectivePath.IndexOf('>') + 2));

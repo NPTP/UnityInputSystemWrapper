@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
@@ -12,6 +15,26 @@ namespace NPTP.InputSystemWrapper.Actions
         {
             add { onEvent -= value; onEvent += value; }
             remove => onEvent -= value;
+        }
+
+        public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
+        {
+            return Input.TryGetCurrentBindingInfo(this, out bindingInfos);
+        }
+
+        public bool TryGetCurrentBindingInfo(CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            return Input.TryGetCurrentBindingInfo(this, compositePart, out bindingInfos);
+        }
+        
+        public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            return Input.TryGetBindingInfo(this, controlScheme, out bindingInfos);
+        }
+
+        public bool TryGetBindingInfo(ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            return Input.TryGetBindingInfo(this, controlScheme, compositePart, out bindingInfos);
         }
 
         internal ActionWrapper(InputAction inputAction)
