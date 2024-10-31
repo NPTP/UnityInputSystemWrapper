@@ -285,7 +285,7 @@ namespace NPTP.InputSystemWrapper
         
         internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            if (!playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
             {
                 bindingInfos = default;
                 return false;
