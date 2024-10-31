@@ -17,12 +17,12 @@ namespace NPTP.InputSystemWrapper
     internal sealed class InputPlayerCollection
     {
         private readonly InputPlayer[] players;
-        public IEnumerable<InputPlayer> Players => players;
+        internal IEnumerable<InputPlayer> Players => players;
         
-        public InputPlayer this[PlayerID id] => players[(int)id];
-        public int Count => players.Length;
+        internal InputPlayer this[PlayerID id] => players[(int)id];
+        internal int Count => players.Length;
         
-        public InputPlayerCollection(InputActionAsset asset, int size)
+        internal InputPlayerCollection(InputActionAsset asset, int size)
         {
             Transform parent = CreateInputParentInScene();
             bool isMultiplayer = size > 1;
@@ -54,7 +54,7 @@ namespace NPTP.InputSystemWrapper
             return parent;
         }
         
-        public void TerminateAll()
+        internal void TerminateAll()
         {
             players.ForEach(p =>
             {
@@ -84,7 +84,7 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        public bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
+        internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -97,7 +97,7 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
         
-        public bool AnyPlayerDisabled()
+        internal bool AnyPlayerDisabled()
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -108,7 +108,7 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
         
-        public bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
+        internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -122,8 +122,24 @@ namespace NPTP.InputSystemWrapper
             player = null;
             return false;
         }
+
+        internal bool TryGetPlayerAssociatedWithAsset(InputActionAsset asset, out InputPlayer playerAssociatedWithAsset)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                InputPlayer player = players[i];
+                if (player.Asset == asset)
+                {
+                    playerAssociatedWithAsset = player;
+                    return true;
+                }
+            }
+
+            playerAssociatedWithAsset = null;
+            return false;
+        }
         
-        public bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer disabledPlayer)
+        internal bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer disabledPlayer)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -142,7 +158,7 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
 
-        public void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
+        internal void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -155,7 +171,7 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        public void EnableContextForAll(InputContext inputContext)
+        internal void EnableContextForAll(InputContext inputContext)
         {
             players.ForEach(p => p.InputContext = inputContext);
         }
