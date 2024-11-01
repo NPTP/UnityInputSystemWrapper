@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
@@ -57,17 +56,7 @@ namespace NPTP.InputSystemWrapper.Actions
             InputAction.canceled -= HandleActionEvent;
         }
 
-        private void HandleActionEvent(InputAction.CallbackContext context)
-        {
-#if UNITY_EDITOR
-            if (Input.editorDebugActive)
-            {
-                NPTPDebug.Log($"Event about to trigger for {InputAction.actionMap.name}.{InputAction.name}");
-            }
-#endif
-            
-            onEvent?.Invoke(context);
-        }
+        private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);
 
         public static implicit operator ActionWrapper(ActionReference actionReference)
         {

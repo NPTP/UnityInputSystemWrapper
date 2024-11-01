@@ -26,10 +26,6 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     public static class Input
     {
-#if UNITY_EDITOR
-        public static bool editorDebugActive = false;
-#endif
-        
         #region Fields & Properties
         
         // MARKER.RuntimeInputDataPath.Start
