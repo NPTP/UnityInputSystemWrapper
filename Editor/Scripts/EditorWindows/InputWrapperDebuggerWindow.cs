@@ -1,4 +1,4 @@
-using System.Drawing;
+using NPTP.InputSystemWrapper.Data;
 using UnityEditor;
 using UnityEngine;
 using FontStyle = UnityEngine.FontStyle;
@@ -8,7 +8,17 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 	public class InputWrapperDebuggerWindow : EditorWindow
 	{
 		private const string EMPTY = "";
-		
+
+		private OfflineInputData offlineInputData;
+		private OfflineInputData OfflineInputData
+		{
+			get
+			{
+				if (offlineInputData == null) offlineInputData = Helper.OfflineInputData;
+				return offlineInputData;
+			}
+		}
+
 		// Updates the window when in play mode, so it shows up-to-date runtime debug info.
 		public void OnInspectorUpdate()
 		{
@@ -32,7 +42,32 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 			GUILayout.BeginVertical();
 			ShowDebugInfoField("Current Control Scheme", Input.CurrentControlScheme.ToString());
 			ShowDebugInfoField("Current Context", Input.Context.ToString());
+			ShowActiveMaps();
 			GUILayout.EndVertical();
+		}
+
+		private void ShowActiveMaps()
+		{
+			ShowDebugInfoField("Active Maps");
+			EditorGUI.indentLevel++;
+			EditorGUILayout.BeginVertical();
+			foreach (InputContextInfo inputContextInfo in OfflineInputData.InputContexts)
+			{
+				if (inputContextInfo.Name.AsEnumMember() != Input.Context.ToString())
+				{
+					continue;
+				}
+
+				foreach (string activeMap in inputContextInfo.ActiveMaps)
+				{
+					EditorGUILayout.LabelField(activeMap);
+				}
+
+				break;
+			}
+
+			EditorGUILayout.EndVertical();
+			EditorGUI.indentLevel--;
 		}
 
 		private static void ShowDebugInfoField(string boldLabel, string info = EMPTY)
