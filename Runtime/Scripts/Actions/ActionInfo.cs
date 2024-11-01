@@ -16,7 +16,7 @@ namespace NPTP.InputSystemWrapper.Actions
             CompositePart = compositePart;
         }
         
-        public ActionInfo(InputAction inputAction, bool useCompositePart) : this()
+        internal ActionInfo(InputAction inputAction, bool useCompositePart) : this()
         {
             InputAction = inputAction;
             UseCompositePart = useCompositePart;
