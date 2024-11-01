@@ -81,7 +81,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                Debug.Log($"The file could not be read: {e.Message}");
+                NPTPDebug.Log($"The file could not be read: {e.Message}");
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                Debug.Log($"The file could not be read: {e.Message}");
+                NPTPDebug.Log($"The file could not be read: {e.Message}");
                 return;
             }
 

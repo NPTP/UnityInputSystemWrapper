@@ -92,11 +92,11 @@ namespace NPTP.InputSystemWrapper.Editor
                     }
                 }
 
-                Debug.Log($"{filePath} written successfully!");
+                NPTPDebug.Log($"{filePath} written successfully!");
             }
             catch (Exception e)
             {
-                Debug.Log($"File could not be written: {e.Message}");
+                NPTPDebug.Log($"File could not be written: {e.Message}");
             }
         }
 
@@ -173,7 +173,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                Debug.LogError($"The file could not be read: {e.Message}");
+                NPTPDebug.LogError($"The file could not be read: {e.Message}");
             }
 
             return string.Empty;

@@ -26,6 +26,10 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     public static class Input
     {
+#if UNITY_EDITOR
+        public static bool editorDebugActive = false;
+#endif
+        
         #region Fields & Properties
         
         // MARKER.RuntimeInputDataPath.Start
@@ -76,11 +80,11 @@ namespace NPTP.InputSystemWrapper
         private static InputPlayer Player1 => GetPlayer(PlayerID.Player1);
         private static bool AllowPlayerJoining => false;
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
-        
+
         // MARKER.DefaultContextProperty.Start
         private static InputContext DefaultContext => InputContext.Player;
         // MARKER.DefaultContextProperty.End
-
+        
         private static HashSet<Action<InputControl>> anyButtonPressListeners;
         private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
@@ -146,7 +150,9 @@ namespace NPTP.InputSystemWrapper
         #region Public Interface
         
         /// <summary>
-        /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient
+        /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient.
+        /// Use like:
+        /// yield return new Input.WaitForAnyButtonPress();
         /// </summary>
         public class WaitForAnyButtonPress : CustomYieldInstruction
         {
@@ -195,7 +201,7 @@ namespace NPTP.InputSystemWrapper
             }
             else
             {
-                Debug.LogError("Rebinding failed: Action or binding index could not be found.");
+                NPTPDebug.LogError("Rebinding failed: Action or binding index could not be found.");
                 rebindingOperation?.Dispose();
                 rebindingOperation = null;
                 callback?.Invoke();

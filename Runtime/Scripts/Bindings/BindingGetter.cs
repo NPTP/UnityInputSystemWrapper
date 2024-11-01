@@ -64,7 +64,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             bindingData = runtimeInputData.GetControlSchemeBindingData(controlScheme);
             bool bindingDataNull = bindingData == null;
             if (bindingDataNull)
-                Debug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
+                NPTPDebug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
             
             return !bindingDataNull;
         }
