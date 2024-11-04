@@ -63,6 +63,7 @@ namespace NPTP.InputSystemWrapper
 
         public static PlayerActions Player => Player1.Player;
         public static UIActions UI => Player1.UI;
+        public static XXXActions XXX => Player1.XXX;
 
         public static InputContext Context
         {
@@ -80,7 +81,8 @@ namespace NPTP.InputSystemWrapper
         // MARKER.DefaultContextProperty.Start
         private static InputContext DefaultContext => InputContext.Player;
         // MARKER.DefaultContextProperty.End
-        
+
+        private static bool initialized;
         private static HashSet<Action<InputControl>> anyButtonPressListeners;
         private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
@@ -91,9 +93,20 @@ namespace NPTP.InputSystemWrapper
 
         #region Setup
 
+        // MARKER.InitializeBeforeSceneLoad.Start
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void InitializeBeforeSceneLoad()
+        private static void InitializeBeforeSceneLoad() => Initialize();
+        // MARKER.InitializeBeforeSceneLoad.End
+
+        // MARKER.Initialize.Start
+        private static void Initialize()
+        // MARKER.Initialize.End
         {
+            if (initialized)
+            {
+                return;
+            }
+
             // Allows input system to work even when domain reload is disabled in editor.
             if (RuntimeSafeEditorUtility.IsDomainReloadDisabled())
                 ReflectionUtility.ResetStaticClassMembersToDefault(typeof(Input));
@@ -109,13 +122,15 @@ namespace NPTP.InputSystemWrapper
             // TODO (optimization): Could make startup slow. It should probably just be a requirement of using this package that you clear your old input modules & event systems out.
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
-            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
-            LoadBindingsForAllPlayers();
-            EnableContextForAllPlayers(DefaultContext);
-
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
+            
+            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
+            LoadBindingsForAllPlayers();
+            EnableContextForAllPlayers(DefaultContext);
+            
+            initialized = true;
         }
 
         private static void SetUpTerminationConditions()

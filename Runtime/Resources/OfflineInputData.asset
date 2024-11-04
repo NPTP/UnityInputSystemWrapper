@@ -15,6 +15,7 @@ MonoBehaviour:
   assetsPathToPackage: Assets/InputSystemWrapper
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
+  initializationMode: 0
   enableMultiplayer: 0
   maxPlayers: 3
   defaultContext: 1
@@ -24,7 +25,7 @@ MonoBehaviour:
     enableKeyboardTextInput: 0
   - name: Player
     activeMaps:
-    - Player
+    - XXX
     enableKeyboardTextInput: 0
   - name: UI
     activeMaps:

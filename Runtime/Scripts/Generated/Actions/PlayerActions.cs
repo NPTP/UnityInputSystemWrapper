@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         
         public ValueActionWrapper<Vector2> Move { get; }
         public ValueActionWrapper<Vector2> Look { get; }
-        public ButtonActionWrapper Fire { get; }
+        public ActionWrapper Fire { get; }
         
         private bool enabled;
         

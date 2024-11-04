@@ -1,5 +1,6 @@
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,9 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;
+        
+        [SerializeField] private InitializationMode initializationMode;
+        public InitializationMode InitializationMode => initializationMode;
 
         [SerializeField] private bool enableMultiplayer;
         public bool EnableMultiplayer => enableMultiplayer;
@@ -42,6 +46,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private string[] bindingCancelPaths;
         public string[] BindingCancelPaths => bindingCancelPaths;
         
+        // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
         [Header("Event System Actions")]
         [SerializeField] private InputActionReference point;
         [SerializeField] private InputActionReference leftClick;

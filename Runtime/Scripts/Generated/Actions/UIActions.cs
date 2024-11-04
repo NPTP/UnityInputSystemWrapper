@@ -14,13 +14,13 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         internal InputActionMap ActionMap { get; }
         
         public ValueActionWrapper<Vector2> Navigate { get; }
-        public ButtonActionWrapper Submit { get; }
-        public ButtonActionWrapper Cancel { get; }
+        public ActionWrapper Submit { get; }
+        public ActionWrapper Cancel { get; }
         public ValueActionWrapper<Vector2> Point { get; }
-        public ValueActionWrapper<Button> Click { get; }
+        public ValueActionWrapper<float> Click { get; }
         public ValueActionWrapper<Vector2> ScrollWheel { get; }
-        public ValueActionWrapper<Button> MiddleClick { get; }
-        public ValueActionWrapper<Button> RightClick { get; }
+        public ValueActionWrapper<float> MiddleClick { get; }
+        public ValueActionWrapper<float> RightClick { get; }
         public ValueActionWrapper<Vector3> TrackedDevicePosition { get; }
         public ValueActionWrapper<Quaternion> TrackedDeviceOrientation { get; }
         

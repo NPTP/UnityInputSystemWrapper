@@ -22,7 +22,7 @@ namespace NPTP.InputSystemWrapper.Generated
         internal InputActionMap ActionMap { get; }
         
         // MARKER.ActionWrapperPublicProperties.Start
-        public ButtonActionWrapper TemplateAction1 { get; }
+        public ActionWrapper TemplateAction1 { get; }
         public ValueActionWrapper<Vector2> TemplateAction2 { get; }
         // MARKER.ActionWrapperPublicProperties.End
         

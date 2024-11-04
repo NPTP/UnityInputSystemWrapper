@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
 {
-    public abstract class ActionWrapper
+    public class ActionWrapper
     {
         internal InputAction InputAction { get; }
         
@@ -16,6 +16,9 @@ namespace NPTP.InputSystemWrapper.Actions
             add { onEvent -= value; onEvent += value; }
             remove => onEvent -= value;
         }
+        
+        public bool DownThisFrame => InputAction.WasPerformedThisFrame();
+        public bool IsDown => InputAction.phase == InputActionPhase.Performed;
 
         public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
         {

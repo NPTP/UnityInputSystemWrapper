@@ -31,14 +31,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     {
                         if (action.type is InputActionType.Button)
                         {
-                            lines.Add($"        public {nameof(ButtonActionWrapper)} {action.name.AsProperty()} " + "{ get; }");
+                            lines.Add($"        public {nameof(ActionWrapper)} {action.name.AsProperty()} " + "{ get; }");
                         }
                         else if (action.type is InputActionType.Value or InputActionType.PassThrough)
                         {
                             string expectedControlType = action.expectedControlType;
-                            string type;
                             // Null/empty string means the "Any" control type.
-                            type = string.IsNullOrEmpty(expectedControlType)
+                            string type = string.IsNullOrEmpty(expectedControlType)
                                 ? nameof(AnyValueActionWrapper)
                                 : $"{nameof(ValueActionWrapper)}<{controlTypeToTypeString(expectedControlType)}>";
                             lines.Add($"        public {type} {action.name.AsProperty()} " + "{ get; }");
@@ -74,8 +73,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     "Analog" => "float",
                     "Axis" => "float",
                     "Bone" => "Bone",
+                    "Button" => "float",
                     "Delta" => "Vector2",
                     "Digital" => "int",
+                    "DiscreteButton" => "int",
                     "Double" => "double",
                     "Dpad" => "Vector2",
                     "Eyes" => "Eyes",

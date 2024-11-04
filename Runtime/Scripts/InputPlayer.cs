@@ -74,6 +74,7 @@ namespace NPTP.InputSystemWrapper
         // MARKER.ActionsProperties.Start
         public PlayerActions Player { get; }
         public UIActions UI { get; }
+        public XXXActions XXX { get; }
         // MARKER.ActionsProperties.End
 
         private InputDevice lastUsedDevice;
@@ -107,6 +108,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.ActionsInstantiation.Start
             Player = new PlayerActions(Asset);
             UI = new UIActions(Asset);
+            XXX = new XXXActions(Asset);
             // MARKER.ActionsInstantiation.End
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
@@ -313,6 +315,27 @@ namespace NPTP.InputSystemWrapper
                 if (action == UI.TrackedDevicePosition.InputAction) return UI.TrackedDevicePosition;
                 if (action == UI.TrackedDeviceOrientation.InputAction) return UI.TrackedDeviceOrientation;
             }
+            else if (XXX.ActionMap == map)
+            {
+                if (action == XXX.Any.InputAction) return XXX.Any;
+                if (action == XXX.Analog.InputAction) return XXX.Analog;
+                if (action == XXX.Axis.InputAction) return XXX.Axis;
+                if (action == XXX.Bone.InputAction) return XXX.Bone;
+                if (action == XXX.Delta.InputAction) return XXX.Delta;
+                if (action == XXX.Digital.InputAction) return XXX.Digital;
+                if (action == XXX.Double.InputAction) return XXX.Double;
+                if (action == XXX.Dpad.InputAction) return XXX.Dpad;
+                if (action == XXX.Eyes.InputAction) return XXX.Eyes;
+                if (action == XXX.Integer.InputAction) return XXX.Integer;
+                if (action == XXX.Pose.InputAction) return XXX.Pose;
+                if (action == XXX.Quaternion.InputAction) return XXX.Quaternion;
+                if (action == XXX.Stick.InputAction) return XXX.Stick;
+                if (action == XXX.Touch.InputAction) return XXX.Touch;
+                if (action == XXX.Vector2.InputAction) return XXX.Vector2;
+                if (action == XXX.Vector3.InputAction) return XXX.Vector3;
+                if (action == XXX.Button.InputAction) return XXX.Button;
+                if (action == XXX.DiscreteButton.InputAction) return XXX.DiscreteButton;
+            }
             // MARKER.FindActionWrapperIfElse.End
 
             return null;
@@ -363,6 +386,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.Start
             Player.DisableAndUnregisterCallbacks();
             UI.DisableAndUnregisterCallbacks();
+            XXX.DisableAndUnregisterCallbacks();
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
         }
         
@@ -404,16 +428,19 @@ namespace NPTP.InputSystemWrapper
                     DisableKeyboardTextInput();
                     Player.DisableAndUnregisterCallbacks();
                     UI.DisableAndUnregisterCallbacks();
+                    XXX.DisableAndUnregisterCallbacks();
                     break;
                 case InputContext.Player:
                     DisableKeyboardTextInput();
-                    Player.EnableAndRegisterCallbacks();
+                    Player.DisableAndUnregisterCallbacks();
                     UI.DisableAndUnregisterCallbacks();
+                    XXX.EnableAndRegisterCallbacks();
                     break;
                 case InputContext.UI:
                     EnableKeyboardTextInput();
                     Player.DisableAndUnregisterCallbacks();
                     UI.EnableAndRegisterCallbacks();
+                    XXX.DisableAndUnregisterCallbacks();
                     break;
                 // MARKER.EnableContextSwitchMembers.End
                 default:
