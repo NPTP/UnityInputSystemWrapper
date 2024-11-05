@@ -32,22 +32,22 @@ namespace NPTP.InputSystemWrapper.Actions
         }
 
         /// <summary>
-        /// Convert an InputActionReference to this type ActionReference.
-        /// </summary>
-        public static implicit operator ActionReference(InputActionReference inputActionReference)
-        {
-            return new ActionReference(inputActionReference.action);
-        }
-        
-        /// <summary>
-        /// Convert an InputAction to an ActionReference.
+        /// Convert InputAction -> ActionReference.
         /// </summary>
         public static implicit operator ActionReference(InputAction inputAction)
         {
             return new ActionReference(inputAction);
         }
-        
-        internal ActionReference(InputAction action)
+
+        /// <summary>
+        /// Convert ActionWrapper -> ActionReference.
+        /// </summary>
+        public static implicit operator ActionReference(ActionWrapper actionWrapper)
+        {
+            return new ActionReference(actionWrapper.InputAction);
+        }
+
+        private ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);
         }

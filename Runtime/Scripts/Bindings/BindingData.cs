@@ -15,9 +15,10 @@ namespace NPTP.InputSystemWrapper.Bindings
         public bool TryGetBindingInfo(string controlPath, out BindingInfo bindingInfo) => bindingDataDictionary.TryGetValue(controlPath, out bindingInfo);
         
 #if UNITY_EDITOR
-        public void EDITOR_AddMouseBindings() => EDITOR_AddBindings(BindingPathHelper.MouseControls);
-        public void EDITOR_AddKeyboardBindings() => EDITOR_AddBindings(BindingPathHelper.KeyboardControls);
-        public void EDITOR_AddGamepadBindings() => EDITOR_AddBindings(BindingPathHelper.GamepadControls);
+        public void EDITOR_AddMouseBindings() => EDITOR_AddBindings(BindingPathHelper.MouseControlPaths);
+        public void EDITOR_AddKeyboardBindings() => EDITOR_AddBindings(BindingPathHelper.KeyboardControlPaths);
+        public void EDITOR_AddGamepadBindings() => EDITOR_AddBindings(BindingPathHelper.GamepadControlPaths);
+        public void EDITOR_AddJoystickBindings() => EDITOR_AddBindings(BindingPathHelper.JoystickControlPaths);
         
         private void EDITOR_AddBindings(string[] bindingNames)
         {

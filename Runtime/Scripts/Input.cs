@@ -122,13 +122,13 @@ namespace NPTP.InputSystemWrapper
             // TODO (optimization): Could make startup slow. It should probably just be a requirement of using this package that you clear your old input modules & event systems out.
             ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
-            anyButtonPressListeners = new HashSet<Action<InputControl>>();
-            ++InputUser.listenForUnpairedDeviceActivity;
-            InputUser.onChange += HandleInputUserChange;
-            
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
             LoadBindingsForAllPlayers();
             EnableContextForAllPlayers(DefaultContext);
+            
+            anyButtonPressListeners = new HashSet<Action<InputControl>>();
+            ++InputUser.listenForUnpairedDeviceActivity;
+            InputUser.onChange += HandleInputUserChange;
             
             initialized = true;
         }

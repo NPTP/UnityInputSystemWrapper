@@ -94,7 +94,6 @@ namespace NPTP.InputSystemWrapper
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
-        private ControlScheme previousControlScheme;
         
         #endregion
         
@@ -166,8 +165,9 @@ namespace NPTP.InputSystemWrapper
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-            
-            InputContext = inputContext;
+                        // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
+
+            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
         private void SetEventSystemActions()
@@ -264,9 +264,9 @@ namespace NPTP.InputSystemWrapper
             }
 
             UpdateLastUsedDevice(inputDevice);
-            ControlScheme previous = CurrentControlScheme;
+            ControlScheme previousControlScheme = CurrentControlScheme;
             CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-            if (previous != CurrentControlScheme)
+            if (previousControlScheme != CurrentControlScheme)
             {
                 OnControlSchemeChanged?.Invoke(CurrentControlScheme);
             }
@@ -277,8 +277,15 @@ namespace NPTP.InputSystemWrapper
         internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputActionMap map, out InputAction action)
         {
             action = null;
+            map = null;
+
+            if (actionFromReference == null)
+                return false;
+
             map = Asset.FindActionMap(actionFromReference.actionMap.name);
-            if (map == null) return false;
+            if (map == null)
+                return false;
+            
             action = map.FindAction(actionFromReference.name);
             return action != null;
         }

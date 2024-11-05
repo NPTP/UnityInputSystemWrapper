@@ -2,7 +2,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingPathHelper
     {
-        internal static string[] MouseControls => new[]
+        internal static string[] MouseControlPaths => new[]
         {
             "leftButton",
             "rightButton",
@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             "position/y"
         };
         
-        internal static string[] KeyboardControls => new []
+        internal static string[] KeyboardControlPaths => new []
         {
             "anyKey",
             "escape",
@@ -130,7 +130,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             "f12",
         };
 
-        internal static string[] GamepadControls => new[]
+        internal static string[] GamepadControlPaths => new[]
         {
             "start",
             "select",
@@ -165,6 +165,38 @@ namespace NPTP.InputSystemWrapper.Bindings
             "dpad/down",
             "dpad/left",
             "dpad/right"
+        };
+
+        internal static string[] JoystickControlPaths => new[]
+        {
+            "stick",
+            "stick/up",
+            "stick/x",
+            "stick/y",
+            "stick/down",
+            "stick/left",
+            "stick/right",
+            "button2",
+            "button3",
+            "button4",
+            "button5",
+            "button6",
+            "button7",
+            "button8",
+            "button9",
+            "button10",
+            "button11",
+            "button12",
+            "trigger",
+            "rz",
+            "z",
+            "hat",
+            "hat/x",
+            "hat/y",
+            "hat/up",
+            "hat/down",
+            "hat/left",
+            "hat/right",
         };
     }
 }

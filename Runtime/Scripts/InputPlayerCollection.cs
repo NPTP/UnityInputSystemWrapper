@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
@@ -139,7 +138,7 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
         
-        internal bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer disabledPlayer)
+        internal bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer pairedPlayer)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -150,11 +149,11 @@ namespace NPTP.InputSystemWrapper
                 }
                 
                 player.PairDevice(device);
-                disabledPlayer = player;
+                pairedPlayer = player;
                 return true;
             }
 
-            disabledPlayer = null;
+            pairedPlayer = null;
             return false;
         }
 
