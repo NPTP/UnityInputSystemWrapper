@@ -19,6 +19,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
         
+        private SerializedProperty moveRepeatDelay;
+        private SerializedProperty moveRepeatRate;
+        private SerializedProperty deselectOnBackgroundClick;
+        private SerializedProperty pointerBehavior;
+        private SerializedProperty cursorLockBehavior;
+        
         private SerializedProperty point;
         private SerializedProperty leftClick;
         private SerializedProperty middleClick;
@@ -43,6 +49,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
             bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
             
+            moveRepeatDelay = serializedObject.FindProperty(nameof(moveRepeatDelay));
+            moveRepeatRate = serializedObject.FindProperty(nameof(moveRepeatRate));
+            deselectOnBackgroundClick = serializedObject.FindProperty(nameof(deselectOnBackgroundClick));
+            pointerBehavior = serializedObject.FindProperty(nameof(pointerBehavior));
+            cursorLockBehavior = serializedObject.FindProperty(nameof(cursorLockBehavior));
+            
             point = serializedObject.FindProperty(nameof(point));
             leftClick = serializedObject.FindProperty(nameof(leftClick));
             middleClick = serializedObject.FindProperty(nameof(middleClick));
@@ -65,8 +77,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
 
             // TODO (multiplayer): Remove these warning labels when MP support is ready.
-            EditorGUILayout.LabelField("Warning! Multiplayer support is currently incomplete.", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
-            EditorGUILayout.LabelField("Enable at your own risk.", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold });
+            EditorGUILayout.LabelField("Warning! Multiplayer support is currently incomplete. Enable at your own risk.",
+                new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic, fontSize = 12 });
             EditorGUILayout.PropertyField(enableMultiplayer);
             if (enableMultiplayer.boolValue)
             {
@@ -89,6 +101,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(bindingCancelPaths);
 
             EditorInspectorUtility.DrawHorizontalLine();
+            
+            EditorGUILayout.PropertyField(moveRepeatDelay);
+            EditorGUILayout.PropertyField(moveRepeatRate);
+            EditorGUILayout.PropertyField(deselectOnBackgroundClick);
+            EditorGUILayout.PropertyField(pointerBehavior);
+            EditorGUILayout.PropertyField(cursorLockBehavior);
             
             EditorGUILayout.PropertyField(point);
             EditorGUILayout.PropertyField(leftClick);

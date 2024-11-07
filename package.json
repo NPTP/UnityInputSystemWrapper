@@ -1,7 +1,7 @@
 {
     "name": "com.nptp.unity-input-system-wrapper",
     "displayName": "Input System Wrapper",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "unity": "2021.3",
     "description": "Make Input easier to use! Must import directly into assets for code generation to work properly.",
     "homepage": "https://github.com/NPTP/UnityInputSystemWrapper",

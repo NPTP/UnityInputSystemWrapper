@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
@@ -15,11 +16,13 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal sealed class InputPlayerCollection
     {
-        private readonly InputPlayer[] players;
         internal IEnumerable<InputPlayer> Players => players;
-        
         internal InputPlayer this[PlayerID id] => players[(int)id];
         internal int Count => players.Length;
+        
+        private readonly InputPlayer[] players;
+        
+        #region Internal
         
         internal InputPlayerCollection(InputActionAsset asset, int size)
         {
@@ -42,45 +45,22 @@ namespace NPTP.InputSystemWrapper
                 InputPlayer player = players[i];
                 player.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
                 player.Enabled = player.ID == PlayerID.Player1;
+#if UNITY_EDITOR
+                player.EDITOR_OnInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
+#endif
             }
-        }
-
-        private Transform CreateInputParentInScene()
-        {
-            GameObject inputParentGameObject = new() { name = "InputPlayers", transform = { position = Vector3.zero } };
-            UnityEngine.Object.DontDestroyOnLoad(inputParentGameObject);
-            Transform parent = inputParentGameObject.transform;
-            return parent;
         }
         
         internal void TerminateAll()
         {
             players.ForEach(p =>
             {
+#if UNITY_EDITOR
+                p.EDITOR_OnInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
+#endif
                 p.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
                 p.Terminate();
             });
-        }
-
-        private void HandlePlayerEnabledOrDisabled(InputPlayer enabledOrDisabledPlayer)
-        {
-            // If the player is disabled, unpair all their devices to make them available to other players.
-            if (!enabledOrDisabledPlayer.Enabled)
-            {
-                enabledOrDisabledPlayer.UnpairDevices();
-            }
-            
-            int enabledPlayersCount = players.Count(player => player.Enabled);
-            if (enabledPlayersCount > 1)
-            {
-                players.ForEach(p => p.EnableAutoSwitching(false));
-            }
-            else if (enabledPlayersCount == 1)
-            {
-                // If there's only one player active, let them switch between all available devices.
-                InputPlayer soleEnabledPlayer = players.First(player => player.Enabled);
-                soleEnabledPlayer.EnableAutoSwitching(true);
-            }
         }
 
         internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
@@ -174,5 +154,51 @@ namespace NPTP.InputSystemWrapper
         {
             players.ForEach(p => p.InputContext = inputContext);
         }
+        
+        #endregion
+
+        #region Private
+
+        private Transform CreateInputParentInScene()
+        {
+            GameObject inputParentGameObject = new() { name = "InputPlayers", transform = { position = Vector3.zero } };
+            UnityEngine.Object.DontDestroyOnLoad(inputParentGameObject);
+            Transform parent = inputParentGameObject.transform;
+            return parent;
+        }
+
+        private void HandlePlayerEnabledOrDisabled(InputPlayer enabledOrDisabledPlayer)
+        {
+            // If the player is disabled, unpair all their devices to make them available to other players.
+            if (!enabledOrDisabledPlayer.Enabled)
+            {
+                enabledOrDisabledPlayer.UnpairDevices();
+            }
+            
+            int enabledPlayersCount = players.Count(player => player.Enabled);
+            if (enabledPlayersCount > 1)
+            {
+                players.ForEach(p => p.EnableAutoSwitching(false));
+            }
+            else if (enabledPlayersCount == 1)
+            {
+                // If there's only one player active, let them switch between all available devices.
+                InputPlayer soleEnabledPlayer = players.First(player => player.Enabled);
+                soleEnabledPlayer.EnableAutoSwitching(true);
+            }
+        }
+        
+        #endregion
+        
+        #region Editor-Only Debug
+#if UNITY_EDITOR
+        public event Action<InputPlayer> EDITOR_OnPlayerInputContextChanged;
+
+        private void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
+        {
+            EDITOR_OnPlayerInputContextChanged?.Invoke(inputPlayer);
+        }
+#endif
+        #endregion
     }
 }

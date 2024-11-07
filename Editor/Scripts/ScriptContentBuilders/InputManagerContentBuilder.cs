@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
@@ -66,18 +65,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "DefaultContextProperty":
                     lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
                     break;
-                case "InitializeBeforeSceneLoad":
-                    if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
-                    {
-                        lines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
-                        lines.Add("        private static void InitializeBeforeSceneLoad() => Initialize();");
-                    }
-                    break;
                 case "Initialize":
-                    string initializeAccessor = offlineInputData.InitializationMode == InitializationMode.Manual
-                        ? "public"
-                        : "private";
-                    lines.Add($"        {initializeAccessor} static void Initialize()");
+                    if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
+                        lines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
+                    lines.Add($"        {(offlineInputData.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
                     break;
                 case "StartInteractiveRebind": 
                     string rebindMethodHeader = offlineInputData.EnableMultiplayer

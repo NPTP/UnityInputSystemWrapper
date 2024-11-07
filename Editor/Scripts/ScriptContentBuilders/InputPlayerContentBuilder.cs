@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
@@ -30,27 +31,26 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     foreach (string map in Helper.GetMapNames(asset))
                         lines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset);");
                     break;
+                case "EventSystemOptions":
+                    OfflineInputData offlineData = Helper.OfflineInputData;
+                    lines.Add($"            uiInputModule.moveRepeatDelay = {offlineData.MoveRepeatDelay}f;");
+                    lines.Add($"            uiInputModule.moveRepeatRate = {offlineData.MoveRepeatRate}f;");
+                    lines.Add($"            uiInputModule.deselectOnBackgroundClick = {offlineData.DeselectOnBackgroundClick.ToString().ToLower()};");
+                    lines.Add($"            uiInputModule.pointerBehavior = UIPointerBehavior.{offlineData.PointerBehavior};");
+                    lines.Add($"            uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.{offlineData.CursorLockBehavior};");
+                    break;
                 case "EventSystemActions":
                     OfflineInputData oid = Helper.OfflineInputData;
-                    addActionReference(oid.Point, nameof(oid.Point).AsField());
-                    addActionReference(oid.LeftClick, nameof(oid.LeftClick).AsField());
-                    addActionReference(oid.MiddleClick, nameof(oid.MiddleClick).AsField());
-                    addActionReference(oid.RightClick, nameof(oid.RightClick).AsField());
-                    addActionReference(oid.ScrollWheel, nameof(oid.ScrollWheel).AsField());
-                    addActionReference(oid.Move, nameof(oid.Move).AsField());
-                    addActionReference(oid.Submit, nameof(oid.Submit).AsField());
-                    addActionReference(oid.Cancel, nameof(oid.Cancel).AsField());
-                    addActionReference(oid.TrackedDevicePosition, nameof(oid.TrackedDevicePosition).AsField());
-                    addActionReference(oid.TrackedDeviceOrientation, nameof(oid.TrackedDeviceOrientation).AsField());
-                    
-                    void addActionReference(InputActionReference inputActionReference, string inputModulePropertyName)
-                    {
-                        if (inputActionReference == null)
-                            return;
-                        
-                        lines.Add($"            uiInputModule.{inputModulePropertyName} = createLocalAssetReference(\"{inputActionReference.action.id}\");");
-                    }
-                    
+                    AddEventSystemActionReference(oid.Point, nameof(oid.Point).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.LeftClick, nameof(oid.LeftClick).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.MiddleClick, nameof(oid.MiddleClick).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.RightClick, nameof(oid.RightClick).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.ScrollWheel, nameof(oid.ScrollWheel).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.Move, nameof(oid.Move).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.Submit, nameof(oid.Submit).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.Cancel, nameof(oid.Cancel).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.TrackedDevicePosition, nameof(oid.TrackedDevicePosition).AsField(), 3, lines);
+                    AddEventSystemActionReference(oid.TrackedDeviceOrientation, nameof(oid.TrackedDeviceOrientation).AsField(), 3, lines);
                     break;
                 case "DisableAllMapsAndRemoveCallbacksBody":
                     foreach (string map in Helper.GetMapNames(asset))
@@ -67,6 +67,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                             bool enable = contextInfo.ActiveMaps.Any(activeMapName => map == activeMapName);
                             lines.Add($"                    {map.AsProperty()}.{(enable ? "EnableAndRegisterCallbacks" : "DisableAndUnregisterCallbacks")}();");
                         }
+
+                        foreach (EventSystemActionSpecification spec in contextInfo.EventSystemActionOverrides)
+                        {
+                            string inputModuleActionField = spec.ActionType.ToString().AsField();
+                            AddEventSystemActionReference(spec.ActionReference, inputModuleActionField, 5, lines);
+                        }
+                        
                         lines.Add($"                    break;");
                     }
                     break;
@@ -88,6 +95,17 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     break;
             }
+        }
+
+        private static void AddEventSystemActionReference(InputActionReference inputActionReference, string inputModulePropertyName, int tabs, List<string> lines)
+        {
+            if (inputActionReference == null)
+                return;
+
+            StringBuilder line = new StringBuilder();
+            for (int i = 0; i < tabs; i++) line.Append("    ");
+            line.Append($"uiInputModule.{inputModulePropertyName} = CreateInputActionReferenceToPlayerAsset(\"{inputActionReference.action.id}\");");
+            lines.Add(line.ToString());
         }
     }
 }

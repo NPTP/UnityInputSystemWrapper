@@ -3,6 +3,7 @@ using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 namespace NPTP.InputSystemWrapper.Data
 {
@@ -24,8 +25,8 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;
-        
-        [SerializeField] private InitializationMode initializationMode;
+
+        [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         public InitializationMode InitializationMode => initializationMode;
 
         [SerializeField] private bool enableMultiplayer;
@@ -40,14 +41,34 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputContextInfo[] inputContexts;
         public InputContextInfo[] InputContexts => inputContexts;
 
+        [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
+                 "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
         [SerializeField] private string[] bindingExcludedPaths;
         public string[] BindingExcludedPaths => bindingExcludedPaths;
 
+        [Tooltip("These control paths will cancel/exit an interact rebinding. " +
+                 "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [SerializeField] private string[] bindingCancelPaths;
         public string[] BindingCancelPaths => bindingCancelPaths;
+
+        [Header("Global Event System Options")]
+        [SerializeField] private float moveRepeatDelay = 0.5f;
+        public float MoveRepeatDelay => moveRepeatDelay;
+
+        [SerializeField] private float moveRepeatRate = 0.1f;
+        public float MoveRepeatRate => moveRepeatRate;
+        
+        [SerializeField] private bool deselectOnBackgroundClick;
+        public bool DeselectOnBackgroundClick => deselectOnBackgroundClick;
+
+        [SerializeField] private UIPointerBehavior pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
+        public UIPointerBehavior PointerBehavior => pointerBehavior;
+        
+        [SerializeField] private InputSystemUIInputModule.CursorLockBehavior cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
+        public InputSystemUIInputModule.CursorLockBehavior CursorLockBehavior => cursorLockBehavior;
         
         // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
-        [Header("Event System Actions")]
+        [Header("Default Event System Actions")]
         [SerializeField] private InputActionReference point;
         [SerializeField] private InputActionReference leftClick;
         [SerializeField] private InputActionReference middleClick;

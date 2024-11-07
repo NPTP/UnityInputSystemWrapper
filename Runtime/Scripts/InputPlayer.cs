@@ -65,6 +65,9 @@ namespace NPTP.InputSystemWrapper
             {
                 inputContext = value;
                 EnableMapsForContext(value);
+#if UNITY_EDITOR
+                EDITOR_OnInputContextChanged?.Invoke(this);
+#endif
             }
         }
 
@@ -112,7 +115,7 @@ namespace NPTP.InputSystemWrapper
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
             
-            SetEventSystemActions();
+            // Input context gets set by top Input class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
         }
         
         internal void Terminate()
@@ -161,38 +164,48 @@ namespace NPTP.InputSystemWrapper
                 
             uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
             uiInputModule.actionsAsset = Asset;
+            SetEventSystemOptions();
             
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-                        // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-
+            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents; 
+            
+            // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
             CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
-        private void SetEventSystemActions()
+        private void SetEventSystemOptions()
+        {
+            // MARKER.EventSystemOptions.Start
+            uiInputModule.moveRepeatDelay = 0.5f;
+            uiInputModule.moveRepeatRate = 0.1f;
+            uiInputModule.deselectOnBackgroundClick = false;
+            uiInputModule.pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
+            uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
+            // MARKER.EventSystemOptions.End
+        }
+
+        private void SetDefaultEventSystemActions()
         {
             // MARKER.EventSystemActions.Start
-            uiInputModule.point = createLocalAssetReference("32b35790-4ed0-4e9a-aa41-69ac6d629449");
-            uiInputModule.leftClick = createLocalAssetReference("3c7022bf-7922-4f7c-a998-c437916075ad");
-            uiInputModule.middleClick = createLocalAssetReference("dad70c86-b58c-4b17-88ad-f5e53adf419e");
-            uiInputModule.rightClick = createLocalAssetReference("44b200b1-1557-4083-816c-b22cbdf77ddf");
-            uiInputModule.scrollWheel = createLocalAssetReference("0489e84a-4833-4c40-bfae-cea84b696689");
-            uiInputModule.move = createLocalAssetReference("c95b2375-e6d9-4b88-9c4c-c5e76515df4b");
-            uiInputModule.submit = createLocalAssetReference("7607c7b6-cd76-4816-beef-bd0341cfe950");
-            uiInputModule.cancel = createLocalAssetReference("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
-            uiInputModule.trackedDevicePosition = createLocalAssetReference("24908448-c609-4bc3-a128-ea258674378a");
-            uiInputModule.trackedDeviceOrientation = createLocalAssetReference("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
+            uiInputModule.point = CreateInputActionReferenceToPlayerAsset("32b35790-4ed0-4e9a-aa41-69ac6d629449");
+            uiInputModule.leftClick = CreateInputActionReferenceToPlayerAsset("3c7022bf-7922-4f7c-a998-c437916075ad");
+            uiInputModule.middleClick = CreateInputActionReferenceToPlayerAsset("dad70c86-b58c-4b17-88ad-f5e53adf419e");
+            uiInputModule.rightClick = CreateInputActionReferenceToPlayerAsset("44b200b1-1557-4083-816c-b22cbdf77ddf");
+            uiInputModule.scrollWheel = CreateInputActionReferenceToPlayerAsset("0489e84a-4833-4c40-bfae-cea84b696689");
+            uiInputModule.move = CreateInputActionReferenceToPlayerAsset("c95b2375-e6d9-4b88-9c4c-c5e76515df4b");
+            uiInputModule.submit = CreateInputActionReferenceToPlayerAsset("7607c7b6-cd76-4816-beef-bd0341cfe950");
+            uiInputModule.cancel = CreateInputActionReferenceToPlayerAsset("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
+            uiInputModule.trackedDevicePosition = CreateInputActionReferenceToPlayerAsset("24908448-c609-4bc3-a128-ea258674378a");
+            uiInputModule.trackedDeviceOrientation = CreateInputActionReferenceToPlayerAsset("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
             // MARKER.EventSystemActions.End
-
-#pragma warning disable CS8321
-            InputActionReference createLocalAssetReference(string actionID)
-#pragma warning restore CS8321
-            {
-                return string.IsNullOrEmpty(actionID)
-                    ? null
-                    : InputActionReference.Create(Asset.FindAction(actionID, throwIfNotFound: false));
-            }
+        }
+        
+        private InputActionReference CreateInputActionReferenceToPlayerAsset(string actionID)
+        {
+            return string.IsNullOrEmpty(actionID)
+                ? null
+                : InputActionReference.Create(Asset.FindAction(actionID, throwIfNotFound: false));
         }
 
         #endregion
@@ -428,6 +441,8 @@ namespace NPTP.InputSystemWrapper
                 return;
             }
             
+            SetDefaultEventSystemActions();
+            
             switch (context)
             {
                 // MARKER.EnableContextSwitchMembers.Start
@@ -453,8 +468,23 @@ namespace NPTP.InputSystemWrapper
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);
             }
+            
+            // TODO (optimization): possibility that the InputActionReference ScriptableObjects (for event system actions)
+            // do not get garbage collected as one might expect, so we do it manually via Resources.UnloadUnusedAssets.
+            // However, this can be overkill if there are lots of other assets to unload, and can cause a performance hitch.
+            // So, we should have a much more controlled management of which InputActionReferences are destroyed, maintained etc. by
+            // keeping track of which ones were overridden and which weren't, and call Destroy on those specific ones so the GC
+            // takes care of them at a better time.
+            
+            Resources.UnloadUnusedAssets();
         }
 
+        #endregion
+        
+        #region Editor-Only Debug
+#if UNITY_EDITOR
+        public event Action<InputPlayer> EDITOR_OnInputContextChanged;
+#endif
         #endregion
     }
 }
