@@ -1,6 +1,10 @@
 # Input System Wrapper
 ## Changelog
 
+1.1.2
+- BindingInfo uses event for hooking binding display names into any localization system via Input.OnLocalizedStringRequested.
+< NOT YET VERSIONED >
+
 1.1.1
 - Input contexts now support event system action overrides.
 - Debugger window expanded to help see top-level view of system at runtime during play.

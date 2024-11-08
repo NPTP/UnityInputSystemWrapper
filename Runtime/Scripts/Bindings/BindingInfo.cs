@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
@@ -11,9 +12,24 @@ namespace NPTP.InputSystemWrapper.Bindings
     [Serializable]
     public class BindingInfo
     {
-        // TODO (localization): This should be a localized string, using whatever localization system is in the project.
-        [SerializeField] private string displayName;
-        public string DisplayName => displayName;
+        [FormerlySerializedAs("displayName")] [SerializeField]
+        private string localizationKey;
+        
+        /// <summary>
+        /// If no localization is hooked into Input.OnLocalizedStringRequested, this
+        /// will simply return the localization key string itself.
+        /// </summary>
+        public string DisplayName
+        {
+            get
+            {
+                LocalizedStringRequest localizedStringRequest = new(localizationKey);
+                Input.BroadcastLocalizedStringRequested(localizedStringRequest);
+                return string.IsNullOrEmpty(localizedStringRequest.localizedString)
+                    ? localizationKey
+                    : localizedStringRequest.localizedString;
+            }
+        }
 
         [SerializeField] private Sprite sprite;
         public Sprite Sprite => sprite;

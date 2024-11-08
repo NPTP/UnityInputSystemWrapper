@@ -97,6 +97,7 @@ namespace NPTP.InputSystemWrapper
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
+        private bool keyboardTextInputEnabled;
         
         #endregion
         
@@ -367,16 +368,26 @@ namespace NPTP.InputSystemWrapper
         
         private void EnableKeyboardTextInput()
         {
+            if (keyboardTextInputEnabled)
+                return;
+            
             GetKeyboards().ForEach(keyboard =>
             {
                 keyboard.onTextInput -= HandleTextInput;
                 keyboard.onTextInput += HandleTextInput;
             });
+
+            keyboardTextInputEnabled = true;
         }
 
         private void DisableKeyboardTextInput()
         {
+            if (!keyboardTextInputEnabled)
+                return;
+            
             GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
+
+            keyboardTextInputEnabled = false;
         }
         
         // TODO (optimization): Currently commented out in this class in a few places, since enabling/disabling PlayerInput,

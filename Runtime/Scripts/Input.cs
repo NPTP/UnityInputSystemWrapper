@@ -31,6 +31,13 @@ namespace NPTP.InputSystemWrapper
         // MARKER.RuntimeInputDataPath.Start
         private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
         // MARKER.RuntimeInputDataPath.End
+        
+        /// <summary>
+        /// For use with any localization system in your project: handle this event by taking the passed request,
+        /// using localizationKey to find the right string in your localization system, and setting localizedDisplayName
+        /// to that string.
+        /// </summary>
+        public static event Action<LocalizedStringRequest> OnLocalizedStringRequested;
 
         // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
         // Can we consolidate these events into a higher-level abstraction? Or separate them by desired events (binding change, control scheme change, etc with more granularity)
@@ -301,6 +308,11 @@ namespace NPTP.InputSystemWrapper
         
         #region Internal Interface
 
+        internal static void BroadcastLocalizedStringRequested(LocalizedStringRequest localizedStringRequest)
+        {
+            OnLocalizedStringRequested?.Invoke(localizedStringRequest);
+        }
+        
         internal static void BroadcastBindingsChanged()
         {
             OnBindingsChanged?.Invoke();
