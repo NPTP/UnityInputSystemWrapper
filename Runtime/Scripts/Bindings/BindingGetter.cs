@@ -40,12 +40,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             return true;
         }
 
-        private static bool TryGetActionInAssetWithMatchingName(InputActionAsset asset, string actionName, out InputAction actionFromAsset)
-        {
-            actionFromAsset = asset.FindAction(actionName);
-            return actionFromAsset != null;
-        }
-
         private static bool TryGetAllBindingInfo(List<string> controlPaths, BindingData bindingData, out List<BindingInfo> bindingInfoList)
         {
             bindingInfoList = new List<BindingInfo>();

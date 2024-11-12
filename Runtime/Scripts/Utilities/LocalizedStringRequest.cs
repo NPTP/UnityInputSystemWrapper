@@ -1,4 +1,4 @@
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Utilities
 {
     public class LocalizedStringRequest
     {

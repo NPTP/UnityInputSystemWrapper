@@ -14,22 +14,17 @@ namespace NPTP.InputSystemWrapper.Actions
     public class ActionReference
     {
         [SerializeField] private InputActionReference reference;
-        [SerializeField] private bool useCompositePart; 
-        [SerializeField] private CompositePart compositePart;
         
+        [SerializeField] private bool useCompositePart; 
         public bool UseCompositePart => useCompositePart;
+        
+        [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
         
         internal InputAction InternalAction => reference.action;
         
-        private ActionWrapper actionWrapper;
-        private ActionWrapper ActionWrapper => actionWrapper ??= Input.GetActionWrapperFromReference(this);
-
-        public event Action<InputAction.CallbackContext> OnEvent
-        {
-            add => ActionWrapper.OnEvent += value;
-            remove => ActionWrapper.OnEvent -= value;
-        }
+        private ActionWrapper action;
+        public ActionWrapper Action => action ??= Input.GetActionWrapperFromReference(this);
 
         /// <summary>
         /// Convert InputAction -> ActionReference.
@@ -37,14 +32,6 @@ namespace NPTP.InputSystemWrapper.Actions
         public static implicit operator ActionReference(InputAction inputAction)
         {
             return new ActionReference(inputAction);
-        }
-
-        /// <summary>
-        /// Convert ActionWrapper -> ActionReference.
-        /// </summary>
-        public static implicit operator ActionReference(ActionWrapper actionWrapper)
-        {
-            return new ActionReference(actionWrapper.InputAction);
         }
 
         private ActionReference(InputAction action)
