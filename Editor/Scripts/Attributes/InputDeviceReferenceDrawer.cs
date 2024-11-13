@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NPTP.InputSystemWrapper.InputDevices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;

@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper.Actions
             remove => onEvent -= value;
         }
         
-        public bool DownThisFrame => InputAction.WasPerformedThisFrame();
+        public bool DownThisFrame => InputAction.WasPerformedThisFrame() && (InputAction.type != InputActionType.PassThrough || !InputAction.WasReleasedThisFrame());
         public bool IsDown => InputAction.phase == InputActionPhase.Performed;
 
         public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)

@@ -12,6 +12,7 @@ using UnityEngine.InputSystem.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
+using NPTP.InputSystemWrapper.InputDevices;
 using NPTP.InputSystemWrapper.Utilities;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
@@ -117,6 +118,7 @@ namespace NPTP.InputSystemWrapper
             }
             
             SetUpTerminationConditions();
+            InputDeviceRegistration.RegisterSupplementaryDevices();
             
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
             if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)

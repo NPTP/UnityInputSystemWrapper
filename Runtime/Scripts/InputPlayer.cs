@@ -98,7 +98,8 @@ namespace NPTP.InputSystemWrapper
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
         private bool keyboardTextInputEnabled;
-        
+        private readonly List<Keyboard> lastPairedKeyboards = new();
+
         #endregion
         
         #region Setup & Teardown
@@ -277,12 +278,22 @@ namespace NPTP.InputSystemWrapper
                 return;
             }
 
-            UpdateLastUsedDevice(inputDevice);
-            ControlScheme previousControlScheme = CurrentControlScheme;
-            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-            if (previousControlScheme != CurrentControlScheme)
+            switch (inputUserChange)
             {
-                OnControlSchemeChanged?.Invoke(CurrentControlScheme);
+                case InputUserChange.DevicePaired:
+                case InputUserChange.DeviceUnpaired:
+                case InputUserChange.DeviceLost:
+                case InputUserChange.DeviceRegained:
+                    UpdateDevices(inputDevice);
+                    break;
+                case InputUserChange.ControlSchemeChanged:
+                    ControlScheme previousControlScheme = CurrentControlScheme;
+                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+                    if (previousControlScheme != CurrentControlScheme)
+                    {
+                        OnControlSchemeChanged?.Invoke(CurrentControlScheme);
+                    }
+                    break;
             }
             
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
@@ -366,28 +377,44 @@ namespace NPTP.InputSystemWrapper
 
         #region Private
         
+        private void UpdateDevices(InputDevice changedDevice)
+        {
+            if (changedDevice is Keyboard && keyboardTextInputEnabled)
+                EnableKeyboardTextInput();
+            
+            UpdateLastUsedDevice(changedDevice);
+        }
+        
         private void EnableKeyboardTextInput()
         {
-            if (keyboardTextInputEnabled)
-                return;
-            
-            GetKeyboards().ForEach(keyboard =>
-            {
-                keyboard.onTextInput -= HandleTextInput;
-                keyboard.onTextInput += HandleTextInput;
-            });
-
             keyboardTextInputEnabled = true;
+            lastPairedKeyboards.ForEach(kb => kb.onTextInput -= HandleTextInput); 
+            UpdateLastPairedKeyboards();
+            lastPairedKeyboards.ForEach(kb => kb.onTextInput += HandleTextInput);
         }
 
         private void DisableKeyboardTextInput()
         {
-            if (!keyboardTextInputEnabled)
-                return;
-            
-            GetKeyboards().ForEach(keyboard => keyboard.onTextInput -= HandleTextInput);
-
             keyboardTextInputEnabled = false;
+            lastPairedKeyboards.ForEach(kb => kb.onTextInput -= HandleTextInput);
+            lastPairedKeyboards.Clear();
+        }
+        
+        private void UpdateLastPairedKeyboards()
+        {
+            lastPairedKeyboards.Clear();
+            if (playerInput == null)
+            {
+                return;
+            }
+            
+            foreach (InputDevice inputDevice in playerInput.devices)
+            {
+                if (inputDevice is Keyboard keyboard)
+                {
+                    lastPairedKeyboards.Add(keyboard);
+                }
+            }
         }
         
         // TODO (optimization): Currently commented out in this class in a few places, since enabling/disabling PlayerInput,
@@ -421,25 +448,6 @@ namespace NPTP.InputSystemWrapper
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
         }
         
-        private List<Keyboard> GetKeyboards()
-        {
-            List<Keyboard> keyboards = new();
-            if (playerInput == null)
-            {
-                return keyboards;
-            }
-            
-            foreach (InputDevice inputDevice in playerInput.devices)
-            {
-                if (inputDevice is Keyboard keyboard)
-                {
-                    keyboards.Add(keyboard);
-                }
-            }
-
-            return keyboards;
-        }
-
         private void HandleTextInput(char c)
         {
             OnKeyboardTextInput?.Invoke(c);
