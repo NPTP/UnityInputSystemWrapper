@@ -1,31 +1,12 @@
 ﻿using System.Runtime.InteropServices;
-using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 
-namespace NPTP.InputSystemWrapper.InputDevices
+namespace NPTP.InputSystemWrapper.InputDevices.Layouts
 {
-    [InputControlLayout(stateType = typeof(LogitechDualActionHIDInputReport))]
-    public class LogitechDualAction : Gamepad
-    {
-        internal static void RegisterLayout()
-        {
-            InputSystem.RegisterLayout<LogitechDualAction>(
-                "Logitech Dual Action",
-                new InputDeviceMatcher()
-                    .WithInterface("HID")
-                    .WithCapability("vendorId", 0x46D)
-                    .WithCapability("productId", 0xC216));
-
-            // Alternatively, manufacturer and product name can be used.
-            // .WithManufacturer("Logitech")
-            // .WithProduct("Logitech.+Dual.+Action.*"));
-        }
-    }
-    
     [StructLayout(LayoutKind.Explicit, Size = 7)]
-    internal struct LogitechDualActionHIDInputReport : IInputStateTypeInfo
+    internal struct LogitechDualActionLayout : IInputStateTypeInfo
     {
         public FourCC format => new FourCC('H', 'I', 'D');
 

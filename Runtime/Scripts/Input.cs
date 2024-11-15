@@ -118,7 +118,6 @@ namespace NPTP.InputSystemWrapper
             }
             
             SetUpTerminationConditions();
-            InputDeviceRegistration.RegisterSupplementaryDevices();
             
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
             if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
@@ -141,6 +140,7 @@ namespace NPTP.InputSystemWrapper
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
+            InputDeviceRegistration.PerformRegistrations();
             
             initialized = true;
         }
@@ -485,6 +485,8 @@ namespace NPTP.InputSystemWrapper
 #if UNITY_EDITOR
         public static event Action<PlayerID, InputContext> EDITOR_OnPlayerInputContextChanged;
 
+        public static bool EDITOR_IsInitialized => initialized;
+        
         private static void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
         {
             EDITOR_OnPlayerInputContextChanged?.Invoke(inputPlayer.ID, inputPlayer.InputContext);

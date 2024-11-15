@@ -94,6 +94,13 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 				return;
 			}
 			
+			if (!Input.EDITOR_IsInitialized)
+			{
+				EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+				EditorGUILayout.LabelField("Input not yet initialized, waiting...", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
+				return;
+			}
+			
 			GUILayout.BeginVertical();
 			ShowDebugInfoField("Current Control Scheme", Input.CurrentControlScheme.ToString());
 			ShowDebugInfoField("Current Context", Input.Context.ToString());
