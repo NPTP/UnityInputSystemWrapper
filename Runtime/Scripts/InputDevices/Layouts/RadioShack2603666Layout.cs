@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.InputDevices.Layouts
         // south button - button3
         // dpad - hat (matches Logitech Dual Action)
         // left stick - stick (matches Logitech Dual Action)
-        // right stick - rz is y, z is x (matches Logitech Dual Action)
+        // right stick - z is x, rz is y (matches Logitech Dual Action)
         // L stick press - button11 (matches Logitech Dual Action)
         // R stick press - button12 (matches Logitech Dual Action)
         // L bumper - button5 (matches Logitech Dual Action)

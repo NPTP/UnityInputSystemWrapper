@@ -9,7 +9,6 @@ namespace NPTP.InputSystemWrapper.InputDevices.Devices
     {
         internal static void Register()
         {
-            return;
             InputSystem.RegisterLayout<LogitechDualAction>(
                 "Logitech Dual Action",
                 new InputDeviceMatcher()
