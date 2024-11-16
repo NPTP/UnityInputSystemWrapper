@@ -197,7 +197,13 @@ namespace NPTP.InputSystemWrapper
                 OnAnyButtonPress -= HandleAnyButtonPress;
             }
         }
-
+        
+        // TODO (multiplayer): MP method signature which takes a PlayerID
+        public static bool ControlSchemeHas<TDevice>(ControlScheme controlScheme) where TDevice : InputDevice
+        {
+            return Player1.ControlSchemeHas<TDevice>(controlScheme);
+        }
+        
         /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>

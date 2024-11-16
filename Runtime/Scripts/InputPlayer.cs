@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
+using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;
@@ -213,6 +214,31 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Internal
+        
+        internal bool ControlSchemeHas<TDevice>(ControlScheme controlScheme) where TDevice : InputDevice
+        {
+            for (int i = 0; i < Asset.controlSchemes.Count; i++)
+            {
+                InputControlScheme inputControlScheme = Asset.controlSchemes[i];
+                if (inputControlScheme.name != controlScheme.ToInputAssetName())
+                {
+                    continue;
+                }
+
+                string deviceControlPath = BindingPathHelper.GetDeviceControlPath<TDevice>();
+                
+                for (int j = 0; j < inputControlScheme.deviceRequirements.Count; j++)
+                {
+                    InputControlScheme.DeviceRequirement deviceRequirement = inputControlScheme.deviceRequirements[j];
+                    if (deviceRequirement.controlPath == deviceControlPath)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
         
         internal bool IsDevicePaired(InputDevice device)
         {

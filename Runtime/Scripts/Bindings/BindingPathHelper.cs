@@ -1,7 +1,27 @@
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.DualShock;
+using UnityEngine.InputSystem.XInput;
+
 namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingPathHelper
     {
+        internal static string GetDeviceControlPath<TDevice>() where TDevice : InputDevice
+        {
+            if (typeof(TDevice) == typeof(Mouse))
+                return "<Mouse>";
+            if (typeof(TDevice) == typeof(Keyboard))
+                return "<Keyboard>";
+            if (typeof(TDevice) == typeof(Gamepad))
+                return "<Gamepad>";
+            if (typeof(TDevice) == typeof(XInputController))
+                return "<XInputController>";
+            if (typeof(TDevice) == typeof(DualShockGamepad))
+                return "<DualShockGamepad>";
+            else
+                return string.Empty;
+        }
+        
         internal static string[] MouseControlPaths => new[]
         {
             "leftButton",
