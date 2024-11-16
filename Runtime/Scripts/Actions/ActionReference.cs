@@ -26,12 +26,28 @@ namespace NPTP.InputSystemWrapper.Actions
         private ActionWrapper action;
         public ActionWrapper Action => action ??= Input.GetActionWrapperFromReference(this);
 
-        /// <summary>
-        /// Convert InputAction -> ActionReference.
-        /// </summary>
-        public static implicit operator ActionReference(InputAction inputAction)
+        public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
-            return new ActionReference(inputAction);
+            if (inputActionReference != null && inputActionReference.action != null)
+            {
+                actionReference = new ActionReference(inputActionReference.action);
+                return true;
+            }
+
+            actionReference = null;
+            return false;
+        }
+        
+        public static bool TryConvert(InputAction inputAction, out ActionReference actionReference)
+        {
+            if (inputAction != null)
+            {
+                actionReference = new ActionReference(inputAction);
+                return true;
+            }
+
+            actionReference = null;
+            return false;
         }
 
         private ActionReference(InputAction action)
