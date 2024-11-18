@@ -6,6 +6,12 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
 {
+    /// <summary>
+    /// Essential class containing a particular player's InputActions.
+    /// Can never be instantiated by the user - it only exists at runtime if it exists in the input actions asset.
+    /// As such, when we want access to one of these, we either access it directly (e.g. Input.Gameplay.Fire) or
+    /// find it using TryConvert.
+    /// </summary>
     public class ActionWrapper
     {
         internal InputAction InputAction { get; }
@@ -19,7 +25,19 @@ namespace NPTP.InputSystemWrapper.Actions
         
         public bool DownThisFrame => InputAction.WasPerformedThisFrame() && (InputAction.type != InputActionType.PassThrough || !InputAction.WasReleasedThisFrame());
         public bool IsDown => InputAction.phase == InputActionPhase.Performed;
+        
+        public static bool TryConvert(InputActionReference inputActionReference, out ActionWrapper actionWrapper)
+        {
+            if (inputActionReference != null && inputActionReference.action != null)
+            {
+                actionWrapper = Input.GetActionWrapperFromReference(inputActionReference);
+                return actionWrapper != null;
+            }
 
+            actionWrapper = null;
+            return false;
+        }
+        
         public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
         {
             return Input.TryGetCurrentBindingInfo(this, out bindingInfos);
@@ -40,11 +58,6 @@ namespace NPTP.InputSystemWrapper.Actions
             return Input.TryGetBindingInfo(this, controlScheme, compositePart, out bindingInfos);
         }
 
-        internal ActionWrapper(InputAction inputAction)
-        {
-            InputAction = inputAction;
-        }
-        
         internal void RegisterCallbacks()
         {
             InputAction.started += HandleActionEvent;
@@ -57,6 +70,11 @@ namespace NPTP.InputSystemWrapper.Actions
             InputAction.started -= HandleActionEvent;
             InputAction.performed -= HandleActionEvent;
             InputAction.canceled -= HandleActionEvent;
+        }
+        
+        internal ActionWrapper(InputAction inputAction)
+        {
+            InputAction = inputAction;
         }
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);

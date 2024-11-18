@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.DualShock;
 using UnityEngine.InputSystem.XInput;
@@ -8,18 +9,19 @@ namespace NPTP.InputSystemWrapper.Bindings
     {
         internal static string GetDeviceControlPath<TDevice>() where TDevice : InputDevice
         {
-            if (typeof(TDevice) == typeof(Mouse))
+            Type deviceType = typeof(TDevice);
+            if (deviceType == typeof(Mouse))
                 return "<Mouse>";
-            if (typeof(TDevice) == typeof(Keyboard))
+            if (deviceType == typeof(Keyboard))
                 return "<Keyboard>";
-            if (typeof(TDevice) == typeof(Gamepad))
+            if (deviceType == typeof(Gamepad))
                 return "<Gamepad>";
-            if (typeof(TDevice) == typeof(XInputController))
+            if (deviceType == typeof(XInputController))
                 return "<XInputController>";
-            if (typeof(TDevice) == typeof(DualShockGamepad))
+            if (deviceType == typeof(DualShockGamepad))
                 return "<DualShockGamepad>";
-            else
-                return string.Empty;
+            
+            return string.Empty;
         }
         
         internal static string[] MouseControlPaths => new[]

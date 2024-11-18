@@ -341,18 +341,35 @@ namespace NPTP.InputSystemWrapper
             return action != null;
         }
         
+        internal ActionWrapper FindActionWrapper(InputActionReference inputActionReference)
+        {
+            if (!TryGetMapAndActionInPlayerAsset(inputActionReference.action, out InputActionMap map, out InputAction action))
+            {
+                return null;
+            }
+            
+            return FindActionWrapperProcess(map, action);
+        }
+        
         internal ActionWrapper FindActionWrapper(ActionReference actionReference)
         {
             if (!TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap map, out InputAction action))
             {
                 return null;
             }
-            
-            // The auto-generated code below ensures that the action used is from the correct asset AND behaves
-            // identically to all direct action subscriptions in this wrapper system (where double subs are
-            // prevented, subs to actions can be made at any time regardless of map/action/player state, and the
-            // event signatures look the same as the ones subscribed to manually).
 
+            return FindActionWrapperProcess(map, action);
+        }
+
+        // TODO: Optimize by instantiating an InputAction -> ActionWrapper dict when the player is created, and use this dict instead
+        /// <summary>
+        /// The auto-generated code below ensures that the action used is from the correct asset AND behaves
+        /// identically to all direct action subscriptions in this wrapper system (where double subs are
+        /// prevented, subs to actions can be made at any time regardless of map/action/player state, and the
+        /// event signatures look the same as the ones subscribed to manually).
+        /// </summary>
+        private ActionWrapper FindActionWrapperProcess(InputActionMap map, InputAction action)
+        {
             // MARKER.FindActionWrapperIfElse.Start
             if (Player.ActionMap == map)
             {

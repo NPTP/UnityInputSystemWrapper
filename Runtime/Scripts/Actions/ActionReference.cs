@@ -26,6 +26,7 @@ namespace NPTP.InputSystemWrapper.Actions
         private ActionWrapper action;
         public ActionWrapper Action => action ??= Input.GetActionWrapperFromReference(this);
 
+
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
             if (inputActionReference != null && inputActionReference.action != null)

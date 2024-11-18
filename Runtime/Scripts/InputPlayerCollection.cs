@@ -102,6 +102,7 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
 
+        // TODO: ActionWrapper should have a playerID perhaps, or link to player, or something, to optimize this.
         internal bool TryGetPlayerAssociatedWithAsset(InputActionAsset asset, out InputPlayer playerAssociatedWithAsset)
         {
             for (int i = 0; i < players.Length; i++)

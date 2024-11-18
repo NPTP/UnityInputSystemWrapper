@@ -380,6 +380,16 @@ namespace NPTP.InputSystemWrapper
             return player.FindActionWrapper(actionReference);
         }
         
+        // TODO (multiplayer): MP method signature which takes a PlayerID
+        internal static ActionWrapper GetActionWrapperFromReference(InputActionReference inputActionReference)
+        {
+            // MARKER.PlayerGetter.Start
+            InputPlayer player = Player1;
+            // MARKER.PlayerGetter.End
+            
+            return player.FindActionWrapper(inputActionReference);
+        }
+        
         #endregion
 
         #region Private Runtime Functionality
