@@ -327,18 +327,23 @@ namespace NPTP.InputSystemWrapper
 
         internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputActionMap map, out InputAction action)
         {
+            if (actionFromReference == null)
+            {
+                action = null;
+                map = null;
+                return false;
+            }
+            
+            if (actionFromReference.actionMap.asset == Asset)
+            {
+                action = actionFromReference;
+                map = actionFromReference.actionMap;
+                return true;
+            }
+            
             action = null;
             map = null;
-
-            if (actionFromReference == null)
-                return false;
-
-            map = Asset.FindActionMap(actionFromReference.actionMap.name);
-            if (map == null)
-                return false;
-            
-            action = map.FindAction(actionFromReference.name);
-            return action != null;
+            return false;
         }
         
         internal ActionWrapper FindActionWrapper(InputActionReference inputActionReference)
@@ -351,9 +356,9 @@ namespace NPTP.InputSystemWrapper
             return FindActionWrapperProcess(map, action);
         }
         
-        internal ActionWrapper FindActionWrapper(ActionReference actionReference)
+        internal ActionWrapper FindActionWrapper(InputAction inputAction)
         {
-            if (!TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap map, out InputAction action))
+            if (!TryGetMapAndActionInPlayerAsset(inputAction, out InputActionMap map, out InputAction action))
             {
                 return null;
             }
@@ -361,7 +366,7 @@ namespace NPTP.InputSystemWrapper
             return FindActionWrapperProcess(map, action);
         }
 
-        // TODO: Optimize by instantiating an InputAction -> ActionWrapper dict when the player is created, and use this dict instead
+        // TODO: Optimize by instantiating an InputAction -> ActionWrapper dict when the player is created, and use this dict instead of this if/else madness. Will require code gen on the dict creation.
         /// <summary>
         /// The auto-generated code below ensures that the action used is from the correct asset AND behaves
         /// identically to all direct action subscriptions in this wrapper system (where double subs are

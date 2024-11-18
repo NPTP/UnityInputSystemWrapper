@@ -1,9 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
-1.1.2
+2.0.0
+- Architectural/API changes around rebinding controls
 - BindingInfo uses event for hooking binding display names into any localization system via Input.OnLocalizedStringRequested.
-< NOT YET VERSIONED >
 
 1.1.1
 - Input contexts now support event system action overrides.

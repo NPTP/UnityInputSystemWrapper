@@ -21,17 +21,31 @@ namespace NPTP.InputSystemWrapper.Actions
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
         
-        internal InputAction InternalAction => reference.action;
+        // TODO (multiplayer): Ability to tie the reference to a particular player ID (ie change to serialized field with an "AllPlayers" option?)
+        internal PlayerID PlayerID => PlayerID.Player1;
         
-        private ActionWrapper action;
-        public ActionWrapper Action => action ??= Input.GetActionWrapperFromReference(this);
+        private ActionWrapper actionWrapper;
+        public ActionWrapper ActionWrapper
+        {
+            get
+            {
+                if (actionWrapper != null)
+                    return actionWrapper;
 
-
+                if (reference == null || reference.action == null)
+                    return null;
+                
+                Input.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
+                return actionWrapper;
+            }
+        }
+        
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
-            if (inputActionReference != null && inputActionReference.action != null)
+            if (inputActionReference != null && inputActionReference.action != null &&
+                Input.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
             {
-                actionReference = new ActionReference(inputActionReference.action);
+                actionReference = new ActionReference(inputActionReference.action) { actionWrapper = actionWrapper };
                 return true;
             }
 
@@ -41,14 +55,32 @@ namespace NPTP.InputSystemWrapper.Actions
         
         public static bool TryConvert(InputAction inputAction, out ActionReference actionReference)
         {
-            if (inputAction != null)
+            if (inputAction != null && Input.TryGetActionWrapper(PlayerID.Player1, inputAction, out ActionWrapper actionWrapper))
             {
-                actionReference = new ActionReference(inputAction);
+                actionReference = new ActionReference(inputAction) { actionWrapper = actionWrapper };
                 return true;
             }
 
             actionReference = null;
             return false;
+        }
+
+        public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindStatus> callback = null)
+        {
+            if (ActionWrapper == null)
+            {
+                return;
+            }
+            
+            if (useCompositePart)
+                ActionWrapper.StartInteractiveRebind(controlScheme, compositePart, callback);
+            else
+                ActionWrapper.StartInteractiveRebind(controlScheme, callback);
+        }
+
+        internal ActionInfo GetActionInfo()
+        {
+            return new ActionInfo(reference.action, useCompositePart, compositePart);
         }
 
         private ActionReference(InputAction action)

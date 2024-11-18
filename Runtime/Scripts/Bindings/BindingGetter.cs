@@ -9,18 +9,12 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
 
-            // Get the correct action from the player asset based on the action reference wrapper's internal reference.
-            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputActionMap _, out InputAction action))
-            {
-                return false;
-            }
-            
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(actionInfo, action, controlScheme, out List<string> controlPaths))
+            if (!TryGetControlPaths(actionInfo, actionInfo.InputAction, controlScheme, out List<string> controlPaths))
             {
                 return false;
             }
@@ -82,7 +76,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             return controlPaths.Count > 0;
         }
         
-        internal static bool TryGetFirstBindingIndex(ActionReference actionReference, InputAction action, ControlScheme controlScheme, out int firstBindingIndex)
+        internal static bool TryGetFirstBindingIndex(ActionInfo actionInfo, InputAction action, ControlScheme controlScheme, out int firstBindingIndex)
         {
             firstBindingIndex = -1;
 
@@ -91,7 +85,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             for (int i = 0; i < action.bindings.Count; i++)
             {
                 InputBinding binding = action.bindings[i];
-                if (bindingMask.Matches(binding) && (!actionReference.UseCompositePart || actionReference.CompositePart.Matches(binding)))
+                if (bindingMask.Matches(binding) && (!actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding)))
                 {
                     firstBindingIndex = i;
                     break;

@@ -22,12 +22,4 @@ namespace NPTP.InputSystemWrapper.Actions
             UseCompositePart = useCompositePart;
         }
     }
-
-    internal static class ActionInfoExtensions
-    {
-        internal static ActionInfo ToActionInfo(this ActionReference actionReference)
-        {
-            return new ActionInfo(actionReference.InternalAction, actionReference.UseCompositePart, actionReference.CompositePart);
-        }
-    }
 }

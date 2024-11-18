@@ -13,12 +13,11 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 - Dealing with a jungle of input maps turned on and off at any given time is no longer a worry with the new InputContext concept that collects maps in groups. InputContexts can be added, changed & removed quickly in the settings, which then become immediately available in your code. You can even specify particular actions for the event system to use, per InputContext.
 - Easy component and API usage to handle rebinding controls for multiple devices.
 
+TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
+
 #### Future nice-to-haves:
 - [✔] Display name in BindingInfo has an event requesting a localized string that can be hooked into. Otherwise, we could use LocalizedString (which would require a Localization package dependency)
 - [ ] OfflineInputData "excluded" and "cancel" controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields. Format themselves correctly.
 - [ ] Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - [ ] Binding icon data only gets loaded in when needed instead of being always loaded (Addressables package dependency, should work just like localization strings do with Addressables)
 - [ ] Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData, if it does not already exist, that contains all of the control paths for the devices in the control scheme.
-
-##### Multiplayer:
-- [ ] Input Action Reference -> BindingInfo can be player-dependent (the component for UI elements that uses this path can also reference a specific player), since players may each have unique bindings saved. By extension: Input.TryGetActionBindingInfo must support MP.

@@ -30,10 +30,9 @@ namespace NPTP.InputSystemWrapper.Bindings
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
 
             // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
-            rebindingOperation.WithControlsExcludingMultiple(ExcludedPaths);
-            rebindingOperation.WithCancelingThroughMultiple(CancelPaths);
-
             rebindingOperation
+                .WithControlsExcludingMultiple(ExcludedPaths)
+                .WithCancelingThroughMultiple(CancelPaths)
                 .OnCancel(onCancel)
                 .OnComplete(onComplete);
             
@@ -56,15 +55,17 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
         }
 
-        private static void WithControlsExcludingMultiple(this RebindingOperation rebindingOperation, string[] paths)
+        private static RebindingOperation WithControlsExcludingMultiple(this RebindingOperation rebindingOperation, string[] paths)
         {
             foreach (string excludedPath in paths) rebindingOperation.WithControlsExcluding(excludedPath);
             
             // Handles excluded keyboard keys coming in as "anyKey" and still completing the binding operation.
             rebindingOperation.WithControlsExcluding("<Keyboard>/anyKey");
+            
+            return rebindingOperation;
         }
         
-        private static void WithCancelingThroughMultiple(this RebindingOperation rebindingOperation, string[] paths)
+        private static RebindingOperation WithCancelingThroughMultiple(this RebindingOperation rebindingOperation, string[] paths)
         {
             rebindingOperation.WithCancelingThrough(string.Empty);
             
@@ -78,6 +79,8 @@ namespace NPTP.InputSystemWrapper.Bindings
                     op.Cancel();
                 }
             });
+
+            return rebindingOperation;
         }
 
         private static void CleanUpRebindingOperation(ref RebindingOperation rebindingOperation)

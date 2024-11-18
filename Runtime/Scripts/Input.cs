@@ -205,41 +205,26 @@ namespace NPTP.InputSystemWrapper
         }
         
         /// <summary>
-        /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
+        /// Try to get the ActionWrapper for the (deprecated) InputActionReference's action.
+        /// Useful as a transitional tool from normal Unity Input System usage to full ISW integration.
         /// </summary>
-        /// <param name="actionReference">Action reference wrapper containing action to be rebound.</param>
-        /// <param name="controlScheme">Control scheme for which to do the rebinding.</param>
-        /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
-        /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
-        /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
-        // MARKER.StartInteractiveRebind.Start
-        public static void StartInteractiveRebind(ActionReference actionReference, ControlScheme controlScheme, Action<RebindStatus> callback = null)
-        // MARKER.StartInteractiveRebind.End
+        // TODO (multiplayer): MP method signature which takes a PlayerID
+        public static bool TryConvert(InputActionReference inputActionReference, out ActionWrapper actionWrapper)
         {
-            if (rebindingOperation != null)
+            if (inputActionReference != null && inputActionReference.action != null)
             {
-                rebindingOperation.Cancel();
-                rebindingOperation.Dispose();
+                // MARKER.PlayerGetter.Start
+                InputPlayer player = Player1;
+                // MARKER.PlayerGetter.End
+
+                actionWrapper = player.FindActionWrapper(inputActionReference);
+                return actionWrapper != null;
             }
 
-            // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
-            // MARKER.PlayerGetter.End
-
-            if (player.TryGetMapAndActionInPlayerAsset(actionReference.InternalAction, out InputActionMap _, out InputAction action) &&
-                BindingGetter.TryGetFirstBindingIndex(actionReference, action, controlScheme, out int bindingIndex))
-            {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(action, bindingIndex, callback);
-            }
-            else
-            {
-                ISWDebug.LogError("Rebinding failed: Action or binding index could not be found.");
-                rebindingOperation?.Dispose();
-                rebindingOperation = null;
-                callback?.Invoke(RebindStatus.Failed);
-            }
+            actionWrapper = null;
+            return false;
         }
-
+        
         /// <summary>
         /// Try to get the current binding info for the given action reference.
         /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
@@ -248,10 +233,17 @@ namespace NPTP.InputSystemWrapper
         public static bool TryGetCurrentBindingInfo(ActionReference actionReference, out IEnumerable<BindingInfo> bindingInfos)
         // MARKER.TryGetCurrentBindingInfo.End
         {
+            if (actionReference == null || actionReference.ActionWrapper == null)
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.ToActionInfo(), player.CurrentControlScheme, out bindingInfos);
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionReference.GetActionInfo(), player.CurrentControlScheme, out bindingInfos);
         }
 
         /// <summary>
@@ -261,10 +253,17 @@ namespace NPTP.InputSystemWrapper
         // TODO (multiplayer): MP method signature which takes a PlayerID
         public static bool TryGetBindingInfo(ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
+            if (actionReference == null || actionReference.ActionWrapper == null)
+            {
+                bindingInfos = default;
+                return false;
+            }
+            
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.ToActionInfo(), controlScheme, out bindingInfos);
+            
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionReference.GetActionInfo(), controlScheme, out bindingInfos);
         }
         
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -273,7 +272,7 @@ namespace NPTP.InputSystemWrapper
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference.ToActionInfo(), controlScheme);
+            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference.GetActionInfo(), controlScheme);
         }
 
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -326,70 +325,58 @@ namespace NPTP.InputSystemWrapper
             OnBindingsChanged?.Invoke();
         }
         
-        internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, out IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>
+        /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
+        /// </summary>
+        /// <param name="actionInfo">ActionInfo struct containing information pertinent to rebinding.</param>
+        /// <param name="controlScheme">Control scheme for which to do the rebinding.</param>
+        /// <param name="callback">Callback on rebind cancel/complete. Note that this callback will be invoked whether or not the binding was actually changed,
+        /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
+        /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
+        internal static void StartInteractiveRebind(ActionInfo actionInfo, ControlScheme controlScheme, Action<RebindStatus> callback = null)
         {
-            if (!playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            if (rebindingOperation != null)
             {
-                bindingInfos = default;
-                return false;
+                rebindingOperation.Cancel();
+                rebindingOperation.Dispose();
             }
-            
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, false), player.CurrentControlScheme, out bindingInfos);
+
+            if (BindingGetter.TryGetFirstBindingIndex(actionInfo, actionInfo.InputAction, controlScheme, out int bindingIndex))
+            {
+                rebindingOperation = BindingChanger.StartInteractiveRebind(actionInfo.InputAction, bindingIndex, callback);
+            }
+            else
+            {
+                ISWDebug.LogError("Rebinding failed: Action or binding index could not be found.");
+                rebindingOperation?.Dispose();
+                rebindingOperation = null;
+                callback?.Invoke(RebindStatus.Failed);
+            }
         }
 
-        internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetCurrentBindingInfo(ActionInfo actionInfo, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionInfo.InputAction.actionMap.asset, out InputPlayer player))
             {
                 bindingInfos = default;
                 return false;
             }
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, true, compositePart), player.CurrentControlScheme, out bindingInfos);
-        }
-        
-        internal static bool TryGetBindingInfo(ActionWrapper actionWrapper, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
-        {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
-            {
-                bindingInfos = default;
-                return false;
-            }
-            
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, false), controlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, player.CurrentControlScheme, out bindingInfos);
         }
 
-        internal static bool TryGetBindingInfo(ActionWrapper actionWrapper, ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
-            {
-                bindingInfos = default;
-                return false;
-            }
-            
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, new ActionInfo(actionWrapper.InputAction, true, compositePart), controlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
         }
 
-        // TODO (multiplayer): MP method signature which takes a PlayerID
-        internal static ActionWrapper GetActionWrapperFromReference(ActionReference actionReference)
+        internal static bool TryGetActionWrapper(PlayerID playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
-            // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
-            // MARKER.PlayerGetter.End
-            
-            return player.FindActionWrapper(actionReference);
+            InputPlayer player = GetPlayer(playerID);
+            actionWrapper = player.FindActionWrapper(inputAction);
+            return actionWrapper != null;
         }
-        
-        // TODO (multiplayer): MP method signature which takes a PlayerID
-        internal static ActionWrapper GetActionWrapperFromReference(InputActionReference inputActionReference)
-        {
-            // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
-            // MARKER.PlayerGetter.End
-            
-            return player.FindActionWrapper(inputActionReference);
-        }
-        
+
         #endregion
 
         #region Private Runtime Functionality
