@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Bindings
@@ -57,7 +58,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             bindingData = runtimeInputData.GetControlSchemeBindingData(controlScheme);
             bool bindingDataNull = bindingData == null;
             if (bindingDataNull)
-                NPTPDebug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
+                ISWDebug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
             
             return !bindingDataNull;
         }

@@ -22,7 +22,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             // MARKER.BindingCancelPaths.End
         };
 
-        internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action callback)
+        internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action<RebindStatus> callback)
         {
             bool actionWasEnabled = action.enabled;
             action.Disable();
@@ -43,14 +43,14 @@ namespace NPTP.InputSystemWrapper.Bindings
             void onCancel(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke();
+                callback?.Invoke(RebindStatus.Canceled);
                 CleanUpRebindingOperation(ref rebindingOperation);
             }
 
             void onComplete(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke();
+                callback?.Invoke(RebindStatus.Completed);
                 CleanUpRebindingOperation(ref rebindingOperation);
                 Input.BroadcastBindingsChanged();
             }
@@ -158,14 +158,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
 
             return changed;
-        }
-        
-        private static void ResetControlSchemeToDefaultBindings(InputActionAsset asset, ControlScheme controlScheme)
-        {
-            foreach (InputAction action in asset)
-            {
-                action.RemoveBindingOverride(InputBinding.MaskByGroup(controlScheme.ToInputAssetName()));
-            }
         }
     }
 }

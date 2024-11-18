@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Utilities.Editor;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -92,11 +91,11 @@ namespace NPTP.InputSystemWrapper.Editor
                     }
                 }
 
-                NPTPDebug.Log($"{filePath} written successfully!");
+                ISWDebug.Log($"{filePath} written successfully!");
             }
             catch (Exception e)
             {
-                NPTPDebug.Log($"File could not be written: {e.Message}");
+                ISWDebug.Log($"File could not be written: {e.Message}");
             }
         }
 
@@ -173,7 +172,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                NPTPDebug.LogError($"The file could not be read: {e.Message}");
+                ISWDebug.LogError($"The file could not be read: {e.Message}");
             }
 
             return string.Empty;

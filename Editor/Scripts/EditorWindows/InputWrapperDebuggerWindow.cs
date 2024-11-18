@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
 using UnityEngine;
@@ -66,7 +67,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 
 		private void HandlePlayerInputContextChanged(PlayerID playerID, InputContext inputContext)
 		{
-			NPTPDebug.Log($"Input Context changed for {playerID}: {inputContext}");
+			ISWDebug.Log($"Input Context changed for {playerID}: {inputContext}");
 			mostRecentContexts.Add(new TimestampedObject<InputContext>(inputContext, Time.frameCount.ToString()));
 			if (mostRecentContexts.Count > MAX_SHOWN_RECENT_CONTEXTS)
 			{

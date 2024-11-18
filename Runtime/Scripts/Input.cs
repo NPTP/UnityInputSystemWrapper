@@ -213,7 +213,7 @@ namespace NPTP.InputSystemWrapper
         /// and even if the rebind fails to execute. It is intended to help you manage control flow on your UI or wherever rebinding is happening.
         /// (Subscribe to Input.OnBindingsChanged to know when a binding has actually been set to a new value.)</param>
         // MARKER.StartInteractiveRebind.Start
-        public static void StartInteractiveRebind(ActionReference actionReference, ControlScheme controlScheme, Action callback = null)
+        public static void StartInteractiveRebind(ActionReference actionReference, ControlScheme controlScheme, Action<RebindStatus> callback = null)
         // MARKER.StartInteractiveRebind.End
         {
             if (rebindingOperation != null)
@@ -233,10 +233,10 @@ namespace NPTP.InputSystemWrapper
             }
             else
             {
-                NPTPDebug.LogError("Rebinding failed: Action or binding index could not be found.");
+                ISWDebug.LogError("Rebinding failed: Action or binding index could not be found.");
                 rebindingOperation?.Dispose();
                 rebindingOperation = null;
-                callback?.Invoke();
+                callback?.Invoke(RebindStatus.Failed);
             }
         }
 

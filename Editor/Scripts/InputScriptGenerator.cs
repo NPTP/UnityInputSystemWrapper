@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -81,7 +81,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                NPTPDebug.Log($"The file could not be read: {e.Message}");
+                ISWDebug.Log($"The file could not be read: {e.Message}");
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                NPTPDebug.Log($"The file could not be read: {e.Message}");
+                ISWDebug.Log($"The file could not be read: {e.Message}");
                 return;
             }
 
