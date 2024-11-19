@@ -50,7 +50,7 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void UpdateEvents()
         {
-            if (!Input.TryGetCurrentBindingInfo(actionReference, out IEnumerable<BindingInfo> bindingInfo))
+            if (actionReference == null || !actionReference.TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfo))
             {
                 return;
             }

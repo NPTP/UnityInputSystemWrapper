@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -63,6 +65,34 @@ namespace NPTP.InputSystemWrapper.Actions
 
             actionReference = null;
             return false;
+        }
+        
+        public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (ActionWrapper == null)
+            {
+                bindingInfos = null;
+                return false;
+            }
+
+            if (useCompositePart)
+                return ActionWrapper.TryGetCurrentBindingInfo(compositePart, out bindingInfos);
+            else
+                return ActionWrapper.TryGetCurrentBindingInfo(out bindingInfos);
+        }
+        
+        public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        {
+            if (ActionWrapper == null)
+            {
+                bindingInfos = null;
+                return false;
+            }
+
+            if (useCompositePart)
+                return ActionWrapper.TryGetBindingInfo(controlScheme, compositePart, out bindingInfos);
+            else
+                return ActionWrapper.TryGetBindingInfo(controlScheme, out bindingInfos);
         }
 
         public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindStatus> callback = null)

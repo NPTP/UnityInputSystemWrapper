@@ -214,7 +214,7 @@ namespace NPTP.InputSystemWrapper
             if (inputActionReference != null && inputActionReference.action != null)
             {
                 // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
+                InputPlayer player = Player1;
                 // MARKER.PlayerGetter.End
 
                 return player.TryGetMatchingActionWrapper(inputActionReference.action, out actionWrapper);
@@ -223,50 +223,7 @@ namespace NPTP.InputSystemWrapper
             actionWrapper = null;
             return false;
         }
-        
-        /// <summary>
-        /// Try to get the current binding info for the given action reference.
-        /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
-        /// </summary>
-        // MARKER.TryGetCurrentBindingInfo.Start
-        public static bool TryGetCurrentBindingInfo(ActionReference actionReference, out IEnumerable<BindingInfo> bindingInfos)
-        // MARKER.TryGetCurrentBindingInfo.End
-        {
-            if (actionReference == null || actionReference.ActionWrapper == null)
-            {
-                bindingInfos = default;
-                return false;
-            }
-            
-            // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
-            // MARKER.PlayerGetter.End
-            
-            ActionInfo actionInfo = new ActionInfo(actionReference.ActionWrapper, actionReference.UseCompositePart, actionReference.CompositePart);
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, player.CurrentControlScheme, out bindingInfos);
-        }
 
-        /// <summary>
-        /// Try to get the binding info for the given action reference and control scheme.
-        /// If this returns true, the binding infos enumerable is guaranteed to have at least one element.
-        /// </summary>
-        // TODO (multiplayer): MP method signature which takes a PlayerID
-        public static bool TryGetBindingInfo(ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
-        {
-            if (actionReference == null || actionReference.ActionWrapper == null)
-            {
-                bindingInfos = default;
-                return false;
-            }
-            
-            // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
-            // MARKER.PlayerGetter.End
-
-            ActionInfo actionInfo = new ActionInfo(actionReference.ActionWrapper, actionReference.UseCompositePart, actionReference.CompositePart);
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
-        }
-        
         // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
         {
@@ -375,9 +332,7 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool TryGetBindingInfo(ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
-            // TODO: Immediate fix
-            // return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
-            throw new NotImplementedException();
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
         }
 
         internal static bool TryGetActionWrapper(PlayerID playerID, InputAction inputAction, out ActionWrapper actionWrapper)
