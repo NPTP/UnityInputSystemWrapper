@@ -1,24 +1,23 @@
 using NPTP.InputSystemWrapper.Enums;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
 {
     internal readonly struct ActionInfo
     {
-        internal InputAction InputAction { get; }
+        internal ActionWrapper ActionWrapper { get; }
         internal bool UseCompositePart { get; }
         internal CompositePart CompositePart { get; }
         
-        internal ActionInfo(InputAction inputAction, bool useCompositePart, CompositePart compositePart)
+        internal ActionInfo(ActionWrapper actionWrapper, bool useCompositePart, CompositePart compositePart)
         {
-            InputAction = inputAction;
+            ActionWrapper = actionWrapper;
             UseCompositePart = useCompositePart;
             CompositePart = compositePart;
         }
         
-        internal ActionInfo(InputAction inputAction, bool useCompositePart) : this()
+        internal ActionInfo(ActionWrapper actionWrapper, bool useCompositePart) : this()
         {
-            InputAction = inputAction;
+            ActionWrapper = actionWrapper;
             UseCompositePart = useCompositePart;
         }
     }

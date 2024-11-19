@@ -77,12 +77,7 @@ namespace NPTP.InputSystemWrapper.Actions
             else
                 ActionWrapper.StartInteractiveRebind(controlScheme, callback);
         }
-
-        internal ActionInfo GetActionInfo()
-        {
-            return new ActionInfo(reference.action, useCompositePart, compositePart);
-        }
-
+        
         private ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);

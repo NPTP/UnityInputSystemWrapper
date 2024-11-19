@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+2.0.1
+- Optimizations in ActionWrapper lookup, refactors to further centralize everything out of player-asset-situated ActionWrappers
+
 2.0.0
 - Architectural/API changes around rebinding controls
 - BindingInfo uses event for hooking binding display names into any localization system via Input.OnLocalizedStringRequested.

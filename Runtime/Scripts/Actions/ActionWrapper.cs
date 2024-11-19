@@ -28,32 +28,32 @@ namespace NPTP.InputSystemWrapper.Actions
 
         public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindStatus> callback = null)
         {
-            Input.StartInteractiveRebind(new ActionInfo(InputAction, useCompositePart: false), controlScheme, callback);
+            Input.StartInteractiveRebind(new ActionInfo(this, useCompositePart: false), controlScheme, callback);
         }
         
         public void StartInteractiveRebind(ControlScheme controlScheme, CompositePart compositePart, Action<RebindStatus> callback = null)
         {
-            Input.StartInteractiveRebind(new ActionInfo(InputAction, useCompositePart: true, compositePart), controlScheme, callback);
+            Input.StartInteractiveRebind(new ActionInfo(this, useCompositePart: true, compositePart), controlScheme, callback);
         }
         
         public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
         {
-            return Input.TryGetCurrentBindingInfo(new ActionInfo(InputAction, useCompositePart: false), out bindingInfos);
+            return Input.TryGetCurrentBindingInfo(new ActionInfo(this, useCompositePart: false), out bindingInfos);
         }
 
         public bool TryGetCurrentBindingInfo(CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return Input.TryGetCurrentBindingInfo(new ActionInfo(InputAction, useCompositePart: true, compositePart), out bindingInfos);
+            return Input.TryGetCurrentBindingInfo(new ActionInfo(this, useCompositePart: true, compositePart), out bindingInfos);
         }
         
         public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return Input.TryGetBindingInfo(new ActionInfo(InputAction, useCompositePart: false), controlScheme, out bindingInfos);
+            return Input.TryGetBindingInfo(new ActionInfo(this, useCompositePart: false), controlScheme, out bindingInfos);
         }
 
         public bool TryGetBindingInfo(ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return Input.TryGetBindingInfo(new ActionInfo(InputAction, useCompositePart: true, compositePart), controlScheme, out bindingInfos);
+            return Input.TryGetBindingInfo(new ActionInfo(this, useCompositePart: true, compositePart), controlScheme, out bindingInfos);
         }
 
         internal void RegisterCallbacks()

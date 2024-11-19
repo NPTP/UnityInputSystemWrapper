@@ -242,7 +242,8 @@ namespace NPTP.InputSystemWrapper
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.GetActionInfo(), player.CurrentControlScheme, out bindingInfos);
+            ActionInfo actionInfo = new ActionInfo(actionReference.ActionWrapper, actionReference.UseCompositePart, actionReference.CompositePart);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, player.CurrentControlScheme, out bindingInfos);
         }
 
         /// <summary>
@@ -261,17 +262,25 @@ namespace NPTP.InputSystemWrapper
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.GetActionInfo(), controlScheme, out bindingInfos);
+
+            ActionInfo actionInfo = new ActionInfo(actionReference.ActionWrapper, actionReference.UseCompositePart, actionReference.CompositePart);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
         }
         
         // TODO (multiplayer): MP method signature which takes a PlayerID
         public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
         {
+            if (actionReference == null || actionReference.ActionWrapper == null)
+            {
+                return;
+            }
+            
             // MARKER.PlayerGetter.Start
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
-            BindingChanger.ResetBindingToDefaultForControlScheme(player, actionReference.GetActionInfo(), controlScheme);
+            
+            ActionInfo actionInfo = new ActionInfo(actionReference.ActionWrapper, actionReference.UseCompositePart, actionReference.CompositePart);
+            BindingChanger.ResetBindingToDefaultForControlScheme(actionInfo, controlScheme);
         }
 
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -340,9 +349,9 @@ namespace NPTP.InputSystemWrapper
                 rebindingOperation.Dispose();
             }
 
-            if (BindingGetter.TryGetFirstBindingIndex(actionInfo, actionInfo.InputAction, controlScheme, out int bindingIndex))
+            if (BindingGetter.TryGetFirstBindingIndex(actionInfo, controlScheme, out int bindingIndex))
             {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(actionInfo.InputAction, bindingIndex, callback);
+                rebindingOperation = BindingChanger.StartInteractiveRebind(actionInfo.ActionWrapper.InputAction, bindingIndex, callback);
             }
             else
             {
@@ -355,13 +364,13 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool TryGetCurrentBindingInfo(ActionInfo actionInfo, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionInfo.InputAction.actionMap.asset, out InputPlayer player))
+            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionInfo.ActionWrapper.InputAction.actionMap.asset, out InputPlayer player))
             {
                 bindingInfos = default;
                 return false;
             }
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionInfo, player.CurrentControlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, player.CurrentControlScheme, out bindingInfos);
         }
 
         internal static bool TryGetBindingInfo(ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
