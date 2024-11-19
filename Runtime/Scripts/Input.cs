@@ -217,8 +217,7 @@ namespace NPTP.InputSystemWrapper
                 InputPlayer player = Player1;
                 // MARKER.PlayerGetter.End
 
-                actionWrapper = player.FindActionWrapper(inputActionReference);
-                return actionWrapper != null;
+                return player.TryGetMatchingActionWrapper(inputActionReference.action, out actionWrapper);
             }
 
             actionWrapper = null;
@@ -243,7 +242,7 @@ namespace NPTP.InputSystemWrapper
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionReference.GetActionInfo(), player.CurrentControlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.GetActionInfo(), player.CurrentControlScheme, out bindingInfos);
         }
 
         /// <summary>
@@ -263,7 +262,7 @@ namespace NPTP.InputSystemWrapper
             InputPlayer player = Player1;
             // MARKER.PlayerGetter.End
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionReference.GetActionInfo(), controlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionReference.GetActionInfo(), controlScheme, out bindingInfos);
         }
         
         // TODO (multiplayer): MP method signature which takes a PlayerID
@@ -362,19 +361,19 @@ namespace NPTP.InputSystemWrapper
                 return false;
             }
             
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, player.CurrentControlScheme, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(runtimeInputData, player, actionInfo, player.CurrentControlScheme, out bindingInfos);
         }
 
         internal static bool TryGetBindingInfo(ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
+            // TODO: Immediate fix
+            // return BindingGetter.TryGetBindingInfo(runtimeInputData, actionInfo, controlScheme, out bindingInfos);
+            throw new NotImplementedException();
         }
 
         internal static bool TryGetActionWrapper(PlayerID playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
-            InputPlayer player = GetPlayer(playerID);
-            actionWrapper = player.FindActionWrapper(inputAction);
-            return actionWrapper != null;
+            return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
 
         #endregion

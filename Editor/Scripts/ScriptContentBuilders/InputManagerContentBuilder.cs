@@ -70,12 +70,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         lines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
                     lines.Add($"        {(offlineInputData.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
                     break;
-                case "StartInteractiveRebind": 
-                    string rebindMethodHeader = offlineInputData.EnableMultiplayer
-                        ? $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, {nameof(ControlScheme)} controlScheme, Action callback = null)"
-                        : $"        public static void StartInteractiveRebind({nameof(ActionReference)} actionReference, {nameof(ControlScheme)} controlScheme, Action callback = null)";
-                    lines.Add(rebindMethodHeader);
-                    break;
                 case "EnableContextForAllPlayersSignature":
                     string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
                     lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");

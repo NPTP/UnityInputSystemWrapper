@@ -29,8 +29,8 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
 
-            // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
             rebindingOperation
+                // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
                 .WithControlsExcludingMultiple(ExcludedPaths)
                 .WithCancelingThroughMultiple(CancelPaths)
                 .OnCancel(onCancel)
@@ -91,13 +91,13 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme)
         {
-            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputActionMap _, out InputAction action))
+            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out var action, out var map))
             {
                 return;
             }
             
             bool compositeCondition(InputBinding binding) => !actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding);
-            if (RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask(), compositeCondition))
+            if (RemoveDeviceOverridesFromAction(actionInfo.InputAction, controlScheme.ToBindingMask(), compositeCondition))
             {
                 Input.BroadcastBindingsChanged();
             }

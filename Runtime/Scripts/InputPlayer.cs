@@ -325,45 +325,32 @@ namespace NPTP.InputSystemWrapper
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
-        internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputActionMap map, out InputAction action)
+        internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputAction action, out InputActionMap map)
         {
-            if (actionFromReference == null)
-            {
-                action = null;
-                map = null;
-                return false;
-            }
-            
-            if (actionFromReference.actionMap.asset == Asset)
-            {
-                action = actionFromReference;
-                map = actionFromReference.actionMap;
-                return true;
-            }
-            
             action = null;
             map = null;
-            return false;
-        }
-        
-        internal ActionWrapper FindActionWrapper(InputActionReference inputActionReference)
-        {
-            if (!TryGetMapAndActionInPlayerAsset(inputActionReference.action, out InputActionMap map, out InputAction action))
-            {
-                return null;
-            }
+
+            if (actionFromReference == null)
+                return false;
+
+            map = Asset.FindActionMap(actionFromReference.actionMap.name);
+            if (map == null)
+                return false;
             
-            return FindActionWrapperProcess(map, action);
+            action = map.FindAction(actionFromReference.name);
+            return action != null;
         }
         
-        internal ActionWrapper FindActionWrapper(InputAction inputAction)
+        internal bool TryGetMatchingActionWrapper(InputAction otherAction, out ActionWrapper actionWrapper)
         {
-            if (!TryGetMapAndActionInPlayerAsset(inputAction, out InputActionMap map, out InputAction action))
+            if (!TryGetMapAndActionInPlayerAsset(otherAction, out InputAction action, out InputActionMap map))
             {
-                return null;
+                actionWrapper = null;
+                return false;
             }
 
-            return FindActionWrapperProcess(map, action);
+            actionWrapper = FindActionWrapperProcess(action);
+            return actionWrapper != null;
         }
 
         // TODO: Optimize by instantiating an InputAction -> ActionWrapper dict when the player is created, and use this dict instead of this if/else madness. Will require code gen on the dict creation.
@@ -373,8 +360,10 @@ namespace NPTP.InputSystemWrapper
         /// prevented, subs to actions can be made at any time regardless of map/action/player state, and the
         /// event signatures look the same as the ones subscribed to manually).
         /// </summary>
-        private ActionWrapper FindActionWrapperProcess(InputActionMap map, InputAction action)
+        private ActionWrapper FindActionWrapperProcess(InputAction action)
         {
+            InputActionMap map = action.actionMap;
+            
             // MARKER.FindActionWrapperIfElse.Start
             if (Player.ActionMap == map)
             {

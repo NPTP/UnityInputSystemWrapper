@@ -9,12 +9,18 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
+            
+            // Get the correct action from the player asset based on the action reference wrapper's internal reference.
+            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputAction action, out InputActionMap _))
+            {
+                return false;
+            }
 
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(actionInfo, actionInfo.InputAction, controlScheme, out List<string> controlPaths))
+            if (!TryGetControlPaths(actionInfo, action, controlScheme, out List<string> controlPaths))
             {
                 return false;
             }
