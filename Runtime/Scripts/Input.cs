@@ -208,7 +208,7 @@ namespace NPTP.InputSystemWrapper
         /// Try to get the ActionWrapper for the (deprecated) InputActionReference's action.
         /// Useful as a transitional tool from normal Unity Input System usage to full ISW integration.
         /// </summary>
-        // TODO (multiplayer): MP method signature which takes a PlayerID
+        // TODO: remove this method in time
         public static bool TryConvert(InputActionReference inputActionReference, out ActionWrapper actionWrapper)
         {
             if (inputActionReference != null && inputActionReference.action != null)
