@@ -20,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Editor
         {
             InputActionAsset asset = Helper.InputActionAsset;
             
-            Helper.ClearFolder(Helper.GeneratedFolderSystemPath);
+            Helper.ClearFolderRecursive(Helper.GeneratedFolderSystemPath);
             GenerateActionClasses(asset);
             
             ModifyExistingFile(asset, Helper.ControlSchemeFileSystemPath, ControlSchemeContentBuilder.AddContent);

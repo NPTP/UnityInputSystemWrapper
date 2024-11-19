@@ -52,7 +52,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber();
         internal static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
         
-        internal static void ClearFolder(string folderSystemPath)
+        internal static void ClearFolderRecursive(string folderSystemPath)
         {
             if (!Directory.Exists(folderSystemPath))
             {
@@ -65,6 +65,13 @@ namespace NPTP.InputSystemWrapper.Editor
                 foreach (string filePath in filePaths)
                 {
                     File.Delete(filePath);
+                }
+
+                string[] directoryPaths = Directory.GetDirectories(folderSystemPath);
+
+                foreach (string directoryPath in directoryPaths)
+                {
+                    Directory.Delete(directoryPath, recursive: true);
                 }
             }
         }

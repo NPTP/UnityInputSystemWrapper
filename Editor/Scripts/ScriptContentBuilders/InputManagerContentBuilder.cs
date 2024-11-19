@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.Actions;
-using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -73,12 +71,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                 case "EnableContextForAllPlayersSignature":
                     string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
                     lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
-                    break;
-                case "TryGetCurrentBindingInfo":
-                    string methodHeader = offlineInputData.EnableMultiplayer
-                        ? $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, {nameof(PlayerID)} playerID, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)"
-                        : $"        public static bool TryGetCurrentBindingInfo({nameof(ActionReference)} actionReference, out IEnumerable<{nameof(BindingInfo)}> bindingInfos)";
-                    lines.Add(methodHeader);
                     break;
                 case "PlayerGetter":
                     string playerGetter = offlineInputData.EnableMultiplayer

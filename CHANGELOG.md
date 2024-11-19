@@ -1,8 +1,12 @@
 # Input System Wrapper
 ## Changelog
 
+2.0.2
+- Fix bug where leftover action map scripts in Runtime/Scripts/Generated/Actions wouldn't get cleared on changes to action maps
+
 2.0.1
-- Optimizations in ActionWrapper lookup, refactors to further centralize everything out of player-asset-situated ActionWrappers
+- Optimizations in ActionWrapper lookup
+- Refactors to further centralize everything out of player-asset-situated ActionWrappers
 
 2.0.0
 - Architectural/API changes around rebinding controls
