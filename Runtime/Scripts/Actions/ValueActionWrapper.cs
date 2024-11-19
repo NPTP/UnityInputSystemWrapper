@@ -1,10 +1,12 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Actions
 {
     public abstract class ValueActionWrapper : ActionWrapper
     {
-        protected ValueActionWrapper(InputAction inputAction) : base(inputAction)
+        protected ValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
         {
         }
     }
@@ -13,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public T ReadValue() => InputAction.ReadValue<T>();
 
-        internal ValueActionWrapper(InputAction inputAction) : base(inputAction)
+        internal ValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
         {
         }
     }
@@ -22,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public object ReadValue() => InputAction.ReadValueAsObject();
         
-        internal AnyValueActionWrapper(InputAction inputAction) : base(inputAction)
+        internal AnyValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
         {
         }
     }

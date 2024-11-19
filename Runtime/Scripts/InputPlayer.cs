@@ -100,6 +100,7 @@ namespace NPTP.InputSystemWrapper
         private InputSystemUIInputModule uiInputModule;
         private bool keyboardTextInputEnabled;
         private readonly List<Keyboard> lastPairedKeyboards = new();
+        private readonly Dictionary<Guid, ActionWrapper> actionWrapperTable = new();
 
         #endregion
         
@@ -111,13 +112,13 @@ namespace NPTP.InputSystemWrapper
             ID = id;
             
             // MARKER.ActionsInstantiation.Start
-            Player = new PlayerActions(Asset);
-            UI = new UIActions(Asset);
-            XXX = new XXXActions(Asset);
+            Player = new PlayerActions(Asset, actionWrapperTable);
+            UI = new UIActions(Asset, actionWrapperTable);
+            XXX = new XXXActions(Asset, actionWrapperTable);
             // MARKER.ActionsInstantiation.End
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
-            
+
             // Input context gets set by top Input class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
         }
         
@@ -325,89 +326,14 @@ namespace NPTP.InputSystemWrapper
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
-        internal bool TryGetMapAndActionInPlayerAsset(InputAction actionFromReference, out InputAction action, out InputActionMap map)
-        {
-            action = null;
-            map = null;
-
-            if (actionFromReference == null)
-                return false;
-
-            map = Asset.FindActionMap(actionFromReference.actionMap.name);
-            if (map == null)
-                return false;
-            
-            action = map.FindAction(actionFromReference.name);
-            return action != null;
-        }
-        
+        /// <summary>
+        /// Get the ActionWrapper whose instance of InputAction matches the GUID of another InputAction, which may or
+        /// may not be a different instance than that in the ActionWrapper. Important in centralizing the single
+        /// source of truth for all input in the system.
+        /// </summary>
         internal bool TryGetMatchingActionWrapper(InputAction otherAction, out ActionWrapper actionWrapper)
         {
-            if (!TryGetMapAndActionInPlayerAsset(otherAction, out InputAction action, out InputActionMap map))
-            {
-                actionWrapper = null;
-                return false;
-            }
-
-            actionWrapper = FindActionWrapperProcess(action);
-            return actionWrapper != null;
-        }
-
-        // TODO: Optimize by instantiating an InputAction -> ActionWrapper dict when the player is created, and use this dict instead of this if/else madness. Will require code gen on the dict creation.
-        /// <summary>
-        /// The auto-generated code below ensures that the action used is from the correct asset AND behaves
-        /// identically to all direct action subscriptions in this wrapper system (where double subs are
-        /// prevented, subs to actions can be made at any time regardless of map/action/player state, and the
-        /// event signatures look the same as the ones subscribed to manually).
-        /// </summary>
-        private ActionWrapper FindActionWrapperProcess(InputAction action)
-        {
-            InputActionMap map = action.actionMap;
-            
-            // MARKER.FindActionWrapperIfElse.Start
-            if (Player.ActionMap == map)
-            {
-                if (action == Player.Move.InputAction) return Player.Move;
-                if (action == Player.Look.InputAction) return Player.Look;
-                if (action == Player.Fire.InputAction) return Player.Fire;
-            }
-            else if (UI.ActionMap == map)
-            {
-                if (action == UI.Navigate.InputAction) return UI.Navigate;
-                if (action == UI.Submit.InputAction) return UI.Submit;
-                if (action == UI.Cancel.InputAction) return UI.Cancel;
-                if (action == UI.Point.InputAction) return UI.Point;
-                if (action == UI.Click.InputAction) return UI.Click;
-                if (action == UI.ScrollWheel.InputAction) return UI.ScrollWheel;
-                if (action == UI.MiddleClick.InputAction) return UI.MiddleClick;
-                if (action == UI.RightClick.InputAction) return UI.RightClick;
-                if (action == UI.TrackedDevicePosition.InputAction) return UI.TrackedDevicePosition;
-                if (action == UI.TrackedDeviceOrientation.InputAction) return UI.TrackedDeviceOrientation;
-            }
-            else if (XXX.ActionMap == map)
-            {
-                if (action == XXX.Any.InputAction) return XXX.Any;
-                if (action == XXX.Analog.InputAction) return XXX.Analog;
-                if (action == XXX.Axis.InputAction) return XXX.Axis;
-                if (action == XXX.Bone.InputAction) return XXX.Bone;
-                if (action == XXX.Delta.InputAction) return XXX.Delta;
-                if (action == XXX.Digital.InputAction) return XXX.Digital;
-                if (action == XXX.Double.InputAction) return XXX.Double;
-                if (action == XXX.Dpad.InputAction) return XXX.Dpad;
-                if (action == XXX.Eyes.InputAction) return XXX.Eyes;
-                if (action == XXX.Integer.InputAction) return XXX.Integer;
-                if (action == XXX.Pose.InputAction) return XXX.Pose;
-                if (action == XXX.Quaternion.InputAction) return XXX.Quaternion;
-                if (action == XXX.Stick.InputAction) return XXX.Stick;
-                if (action == XXX.Touch.InputAction) return XXX.Touch;
-                if (action == XXX.Vector2.InputAction) return XXX.Vector2;
-                if (action == XXX.Vector3.InputAction) return XXX.Vector3;
-                if (action == XXX.Button.InputAction) return XXX.Button;
-                if (action == XXX.DiscreteButton.InputAction) return XXX.DiscreteButton;
-            }
-            // MARKER.FindActionWrapperIfElse.End
-
-            return null;
+            return actionWrapperTable.TryGetValue(otherAction.id, out actionWrapper);
         }
 
         #endregion

@@ -45,14 +45,14 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                     break;
                 case "ConstructorSignature":
-                    lines.Add($"        internal {className()}({nameof(InputActionAsset)} asset)");
+                    lines.Add($"        internal {className()}({nameof(InputActionAsset)} asset, Dictionary<Guid, {nameof(ActionWrapper)}> table)");
                     break;
                 case "ActionMapAssignment":
                     lines.Add($"            {actionMapProperty()} = asset.FindActionMap(\"{map.name}\", throwIfNotFound: true);");
                     break;
                 case "ActionWrapperAssignments":
                     foreach (string action in getActionNames())
-                        lines.Add($"            {action.AsProperty()} = new ({actionMapProperty()}.FindAction(\"{action}\", throwIfNotFound: true));");
+                        lines.Add($"            {action.AsProperty()} = new ({actionMapProperty()}.FindAction(\"{action}\", throwIfNotFound: true), table);");
                     break;
                 case "RegisterCallbacks":
                     foreach (string action in getActionNames())

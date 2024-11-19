@@ -29,7 +29,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     break;
                 case "ActionsInstantiation":
                     foreach (string map in Helper.GetMapNames(asset))
-                        lines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset);");
+                        lines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset, actionWrapperTable);");
                     break;
                 case "EventSystemOptions":
                     OfflineInputData offlineData = Helper.OfflineInputData;
@@ -75,23 +75,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         }
                         
                         lines.Add($"                    break;");
-                    }
-                    break;
-                case "FindActionWrapperIfElse":
-                    int i = 0;
-                    foreach (string map in Helper.GetMapNames(asset))
-                    {
-                        string ifElse = i == 0 ? "if" : "else if";
-                        string mapProperty = map.AsProperty();
-                        lines.Add($"            {ifElse} ({mapProperty}.ActionMap == map)");
-                        lines.Add("            {");
-                        foreach (InputAction action in asset.FindActionMap(map).actions)
-                        {
-                            string actionProperty = action.name.AsProperty();
-                            lines.Add($"                if (action == {mapProperty}.{actionProperty}.InputAction) return {mapProperty}.{actionProperty};");
-                        }
-                        lines.Add("            }");
-                        i++;
                     }
                     break;
             }

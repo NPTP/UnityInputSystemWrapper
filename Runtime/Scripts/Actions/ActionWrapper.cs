@@ -70,9 +70,10 @@ namespace NPTP.InputSystemWrapper.Actions
             InputAction.canceled -= HandleActionEvent;
         }
         
-        internal ActionWrapper(InputAction inputAction)
+        internal ActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table)
         {
             InputAction = inputAction;
+            table.Add(inputAction.id, this);
         }
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);

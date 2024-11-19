@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,20 +28,20 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         
         private bool enabled;
         
-        internal UIActions(InputActionAsset asset)
+        internal UIActions(InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
         {
             ActionMap = asset.FindActionMap("UI", throwIfNotFound: true);
             
-            Navigate = new (ActionMap.FindAction("Navigate", throwIfNotFound: true));
-            Submit = new (ActionMap.FindAction("Submit", throwIfNotFound: true));
-            Cancel = new (ActionMap.FindAction("Cancel", throwIfNotFound: true));
-            Point = new (ActionMap.FindAction("Point", throwIfNotFound: true));
-            Click = new (ActionMap.FindAction("Click", throwIfNotFound: true));
-            ScrollWheel = new (ActionMap.FindAction("ScrollWheel", throwIfNotFound: true));
-            MiddleClick = new (ActionMap.FindAction("MiddleClick", throwIfNotFound: true));
-            RightClick = new (ActionMap.FindAction("RightClick", throwIfNotFound: true));
-            TrackedDevicePosition = new (ActionMap.FindAction("TrackedDevicePosition", throwIfNotFound: true));
-            TrackedDeviceOrientation = new (ActionMap.FindAction("TrackedDeviceOrientation", throwIfNotFound: true));
+            Navigate = new (ActionMap.FindAction("Navigate", throwIfNotFound: true), table);
+            Submit = new (ActionMap.FindAction("Submit", throwIfNotFound: true), table);
+            Cancel = new (ActionMap.FindAction("Cancel", throwIfNotFound: true), table);
+            Point = new (ActionMap.FindAction("Point", throwIfNotFound: true), table);
+            Click = new (ActionMap.FindAction("Click", throwIfNotFound: true), table);
+            ScrollWheel = new (ActionMap.FindAction("ScrollWheel", throwIfNotFound: true), table);
+            MiddleClick = new (ActionMap.FindAction("MiddleClick", throwIfNotFound: true), table);
+            RightClick = new (ActionMap.FindAction("RightClick", throwIfNotFound: true), table);
+            TrackedDevicePosition = new (ActionMap.FindAction("TrackedDevicePosition", throwIfNotFound: true), table);
+            TrackedDeviceOrientation = new (ActionMap.FindAction("TrackedDeviceOrientation", throwIfNotFound: true), table);
         }
         
         internal void EnableAndRegisterCallbacks()

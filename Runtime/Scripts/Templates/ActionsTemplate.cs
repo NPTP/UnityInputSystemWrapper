@@ -1,4 +1,6 @@
-﻿using NPTP.InputSystemWrapper.Actions;
+﻿using System;
+using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
@@ -29,7 +31,7 @@ namespace NPTP.InputSystemWrapper.Generated
         private bool enabled;
         
         // MARKER.ConstructorSignature.Start
-        internal ActionsTemplate(InputActionAsset asset)
+        internal ActionsTemplate(InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
         // MARKER.ConstructorSignature.End
         {
             // MARKER.ActionMapAssignment.Start
@@ -37,8 +39,8 @@ namespace NPTP.InputSystemWrapper.Generated
             // MARKER.ActionMapAssignment.End
             
             // MARKER.ActionWrapperAssignments.Start
-            TemplateAction1 = new (ActionMap.FindAction("TemplateAction1", throwIfNotFound: true));
-            TemplateAction2 = new (ActionMap.FindAction("TemplateAction2", throwIfNotFound: true));
+            TemplateAction1 = new (ActionMap.FindAction("TemplateAction1", throwIfNotFound: true), table);
+            TemplateAction2 = new (ActionMap.FindAction("TemplateAction2", throwIfNotFound: true), table);
             // MARKER.ActionWrapperAssignments.End
             // MARKER.Ignore.Start
             throw new System.NotImplementedException($"This template class {nameof(ActionsTemplate)} should never be instantiated!");

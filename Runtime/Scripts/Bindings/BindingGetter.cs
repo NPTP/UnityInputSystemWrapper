@@ -14,13 +14,13 @@ namespace NPTP.InputSystemWrapper.Bindings
             bindingInfos = default;
             
             // Get the correct action from the player asset based on the action reference wrapper's internal reference.
-            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out InputAction action, out InputActionMap _))
+            if (!player.TryGetMatchingActionWrapper(actionInfo.InputAction, out ActionWrapper actionWrapper))
             {
                 return false;
             }
 
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(actionInfo, action, controlScheme, out List<string> controlPaths))
+            if (!TryGetControlPaths(actionInfo, actionWrapper.InputAction, controlScheme, out List<string> controlPaths))
             {
                 return false;
             }

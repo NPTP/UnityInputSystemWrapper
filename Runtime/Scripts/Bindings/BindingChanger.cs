@@ -91,13 +91,13 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         internal static void ResetBindingToDefaultForControlScheme(InputPlayer player, ActionInfo actionInfo, ControlScheme controlScheme)
         {
-            if (!player.TryGetMapAndActionInPlayerAsset(actionInfo.InputAction, out var action, out var map))
+            if (!player.TryGetMatchingActionWrapper(actionInfo.InputAction, out ActionWrapper actionWrapper))
             {
                 return;
             }
             
             bool compositeCondition(InputBinding binding) => !actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding);
-            if (RemoveDeviceOverridesFromAction(actionInfo.InputAction, controlScheme.ToBindingMask(), compositeCondition))
+            if (RemoveDeviceOverridesFromAction(actionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
             {
                 Input.BroadcastBindingsChanged();
             }

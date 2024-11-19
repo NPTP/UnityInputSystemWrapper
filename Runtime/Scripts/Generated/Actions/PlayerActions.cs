@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,13 +21,13 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         
         private bool enabled;
         
-        internal PlayerActions(InputActionAsset asset)
+        internal PlayerActions(InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
         {
             ActionMap = asset.FindActionMap("Player", throwIfNotFound: true);
             
-            Move = new (ActionMap.FindAction("Move", throwIfNotFound: true));
-            Look = new (ActionMap.FindAction("Look", throwIfNotFound: true));
-            Fire = new (ActionMap.FindAction("Fire", throwIfNotFound: true));
+            Move = new (ActionMap.FindAction("Move", throwIfNotFound: true), table);
+            Look = new (ActionMap.FindAction("Look", throwIfNotFound: true), table);
+            Fire = new (ActionMap.FindAction("Fire", throwIfNotFound: true), table);
         }
         
         internal void EnableAndRegisterCallbacks()

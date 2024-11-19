@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,28 +36,28 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         
         private bool enabled;
         
-        internal XXXActions(InputActionAsset asset)
+        internal XXXActions(InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
         {
             ActionMap = asset.FindActionMap("XXX", throwIfNotFound: true);
             
-            Any = new (ActionMap.FindAction("Any", throwIfNotFound: true));
-            Analog = new (ActionMap.FindAction("Analog", throwIfNotFound: true));
-            Axis = new (ActionMap.FindAction("Axis", throwIfNotFound: true));
-            Bone = new (ActionMap.FindAction("Bone", throwIfNotFound: true));
-            Delta = new (ActionMap.FindAction("Delta", throwIfNotFound: true));
-            Digital = new (ActionMap.FindAction("Digital", throwIfNotFound: true));
-            Double = new (ActionMap.FindAction("Double", throwIfNotFound: true));
-            Dpad = new (ActionMap.FindAction("Dpad", throwIfNotFound: true));
-            Eyes = new (ActionMap.FindAction("Eyes", throwIfNotFound: true));
-            Integer = new (ActionMap.FindAction("Integer", throwIfNotFound: true));
-            Pose = new (ActionMap.FindAction("Pose", throwIfNotFound: true));
-            Quaternion = new (ActionMap.FindAction("Quaternion", throwIfNotFound: true));
-            Stick = new (ActionMap.FindAction("Stick", throwIfNotFound: true));
-            Touch = new (ActionMap.FindAction("Touch", throwIfNotFound: true));
-            Vector2 = new (ActionMap.FindAction("Vector2", throwIfNotFound: true));
-            Vector3 = new (ActionMap.FindAction("Vector3", throwIfNotFound: true));
-            Button = new (ActionMap.FindAction("Button", throwIfNotFound: true));
-            DiscreteButton = new (ActionMap.FindAction("DiscreteButton", throwIfNotFound: true));
+            Any = new (ActionMap.FindAction("Any", throwIfNotFound: true), table);
+            Analog = new (ActionMap.FindAction("Analog", throwIfNotFound: true), table);
+            Axis = new (ActionMap.FindAction("Axis", throwIfNotFound: true), table);
+            Bone = new (ActionMap.FindAction("Bone", throwIfNotFound: true), table);
+            Delta = new (ActionMap.FindAction("Delta", throwIfNotFound: true), table);
+            Digital = new (ActionMap.FindAction("Digital", throwIfNotFound: true), table);
+            Double = new (ActionMap.FindAction("Double", throwIfNotFound: true), table);
+            Dpad = new (ActionMap.FindAction("Dpad", throwIfNotFound: true), table);
+            Eyes = new (ActionMap.FindAction("Eyes", throwIfNotFound: true), table);
+            Integer = new (ActionMap.FindAction("Integer", throwIfNotFound: true), table);
+            Pose = new (ActionMap.FindAction("Pose", throwIfNotFound: true), table);
+            Quaternion = new (ActionMap.FindAction("Quaternion", throwIfNotFound: true), table);
+            Stick = new (ActionMap.FindAction("Stick", throwIfNotFound: true), table);
+            Touch = new (ActionMap.FindAction("Touch", throwIfNotFound: true), table);
+            Vector2 = new (ActionMap.FindAction("Vector2", throwIfNotFound: true), table);
+            Vector3 = new (ActionMap.FindAction("Vector3", throwIfNotFound: true), table);
+            Button = new (ActionMap.FindAction("Button", throwIfNotFound: true), table);
+            DiscreteButton = new (ActionMap.FindAction("DiscreteButton", throwIfNotFound: true), table);
         }
         
         internal void EnableAndRegisterCallbacks()

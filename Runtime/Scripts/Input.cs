@@ -214,7 +214,7 @@ namespace NPTP.InputSystemWrapper
             if (inputActionReference != null && inputActionReference.action != null)
             {
                 // MARKER.PlayerGetter.Start
-                InputPlayer player = Player1;
+            InputPlayer player = Player1;
                 // MARKER.PlayerGetter.End
 
                 return player.TryGetMatchingActionWrapper(inputActionReference.action, out actionWrapper);
