@@ -214,7 +214,7 @@ namespace NPTP.InputSystemWrapper
             if (inputActionReference != null && inputActionReference.action != null)
             {
                 // MARKER.PlayerGetter.Start
-            InputPlayer player = Player1;
+                InputPlayer player = Player1;
                 // MARKER.PlayerGetter.End
 
                 return player.TryGetMatchingActionWrapper(inputActionReference.action, out actionWrapper);
@@ -321,7 +321,7 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool TryGetCurrentBindingInfo(ActionInfo actionInfo, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (playerCollection.TryGetPlayerAssociatedWithAsset(actionInfo.ActionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            if (!playerCollection.TryGetPlayerAssociatedWithAsset(actionInfo.ActionWrapper.InputAction.actionMap.asset, out InputPlayer player))
             {
                 bindingInfos = default;
                 return false;

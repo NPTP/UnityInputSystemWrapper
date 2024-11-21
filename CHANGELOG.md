@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+2.0.3
+- Fix bug with missing ! negation that prevents binding info from being found
+
 2.0.2
 - Fix bug where leftover action map scripts in Runtime/Scripts/Generated/Actions wouldn't get cleared on changes to action maps
 
