@@ -19,6 +19,6 @@ namespace NPTP.InputSystemWrapper.Bindings
             PlayerPrefs.SetString(GetPlayerPrefsBindingsKey(inputPlayer.ID), bindingsJson);
         }
         
-        private static string GetPlayerPrefsBindingsKey(PlayerID playerID) => $"{playerID}Bindings";
+        private static string GetPlayerPrefsBindingsKey(PlayerID playerID) => $"{playerID}InputBindings";
     }
 }

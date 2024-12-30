@@ -11,11 +11,6 @@ namespace NPTP.InputSystemWrapper.Enums
         Submit,
         Cancel,
         TrackedDevicePosition,
-        TrackedDeviceOrientation        
-    }
-
-    internal static class EventSystemActionTypeExtensions
-    {
-        
+        TrackedDeviceOrientation
     }
 }

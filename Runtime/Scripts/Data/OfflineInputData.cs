@@ -1,3 +1,4 @@
+using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -32,6 +33,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private bool enableMultiplayer;
         public bool EnableMultiplayer => enableMultiplayer;
         
+        // TODO (multiplayer): remove player limits, refactor playerIDs etc. Lazy initialization on ID entry. 
         [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
         public int MaxPlayers => maxPlayers;
 
@@ -89,6 +91,13 @@ namespace NPTP.InputSystemWrapper.Data
         public InputActionReference Cancel => cancel;
         public InputActionReference TrackedDevicePosition => trackedDevicePosition;
         public InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
+
+        public int GetEventSystemActionNonNullOverrideCount()
+        {
+            return InputContexts
+                .SelectMany(inputContextInfo => inputContextInfo.EventSystemActionOverrides)
+                .Count(spec => spec.ActionReference != null && spec.ActionReference.action != null);
+        }
 
         private void OnValidate()
         {

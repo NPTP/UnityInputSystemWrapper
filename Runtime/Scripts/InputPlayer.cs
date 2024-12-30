@@ -95,13 +95,27 @@ namespace NPTP.InputSystemWrapper
         
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
         
+        private readonly List<Keyboard> lastPairedKeyboards = new();
+        private readonly Dictionary<Guid, ActionWrapper> actionWrapperTable = new();
+        
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
         private bool keyboardTextInputEnabled;
-        private readonly List<Keyboard> lastPairedKeyboards = new();
-        private readonly Dictionary<Guid, ActionWrapper> actionWrapperTable = new();
 
+        // Event System actions
+        private readonly Dictionary<string, InputActionReference> eventSystemActionsPool = new();
+        private InputActionReference defaultPoint;
+        private InputActionReference defaultLeftClick;
+        private InputActionReference defaultMiddleClick;
+        private InputActionReference defaultRightClick;
+        private InputActionReference defaultScrollWheel;
+        private InputActionReference defaultMove;
+        private InputActionReference defaultSubmit;
+        private InputActionReference defaultCancel;
+        private InputActionReference defaultTrackedDevicePosition;
+        private InputActionReference defaultTrackedDeviceOrientation;
+        
         #endregion
         
         #region Setup & Teardown
@@ -118,7 +132,8 @@ namespace NPTP.InputSystemWrapper
             // MARKER.ActionsInstantiation.End
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
-
+            PopulateEventSystemActionsPool();
+            
             // Input context gets set by top Input class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
         }
         
@@ -188,21 +203,49 @@ namespace NPTP.InputSystemWrapper
             uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
             // MARKER.EventSystemOptions.End
         }
+        
+        /// <summary>
+        /// Adds all default and override event system InputActionReferences to a shared pool to
+        /// reduce duplication and lookup time.
+        /// </summary>
+        private void PopulateEventSystemActionsPool()
+        {
+            // MARKER.PopulateEventSystemActionsPool.Start
+            defaultPoint = CreateInputActionReferenceToPlayerAsset("32b35790-4ed0-4e9a-aa41-69ac6d629449");
+            eventSystemActionsPool.Add("32b35790-4ed0-4e9a-aa41-69ac6d629449", defaultPoint);
+            defaultLeftClick = CreateInputActionReferenceToPlayerAsset("3c7022bf-7922-4f7c-a998-c437916075ad");
+            eventSystemActionsPool.Add("3c7022bf-7922-4f7c-a998-c437916075ad", defaultLeftClick);
+            defaultMiddleClick = CreateInputActionReferenceToPlayerAsset("dad70c86-b58c-4b17-88ad-f5e53adf419e");
+            eventSystemActionsPool.Add("dad70c86-b58c-4b17-88ad-f5e53adf419e", defaultMiddleClick);
+            defaultRightClick = CreateInputActionReferenceToPlayerAsset("44b200b1-1557-4083-816c-b22cbdf77ddf");
+            eventSystemActionsPool.Add("44b200b1-1557-4083-816c-b22cbdf77ddf", defaultRightClick);
+            defaultScrollWheel = CreateInputActionReferenceToPlayerAsset("0489e84a-4833-4c40-bfae-cea84b696689");
+            eventSystemActionsPool.Add("0489e84a-4833-4c40-bfae-cea84b696689", defaultScrollWheel);
+            defaultMove = CreateInputActionReferenceToPlayerAsset("c95b2375-e6d9-4b88-9c4c-c5e76515df4b");
+            eventSystemActionsPool.Add("c95b2375-e6d9-4b88-9c4c-c5e76515df4b", defaultMove);
+            defaultSubmit = CreateInputActionReferenceToPlayerAsset("7607c7b6-cd76-4816-beef-bd0341cfe950");
+            eventSystemActionsPool.Add("7607c7b6-cd76-4816-beef-bd0341cfe950", defaultSubmit);
+            defaultCancel = CreateInputActionReferenceToPlayerAsset("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
+            eventSystemActionsPool.Add("15cef263-9014-4fd5-94d9-4e4a6234a6ef", defaultCancel);
+            defaultTrackedDevicePosition = CreateInputActionReferenceToPlayerAsset("24908448-c609-4bc3-a128-ea258674378a");
+            eventSystemActionsPool.Add("24908448-c609-4bc3-a128-ea258674378a", defaultTrackedDevicePosition);
+            defaultTrackedDeviceOrientation = CreateInputActionReferenceToPlayerAsset("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
+            eventSystemActionsPool.Add("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be", defaultTrackedDeviceOrientation);
+            // MARKER.PopulateEventSystemActionsPool.End
+        }
 
         private void SetDefaultEventSystemActions()
         {
-            // MARKER.EventSystemActions.Start
-            uiInputModule.point = CreateInputActionReferenceToPlayerAsset("32b35790-4ed0-4e9a-aa41-69ac6d629449");
-            uiInputModule.leftClick = CreateInputActionReferenceToPlayerAsset("3c7022bf-7922-4f7c-a998-c437916075ad");
-            uiInputModule.middleClick = CreateInputActionReferenceToPlayerAsset("dad70c86-b58c-4b17-88ad-f5e53adf419e");
-            uiInputModule.rightClick = CreateInputActionReferenceToPlayerAsset("44b200b1-1557-4083-816c-b22cbdf77ddf");
-            uiInputModule.scrollWheel = CreateInputActionReferenceToPlayerAsset("0489e84a-4833-4c40-bfae-cea84b696689");
-            uiInputModule.move = CreateInputActionReferenceToPlayerAsset("c95b2375-e6d9-4b88-9c4c-c5e76515df4b");
-            uiInputModule.submit = CreateInputActionReferenceToPlayerAsset("7607c7b6-cd76-4816-beef-bd0341cfe950");
-            uiInputModule.cancel = CreateInputActionReferenceToPlayerAsset("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
-            uiInputModule.trackedDevicePosition = CreateInputActionReferenceToPlayerAsset("24908448-c609-4bc3-a128-ea258674378a");
-            uiInputModule.trackedDeviceOrientation = CreateInputActionReferenceToPlayerAsset("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
-            // MARKER.EventSystemActions.End
+            uiInputModule.point = defaultPoint;
+            uiInputModule.leftClick = defaultLeftClick;
+            uiInputModule.middleClick = defaultMiddleClick;
+            uiInputModule.rightClick = defaultRightClick;
+            uiInputModule.scrollWheel = defaultScrollWheel;
+            uiInputModule.move = defaultMove;
+            uiInputModule.submit = defaultSubmit;
+            uiInputModule.cancel = defaultCancel;
+            uiInputModule.trackedDevicePosition = defaultTrackedDevicePosition;
+            uiInputModule.trackedDeviceOrientation = defaultTrackedDeviceOrientation;
         }
         
         private InputActionReference CreateInputActionReferenceToPlayerAsset(string actionID)
@@ -450,15 +493,6 @@ namespace NPTP.InputSystemWrapper
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);
             }
-            
-            // TODO (optimization): possibility that the InputActionReference ScriptableObjects (for event system actions)
-            // do not get garbage collected as one might expect, so we do it manually via Resources.UnloadUnusedAssets.
-            // However, this can be overkill if there are lots of other assets to unload, and can cause a performance hitch.
-            // So, we should have a much more controlled management of which InputActionReferences are destroyed, maintained etc. by
-            // keeping track of which ones were overridden and which weren't, and call Destroy on those specific ones so the GC
-            // takes care of them at a better time.
-            
-            Resources.UnloadUnusedAssets();
         }
 
         #endregion

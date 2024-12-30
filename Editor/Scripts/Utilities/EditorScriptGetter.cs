@@ -62,6 +62,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Editor
 
         private static bool IsRecord(Type type, MonoScript scriptAsset)
         {
+            // TODO (bugfix): Getting errors trying to read scriptAsset.text from the scripts that we are generating, during the code generation itself.
             return type.IsClass && scriptAsset.text.Contains($"record {type.Name}");
         }
     }
