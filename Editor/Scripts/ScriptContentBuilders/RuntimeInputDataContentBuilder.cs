@@ -12,6 +12,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             switch (markerName)
             {
                 case "ControlSchemeBindingData":
+                    if (asset.controlSchemes.Count > 0)
+                        lines.Add($"        [Header(\"Input Device Binding Data (Auto-Generated List)\")] [Space]");
                     foreach (InputControlScheme controlScheme in asset.controlSchemes)
                         lines.Add($"        [SerializeField] private {nameof(BindingData)} {controlScheme.name.AsField()}BindingData;");
                     break;

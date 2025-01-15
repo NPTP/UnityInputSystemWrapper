@@ -15,7 +15,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputActionAsset inputActionAsset;
         public InputActionAsset InputActionAsset => inputActionAsset;
 
-        [Header("Input Device Binding Data (Auto-Generated List)")] [Space]
         // MARKER.ControlSchemeBindingData.Start
         [SerializeField] private BindingData keyboardMouseBindingData;
         [SerializeField] private BindingData gamepadBindingData;
