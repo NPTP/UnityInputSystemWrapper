@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -45,9 +46,9 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     addEmptyLine();
                     lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     addEmptyLine();
-                    foreach (string mapName in Helper.GetMapNames(asset))
-                        lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};");
-                    addEmptyLine();
+                    string[] mapNames = Helper.GetMapNames(asset).ToArray();
+                    lines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};"));
+                    if (mapNames.Length > 0) addEmptyLine();
                     lines.Add($"        public static {nameof(InputContext)} Context");
                     lines.Add("        {");
                     lines.Add($"            get => Player1.InputContext;");

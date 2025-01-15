@@ -3,9 +3,7 @@ namespace NPTP.InputSystemWrapper.Enums
     public enum InputContext
     {
         // MARKER.Members.Start
-        AllInputDisabled,
-        Player,
-        UI,
+        Default
         // MARKER.Members.End
     }
 }

@@ -16,11 +16,6 @@ namespace NPTP.InputSystemWrapper.Data
         public InputActionAsset InputActionAsset => inputActionAsset;
 
         // MARKER.ControlSchemeBindingData.Start
-        [SerializeField] private BindingData keyboardMouseBindingData;
-        [SerializeField] private BindingData gamepadBindingData;
-        [SerializeField] private BindingData touchBindingData;
-        [SerializeField] private BindingData joystickBindingData;
-        [SerializeField] private BindingData xRBindingData;
         // MARKER.ControlSchemeBindingData.End
 
         public BindingData GetControlSchemeBindingData(ControlScheme controlScheme)
@@ -28,11 +23,6 @@ namespace NPTP.InputSystemWrapper.Data
             return controlScheme switch
             {
                 // MARKER.EnumToBindingDataSwitch.Start
-                ControlScheme.KeyboardMouse => keyboardMouseBindingData,
-                ControlScheme.Gamepad => gamepadBindingData,
-                ControlScheme.Touch => touchBindingData,
-                ControlScheme.Joystick => joystickBindingData,
-                ControlScheme.XR => xRBindingData,
                 // MARKER.EnumToBindingDataSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
             };

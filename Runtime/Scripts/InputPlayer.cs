@@ -76,9 +76,6 @@ namespace NPTP.InputSystemWrapper
         public ControlScheme CurrentControlScheme { get; private set; }
         
         // MARKER.ActionsProperties.Start
-        public PlayerActions Player { get; }
-        public UIActions UI { get; }
-        public XXXActions XXX { get; }
         // MARKER.ActionsProperties.End
 
         private InputDevice lastUsedDevice;
@@ -126,9 +123,6 @@ namespace NPTP.InputSystemWrapper
             ID = id;
             
             // MARKER.ActionsInstantiation.Start
-            Player = new PlayerActions(Asset, actionWrapperTable);
-            UI = new UIActions(Asset, actionWrapperTable);
-            XXX = new XXXActions(Asset, actionWrapperTable);
             // MARKER.ActionsInstantiation.End
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
@@ -211,26 +205,6 @@ namespace NPTP.InputSystemWrapper
         private void PopulateEventSystemActionsPool()
         {
             // MARKER.PopulateEventSystemActionsPool.Start
-            defaultPoint = CreateInputActionReferenceToPlayerAsset("32b35790-4ed0-4e9a-aa41-69ac6d629449");
-            eventSystemActionsPool.Add("32b35790-4ed0-4e9a-aa41-69ac6d629449", defaultPoint);
-            defaultLeftClick = CreateInputActionReferenceToPlayerAsset("3c7022bf-7922-4f7c-a998-c437916075ad");
-            eventSystemActionsPool.Add("3c7022bf-7922-4f7c-a998-c437916075ad", defaultLeftClick);
-            defaultMiddleClick = CreateInputActionReferenceToPlayerAsset("dad70c86-b58c-4b17-88ad-f5e53adf419e");
-            eventSystemActionsPool.Add("dad70c86-b58c-4b17-88ad-f5e53adf419e", defaultMiddleClick);
-            defaultRightClick = CreateInputActionReferenceToPlayerAsset("44b200b1-1557-4083-816c-b22cbdf77ddf");
-            eventSystemActionsPool.Add("44b200b1-1557-4083-816c-b22cbdf77ddf", defaultRightClick);
-            defaultScrollWheel = CreateInputActionReferenceToPlayerAsset("0489e84a-4833-4c40-bfae-cea84b696689");
-            eventSystemActionsPool.Add("0489e84a-4833-4c40-bfae-cea84b696689", defaultScrollWheel);
-            defaultMove = CreateInputActionReferenceToPlayerAsset("c95b2375-e6d9-4b88-9c4c-c5e76515df4b");
-            eventSystemActionsPool.Add("c95b2375-e6d9-4b88-9c4c-c5e76515df4b", defaultMove);
-            defaultSubmit = CreateInputActionReferenceToPlayerAsset("7607c7b6-cd76-4816-beef-bd0341cfe950");
-            eventSystemActionsPool.Add("7607c7b6-cd76-4816-beef-bd0341cfe950", defaultSubmit);
-            defaultCancel = CreateInputActionReferenceToPlayerAsset("15cef263-9014-4fd5-94d9-4e4a6234a6ef");
-            eventSystemActionsPool.Add("15cef263-9014-4fd5-94d9-4e4a6234a6ef", defaultCancel);
-            defaultTrackedDevicePosition = CreateInputActionReferenceToPlayerAsset("24908448-c609-4bc3-a128-ea258674378a");
-            eventSystemActionsPool.Add("24908448-c609-4bc3-a128-ea258674378a", defaultTrackedDevicePosition);
-            defaultTrackedDeviceOrientation = CreateInputActionReferenceToPlayerAsset("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
-            eventSystemActionsPool.Add("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be", defaultTrackedDeviceOrientation);
             // MARKER.PopulateEventSystemActionsPool.End
         }
 
@@ -448,9 +422,6 @@ namespace NPTP.InputSystemWrapper
         private void DisableAllMapsAndRemoveCallbacks()
         {
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.Start
-            Player.DisableAndUnregisterCallbacks();
-            UI.DisableAndUnregisterCallbacks();
-            XXX.DisableAndUnregisterCallbacks();
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
         }
         
@@ -471,24 +442,6 @@ namespace NPTP.InputSystemWrapper
             switch (context)
             {
                 // MARKER.EnableContextSwitchMembers.Start
-                case InputContext.AllInputDisabled:
-                    DisableKeyboardTextInput();
-                    Player.DisableAndUnregisterCallbacks();
-                    UI.DisableAndUnregisterCallbacks();
-                    XXX.DisableAndUnregisterCallbacks();
-                    break;
-                case InputContext.Player:
-                    DisableKeyboardTextInput();
-                    Player.DisableAndUnregisterCallbacks();
-                    UI.DisableAndUnregisterCallbacks();
-                    XXX.EnableAndRegisterCallbacks();
-                    break;
-                case InputContext.UI:
-                    EnableKeyboardTextInput();
-                    Player.DisableAndUnregisterCallbacks();
-                    UI.EnableAndRegisterCallbacks();
-                    XXX.DisableAndUnregisterCallbacks();
-                    break;
                 // MARKER.EnableContextSwitchMembers.End
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context), context, null);

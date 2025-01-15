@@ -37,7 +37,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
         public int MaxPlayers => maxPlayers;
 
-        [SerializeField] private InputContext defaultContext;
+        [SerializeField] private InputContext defaultContext = 0;
         public InputContext DefaultContext => defaultContext;
         
         [SerializeField] private InputContextInfo[] inputContexts;

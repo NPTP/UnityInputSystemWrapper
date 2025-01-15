@@ -69,10 +69,6 @@ namespace NPTP.InputSystemWrapper
             remove => Player1.OnKeyboardTextInput -= value;
         }
 
-        public static PlayerActions Player => Player1.Player;
-        public static UIActions UI => Player1.UI;
-        public static XXXActions XXX => Player1.XXX;
-
         public static InputContext Context
         {
             get => Player1.InputContext;
@@ -87,7 +83,7 @@ namespace NPTP.InputSystemWrapper
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
 
         // MARKER.DefaultContextProperty.Start
-        private static InputContext DefaultContext => InputContext.Player;
+        private static InputContext DefaultContext => InputContext.Default;
         // MARKER.DefaultContextProperty.End
 
         private static bool initialized;

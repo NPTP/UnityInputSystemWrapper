@@ -6,11 +6,6 @@ namespace NPTP.InputSystemWrapper.Enums
     public enum ControlScheme
     {
         // MARKER.Members.Start
-        KeyboardMouse,
-        Gamepad,
-        Touch,
-        Joystick,
-        XR,
         // MARKER.Members.End
     }
 
@@ -25,11 +20,6 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlSchemeEnum switch
             {
                 // MARKER.EnumToStringSwitch.Start
-                ControlScheme.KeyboardMouse => "Keyboard Mouse",
-                ControlScheme.Gamepad => "Gamepad",
-                ControlScheme.Touch => "Touch",
-                ControlScheme.Joystick => "Joystick",
-                ControlScheme.XR => "XR",
                 // MARKER.EnumToStringSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeEnum), controlSchemeEnum, null)
             };
@@ -43,11 +33,6 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlSchemeName switch
             {
                 // MARKER.StringToEnumSwitch.Start
-                "Keyboard Mouse" => ControlScheme.KeyboardMouse,
-                "Gamepad" => ControlScheme.Gamepad,
-                "Touch" => ControlScheme.Touch,
-                "Joystick" => ControlScheme.Joystick,
-                "XR" => ControlScheme.XR,
                 // MARKER.StringToEnumSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeName), controlSchemeName, null)
             };

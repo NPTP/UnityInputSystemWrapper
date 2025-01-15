@@ -17,23 +17,9 @@ MonoBehaviour:
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
   enableMultiplayer: 0
-  maxPlayers: 3
-  defaultContext: 1
-  inputContexts:
-  - name: AllInputDisabled
-    enableKeyboardTextInput: 0
-    activeMaps: []
-    eventSystemActionOverrides: []
-  - name: Player
-    enableKeyboardTextInput: 0
-    activeMaps:
-    - XXX
-    eventSystemActionOverrides: []
-  - name: UI
-    enableKeyboardTextInput: 1
-    activeMaps:
-    - UI
-    eventSystemActionOverrides: []
+  maxPlayers: 2
+  defaultContext: 0
+  inputContexts: []
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape
@@ -42,13 +28,13 @@ MonoBehaviour:
   deselectOnBackgroundClick: 0
   pointerBehavior: 0
   cursorLockBehavior: 0
-  point: {fileID: -1654692200621890270, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  leftClick: {fileID: 3001919216989983466, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  middleClick: {fileID: -2185481485913320682, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  rightClick: {fileID: -4090225696740746782, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  scrollWheel: {fileID: 6240969308177333660, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  move: {fileID: -8784545083839296357, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  submit: {fileID: 392368643174621059, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  cancel: {fileID: 7727032971491509709, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  trackedDevicePosition: {fileID: 6564999863303420839, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
-  trackedDeviceOrientation: {fileID: 7970375526676320489, guid: ab3e06bb3f2f86d4ba4cb19225032823, type: 3}
+  point: {fileID: 0}
+  leftClick: {fileID: 0}
+  middleClick: {fileID: 0}
+  rightClick: {fileID: 0}
+  scrollWheel: {fileID: 0}
+  move: {fileID: 0}
+  submit: {fileID: 0}
+  cancel: {fileID: 0}
+  trackedDevicePosition: {fileID: 0}
+  trackedDeviceOrientation: {fileID: 0}

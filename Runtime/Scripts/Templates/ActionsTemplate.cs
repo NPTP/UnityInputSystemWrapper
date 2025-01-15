@@ -14,7 +14,7 @@ using Button = UnityEngine.InputSystem.HID.HID.Button;
 // MARKER.GeneratorNotice.Start
 // MARKER.GeneratorNotice.End
 // MARKER.Namespace.Start
-namespace NPTP.InputSystemWrapper.Generated
+namespace NPTP.InputSystemWrapper.Generated.Actions
 // MARKER.Namespace.End
 {
     // MARKER.ClassSignature.Start
