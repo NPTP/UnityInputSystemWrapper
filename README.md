@@ -18,6 +18,7 @@ TODO's exist in the code for immediate next attention, as well as the following 
 #### Future nice-to-haves:
 - [✔] Display name in BindingInfo has an event requesting a localized string that can be hooked into. Otherwise, we could use LocalizedString (which would require a Localization package dependency)
 - [✔] Optimize Input Context switching
+- [ ] Reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity
 - [ ] OfflineInputData "excluded" and "cancel" controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields. Format themselves correctly.
 - [ ] Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - [ ] Binding icon data only gets loaded in when needed instead of being always loaded (Addressables package dependency, should work just like localization strings do with Addressables)

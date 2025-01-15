@@ -128,7 +128,10 @@ namespace NPTP.InputSystemWrapper
             int maxPlayers = Enum.GetValues(typeof(PlayerID)).Length;
             
             // TODO (optimization): Could make startup slow. It should probably just be a requirement of using this package that you clear your old input modules & event systems out.
-            ObjectUtility.DestroyAllObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
+            ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
+            
+            // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
+            CustomBindingAndDeviceRegistration.PerformRegistrations();
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
 #if UNITY_EDITOR
@@ -140,7 +143,6 @@ namespace NPTP.InputSystemWrapper
             anyButtonPressListeners = new HashSet<Action<InputControl>>();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
-            InputDeviceRegistration.PerformRegistrations();
             
             initialized = true;
         }

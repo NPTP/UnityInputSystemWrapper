@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+2.0.4
+- Fix bug with custom binding & device registrations not being found in builds
+
 2.0.3
 - Fix bug with missing ! negation that prevents binding info from being found
 
