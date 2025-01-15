@@ -16,10 +16,10 @@ namespace NPTP.InputSystemWrapper.InputDevices
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    internal static class CustomBindingAndDeviceRegistration
+    internal static class CustomSetupsRegisterer
     {
 #if UNITY_EDITOR
-        static CustomBindingAndDeviceRegistration()
+        static CustomSetupsRegisterer()
         {
             // PerformRegistrations is called when playing at a specific time, so prevent doing it twice.
             if (Application.isPlaying)
