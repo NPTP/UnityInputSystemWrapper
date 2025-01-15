@@ -62,7 +62,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
-                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
+                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{((InputContext)offlineInputData.DefaultContext).ToString()};");
                     break;
                 case "Initialize":
                     if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
