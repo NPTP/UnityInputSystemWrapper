@@ -83,7 +83,7 @@ namespace NPTP.InputSystemWrapper
         // MARKER.SingleOrMultiPlayerFieldsAndProperties.End
 
         // MARKER.DefaultContextProperty.Start
-        private static InputContext DefaultContext => InputContext.Default;
+        private static InputContext DefaultContext => 0;
         // MARKER.DefaultContextProperty.End
 
         private static bool initialized;
