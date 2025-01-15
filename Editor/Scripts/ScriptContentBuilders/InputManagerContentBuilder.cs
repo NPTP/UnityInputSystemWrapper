@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Enums;
@@ -62,7 +63,17 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
-                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{((InputContext)offlineInputData.DefaultContext).ToString()};");
+                    string defaultContextValue = $"{nameof(InputContext)}.{offlineInputData.DefaultContext}";
+                    if (offlineInputData.InputContexts.Length == 0)
+                    {
+                        lines.Add(">>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Comment out this line to allow recompilation, add at least 1 InputContext, then re-save the asset.");
+                        defaultContextValue = "0";
+                    }
+                    else if (Enum.GetNames(typeof(InputContext)).Length == 0)
+                    {
+                        defaultContextValue = $"{nameof(InputContext)}.{offlineInputData.InputContexts[0].Name}";
+                    }
+                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {defaultContextValue};");
                     break;
                 case "Initialize":
                     if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
