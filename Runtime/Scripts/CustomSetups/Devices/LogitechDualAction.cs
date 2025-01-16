@@ -4,7 +4,7 @@ using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 
-namespace NPTP.InputSystemWrapper.InputDevices.Devices
+namespace NPTP.InputSystemWrapper.CustomSetups.Devices
 {
     [InputControlLayout(stateType = typeof(LogitechDualActionLayout))]
     public class LogitechDualAction : Gamepad

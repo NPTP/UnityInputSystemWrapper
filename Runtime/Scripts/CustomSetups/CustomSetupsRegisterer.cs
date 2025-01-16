@@ -1,12 +1,13 @@
-using NPTP.InputSystemWrapper.InputDevices.Bindings;
-using NPTP.InputSystemWrapper.InputDevices.Devices;
+using NPTP.InputSystemWrapper.CustomSetups.Bindings;
+using NPTP.InputSystemWrapper.CustomSetups.Devices;
+using NPTP.InputSystemWrapper.InputDevices.Interactions;
 
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 #endif
 
-namespace NPTP.InputSystemWrapper.InputDevices
+namespace NPTP.InputSystemWrapper.CustomSetups
 {
     /// <summary>
     /// Register additional bindings and input device layouts that this package supports
@@ -33,16 +34,22 @@ namespace NPTP.InputSystemWrapper.InputDevices
         
         internal static void PerformRegistrations()
         {
-            RegisterSupplementaryBindings();
-            RegisterSupplementaryDevices();
+            RegisterCustomInteractions();
+            RegisterCustomBindings();
+            RegisterCustomDevices();
         }
 
-        private static void RegisterSupplementaryBindings()
+        private static void RegisterCustomInteractions()
+        {
+            FixedHoldInteraction.Register();
+        }
+
+        private static void RegisterCustomBindings()
         {
             TwoAxisComposite.Register();
         }
         
-        private static void RegisterSupplementaryDevices()
+        private static void RegisterCustomDevices()
         {
             LogitechDualAction.Register();
             GenericUSBGamepad.Register();

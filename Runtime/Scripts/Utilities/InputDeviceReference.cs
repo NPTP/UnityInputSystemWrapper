@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace NPTP.InputSystemWrapper.InputDevices
+namespace NPTP.InputSystemWrapper.Utilities
 {
     /// <summary>
     /// String container with a custom property drawer that lets us select from every device supported by

@@ -12,7 +12,7 @@ using UnityEngine.InputSystem.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
-using NPTP.InputSystemWrapper.InputDevices;
+using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Utilities;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
