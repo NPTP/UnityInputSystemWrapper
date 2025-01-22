@@ -1,6 +1,6 @@
 using System;
 
-namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
+namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums
 {
     public enum AccessModifier
     {
@@ -12,7 +12,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         PrivateProtected,
         
         /// <summary>
-        /// Potentially unsupported in this version of C#
+        /// Potentially unsupported in Unity's version of C#
         /// </summary>
         File
     }

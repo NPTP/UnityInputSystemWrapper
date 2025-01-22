@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Text;
+using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
-namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
+namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
-    public abstract class GeneratedObjectDefinition : GeneratedBase
+    public abstract class GeneratableTypeDefinition : GeneratableBase
     {
         private const int TAB_SPACES_COUNT = 4;
         private const string OPEN_BRACE = "{";
         private const string CLOSE_BRACE = "}";
 
-        protected abstract ObjectType ObjectType { get; }
+        protected abstract TypeDefinition TypeDefinition { get; }
 
         internal List<string> Directives { get; } = new();
         internal string Namespace { get; set; }
@@ -18,16 +19,16 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         internal bool IsPartial { get; set; }
         internal string InheritsFrom { get; set; }
 
-        internal List<GeneratedField> Fields { get; } = new();
-        internal List<GeneratedProperty> Properties { get; } = new();
-        internal List<GeneratedMethod> Methods { get; } = new();
+        internal List<GeneratableField> Fields { get; } = new();
+        internal List<GeneratableProperty> Properties { get; } = new();
+        internal List<GeneratableMethod> Methods { get; } = new();
 
-        internal GeneratedObjectDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier)
+        internal GeneratableTypeDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier)
         {
             Name = name;
         }
 
-        internal string GenerateStringRepresentation()
+        public override string GenerateStringRepresentation()
         {
             int indent = 0;
             StringBuilder sb = new();
@@ -107,7 +108,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
             string accessModifier = AccessModifier.AsString();
             string inheritanceModifier = InheritanceModifier.AsString();
             string partial = IsPartial ? "partial" : string.Empty;
-            string objectType = ObjectType.AsString();
+            string objectType = TypeDefinition.AsString();
             string name = Name;
             string inheritsFrom = InheritsFrom;
 
@@ -123,7 +124,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
 
         private void AddFields(StringBuilder sb, int indent)
         {
-            Fields.ForEach(field => AddLine(sb, indent, field.AsString()));
+            Fields.ForEach(field => AddLine(sb, indent, field.GenerateStringRepresentation()));
             if (Fields.Count > 0 && (Methods.Count > 0 || Properties.Count > 0)) AddEmptyLine(sb);
         }
     }

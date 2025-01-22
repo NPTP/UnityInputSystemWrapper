@@ -1,6 +1,6 @@
 using System;
 
-namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
+namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums
 {
     public enum InheritanceModifier
     {

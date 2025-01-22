@@ -1,9 +1,10 @@
 using System;
 using System.Text;
+using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
-namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
+namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
-    public class GeneratedField : GeneratedBase
+    public class GeneratableField : GeneratableBase
     {
         private const string CONST = "const";
         
@@ -13,13 +14,13 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         private string initialValueString;
 
         // TODO: Support setting an initial value
-        public GeneratedField(string name, AccessModifier accessModifier, bool isConst, Type fieldType) : base(name, accessModifier)
+        public GeneratableField(string name, AccessModifier accessModifier, bool isConst, Type fieldType) : base(name, accessModifier)
         {
             this.isConst = isConst;
             this.fieldType = fieldType;
         }
-        
-        public string AsString()
+
+        public override string GenerateStringRepresentation()
         {
             StringBuilder field = new();
             field.Append(AccessModifier.AsString());
