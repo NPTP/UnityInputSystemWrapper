@@ -3,7 +3,7 @@ using NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable;
 
 namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
 {
-    public static class SourceGenerator
+    public static class SourceGen
     {
         #region Generalized
         
@@ -39,7 +39,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         
         #region Generatable Enum
         
-        public static GeneratableEnum NewGeneratedEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
+        public static GeneratableEnum NewGeneratableEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
 
         public static GeneratableEnum AsFlags(this GeneratableEnum gen)
         {
@@ -69,7 +69,8 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
 
         #region Generatable Type Definition
 
-        public static GeneratableClass NewGeneratedClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier);
+        public static GeneratableClass NewGeneratableClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier, isStatic: false);
+        public static GeneratableClass NewStaticGeneratableClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier, isStatic: true);
 
         public static GeneratableTypeDefinition WithInheritanceModifier(this GeneratableTypeDefinition gen, InheritanceModifier inheritanceModifier)
         {
@@ -95,39 +96,57 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
             return gen;
         }
 
-        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
-        {
-            gen.AddField(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
-            return gen;
-        }
-        
         public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            gen.AddField(new GeneratableField<T>(fieldName, accessModifier));
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false));
             return gen;
         }
 
         public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, initialValue));
-            return gen;
-        }
-
-        public static GeneratableTypeDefinition WithProperty(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, AccessModifier setModifier)
-        {
-            gen.AddProperty(new GeneratableProperty(propertyName, getModifier, setModifier));
-            return gen;
-        }
-
-        public static GeneratableTypeDefinition WithStaticMethod(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier)
-        {
-            gen.AddMethod(new GeneratableMethod(methodName, accessModifier, isStatic: true, InheritanceModifier.None));
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: false, initialValue));
             return gen;
         }
         
-        public static GeneratableTypeDefinition WithMethod(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier)
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            gen.AddMethod(new GeneratableMethod(methodName, accessModifier, isStatic: false, inheritanceModifier));
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithStaticField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, isStatic: true, initialValue));
+            return gen;
+        }
+        
+        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            gen.AddField(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithProperty(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, AccessModifier setModifier, bool isStatic)
+        {
+            gen.AddProperty(new GeneratableProperty(propertyName, getModifier, setModifier, isStatic));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithStaticMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
+        {
+            gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: true, body));
+            return gen;
+        }
+        
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, params string[] body)
+        {
+            gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, InheritanceModifier.None, isStatic: false, body));
+            return gen;
+        }
+        
+        public static GeneratableTypeDefinition WithMethod<T>(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier, params string[] body)
+        {
+            gen.AddMethod(new GeneratableMethod<T>(methodName, accessModifier, inheritanceModifier, isStatic: false, body));
             return gen;
         }
         

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
@@ -6,6 +7,8 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
     public abstract class GeneratableTypeDefinition : GeneratableDefinition
     {
+        private const string PARTIAL = "partial";
+        
         protected abstract TypeDefinition TypeDefinition { get; }
 
         internal InheritanceModifier InheritanceModifier { get; set; }
@@ -18,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         private List<GeneratableProperty> Properties { get; } = new();
         private List<GeneratableMethod> Methods { get; } = new();
 
-        internal GeneratableTypeDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
+        internal GeneratableTypeDefinition(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
 
         public override string GenerateStringRepresentation()
         {
@@ -58,27 +61,21 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         private void AddClassSignature(StringBuilder sb, int indent)
         {
             StringBuilder classSignature = new();
-            string accessModifier = AccessModifier.AsString();
-            string inheritanceModifier = InheritanceModifier.AsString();
-            string partial = IsPartial ? "partial" : string.Empty;
-            string typeDefinition = TypeDefinition.AsString();
-            string name = Name;
-            string inheritsFrom = InheritsFrom;
 
-            classSignature.Append(accessModifier);
-            if (!string.IsNullOrEmpty(inheritanceModifier)) classSignature.Append(SPACE + inheritanceModifier);
-            if (!string.IsNullOrEmpty(partial)) classSignature.Append(SPACE + partial);
-            classSignature.Append(SPACE + typeDefinition);
-            classSignature.Append(SPACE + name);
+            classSignature.Append(AccessModifier.AsString());
+            if (InheritanceModifier != InheritanceModifier.None) classSignature.Append(SPACE + InheritanceModifier.AsString());
+            if (IsPartial) classSignature.Append(SPACE + PARTIAL);
+            classSignature.Append(SPACE + TypeDefinition.AsString());
+            classSignature.Append(SPACE + Name);
 
-            bool inheritsFromSomething = !string.IsNullOrEmpty(inheritsFrom);
+            bool inheritsFromSomething = !string.IsNullOrEmpty(InheritsFrom);
             bool implementsInterfaces = ImplementsInterfaces.Count > 0;
             if (inheritsFromSomething || implementsInterfaces)
             {
-                classSignature.Append(SPACE + ':' + SPACE);
+                classSignature.Append(SPACE + ":" + SPACE);
                 if (inheritsFromSomething)
                 {
-                    classSignature.Append(inheritsFrom);
+                    classSignature.Append(InheritsFrom);
                     if (implementsInterfaces) classSignature.Append(COMMA + SPACE);
                 }
                 
@@ -104,27 +101,33 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         
         private void AddProperties(StringBuilder sb, int indent)
         {
-            // TODO
+            Properties.ForEach(property => AddLine(sb, indent, property.GenerateStringRepresentation()));
+            if (Properties.Count > 0 && Methods.Count > 0) AddEmptyLine(sb);
         }
 
         private void AddMethods(StringBuilder sb, int indent)
         {
-            // TODO
+            int i = 0;
+            foreach (GeneratableMethod method in Methods)
+            {
+                AddLines(sb, indent, method.GenerateStringRepresentationLines());
+                if (i < Methods.Count - 1) AddEmptyLine(sb);
+                i++;
+            }
         }
 
-        internal void AddField<T>(GeneratableField<T> field)
+        internal void AddField(GeneratableField field) => Add(field, Fields);
+        internal void AddProperty(GeneratableProperty property) => Add(property, Properties);
+        internal void AddMethod(GeneratableMethod method) => Add(method, Methods);
+        
+        private void Add<T>(T generatable, List<T> generatableList) where T : GeneratableBase
         {
-            throw new System.NotImplementedException();
-        }
+            if (generatableList.Any(generatableElement => generatable.Name == generatableElement.Name))
+            {
+                return;
+            }
 
-        internal void AddProperty(GeneratableProperty property)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        internal void AddMethod(GeneratableMethod method)
-        {
-            throw new System.NotImplementedException();
+            generatableList.Add(generatable);
         }
     }
 }

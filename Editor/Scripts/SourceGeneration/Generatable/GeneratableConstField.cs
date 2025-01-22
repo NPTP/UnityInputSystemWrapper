@@ -7,7 +7,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
     {
         private const string CONST = "const";
         
-        internal GeneratableConstField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier, initialValue) { }
+        internal GeneratableConstField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier, isStatic: false, initialValue) { }
         
         protected override void PrependAdditionalLabels(StringBuilder fieldStringBuilder)
         {

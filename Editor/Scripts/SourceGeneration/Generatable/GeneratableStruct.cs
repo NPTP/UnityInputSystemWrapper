@@ -6,7 +6,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
     {
         protected override TypeDefinition TypeDefinition => TypeDefinition.Struct;
 
-        internal GeneratableStruct(string name, AccessModifier accessModifier) : base(name, accessModifier)
+        internal GeneratableStruct(string name, AccessModifier accessModifier) : base(name, accessModifier, isStatic: false)
         {
         }
     }

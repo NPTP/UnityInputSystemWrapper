@@ -6,7 +6,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
     public abstract class GeneratableField : GeneratableBase
     {
-        protected GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
+        protected GeneratableField(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic) { }
     }
     
     public class GeneratableField<T> : GeneratableField
@@ -16,12 +16,12 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 
         private static Type FieldType => typeof(T);
         
-        internal GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier)
+        internal GeneratableField(string name, AccessModifier accessModifier, bool isStatic) : base(name, accessModifier, isStatic)
         {
             hasInitialValue = false;
         }
 
-        internal GeneratableField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier)
+        internal GeneratableField(string name, AccessModifier accessModifier, bool isStatic, T initialValue) : base(name, accessModifier, isStatic)
         {
             this.initialValue = initialValue;
             hasInitialValue = true;
@@ -32,7 +32,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             StringBuilder field = new();
             field.Append(AccessModifier.AsString());
             PrependAdditionalLabels(field);
-            field.Append(SPACE + GetTypeName());
+            field.Append(SPACE + GetTypeName(FieldType));
             field.Append(SPACE + Name);
             if (TryGetInitialValueAsString(out string initialValueString))
             {
@@ -56,52 +56,24 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             }
             
             StringBuilder sb = new();
-            if (FieldType == typeof(string)) sb.Append('"');
+            string left = string.Empty;
+            string right = string.Empty;
+
+            if (FieldType == typeof(string))
+            {
+                left = right = "\"";
+            }
+            else if (FieldType == typeof(float))
+            {
+                right = "f";
+            }
+
+            sb.Append(left);
             sb.Append(initialValue);
-            if (FieldType == typeof(string)) sb.Append('"');
+            sb.Append(right);
             
             initialValueString = sb.ToString();
             return true;
-        }
-
-        private string GetTypeName()
-        {
-            if (FieldType == typeof(string))	
-                return "string";
-            if (FieldType == typeof(int))
-                return "int";
-            if (FieldType == typeof(bool))	
-                return "bool";
-            if (FieldType == typeof(byte))	
-                return "byte";
-            if (FieldType == typeof(sbyte))	
-                return "sbyte";
-            if (FieldType == typeof(char))	
-                return "char";
-            if (FieldType == typeof(decimal))	
-                return "decimal";
-            if (FieldType == typeof(double))	
-                return "double";
-            if (FieldType == typeof(float))	
-                return "float";
-            if (FieldType == typeof(int))	
-                return "int";
-            if (FieldType == typeof(uint))	
-                return "uint";
-            if (FieldType == typeof(nint))	
-                return "nint";
-            if (FieldType == typeof(nuint))	
-                return "nuint";
-            if (FieldType == typeof(long))	
-                return "long";
-            if (FieldType == typeof(ulong))	
-                return "ulong";
-            if (FieldType == typeof(short))	
-                return "short";
-            if (FieldType == typeof(ushort))
-                return "ushort";
-
-            return FieldType.Name;
         }
     }
 }

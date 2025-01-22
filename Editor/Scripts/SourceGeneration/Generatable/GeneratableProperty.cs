@@ -4,7 +4,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
     public class GeneratableProperty : GeneratableBase
     {
-        internal GeneratableProperty(string name, AccessModifier getModifier, AccessModifier setModifier) : base(name, getModifier)
+        internal GeneratableProperty(string name, AccessModifier getModifier, AccessModifier setModifier, bool isStatic) : base(name, getModifier, isStatic)
         {
         }
 
