@@ -58,7 +58,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             }
         }
 
-        public GeneratableEnum(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
+        internal GeneratableEnum(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
 
         internal void AddMember(string name, EnumMember.EnumValueMode valueMode, int? value, int? bitShiftValue)
         {

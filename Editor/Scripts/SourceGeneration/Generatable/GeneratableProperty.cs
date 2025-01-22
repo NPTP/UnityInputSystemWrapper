@@ -2,9 +2,9 @@ using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
 namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
-    internal class GeneratableProperty : GeneratableBase
+    public class GeneratableProperty : GeneratableBase
     {
-        public GeneratableProperty(string name, AccessModifier getModifier, AccessModifier setModifier) : base(name, getModifier)
+        internal GeneratableProperty(string name, AccessModifier getModifier, AccessModifier setModifier) : base(name, getModifier)
         {
         }
 

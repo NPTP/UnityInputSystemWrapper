@@ -8,7 +8,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         protected const string SEMICOLON = ";";
 
         internal AccessModifier AccessModifier { get; set; }
-        internal string Name { get; set; }
+        internal string Name { get; }
 
         protected GeneratableBase(string name, AccessModifier accessModifier)
         {

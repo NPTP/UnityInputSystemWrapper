@@ -97,37 +97,37 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
 
         public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            gen.Fields.Add(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
+            gen.AddField(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
             return gen;
         }
         
         public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            gen.Fields.Add(new GeneratableField<T>(fieldName, accessModifier));
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier));
             return gen;
         }
 
         public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
         {
-            gen.Fields.Add(new GeneratableField<T>(fieldName, accessModifier, initialValue));
+            gen.AddField(new GeneratableField<T>(fieldName, accessModifier, initialValue));
             return gen;
         }
 
         public static GeneratableTypeDefinition WithProperty(this GeneratableTypeDefinition gen, string propertyName, AccessModifier getModifier, AccessModifier setModifier)
         {
-            gen.Properties.Add(new GeneratableProperty(propertyName, getModifier, setModifier));
+            gen.AddProperty(new GeneratableProperty(propertyName, getModifier, setModifier));
             return gen;
         }
 
         public static GeneratableTypeDefinition WithStaticMethod(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier)
         {
-            gen.Methods.Add(new GeneratableMethod(methodName, accessModifier, isStatic: true, InheritanceModifier.None));
+            gen.AddMethod(new GeneratableMethod(methodName, accessModifier, isStatic: true, InheritanceModifier.None));
             return gen;
         }
         
         public static GeneratableTypeDefinition WithMethod(this GeneratableTypeDefinition gen, string methodName, AccessModifier accessModifier, InheritanceModifier inheritanceModifier)
         {
-            gen.Methods.Add(new GeneratableMethod(methodName, accessModifier, isStatic: false, inheritanceModifier));
+            gen.AddMethod(new GeneratableMethod(methodName, accessModifier, isStatic: false, inheritanceModifier));
             return gen;
         }
         

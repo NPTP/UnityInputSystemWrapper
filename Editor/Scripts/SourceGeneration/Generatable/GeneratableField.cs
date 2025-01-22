@@ -16,12 +16,12 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 
         private static Type FieldType => typeof(T);
         
-        public GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier)
+        internal GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier)
         {
             hasInitialValue = false;
         }
 
-        public GeneratableField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier)
+        internal GeneratableField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier)
         {
             this.initialValue = initialValue;
             hasInitialValue = true;

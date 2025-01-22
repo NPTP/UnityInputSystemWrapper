@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         internal SortedSet<string> Directives { get; } = new();
         internal string Namespace { get; set; }
 
-        protected GeneratableDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
+        internal GeneratableDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
 
         protected void AddLine(StringBuilder sb, int indent, string line) => sb.AppendLine(Tab(indent) + line);
 

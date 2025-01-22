@@ -14,9 +14,9 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         internal SortedSet<string> ImplementsInterfaces { get; } = new();
 
         // TODO: Adding fields or properties with the same name should override any existing ones
-        internal List<GeneratableField> Fields { get; } = new();
-        internal List<GeneratableProperty> Properties { get; } = new();
-        internal List<GeneratableMethod> Methods { get; } = new();
+        private List<GeneratableField> Fields { get; } = new();
+        private List<GeneratableProperty> Properties { get; } = new();
+        private List<GeneratableMethod> Methods { get; } = new();
 
         internal GeneratableTypeDefinition(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
 
@@ -110,6 +110,21 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
         private void AddMethods(StringBuilder sb, int indent)
         {
             // TODO
+        }
+
+        internal void AddField<T>(GeneratableField<T> field)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        internal void AddProperty(GeneratableProperty property)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        internal void AddMethod(GeneratableMethod method)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
