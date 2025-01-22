@@ -7,7 +7,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
     public sealed class GeneratableEnum : GeneratableDefinition
     {
-        internal class Member
+        internal class EnumMember
         {
             internal enum EnumValueMode
             {
@@ -21,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             internal int Value { get; }
             internal int BitShiftValue { get; }
             
-            internal Member(string name, EnumValueMode valueMode, int? value, int? bitShiftValue)
+            internal EnumMember(string name, EnumValueMode valueMode, int? value, int? bitShiftValue)
             {
                 Name = name;
                 ValueMode = valueMode;
@@ -41,13 +41,28 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             }
         }
 
-        private List<Member> Members { get; } = new();
-        
+        private const string ENUM = "enum";
+        private const string FLAGS = "[Flags]";
+        private const string SYSTEM = "System";
+
+        private List<EnumMember> Members { get; } = new();
+
+        private bool isFlags;
+        public bool IsFlags
+        {
+            get => isFlags;
+            set
+            {
+                isFlags = value;
+                if (value) Directives.Add(SYSTEM);
+            }
+        }
+
         public GeneratableEnum(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
 
-        internal void AddMember(string name, Member.EnumValueMode valueMode, int? value, int? bitShiftValue)
+        internal void AddMember(string name, EnumMember.EnumValueMode valueMode, int? value, int? bitShiftValue)
         {
-            Members.Add(new Member(name, valueMode, value, bitShiftValue));
+            Members.Add(new EnumMember(name, valueMode, value, bitShiftValue));
         }
 
         public override string GenerateStringRepresentation()
@@ -63,15 +78,11 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
                 indent++;
             }
 
-            AddLine(sb, indent, $"{AccessModifier.AsString()} enum {Name}");
+            AddEnumSignature(sb, indent);
             AddOpenBrace(sb, indent);
+            
             indent++;
-            
-            for (int i = 0; i < Members.Count; i++)
-            {
-                AddLine(sb, indent, Members[i] + (i < Members.Count - 1 ? COMMA : string.Empty));
-            }
-            
+            AddEnumMembers(sb, indent);
             indent--;
             
             AddCloseBrace(sb, indent);
@@ -83,6 +94,20 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
             }
             
             return sb.ToString();
+        }
+
+        private void AddEnumSignature(StringBuilder sb, int indent)
+        {
+            if (IsFlags) AddLine(sb, indent, FLAGS);
+            AddLine(sb, indent, $"{AccessModifier.AsString()} {ENUM} {Name}");
+        }
+        
+        private void AddEnumMembers(StringBuilder sb, int indent)
+        {
+            for (int i = 0; i < Members.Count; i++)
+            {
+                AddLine(sb, indent, Members[i] + (i < Members.Count - 1 ? COMMA : string.Empty));
+            }
         }
     }
 }

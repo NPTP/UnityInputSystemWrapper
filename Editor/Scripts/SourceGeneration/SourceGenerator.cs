@@ -41,21 +41,27 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         
         public static GeneratableEnum NewGeneratedEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
 
+        public static GeneratableEnum AsFlags(this GeneratableEnum gen)
+        {
+            gen.IsFlags = true;
+            return gen;
+        }
+        
         public static GeneratableEnum WithMember(this GeneratableEnum gen, string name)
         {
-            gen.AddMember(name, GeneratableEnum.Member.EnumValueMode.NonExplicit, null, null);
+            gen.AddMember(name, GeneratableEnum.EnumMember.EnumValueMode.NonExplicit, null, null);
             return gen;
         } 
         
         public static GeneratableEnum WithIntValuedMember(this GeneratableEnum gen, string name, int value)
         {
-            gen.AddMember(name, GeneratableEnum.Member.EnumValueMode.ExplicitInt, value, null);
+            gen.AddMember(name, GeneratableEnum.EnumMember.EnumValueMode.ExplicitInt, value, null);
             return gen;
         }
         
         public static GeneratableEnum WithBitShiftedMember(this GeneratableEnum gen, string name, int value, int bitShiftValue)
         {
-            gen.AddMember(name, GeneratableEnum.Member.EnumValueMode.ExplicitBitShiftFlag, value, bitShiftValue);
+            gen.AddMember(name, GeneratableEnum.EnumMember.EnumValueMode.ExplicitBitShiftFlag, value, bitShiftValue);
             return gen;
         }
         
