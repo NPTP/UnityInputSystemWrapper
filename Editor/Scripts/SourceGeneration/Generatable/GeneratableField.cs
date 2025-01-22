@@ -4,83 +4,104 @@ using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
 namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
-    public class GeneratableField : GeneratableBase
+    public abstract class GeneratableField : GeneratableBase
     {
-        private const string CONST = "const";
+        protected GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier) { }
+    }
+    
+    public class GeneratableField<T> : GeneratableField
+    {
+        private readonly bool hasInitialValue;
+        private readonly T initialValue;
+
+        private static Type FieldType => typeof(T);
         
-        private readonly bool isConst;
-        private readonly Type fieldType;
-
-        private string initialValueString;
-
-        // TODO: Support setting an initial value
-        public GeneratableField(string name, AccessModifier accessModifier, bool isConst, Type fieldType) : base(name, accessModifier)
+        public GeneratableField(string name, AccessModifier accessModifier) : base(name, accessModifier)
         {
-            this.isConst = isConst;
-            this.fieldType = fieldType;
+            hasInitialValue = false;
+        }
+
+        public GeneratableField(string name, AccessModifier accessModifier, T initialValue) : base(name, accessModifier)
+        {
+            this.initialValue = initialValue;
+            hasInitialValue = true;
         }
 
         public override string GenerateStringRepresentation()
         {
             StringBuilder field = new();
             field.Append(AccessModifier.AsString());
-            if (isConst) field.Append(SPACE + CONST);
+            PrependAdditionalLabels(field);
             field.Append(SPACE + GetTypeName());
             field.Append(SPACE + Name);
-            if (!string.IsNullOrEmpty(initialValueString)) field.Append($" = {initialValueString}");
+            if (TryGetInitialValueAsString(out string initialValueString))
+            {
+                field.Append(SPACE + "=" + SPACE);
+                field.Append(initialValueString);
+
+            }
             field.Append(SEMICOLON);
 
             return field.ToString();
         }
-        
-        public void SetInitialValue<T>(T value)
-        {
-            if (typeof(T) != fieldType)
-            {
-                return;
-            }
 
-            initialValueString = value.ToString();
+        protected virtual void PrependAdditionalLabels(StringBuilder fieldStringBuilder) { }
+
+        private bool TryGetInitialValueAsString(out string initialValueString)
+        {
+            if (!hasInitialValue)
+            {
+                initialValueString = null;
+                return false;
+            }
+            
+            StringBuilder sb = new();
+            if (FieldType == typeof(string)) sb.Append('"');
+            sb.Append(initialValue);
+            if (FieldType == typeof(string)) sb.Append('"');
+            
+            initialValueString = sb.ToString();
+            return true;
         }
-        
+
         private string GetTypeName()
         {
-            if (fieldType == typeof(string))	
+            if (FieldType == typeof(string))	
                 return "string";
-            if (fieldType == typeof(int))
+            if (FieldType == typeof(int))
                 return "int";
-            if (fieldType == typeof(bool))	
+            if (FieldType == typeof(bool))	
                 return "bool";
-            if (fieldType == typeof(byte))	
+            if (FieldType == typeof(byte))	
                 return "byte";
-            if (fieldType == typeof(sbyte))	
+            if (FieldType == typeof(sbyte))	
                 return "sbyte";
-            if (fieldType == typeof(char))	
+            if (FieldType == typeof(char))	
                 return "char";
-            if (fieldType == typeof(decimal))	
+            if (FieldType == typeof(decimal))	
                 return "decimal";
-            if (fieldType == typeof(double))	
+            if (FieldType == typeof(double))	
                 return "double";
-            if (fieldType == typeof(float))	
+            if (FieldType == typeof(float))	
                 return "float";
-            if (fieldType == typeof(int))	
+            if (FieldType == typeof(int))	
                 return "int";
-            if (fieldType == typeof(uint))	
+            if (FieldType == typeof(uint))	
                 return "uint";
-            if (fieldType == typeof(nint))	
+            if (FieldType == typeof(nint))	
                 return "nint";
-            if (fieldType == typeof(nuint))	
+            if (FieldType == typeof(nuint))	
                 return "nuint";
-            if (fieldType == typeof(long))	
+            if (FieldType == typeof(long))	
                 return "long";
-            if (fieldType == typeof(ulong))	
+            if (FieldType == typeof(ulong))	
                 return "ulong";
-            if (fieldType == typeof(short))	
+            if (FieldType == typeof(short))	
                 return "short";
-            if (fieldType == typeof(ushort))
+            if (FieldType == typeof(ushort))
                 return "ushort";
 
-            return fieldType.Name;
+            return FieldType.Name;
         }
     }
 }

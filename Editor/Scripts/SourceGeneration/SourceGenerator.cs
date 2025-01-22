@@ -5,7 +5,39 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
 {
     public static class SourceGenerator
     {
-        #region Generated Enum
+        #region Generalized
+        
+        public static T InNamespace<T>(this T gen, string @namespace) where T : GeneratableDefinition
+        {
+            gen.Namespace = @namespace;
+            return gen;
+        }
+        
+        public static T WithAccessModifier<T>(this T gen, AccessModifier accessModifier) where T : GeneratableDefinition
+        {
+            gen.AccessModifier = accessModifier;
+            return gen;
+        }
+        
+        public static T WithDirective<T>(this T gen, string directive) where T : GeneratableDefinition
+        {
+            gen.Directives.Add(directive);
+            return gen;
+        }
+
+        public static T WithDirectives<T>(this T gen, params string[] directives) where T : GeneratableDefinition
+        {
+            foreach (string directive in directives)
+            {
+                gen.Directives.Add(directive);
+            }
+
+            return gen;
+        }
+
+        #endregion
+        
+        #region Generatable Enum
         
         public static GeneratableEnum NewGeneratedEnum(string name, AccessModifier accessModifier) => new GeneratableEnum(name, accessModifier);
 
@@ -29,37 +61,9 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
         
         #endregion
 
-        #region Generated Object Definition
+        #region Generatable Type Definition
 
         public static GeneratableClass NewGeneratedClass(string name, AccessModifier accessModifier) => new GeneratableClass(name, accessModifier);
-
-        public static GeneratableTypeDefinition WithAccessModifier(this GeneratableTypeDefinition gen, AccessModifier accessModifier)
-        {
-            gen.AccessModifier = accessModifier;
-            return gen;
-        }
-        
-        public static GeneratableTypeDefinition WithDirective(this GeneratableTypeDefinition gen, string directive)
-        {
-            gen.Directives.Add(directive);
-            return gen;
-        }
-
-        public static GeneratableTypeDefinition WithDirectives(this GeneratableTypeDefinition gen, params string[] directives)
-        {
-            foreach (string directive in directives)
-            {
-                gen.Directives.Add(directive);
-            }
-
-            return gen;
-        }
-
-        public static GeneratableTypeDefinition InNamespace(this GeneratableTypeDefinition gen, string @namespace)
-        {
-            gen.Namespace = @namespace;
-            return gen;
-        }
 
         public static GeneratableTypeDefinition WithInheritanceModifier(this GeneratableTypeDefinition gen, InheritanceModifier inheritanceModifier)
         {
@@ -78,18 +82,28 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration
             gen.InheritsFrom = typeof(T).Name;
             return gen;
         }
-
-        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        
+        public static GeneratableTypeDefinition ImplementsInterface<T>(this GeneratableTypeDefinition gen) where T : class
         {
-            GeneratableField constField = new GeneratableField(fieldName, accessModifier, isConst: true, typeof(T));
-            constField.SetInitialValue(initialValue);
-            gen.Fields.Add(constField);
+            gen.ImplementsInterfaces.Add(typeof(T).Name);
             return gen;
         }
 
+        public static GeneratableTypeDefinition WithConstField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            gen.Fields.Add(new GeneratableConstField<T>(fieldName, accessModifier, initialValue));
+            return gen;
+        }
+        
         public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier)
         {
-            gen.Fields.Add(new GeneratableField(fieldName, accessModifier, isConst: false, typeof(T)));
+            gen.Fields.Add(new GeneratableField<T>(fieldName, accessModifier));
+            return gen;
+        }
+
+        public static GeneratableTypeDefinition WithField<T>(this GeneratableTypeDefinition gen, string fieldName, AccessModifier accessModifier, T initialValue)
+        {
+            gen.Fields.Add(new GeneratableField<T>(fieldName, accessModifier, initialValue));
             return gen;
         }
 

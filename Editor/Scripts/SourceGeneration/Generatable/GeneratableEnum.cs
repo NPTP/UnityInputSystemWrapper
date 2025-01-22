@@ -5,7 +5,7 @@ using NPTP.InputSystemWrapper.Editor.SourceGeneration.Enums;
 
 namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
-    public sealed class GeneratableEnum : GeneratableBase
+    public sealed class GeneratableEnum : GeneratableDefinition
     {
         internal class Member
         {
@@ -52,19 +52,36 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 
         public override string GenerateStringRepresentation()
         {
-            // TODO: Share members with GeneratedObjectDefinition to simplify this. Tabs, etc.
+            int indent = 0;
             StringBuilder sb = new();
 
-            sb.AppendLine($"{AccessModifier.AsString()} enum {Name}");
-            sb.AppendLine("{");
+            AddUsingDirectives(sb, indent);
+            AddNamespace(sb, indent);
+            if (HasNamespace())
+            {
+                AddOpenBrace(sb, indent);
+                indent++;
+            }
+
+            AddLine(sb, indent, $"{AccessModifier.AsString()} enum {Name}");
+            AddOpenBrace(sb, indent);
+            indent++;
+            
             for (int i = 0; i < Members.Count; i++)
             {
-                sb.Append($"    {Members[i]}");
-                if (i < Members.Count - 1) {sb.Append(',');}
-                sb.Append(Environment.NewLine);
+                AddLine(sb, indent, Members[i] + (i < Members.Count - 1 ? COMMA : string.Empty));
             }
-            sb.AppendLine("}");
-
+            
+            indent--;
+            
+            AddCloseBrace(sb, indent);
+            
+            if (HasNamespace())
+            {
+                indent--;
+                AddCloseBrace(sb, indent);
+            }
+            
             return sb.ToString();
         }
     }

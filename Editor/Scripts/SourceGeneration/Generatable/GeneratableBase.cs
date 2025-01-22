@@ -4,8 +4,8 @@ namespace NPTP.InputSystemWrapper.Editor.SourceGeneration.Generatable
 {
     public abstract class GeneratableBase
     {
-        protected const char SPACE = ' ';
-        protected const char SEMICOLON = ';';
+        protected const string SPACE = " ";
+        protected const string SEMICOLON = ";";
 
         internal AccessModifier AccessModifier { get; set; }
         internal string Name { get; set; }
