@@ -3,7 +3,6 @@
 
 2.0.5
 - Improvements & fixes mostly in editor code.
-- Beginnings of new source gen code.
 - Prevent EDITOR_ prefix code from being accessed outside the package's assemblies.
 
 2.0.4
