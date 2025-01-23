@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,6 +69,11 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
             if (string.IsNullOrEmpty(s)) return string.Empty;
             if (!char.IsNumber(s[0])) return s;
             return s.Length > 1 ? s[1..] : string.Empty;
+        }
+
+        public static string GetLeadingWhitespace(this string s)
+        {
+            return string.IsNullOrEmpty(s) ? string.Empty : s.Replace(s.TrimStart(), string.Empty);
         }
     }
 }

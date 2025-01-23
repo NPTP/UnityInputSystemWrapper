@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
 using NPTP.InputSystemWrapper.Editor.Utilities;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEditor;
 using UnityEngine.InputSystem;
 
@@ -88,7 +89,7 @@ namespace NPTP.InputSystemWrapper.Editor
             Helper.WriteLinesToFile(newLines, writePath);
         }
 
-        private static void ModifyExistingFile(InputActionAsset asset, string filePath, Action<InputActionAsset, string, List<string>> markerSectionAction)
+        private static void ModifyExistingFile(InputActionAsset asset, string filePath, Action<InputScriptGeneratorMarkerInfo> markerSectionAction)
         {
             List<string> newLines = new();
 
@@ -104,7 +105,8 @@ namespace NPTP.InputSystemWrapper.Editor
                             newLines.Add(line);
                             if (Helper.IsMarkerStart(line, out string markerName))
                             {
-                                markerSectionAction?.Invoke(asset, markerName, newLines);
+                                InputScriptGeneratorMarkerInfo info = new(asset, markerName, line.GetLeadingWhitespace(), newLines);
+                                markerSectionAction?.Invoke(info);
                                 readState = ReadState.WaitingForMarkerEnd;
                             }
                             break;

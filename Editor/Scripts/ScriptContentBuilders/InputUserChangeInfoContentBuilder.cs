@@ -1,22 +1,20 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Enums;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class InputUserChangeInfoContentBuilder
     {
-        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            switch (markerName)
+            switch (info.MarkerName)
             {
                 case "PlayerIDProperty":
                     if (Helper.OfflineInputData.EnableMultiplayer)
-                        lines.Add($"        public {nameof(PlayerID)} {nameof(PlayerID)} " + @"{ get; }");
+                        info.NewLines.Add($"        public {nameof(PlayerID)} {nameof(PlayerID)} " + @"{ get; }");
                     break;
                 case "PlayerIDConstructor":
                     if (Helper.OfflineInputData.EnableMultiplayer)
-                        lines.Add($"            {nameof(PlayerID)} = inputPlayer.ID;");
+                        info.NewLines.Add($"            {nameof(PlayerID)} = inputPlayer.ID;");
                     break;
             }
         }

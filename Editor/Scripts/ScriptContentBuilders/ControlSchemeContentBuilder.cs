@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 
@@ -6,21 +5,21 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class ControlSchemeContentBuilder
     {
-        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            switch (markerName)
+            switch (info.MarkerName)
             {
                 case "Members":
-                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
-                        lines.Add($"        {controlScheme.name.AsEnumMember()},");
+                    foreach (InputControlScheme controlScheme in info.InputActionAsset.controlSchemes)
+                        info.NewLines.Add($"        {controlScheme.name.AsEnumMember()},");
                     break;
                 case "EnumToStringSwitch":
-                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
-                        lines.Add($"                {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()} => \"{controlScheme.name}\",");
+                    foreach (InputControlScheme controlScheme in info.InputActionAsset.controlSchemes)
+                        info.NewLines.Add($"                {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()} => \"{controlScheme.name}\",");
                     break;
                 case "StringToEnumSwitch":
-                    foreach (InputControlScheme controlScheme in asset.controlSchemes)
-                        lines.Add($"                \"{controlScheme.name}\" => {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()},");
+                    foreach (InputControlScheme controlScheme in info.InputActionAsset.controlSchemes)
+                        info.NewLines.Add($"                \"{controlScheme.name}\" => {nameof(ControlScheme)}.{controlScheme.name.AsEnumMember()},");
                     break;
             }
         }

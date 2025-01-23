@@ -1,20 +1,18 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities.Editor;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
     internal static class InputContextContentBuilder
     {
-        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            switch (markerName)
+            switch (info.MarkerName)
             {
                 case "Members":
                     OfflineInputData offlineInputData = EditorAssetGetter.GetFirst<OfflineInputData>();
                     foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
-                        lines.Add($"        {contextInfo.Name},");
+                        info.NewLines.Add($"        {contextInfo.Name},");
                     break;
             }
         }
