@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace NPTP.InputSystemWrapper.Attributes.Editor
+namespace NPTP.InputSystemWrapper.Editor.Attributes
 {
     internal abstract class InputNameStringSelectorAttributeDrawer : PropertyDrawer
     {

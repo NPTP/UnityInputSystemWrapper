@@ -5,12 +5,11 @@ using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class InputManagerContentBuilder
+    internal class InputManagerContentBuilder : ContentBuilder
     {
-        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
+        internal override void AddContent(InputScriptGeneratorMarkerInfo info)
         {
             void addEmptyLine() => info.NewLines.Add(string.Empty);
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
 
             switch (info.MarkerName)
             {
@@ -18,7 +17,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     info.NewLines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
                     break;
                 case "SingleOrMultiPlayerFieldsAndProperties":
-                    if (offlineInputData.EnableMultiplayer)
+                    if (Data.EnableMultiplayer)
                     {
                         info.NewLines.Add("        private static bool allowPlayerJoining;\n" +
                                   "        public static bool AllowPlayerJoining\n" +
@@ -44,7 +43,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     addEmptyLine();
                     info.NewLines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     addEmptyLine();
-                    string[] mapNames = Helper.GetMapNames(info.InputActionAsset).ToArray();
+                    string[] mapNames = Helper.GetMapNames(Asset).ToArray();
                     info.NewLines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};"));
                     if (mapNames.Length > 0) addEmptyLine();
                     info.NewLines.Add($"        public static {nameof(InputContext)} Context");
@@ -60,19 +59,19 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     info.NewLines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
-                    info.NewLines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{offlineInputData.DefaultContext};");
+                    info.NewLines.Add($"        private static {nameof(InputContext)} DefaultContext => {nameof(InputContext)}.{Data.DefaultContext};");
                     break;
                 case "Initialize":
-                    if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
+                    if (Data.InitializationMode == InitializationMode.BeforeSceneLoad)
                         info.NewLines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
-                    info.NewLines.Add($"        {(offlineInputData.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
+                    info.NewLines.Add($"        {(Data.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
                     break;
                 case "EnableContextForAllPlayersSignature":
-                    string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
+                    string accessor = Data.EnableMultiplayer ? "public" : "private";
                     info.NewLines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
                     break;
                 case "PlayerGetter":
-                    string playerGetter = offlineInputData.EnableMultiplayer
+                    string playerGetter = Data.EnableMultiplayer
                         ? $"            {nameof(InputPlayer)} player = GetPlayer(playerID);"
                         : $"            {nameof(InputPlayer)} player = Player1;";
                     info.NewLines.Add(playerGetter);
@@ -87,6 +86,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                        $"            remove => Player1.{eventName} -= value;\n" +
                        "        }";
             }
+        }
+
+        public InputManagerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        {
         }
     }
 }

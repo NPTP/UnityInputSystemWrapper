@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
 {
@@ -8,14 +7,12 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal class InputScriptGeneratorMarkerInfo
     {
-        public InputActionAsset InputActionAsset { get; }
         public string MarkerName { get; }
         public string LeadingWhiteSpace { get; }
         public List<string> NewLines { get; }
         
-        public InputScriptGeneratorMarkerInfo(InputActionAsset inputActionAsset, string markerName, string leadingWhiteSpace, List<string> newLines)
+        public InputScriptGeneratorMarkerInfo(string markerName, string leadingWhiteSpace, List<string> newLines)
         {
-            InputActionAsset = inputActionAsset;
             MarkerName = markerName;
             LeadingWhiteSpace = leadingWhiteSpace;
             NewLines = newLines;

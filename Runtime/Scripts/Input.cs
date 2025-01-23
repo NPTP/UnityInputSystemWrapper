@@ -447,9 +447,9 @@ namespace NPTP.InputSystemWrapper
 
         #region Editor-Only Debug
 #if UNITY_EDITOR
-        public static event Action<PlayerID, InputContext> EDITOR_OnPlayerInputContextChanged;
+        internal static event Action<PlayerID, InputContext> EDITOR_OnPlayerInputContextChanged;
 
-        public static bool EDITOR_IsInitialized => initialized;
+        internal static bool EDITOR_IsInitialized => initialized;
         
         private static void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
         {

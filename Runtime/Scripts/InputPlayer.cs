@@ -452,7 +452,7 @@ namespace NPTP.InputSystemWrapper
         
         #region Editor-Only Debug
 #if UNITY_EDITOR
-        public event Action<InputPlayer> EDITOR_OnInputContextChanged;
+        internal event Action<InputPlayer> EDITOR_OnInputContextChanged;
 #endif
         #endregion
     }

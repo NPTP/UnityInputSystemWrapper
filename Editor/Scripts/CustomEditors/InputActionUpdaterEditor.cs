@@ -1,5 +1,5 @@
 using NPTP.InputSystemWrapper.Components;
-using NPTP.InputSystemWrapper.Utilities.Editor;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors

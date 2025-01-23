@@ -2,19 +2,17 @@ using NPTP.InputSystemWrapper.Data;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class BindingChangerContentBuilder
+    internal sealed class BindingChangerContentBuilder : ContentBuilder
     {
-        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
+        internal override void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
-            
             switch (info.MarkerName)
             {
                 case "BindingExcludedPaths":
-                    addStringElements(offlineInputData.BindingExcludedPaths);
+                    addStringElements(Data.BindingExcludedPaths);
                     break;
                 case "BindingCancelPaths":
-                    addStringElements(offlineInputData.BindingCancelPaths);
+                    addStringElements(Data.BindingCancelPaths);
                     break;
                 
                 void addStringElements(string[] source)
@@ -27,6 +25,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     }
                 }
             }
+        }
+
+        public BindingChangerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        {
         }
     }
 }

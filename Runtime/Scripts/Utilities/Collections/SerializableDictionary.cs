@@ -68,7 +68,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
         }
         
 #if UNITY_EDITOR
-        public void EDITOR_SetKey(TValue value, TKey newKey)
+        internal void EDITOR_SetKey(TValue value, TKey newKey)
         {
             for (int i = 0; i < keyValueCombos.Count; i++)
             {
@@ -81,12 +81,12 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             }
         }
 
-        public void EDITOR_Clear()
+        internal void EDITOR_Clear()
         {
             keyValueCombos.Clear();
         }
 
-        public void EDITOR_Add(TKey key, TValue value)
+        internal void EDITOR_Add(TKey key, TValue value)
         {
             foreach (KeyValueCombo<TKey,TValue> keyValueCombo in keyValueCombos)
             {
@@ -100,7 +100,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             keyValueCombos.Add(new KeyValueCombo<TKey, TValue>(key, value));
         }
 
-        public void EDITOR_Remove(TKey key)
+        internal void EDITOR_Remove(TKey key)
         {
             int remove = -1;
             for (int i = 0; i < keyValueCombos.Count; i++)
@@ -119,7 +119,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             }
         }
 
-        public void EDITOR_Remove(int index)
+        internal void EDITOR_Remove(int index)
         {
             keyValueCombos.RemoveAt(Mathf.Clamp(index, 0, keyValueCombos.Count - 1));
         }

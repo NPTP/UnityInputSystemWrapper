@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace NPTP.InputSystemWrapper.Attributes.Editor.PropertyDrawers
+namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(ActionReference))]
     internal class ActionReferenceDrawer : PropertyDrawer

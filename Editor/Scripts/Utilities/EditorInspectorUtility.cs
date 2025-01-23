@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace NPTP.InputSystemWrapper.Utilities.Editor
+namespace NPTP.InputSystemWrapper.Editor.Utilities
 {
     internal class EditorInspectorUtility : MonoBehaviour
     {

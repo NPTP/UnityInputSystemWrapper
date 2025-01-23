@@ -1,6 +1,11 @@
 # Input System Wrapper
 ## Changelog
 
+2.0.5
+- Improvements & fixes mostly in editor code.
+- Beginnings of new source gen code.
+- Prevent EDITOR_ prefix code from being accessed outside the package's assemblies.
+
 2.0.4
 - Fix bug with custom binding & device registrations not being found in builds
 

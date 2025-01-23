@@ -1,10 +1,11 @@
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class InputUserChangeInfoContentBuilder
+    internal class InputUserChangeInfoContentBuilder : ContentBuilder
     {
-        internal static void AddContent(InputScriptGeneratorMarkerInfo info)
+        internal override void AddContent(InputScriptGeneratorMarkerInfo info)
         {
             switch (info.MarkerName)
             {
@@ -17,6 +18,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         info.NewLines.Add($"            {nameof(PlayerID)} = inputPlayer.ID;");
                     break;
             }
+        }
+
+        public InputUserChangeInfoContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        {
         }
     }
 }
