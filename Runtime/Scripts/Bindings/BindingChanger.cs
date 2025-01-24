@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Enums;
@@ -22,8 +23,10 @@ namespace NPTP.InputSystemWrapper.Bindings
             // MARKER.BindingCancelPaths.End
         };
 
-        internal static RebindingOperation StartInteractiveRebind(InputAction action, int bindingIndex, Action<RebindStatus> callback)
+        internal static RebindingOperation StartInteractiveRebind(ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
         {
+            ActionWrapper actionWrapper = actionBindingInfo.ActionWrapper;
+            InputAction action = actionWrapper.InputAction;
             bool actionWasEnabled = action.enabled;
             action.Disable();
 
@@ -42,14 +45,20 @@ namespace NPTP.InputSystemWrapper.Bindings
             void onCancel(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke(RebindStatus.Canceled);
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Canceled, Array.Empty<BindingInfo>()));
                 CleanUpRebindingOperation(ref rebindingOperation);
             }
 
             void onComplete(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke(RebindStatus.Completed);
+                
+                // TODO <optimization>: Temporary measure to return binding info with completed binding.
+                // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
+                IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
+                actionWrapper.TryGetBindingInfo(actionBindingInfo.ControlScheme, actionBindingInfo.CompositePart, out bindingInfos);
+                
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
                 Input.BroadcastBindingsChanged();
             }
@@ -89,10 +98,10 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForControlScheme(ActionInfo actionInfo, ControlScheme controlScheme)
+        internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlScheme controlScheme)
         {
-            bool compositeCondition(InputBinding binding) => !actionInfo.UseCompositePart || actionInfo.CompositePart.Matches(binding);
-            if (RemoveDeviceOverridesFromAction(actionInfo.ActionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
+            bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
+            if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
             {
                 Input.BroadcastBindingsChanged();
             }

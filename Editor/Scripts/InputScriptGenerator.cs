@@ -6,6 +6,7 @@ using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -21,6 +22,11 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static void GenerateInputScriptCode()
         {
             OfflineInputData offlineInputData = Helper.OfflineInputData;
+            if (offlineInputData.RuntimeInputData.InputActionAsset == null)
+            {
+                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                return;
+            }
             
             Helper.ClearFolderRecursive(Helper.GeneratedFolderSystemPath);
             GenerateActionClasses(offlineInputData.RuntimeInputData.InputActionAsset);

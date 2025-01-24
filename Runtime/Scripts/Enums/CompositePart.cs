@@ -4,7 +4,8 @@ namespace NPTP.InputSystemWrapper.Enums
 {
     public enum CompositePart
     {
-        Positive = 0,
+        DontIsolatePart = 0,
+        Positive,
         Negative,
         Up,
         Down,

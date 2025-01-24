@@ -16,481 +16,481 @@ MonoBehaviour:
     keyValueCombos:
     - key: leftButton
       value:
-        displayName: Left Mouse Button
+        localizationKey: Left Mouse Button
         sprite: {fileID: 21300000, guid: e0bc4065044f02147814c0fb94add476, type: 3}
     - key: rightButton
       value:
-        displayName: Right Mouse Button
+        localizationKey: Right Mouse Button
         sprite: {fileID: 21300000, guid: 43302d9445a0b2e48b46c8c3cd26d073, type: 3}
     - key: middleButton
       value:
-        displayName: Middle Mouse Button
+        localizationKey: Middle Mouse Button
         sprite: {fileID: 0}
     - key: forwardButton
       value:
-        displayName: Mouse Forward
+        localizationKey: Mouse Forward
         sprite: {fileID: 21300000, guid: cd8518f763458e04797890a191fea649, type: 3}
     - key: backButton
       value:
-        displayName: Mouse Back
+        localizationKey: Mouse Back
         sprite: {fileID: 21300000, guid: 425927c3e292ab1419f2f93d1065b7a4, type: 3}
     - key: scroll
       value:
-        displayName: Mouse Scroll Button
+        localizationKey: Mouse Scroll Button
         sprite: {fileID: 21300000, guid: 64044db780dda1c4dbc7bd91afb68d25, type: 3}
     - key: scroll/up
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: scroll/down
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: position
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: position/x
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: position/y
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: anyKey
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: escape
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: space
       value:
-        displayName: SPACE!
+        localizationKey: SPACE!
         sprite: {fileID: 21300000, guid: 22852ab05213a044ea1f87bcf7fcff1e, type: 3}
     - key: enter
       value:
-        displayName: 
+        localizationKey: Enter
         sprite: {fileID: 0}
     - key: tab
       value:
-        displayName: Tab
+        localizationKey: Tab
         sprite: {fileID: 21300000, guid: fce88ff02a4310b4c9eb533e249b9e21, type: 3}
     - key: backquote
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: quote
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: semicolon
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: comma
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: period
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: slash
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: backslash
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: leftBracket
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: rightBracket
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: minus
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: equals
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: upArrow
       value:
-        displayName: Up
+        localizationKey: Up
         sprite: {fileID: 21300000, guid: c6a99058c9f060d4c995e15a13550e13, type: 3}
     - key: downArrow
       value:
-        displayName: Down
+        localizationKey: Down
         sprite: {fileID: 21300000, guid: bb99426c76f61b44986fde804eeb17d2, type: 3}
     - key: leftArrow
       value:
-        displayName: Left
+        localizationKey: Left
         sprite: {fileID: 21300000, guid: 4d245aec375082c478acc2b8deb423ad, type: 3}
     - key: rightArrow
       value:
-        displayName: Right
+        localizationKey: Right
         sprite: {fileID: 21300000, guid: da302088b42a841438d93d50dbc6f2b3, type: 3}
     - key: a
       value:
-        displayName: A (Keyboard)
+        localizationKey: A (Keyboard)
         sprite: {fileID: 21300000, guid: 714f895a1d5a8ca4098f191eee37199e, type: 3}
     - key: b
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: c
       value:
-        displayName: C (Keyboard)
+        localizationKey: C (Keyboard)
         sprite: {fileID: 21300000, guid: 0c24340d1d696264dbc7cda2b6b21d4b, type: 3}
     - key: d
       value:
-        displayName: D (Keyboard)
+        localizationKey: D (Keyboard)
         sprite: {fileID: 21300000, guid: e04a976bf595ea54e8349db02bb02e50, type: 3}
     - key: e
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: g
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: h
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: i
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: j
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: k
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: l
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: m
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: n
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: o
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: p
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: q
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: r
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: s
       value:
-        displayName: S (Keyboard)
+        localizationKey: S (Keyboard)
         sprite: {fileID: 21300000, guid: 228f3449a94885c409610614f82a93dc, type: 3}
     - key: t
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: u
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: v
       value:
-        displayName: V (Keyboard)
+        localizationKey: V (Keyboard)
         sprite: {fileID: 21300000, guid: e85e510443141ed40931567d6f0bd419, type: 3}
     - key: w
       value:
-        displayName: W (Keyboard)
+        localizationKey: W (Keyboard)
         sprite: {fileID: 21300000, guid: 73967ec149bd4fc4d93414e23fa64020, type: 3}
     - key: x
       value:
-        displayName: X (Keyboard)
+        localizationKey: X (Keyboard)
         sprite: {fileID: 21300000, guid: 24b8c7e6fe5186d47a1216c2016c3c92, type: 3}
     - key: y
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: z
       value:
-        displayName: Z (Keyboard)
+        localizationKey: Z (Keyboard)
         sprite: {fileID: 21300000, guid: 1e4a819a50e875940b91f31efcf19a32, type: 3}
     - key: 1
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 2
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 3
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 4
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 5
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 6
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 7
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 8
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 9
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: 0
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: leftShift
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: rightShift
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: shift
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: leftAlt
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: rightAlt
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: alt
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: leftCtrl
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: rightCtrl
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: ctrl
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: leftMeta
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: rightMeta
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: contextMenu
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: backspace
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: pageDown
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: pageUp
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: home
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: end
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: insert
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: delete
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: capsLock
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numLock
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: printScreen
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: scrollLock
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: pause
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadEnter
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadDivide
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadMultiply
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadPlus
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadMinus
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadPeriod
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpadEquals
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad1
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad2
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad3
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad4
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad5
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad6
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad7
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad8
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad9
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: numpad0
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f1
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f2
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f3
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f4
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f5
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f6
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f7
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f8
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f9
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f10
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f11
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}
     - key: f12
       value:
-        displayName: 
+        localizationKey: 
         sprite: {fileID: 0}

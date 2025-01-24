@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+3.0.0
+- Interactive rebind callback now returns a struct with relevant rebind info.
+
 2.0.5
 - Improvements & fixes mostly in editor code.
 - Prevent EDITOR_ prefix code from being accessed outside the package's assemblies.
