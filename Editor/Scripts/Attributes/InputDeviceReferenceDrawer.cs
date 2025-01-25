@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NPTP.InputSystemWrapper.InputDevices;
+using NPTP.InputSystemWrapper.Utilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,7 +34,7 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
             
             SerializedProperty deviceTypeName = property.FindPropertyRelative("deviceTypeName");
             
-            int index = Mathf.Max(0, System.Array.IndexOf(names, deviceTypeName.stringValue));
+            int index = Mathf.Max(0, Array.IndexOf(names, deviceTypeName.stringValue));
             EditorGUI.BeginProperty(position, label, property);
             index = EditorGUI.Popup(position, label.text, index, names);
             deviceTypeName.stringValue = names[index];

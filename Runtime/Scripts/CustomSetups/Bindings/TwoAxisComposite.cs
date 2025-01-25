@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.Utilities;
 
-namespace NPTP.InputSystemWrapper.InputDevices.Bindings
+namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
 {
     [DisplayStringFormat("Axes {xAxis}, {yAxis}")]
     [DisplayName("X and Y Axes Composite")]

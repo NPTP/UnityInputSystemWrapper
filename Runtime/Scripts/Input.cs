@@ -12,7 +12,7 @@ using UnityEngine.InputSystem.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
-using NPTP.InputSystemWrapper.InputDevices;
+using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Utilities;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
@@ -127,7 +127,7 @@ namespace NPTP.InputSystemWrapper
             ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
             // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
-            CustomBindingAndDeviceRegistration.PerformRegistrations();
+            CustomSetupsRegisterer.PerformRegistrations();
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
 #if UNITY_EDITOR
