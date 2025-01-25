@@ -1,5 +1,5 @@
 # Unity Input System Wrapper
-### Nick Perrin © 2024
+### Nick Perrin © 2024-25
 
 A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and more readable API.
 
