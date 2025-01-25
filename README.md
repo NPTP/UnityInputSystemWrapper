@@ -18,10 +18,8 @@ The minimum required `com.unity.inputsystem` version is due to bugs in some core
 TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
 
 #### Future nice-to-haves:
-- [✔] Display name in BindingInfo has an event requesting a localized string that can be hooked into. Otherwise, we could use LocalizedString (which would require a Localization package dependency)
-- [✔] Optimize Input Context switching
-- [ ] Nicer code generation, reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity
-- [ ] OfflineInputData "excluded" and "cancel" controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields. Format themselves correctly.
-- [ ] Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
-- [ ] Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
-- [ ] Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData, if it does not already exist, that contains all of the control paths for the devices in the control scheme, with default display names/localization keys.
+- Nicer code generation, reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity, and allowing for this package to be installed with the package manager going forward
+- OfflineInputData "excluded" and "cancel" controls selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields, with nice readable formatting.
+- Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
+- Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
+- Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData asset (if it does not already exist) that contains all of the control paths for the devices in the control scheme, with default display names/localization keys.
