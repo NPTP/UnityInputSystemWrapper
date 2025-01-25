@@ -20,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Data
         public EventSystemActionSpecification[] EventSystemActionOverrides => eventSystemActionOverrides;
 
 #if UNITY_EDITOR
-        public void EDITOR_SetName(string n)
+        internal void EDITOR_SetName(string n)
         {
             name = n;
         }

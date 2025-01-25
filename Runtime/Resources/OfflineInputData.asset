@@ -19,7 +19,11 @@ MonoBehaviour:
   enableMultiplayer: 0
   maxPlayers: 2
   defaultContext: 0
-  inputContexts: []
+  inputContexts:
+  - name: Default
+    enableKeyboardTextInput: 0
+    activeMaps: []
+    eventSystemActionOverrides: []
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape

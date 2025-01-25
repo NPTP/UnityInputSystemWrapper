@@ -193,7 +193,7 @@ namespace NPTP.InputSystemWrapper
         
         #region Editor-Only Debug
 #if UNITY_EDITOR
-        public event Action<InputPlayer> EDITOR_OnPlayerInputContextChanged;
+        internal event Action<InputPlayer> EDITOR_OnPlayerInputContextChanged;
 
         private void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
         {

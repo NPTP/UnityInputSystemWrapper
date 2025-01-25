@@ -1,7 +1,9 @@
 # Unity Input System Wrapper
-### Nick Perrin (c) 2024
+### Nick Perrin © 2024
 
 A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and more readable API.
+
+The minimum required `com.unity.inputsystem` version is due to bugs in some core functionality of earlier versions of that package.
 
 #### Advantages
 - Subscribe to any player's input events at any time in Awake or later without running into race conditions or null references. Don’t need to know whether the player exists or not. In singleplayer mode, the API is automatically simplified so you don’t even need to specify which player.
@@ -18,8 +20,8 @@ TODO's exist in the code for immediate next attention, as well as the following 
 #### Future nice-to-haves:
 - [✔] Display name in BindingInfo has an event requesting a localized string that can be hooked into. Otherwise, we could use LocalizedString (which would require a Localization package dependency)
 - [✔] Optimize Input Context switching
-- [ ] Reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity
+- [ ] Nicer code generation, reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity
 - [ ] OfflineInputData "excluded" and "cancel" controls are selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields. Format themselves correctly.
 - [ ] Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
-- [ ] Binding icon data only gets loaded in when needed instead of being always loaded (Addressables package dependency, should work just like localization strings do with Addressables)
-- [ ] Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData, if it does not already exist, that contains all of the control paths for the devices in the control scheme.
+- [ ] Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
+- [ ] Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData, if it does not already exist, that contains all of the control paths for the devices in the control scheme, with default display names/localization keys.

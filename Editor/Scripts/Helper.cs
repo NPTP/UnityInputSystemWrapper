@@ -8,7 +8,6 @@ using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
-using NPTP.InputSystemWrapper.Utilities.Editor;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor

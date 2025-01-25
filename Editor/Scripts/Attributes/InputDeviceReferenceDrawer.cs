@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace NPTP.InputSystemWrapper.Attributes.Editor
+namespace NPTP.InputSystemWrapper.Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(InputDeviceReference))]
     internal class InputDeviceReferenceDrawer : PropertyDrawer

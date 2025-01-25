@@ -95,7 +95,7 @@ namespace NPTP.InputSystemWrapper.Actions
                 return ActionWrapper.TryGetBindingInfo(controlScheme, out bindingInfos);
         }
 
-        public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindStatus> callback = null)
+        public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindInfo> callback = null)
         {
             if (ActionWrapper == null)
             {

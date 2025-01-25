@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
 using NPTP.InputSystemWrapper.Editor.Utilities;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -18,19 +21,24 @@ namespace NPTP.InputSystemWrapper.Editor
         
         internal static void GenerateInputScriptCode()
         {
-            InputActionAsset asset = Helper.InputActionAsset;
+            OfflineInputData offlineInputData = Helper.OfflineInputData;
+            if (offlineInputData.RuntimeInputData.InputActionAsset == null)
+            {
+                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                return;
+            }
             
             Helper.ClearFolderRecursive(Helper.GeneratedFolderSystemPath);
-            GenerateActionClasses(asset);
+            GenerateActionClasses(offlineInputData.RuntimeInputData.InputActionAsset);
             
-            ModifyExistingFile(asset, Helper.ControlSchemeFileSystemPath, ControlSchemeContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.InputContextFileSystemPath, InputContextContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.PlayerIDFileSystemPath, PlayerIDContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.InputPlayerFileSystemPath, InputPlayerContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.InputManagerFileSystemPath, InputManagerContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.InputUserChangeInfoFileSystemPath, InputUserChangeInfoContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.RuntimeInputDataFileSystemPath, RuntimeInputDataContentBuilder.AddContent);
-            ModifyExistingFile(asset, Helper.BindingChangerFileSystemPath, BindingChangerContentBuilder.AddContent);
+            ModifyExistingFile(Helper.ControlSchemeFileSystemPath, new ControlSchemeContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.PlayerIDFileSystemPath, new PlayerIDContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.InputPlayerFileSystemPath, new InputPlayerContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.InputManagerFileSystemPath, new InputManagerContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.InputUserChangeInfoFileSystemPath, new InputUserChangeInfoContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.RuntimeInputDataFileSystemPath, new RuntimeInputDataContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.BindingChangerFileSystemPath, new BindingChangerContentBuilder(offlineInputData));
             
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
@@ -88,7 +96,7 @@ namespace NPTP.InputSystemWrapper.Editor
             Helper.WriteLinesToFile(newLines, writePath);
         }
 
-        private static void ModifyExistingFile(InputActionAsset asset, string filePath, Action<InputActionAsset, string, List<string>> markerSectionAction)
+        private static void ModifyExistingFile(string filePath, ContentBuilder contentBuilder)
         {
             List<string> newLines = new();
 
@@ -104,7 +112,8 @@ namespace NPTP.InputSystemWrapper.Editor
                             newLines.Add(line);
                             if (Helper.IsMarkerStart(line, out string markerName))
                             {
-                                markerSectionAction?.Invoke(asset, markerName, newLines);
+                                InputScriptGeneratorMarkerInfo info = new(markerName, line.GetLeadingWhitespace(), newLines);
+                                contentBuilder.AddContent(info);
                                 readState = ReadState.WaitingForMarkerEnd;
                             }
                             break;

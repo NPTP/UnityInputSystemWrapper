@@ -1,22 +1,18 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class BindingChangerContentBuilder
+    internal sealed class BindingChangerContentBuilder : ContentBuilder
     {
-        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal override void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
-            
-            switch (markerName)
+            switch (info.MarkerName)
             {
                 case "BindingExcludedPaths":
-                    addStringElements(offlineInputData.BindingExcludedPaths);
+                    addStringElements(Data.BindingExcludedPaths);
                     break;
                 case "BindingCancelPaths":
-                    addStringElements(offlineInputData.BindingCancelPaths);
+                    addStringElements(Data.BindingCancelPaths);
                     break;
                 
                 void addStringElements(string[] source)
@@ -25,10 +21,14 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     {
                         string element = $"            \"{source[i]}\"";
                         if (i < source.Length - 1) element += ",";
-                        lines.Add(element);
+                        info.NewLines.Add(element);
                     }
                 }
             }
+        }
+
+        public BindingChangerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        {
         }
     }
 }

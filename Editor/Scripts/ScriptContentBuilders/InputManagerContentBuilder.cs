@@ -1,29 +1,26 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal static class InputManagerContentBuilder
+    internal class InputManagerContentBuilder : ContentBuilder
     {
-        internal static void AddContent(InputActionAsset asset, string markerName, List<string> lines)
+        internal override void AddContent(InputScriptGeneratorMarkerInfo info)
         {
-            void addEmptyLine() => lines.Add(string.Empty);
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
+            void addEmptyLine() => info.NewLines.Add(string.Empty);
 
-            switch (markerName)
+            switch (info.MarkerName)
             {
                 case "RuntimeInputDataPath":
-                    lines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
+                    info.NewLines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
                     break;
                 case "SingleOrMultiPlayerFieldsAndProperties":
-                    if (offlineInputData.EnableMultiplayer)
+                    if (Data.EnableMultiplayer)
                     {
-                        lines.Add("        private static bool allowPlayerJoining;\n" +
+                        info.NewLines.Add("        private static bool allowPlayerJoining;\n" +
                                   "        public static bool AllowPlayerJoining\n" +
                                   "        {\n" +
                                   "            get => allowPlayerJoining;\n" +
@@ -35,60 +32,60 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                                   "            }\n" +
                                   "        }");
                         addEmptyLine();
-                        lines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => GetPlayer(id);");
+                        info.NewLines.Add($"        public static {nameof(InputPlayer)} Player({nameof(PlayerID)} id) => GetPlayer(id);");
                         addEmptyLine();
-                        lines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
+                        info.NewLines.Add($"        public static IEnumerable<{nameof(InputPlayer)}> Players => playerCollection.Players;");
                         addEmptyLine();
                         break;
                     }
-                    lines.Add(getSinglePlayerEventWrapperString(nameof(InputUserChangeInfo), "OnInputUserChange"));
+                    info.NewLines.Add(getSinglePlayerEventWrapperString(nameof(InputUserChangeInfo), "OnInputUserChange"));
                     addEmptyLine();
-                    lines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));
+                    info.NewLines.Add(getSinglePlayerEventWrapperString(nameof(ControlScheme), "OnControlSchemeChanged"));
                     addEmptyLine();
-                    lines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
+                    info.NewLines.Add(getSinglePlayerEventWrapperString("char", "OnKeyboardTextInput"));
                     addEmptyLine();
-                    string[] mapNames = Helper.GetMapNames(asset).ToArray();
-                    lines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};"));
+                    string[] mapNames = Helper.GetMapNames(Asset).ToArray();
+                    info.NewLines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => Player1.{mapName.AsType()};"));
                     if (mapNames.Length > 0) addEmptyLine();
-                    lines.Add($"        public static {nameof(InputContext)} Context");
-                    lines.Add("        {");
-                    lines.Add($"            get => Player1.InputContext;");
-                    lines.Add($"            set => Player1.InputContext = value;");
-                    lines.Add("        }");
+                    info.NewLines.Add($"        public static {nameof(InputContext)} Context");
+                    info.NewLines.Add("        {");
+                    info.NewLines.Add($"            get => Player1.InputContext;");
+                    info.NewLines.Add($"            set => Player1.InputContext = value;");
+                    info.NewLines.Add("        }");
                     addEmptyLine();
-                    lines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
-                    lines.Add($"        public static Vector2 MousePosition => Mouse.current.position.ReadValue();");
+                    info.NewLines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => Player1.CurrentControlScheme;");
+                    info.NewLines.Add($"        public static Vector2 MousePosition => Mouse.current.position.ReadValue();");
                     addEmptyLine();
-                    lines.Add($"        private static {nameof(InputPlayer)} Player1 => GetPlayer({nameof(PlayerID)}.{nameof(PlayerID.Player1)});");
-                    lines.Add($"        private static bool AllowPlayerJoining => false;");
+                    info.NewLines.Add($"        private static {nameof(InputPlayer)} Player1 => GetPlayer({nameof(PlayerID)}.{nameof(PlayerID.Player1)});");
+                    info.NewLines.Add($"        private static bool AllowPlayerJoining => false;");
                     break;
                 case "DefaultContextProperty":
-                    string defaultContextValue = $"{nameof(InputContext)}.{offlineInputData.DefaultContext}";
-                    if (offlineInputData.InputContexts.Length == 0)
+                    string defaultContextValue = $"{nameof(InputContext)}.{Data.DefaultContext}";
+                    if (Data.InputContexts.Length == 0)
                     {
-                        lines.Add(">>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Comment out this line to allow recompilation, add at least 1 InputContext, then re-save the asset.");
+                        info.NewLines.Add(">>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Comment out this line to allow recompilation, add at least 1 InputContext, then re-save the asset.");
                         defaultContextValue = "0";
                     }
                     else if (Enum.GetNames(typeof(InputContext)).Length == 0)
                     {
-                        defaultContextValue = $"{nameof(InputContext)}.{offlineInputData.InputContexts[0].Name}";
+                        defaultContextValue = $"{nameof(InputContext)}.{Data.InputContexts[0].Name}";
                     }
-                    lines.Add($"        private static {nameof(InputContext)} DefaultContext => {defaultContextValue};");
+                    info.NewLines.Add($"        private static {nameof(InputContext)} DefaultContext => {defaultContextValue};");
                     break;
                 case "Initialize":
-                    if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
-                        lines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
-                    lines.Add($"        {(offlineInputData.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
+                    if (Data.InitializationMode == InitializationMode.BeforeSceneLoad)
+                        info.NewLines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
+                    info.NewLines.Add($"        {(Data.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
                     break;
                 case "EnableContextForAllPlayersSignature":
-                    string accessor = offlineInputData.EnableMultiplayer ? "public" : "private";
-                    lines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
+                    string accessor = Data.EnableMultiplayer ? "public" : "private";
+                    info.NewLines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
                     break;
                 case "PlayerGetter":
-                    string playerGetter = offlineInputData.EnableMultiplayer
+                    string playerGetter = Data.EnableMultiplayer
                         ? $"            {nameof(InputPlayer)} player = GetPlayer(playerID);"
                         : $"            {nameof(InputPlayer)} player = Player1;";
-                    lines.Add(playerGetter);
+                    info.NewLines.Add(playerGetter);
                     break;
             }
 
@@ -100,6 +97,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                        $"            remove => Player1.{eventName} -= value;\n" +
                        "        }";
             }
+        }
+
+        public InputManagerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        {
         }
     }
 }
