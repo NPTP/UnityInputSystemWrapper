@@ -17,6 +17,8 @@ namespace NPTP.InputSystemWrapper.Editor
         private const string MARKER = "// MARKER";
         private const string START = "Start";
         private const string END = "End";
+        internal const string GENERATED = "Generated";
+        internal const string ACTIONS = "Actions";
         
         // Assets
         internal static InputActionAsset InputActionAsset => EditorAssetGetter.GetFirst<RuntimeInputData>().InputActionAsset;
@@ -24,7 +26,7 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputNamespace => GetNamespace(InputManagerFileSystemPath);
         
         // Existing script paths
-        internal static string InputManagerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(Input));
+        internal static string InputManagerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.MainInputScriptFile);
         internal static string InputPlayerFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputPlayer>();
         internal static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
         internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
@@ -32,16 +34,14 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
         internal static string RuntimeInputDataFileSystemPath => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
         internal static string BindingChangerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(BindingChanger));
-        private static string InputManagerFolderSystemPath => EditorScriptGetter.GetSystemFolderPath(typeof(Input));
+        private static string InputManagerFolderSystemPath => EditorAssetGetter.GetSystemFolderPath(OfflineInputData.MainInputScriptFile);
         
         // Template paths
         internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);
         
         // Generated script paths
-        internal const string GENERATED = "Generated";
-        internal const string ACTIONS = "Actions";
-        internal static string GeneratedFolderSystemPath => InputManagerFolderSystemPath + GENERATED + Sep;
-        internal static string GeneratedActionsSystemPath => GeneratedFolderSystemPath + Sep + ACTIONS + Sep;
+        internal static string GeneratedFolderSystemPath => InputManagerFolderSystemPath + Sep + GENERATED + Sep;
+        internal static string GeneratedActionsSystemPath => GeneratedFolderSystemPath + ACTIONS + Sep;
         private static char Sep => Path.DirectorySeparatorChar;
         
         // String extensions for code generation

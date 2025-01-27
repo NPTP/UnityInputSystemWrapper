@@ -17,7 +17,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    internal static class CustomSetupsRegisterer
+    public static partial class CustomSetupsRegisterer
     {
 #if UNITY_EDITOR
         static CustomSetupsRegisterer()
@@ -42,17 +42,26 @@ namespace NPTP.InputSystemWrapper.CustomSetups
         private static void RegisterCustomInteractions()
         {
             FixedHoldInteraction.Register();
+            RegisterOptionalCustomInteractions();
         }
+
+        static partial void RegisterOptionalCustomInteractions();
 
         private static void RegisterCustomBindings()
         {
             TwoAxisComposite.Register();
+            RegisterOptionalCustomBindings();
         }
         
+        static partial void RegisterOptionalCustomBindings();
+
         private static void RegisterCustomDevices()
         {
             LogitechDualAction.Register();
             GenericUSBGamepad.Register();
+            RegisterOptionalCustomDevices();
         }
+        
+        static partial void RegisterOptionalCustomDevices();
     }
 }

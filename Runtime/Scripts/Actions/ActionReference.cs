@@ -13,7 +13,7 @@ namespace NPTP.InputSystemWrapper.Actions
     /// of some arbitrary instance.
     /// </summary>
     [Serializable]
-    public class ActionReference
+    public partial class ActionReference
     {
         [SerializeField] private InputActionReference reference;
         

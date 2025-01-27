@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assetsPathToPackage: Assets/InputSystemWrapper
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
+  mainInputScriptFile: {fileID: 11500000, guid: 4a92096acb86454458f614b09a41859f, type: 3}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
   enableMultiplayer: 0

@@ -10,6 +10,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     {
         private SerializedProperty assetsPathToPackage;
         private SerializedProperty runtimeInputData;
+        private SerializedProperty mainInputScriptFile;
         private SerializedProperty actionsTemplateFile;
         private SerializedProperty initializationMode;
         private SerializedProperty enableMultiplayer;
@@ -42,6 +43,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
             maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
             runtimeInputData = serializedObject.FindProperty(nameof(runtimeInputData));
+            mainInputScriptFile = serializedObject.FindProperty(nameof(mainInputScriptFile));
             actionsTemplateFile = serializedObject.FindProperty(nameof(actionsTemplateFile));
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
@@ -71,6 +73,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         {
             EditorGUILayout.PropertyField(assetsPathToPackage);
             EditorGUILayout.PropertyField(runtimeInputData);
+            EditorGUILayout.PropertyField(mainInputScriptFile);
             EditorGUILayout.PropertyField(actionsTemplateFile);
             EditorGUILayout.PropertyField(initializationMode);
             

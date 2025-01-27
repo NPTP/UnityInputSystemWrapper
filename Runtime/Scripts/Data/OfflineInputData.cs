@@ -23,6 +23,9 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private RuntimeInputData runtimeInputData;
         public RuntimeInputData RuntimeInputData => runtimeInputData;
+        
+        [SerializeField] private TextAsset mainInputScriptFile;
+        public TextAsset MainInputScriptFile => mainInputScriptFile;
 
         [SerializeField] private TextAsset actionsTemplateFile;
         public TextAsset ActionsTemplateFile => actionsTemplateFile;

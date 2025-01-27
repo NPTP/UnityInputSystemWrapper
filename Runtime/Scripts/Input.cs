@@ -25,7 +25,7 @@ namespace NPTP.InputSystemWrapper
     /// <summary>
     /// Main point of usage for all input in the game.
     /// </summary>
-    public static class Input
+    public static partial class Input
     {
         #region Fields & Properties
         
