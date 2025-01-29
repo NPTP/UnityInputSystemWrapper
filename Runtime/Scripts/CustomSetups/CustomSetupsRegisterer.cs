@@ -1,6 +1,5 @@
 using NPTP.InputSystemWrapper.CustomSetups.Bindings;
 using NPTP.InputSystemWrapper.CustomSetups.Devices;
-using NPTP.InputSystemWrapper.InputDevices.Interactions;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,10 +9,10 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.CustomSetups
 {
     /// <summary>
-    /// Register additional bindings and input device layouts that this package supports
-    /// for better out-of-the-box UX with 3rd party HID-compliant input devices with arbitrary layouts.
-    /// Explicit support is required to improve the UX for each device, as Unity has no existing solution.
+    /// Register additional interactions, bindings, and input device layouts with the ability for the developer
+    /// to define more and hook them in here via the partial methods.
     /// </summary>
+    // TODO: Create a custom setups overrideable class that gets called from here externally to this assembly, since partial methods would have to be in the same assembly, and this limits their usefulness.
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
@@ -41,7 +40,6 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 
         private static void RegisterCustomInteractions()
         {
-            FixedHoldInteraction.Register();
             RegisterOptionalCustomInteractions();
         }
 
