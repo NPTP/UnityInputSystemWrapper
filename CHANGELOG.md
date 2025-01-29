@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+3.0.1
+- Remove dysfunctional custom interaction, fixes a build bug.
+
 3.0.0
 - Interactive rebind callback now returns a struct with relevant rebind info.
 
