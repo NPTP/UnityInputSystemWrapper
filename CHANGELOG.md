@@ -2,7 +2,9 @@
 ## Changelog
 
 3.0.2
-- Specify invariant culture for string generation on floats, fixes incorrect characters in some string cultures. 
+- Specify invariant culture for string generation on floats, fixes incorrect characters in some string cultures.
+- Fix non-composite rebinding of value action (e.g. Left Stick binding for a Vector2-valued input action)
+- Partial fix for rebinding cancellation with a cancel path that isn't in the player's current control scheme.
 
 3.0.1
 - Remove dysfunctional custom interaction, fixes a build bug.
