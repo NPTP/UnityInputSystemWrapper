@@ -9,6 +9,7 @@ namespace NPTP.InputSystemWrapper.Actions
         internal ControlScheme ControlScheme { get; }
         
         internal bool DontUseCompositePart => CompositePart == CompositePart.DontIsolatePart;
+        internal bool UseCompositePart => !DontUseCompositePart;
         
         internal ActionBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, ControlScheme controlScheme)
         {

@@ -85,7 +85,9 @@ namespace NPTP.InputSystemWrapper.Bindings
             for (int i = 0; i < actionBindingInfo.ActionWrapper.InputAction.bindings.Count; i++)
             {
                 InputBinding binding = actionBindingInfo.ActionWrapper.InputAction.bindings[i];
-                if (bindingMask.Matches(binding) && (actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding)))
+                if (bindingMask.Matches(binding) && 
+                    ((actionBindingInfo.UseCompositePart && actionBindingInfo.CompositePart.Matches(binding)) ||
+                    (actionBindingInfo.DontUseCompositePart && binding is { isComposite: false, isPartOfComposite: false })))
                 {
                     firstBindingIndex = i;
                     break;

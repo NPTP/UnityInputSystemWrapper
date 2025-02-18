@@ -76,18 +76,30 @@ namespace NPTP.InputSystemWrapper.Bindings
         
         private static RebindingOperation WithCancelingThroughMultiple(this RebindingOperation rebindingOperation, string[] paths)
         {
-            rebindingOperation.WithCancelingThrough(string.Empty);
-            
-            // Unity's rebinding operation extension method "WithCancelingThrough" to choose a control path
-            // that cancels an interactive rebind only supports ONE control path at a time.
-            // This is a workaround to support multiple control paths.
-            rebindingOperation.OnPotentialMatch(op =>
+            if (paths.Length == 0)
             {
-                if (paths.Any(path => op.selectedControl.path == path))
+                return rebindingOperation;
+            }
+
+            string primaryCancelPath = paths[0];
+            rebindingOperation.WithCancelingThrough(primaryCancelPath);
+
+            // Unity's rebinding operation extension method "WithCancelingThrough" to choose a control path
+            // that cancels an interactive rebind only supports ONE control path at a time (strange oversight).
+            // The below is a workaround to support multiple control paths if required.
+            if (paths.Length > 1)
+            {
+                // >>> NOTE: OnPotentialMatch will not read inputs outside of your current control scheme. So if you're
+                // rebinding on gamepad and hit Escape to cancel, Escape had better be your primaryCancelPath (above)
+                // or else it won't get caught here. TODO: Find a better solution for this.
+                rebindingOperation.OnPotentialMatch(operation =>
                 {
-                    op.Cancel();
-                }
-            });
+                    if (paths.Any(path => operation.selectedControl.path == path))
+                    {
+                        operation.Cancel();
+                    }
+                });
+            }
 
             return rebindingOperation;
         }
