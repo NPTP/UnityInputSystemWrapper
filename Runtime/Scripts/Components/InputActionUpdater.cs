@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace NPTP.InputSystemWrapper.Components
 {
@@ -18,8 +16,9 @@ namespace NPTP.InputSystemWrapper.Components
     {
         public event Action<IEnumerable<BindingInfo>> OnBindingsUpdated;
         
-        [FormerlySerializedAs("inputActionReference")] [SerializeField] private ActionReference actionReference;
-        
+        [SerializeField] private ActionReference actionReference;
+        public ActionReference ActionReference => actionReference;
+
         private void Start()
         {
             UpdateEvents();

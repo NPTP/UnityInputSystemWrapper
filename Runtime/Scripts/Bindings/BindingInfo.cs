@@ -11,9 +11,10 @@ namespace NPTP.InputSystemWrapper.Bindings
     /// D-Pad pointing up and use the display name "D-Pad Up".
     /// </summary>
     [Serializable]
-    public class BindingInfo
+    public struct BindingInfo
     {
-        [FormerlySerializedAs("displayName")] [SerializeField]
+        [FormerlySerializedAs("displayName")]
+        [SerializeField]
         private string localizationKey;
         
         /// <summary>
