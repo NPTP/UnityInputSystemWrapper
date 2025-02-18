@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using NPTP.InputSystemWrapper.Enums;
@@ -32,8 +33,8 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         info.NewLines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset, actionWrapperTable);");
                     break;
                 case "EventSystemOptions":
-                    info.NewLines.Add($"            uiInputModule.moveRepeatDelay = {Data.MoveRepeatDelay}f;");
-                    info.NewLines.Add($"            uiInputModule.moveRepeatRate = {Data.MoveRepeatRate}f;");
+                    info.NewLines.Add($"            uiInputModule.moveRepeatDelay = {Data.MoveRepeatDelay.ToString(CultureInfo.InvariantCulture)}f;");
+                    info.NewLines.Add($"            uiInputModule.moveRepeatRate = {Data.MoveRepeatRate.ToString(CultureInfo.InvariantCulture)}f;");
                     info.NewLines.Add($"            uiInputModule.deselectOnBackgroundClick = {Data.DeselectOnBackgroundClick.ToString().ToLower()};");
                     info.NewLines.Add($"            uiInputModule.pointerBehavior = UIPointerBehavior.{Data.PointerBehavior};");
                     info.NewLines.Add($"            uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.{Data.CursorLockBehavior};");
