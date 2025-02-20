@@ -25,6 +25,7 @@ MonoBehaviour:
     enableKeyboardTextInput: 0
     activeMaps: []
     eventSystemActionOverrides: []
+  loadAllBindingOverridesOnInitialize: 1
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape

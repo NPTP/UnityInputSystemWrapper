@@ -133,7 +133,10 @@ namespace NPTP.InputSystemWrapper
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
+            // MARKER.LoadAllBindingsOnInitialization.Start
             LoadBindingsForAllPlayers();
+            // MARKER.LoadAllBindingsOnInitialization.End
+
             EnableContextForAllPlayers(DefaultContext);
             
             anyButtonPressListeners = new HashSet<Action<InputControl>>();

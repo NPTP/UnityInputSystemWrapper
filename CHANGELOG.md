@@ -1,6 +1,11 @@
 # Input System Wrapper
 ## Changelog
 
+3.0.3
+- Binding overrides save to persistent data path json file instead of PlayerPrefs for better management of player settings.
+- Add option to specify whether binding overrides should be loaded on ISW initialization or not.
+- Improved OfflineInputData editor window.
+
 3.0.2
 - Specify invariant culture for string generation on floats, fixes incorrect characters in some string cultures.
 - Fix non-composite rebinding of value action (e.g. Left Stick binding for a Vector2-valued input action)

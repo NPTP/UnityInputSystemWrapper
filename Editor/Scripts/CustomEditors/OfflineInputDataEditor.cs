@@ -8,6 +8,10 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     [CustomEditor(typeof(OfflineInputData))]
     internal class OfflineInputDataEditor : UnityEditor.Editor
     {
+        private GUIStyle HeaderStyle => new(EditorStyles.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
+        private GUIStyle WarningStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 12, normal = new GUIStyleState {textColor = Color.yellow}};
+        private GUIStyle SpecialNoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
+        
         private SerializedProperty assetsPathToPackage;
         private SerializedProperty runtimeInputData;
         private SerializedProperty mainInputScriptFile;
@@ -17,6 +21,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty maxPlayers;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
+        
+        private SerializedProperty loadAllBindingOverridesOnInitialize;
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
         
@@ -48,6 +54,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
+            
+            loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(nameof(loadAllBindingOverridesOnInitialize));
             bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
             bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
             
@@ -69,6 +77,22 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
         }
 
+        private void DrawHeader(string text)
+        {
+            EditorGUILayout.LabelField(text, HeaderStyle);
+            EditorGUILayout.Space(4);
+        }
+
+        private void DrawWarning(string text)
+        {
+            EditorGUILayout.LabelField(text, WarningStyle);
+        }
+
+        private void DrawSpecialNote(string text)
+        {
+            EditorGUILayout.LabelField(text, SpecialNoteStyle);
+        }
+
         public override void OnInspectorGUI()
         {
             EditorGUILayout.PropertyField(assetsPathToPackage);
@@ -79,9 +103,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             
             EditorInspectorUtility.DrawHorizontalLine();
 
-            // TODO (multiplayer): Remove these warning labels when MP support is ready.
-            EditorGUILayout.LabelField("Warning! Multiplayer support is currently incomplete. Enable at your own risk.",
-                new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic, fontSize = 12 });
+            DrawHeader("Multiplayer");
+
+            if (enableMultiplayer.boolValue)
+            {
+                // TODO (multiplayer): Remove this warning when MP support is ready.
+                DrawWarning("Multiplayer support is currently incomplete. Enable at your own risk.");
+            } 
             EditorGUILayout.PropertyField(enableMultiplayer);
             if (enableMultiplayer.boolValue)
             {
@@ -91,20 +119,25 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             EditorInspectorUtility.DrawHorizontalLine();
 
-            EditorGUILayout.Space();
+            DrawHeader("Input Contexts");
             EditorGUILayout.PropertyField(defaultContext);
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
             
             EditorInspectorUtility.DrawHorizontalLine();
             
-            EditorGUILayout.LabelField("Excluded Path format: \"<Device>/path\"");
+            // EditorGUILayout.LabelField("Bindings", HeaderStyle);
+            DrawHeader("Bindings");
+            EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
+            EditorGUILayout.Space();
+            DrawSpecialNote("Excluded Path format: \"<Device>/path\"");
             EditorGUILayout.PropertyField(bindingExcludedPaths);
-            EditorGUILayout.LabelField("Cancel Path format: \"/Device/path\"");
+            DrawSpecialNote("Cancel Path format: \"/Device/path\"");
             EditorGUILayout.PropertyField(bindingCancelPaths);
 
             EditorInspectorUtility.DrawHorizontalLine();
             
+            DrawHeader("Event System");
             EditorGUILayout.PropertyField(moveRepeatDelay);
             EditorGUILayout.PropertyField(moveRepeatRate);
             EditorGUILayout.PropertyField(deselectOnBackgroundClick);

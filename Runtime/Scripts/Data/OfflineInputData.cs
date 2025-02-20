@@ -36,7 +36,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private bool enableMultiplayer;
         public bool EnableMultiplayer => enableMultiplayer;
         
-        // TODO (multiplayer): remove player limits, refactor playerIDs etc. Lazy initialization on ID entry. 
+        // TODO (multiplayer): remove player limits, refactor playerIDs into guid-style structs etc. and use lazy initialization on ID entry/player creation 
         [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
         public int MaxPlayers => maxPlayers;
 
@@ -45,6 +45,10 @@ namespace NPTP.InputSystemWrapper.Data
         
         [SerializeField] private InputContextInfo[] inputContexts;
         public InputContextInfo[] InputContexts => inputContexts;
+
+        [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the load call yourself.")]
+        [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
+        public bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
 
         [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
                  "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]

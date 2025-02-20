@@ -77,6 +77,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                         info.NewLines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
                     info.NewLines.Add($"        {(Data.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
                     break;
+                case "LoadAllBindingsOnInitialization":
+                    if (Data.LoadAllBindingOverridesOnInitialize)
+                        info.NewLines.Add("            LoadBindingsForAllPlayers();");
+                    break;
                 case "EnableContextForAllPlayersSignature":
                     string accessor = Data.EnableMultiplayer ? "public" : "private";
                     info.NewLines.Add($"        {accessor} static void EnableContextForAllPlayers({nameof(InputContext)} inputContext)");
