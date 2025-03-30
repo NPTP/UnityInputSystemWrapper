@@ -9,7 +9,30 @@ namespace NPTP.InputSystemWrapper.Enums
         // MARKER.Members.End
     }
 
-    internal static class ControlSchemeExtensions
+    public static class PublicControlSchemeExtensions
+    {
+        public static bool IsMouseBased(this ControlScheme controlScheme)
+        {
+            return controlScheme switch
+            {
+                // MARKER.IsMouseBased.Start
+                // MARKER.IsMouseBased.End
+                _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
+            };
+        }
+        
+        public static bool IsGamepadBased(this ControlScheme controlScheme)
+        {
+            return controlScheme switch
+            {
+                // MARKER.IsGamepadBased.Start
+                // MARKER.IsGamepadBased.End
+                _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
+            };
+        }
+    }
+
+    internal static class InternalControlSchemeExtensions
     {
         /// <summary>
         /// Convert the enum to the string name in the asset from which the control scheme originates,

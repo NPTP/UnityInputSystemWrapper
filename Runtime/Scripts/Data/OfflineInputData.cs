@@ -45,6 +45,9 @@ namespace NPTP.InputSystemWrapper.Data
         
         [SerializeField] private InputContextInfo[] inputContexts;
         public InputContextInfo[] InputContexts => inputContexts;
+        
+        [SerializeField] private ControlSchemeBasis[] controlSchemeBases;
+        public ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
 
         [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the load call yourself.")]
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;

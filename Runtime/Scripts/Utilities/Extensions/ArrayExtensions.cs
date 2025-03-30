@@ -16,5 +16,10 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
                 action.Invoke(array[i]);
             }
         }
+
+        internal static bool IsNullOrEmpty<T>(this T[] array)
+        {
+            return array == null || array.Length == 0;
+        }
     }
 }

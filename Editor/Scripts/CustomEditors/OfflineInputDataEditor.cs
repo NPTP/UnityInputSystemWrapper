@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +24,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty maxPlayers;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
+        
+        private SerializedProperty controlSchemeBases;
         
         private SerializedProperty loadAllBindingOverridesOnInitialize;
         private SerializedProperty bindingExcludedPaths;
@@ -55,6 +60,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
+            controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
+
             loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(nameof(loadAllBindingOverridesOnInitialize));
             bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
             bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
@@ -75,6 +82,30 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             cancel = serializedObject.FindProperty(nameof(cancel));
             trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
+            
+            PopulateControlSchemeBases();
+        }
+
+        private void PopulateControlSchemeBases()
+        {
+            Dictionary<ControlScheme, ControlSchemeBasis.BasisSpec> schemeToSpec = new();
+            for (int i = 0; i < controlSchemeBases.arraySize; i++)
+            {
+                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is ControlSchemeBasis basis)
+                    schemeToSpec[basis.ControlScheme] = basis.Basis;
+            }
+            
+            controlSchemeBases.ClearArray();
+
+            Array enumValues = Enum.GetValues(typeof(ControlScheme));
+            int index = 0;
+            foreach (ControlScheme scheme in enumValues)
+            {
+                schemeToSpec.TryGetValue(scheme, out ControlSchemeBasis.BasisSpec basisSpec);
+                controlSchemeBases.InsertArrayElementAtIndex(index);
+                controlSchemeBases.GetArrayElementAtIndex(index).boxedValue = new ControlSchemeBasis(scheme, basisSpec);
+                index++;
+            }
         }
 
         private void DrawHeader(string text)
@@ -126,7 +157,20 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             
             EditorInspectorUtility.DrawHorizontalLine();
             
-            // EditorGUILayout.LabelField("Bindings", HeaderStyle);
+            DrawHeader("Control Schemes");
+            int length = controlSchemeBases.arraySize;
+            for (int i = 0; i < length; i++)
+            {
+                SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
+                if (basisProperty.boxedValue is not ControlSchemeBasis basis)
+                    continue;
+
+                SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
+                specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlScheme.ToInputAssetName(), (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+            }
+
+            EditorInspectorUtility.DrawHorizontalLine();
+            
             DrawHeader("Bindings");
             EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
             EditorGUILayout.Space();
