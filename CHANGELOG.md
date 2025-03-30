@@ -1,6 +1,11 @@
 # Input System Wrapper
 ## Changelog
 
+3.1.0
+- Specify control schemes as either being mouse- or gamepad-based, higher abstraction
+- Fix binding composite part name recognition
+- Implement new custom input binding composite targeting UI navigation specifically
+
 3.0.3
 - Binding overrides save to persistent data path json file instead of PlayerPrefs for better management of player settings.
 - Add option to specify whether binding overrides should be loaded on ISW initialization or not.
