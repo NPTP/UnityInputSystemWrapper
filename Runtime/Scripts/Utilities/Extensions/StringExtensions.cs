@@ -61,6 +61,8 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
         
         public static string AlphaNumericCharactersOnly(this string s)
         {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
+
             return Regex.Replace(s, "[^a-zA-Z0-9]", string.Empty);
         }
 
