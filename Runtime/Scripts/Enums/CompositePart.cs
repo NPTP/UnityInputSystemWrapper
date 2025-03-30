@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Enums
 
         private static string ToBindingName(this CompositePart compositePart)
         {
-            return compositePart.ToString().ToLower();
+            return compositePart.ToString();
         }
     }
 }
