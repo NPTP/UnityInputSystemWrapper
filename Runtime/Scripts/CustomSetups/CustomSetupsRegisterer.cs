@@ -48,6 +48,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups
         private static void RegisterCustomBindings()
         {
             TwoAxisComposite.Register();
+            FourQuadrantDigitalVector2Composite.Register();
             RegisterOptionalCustomBindings();
         }
         
