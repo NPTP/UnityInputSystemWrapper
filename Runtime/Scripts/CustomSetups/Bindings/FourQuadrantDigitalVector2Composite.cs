@@ -60,11 +60,6 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
 
         [Tooltip("The magnitude of the stick value must exceed this value for any direction to register.")]
         public float deadZoneMagnitude = 0.5f;
-        
-        internal static void Register()
-        {
-            InputSystem.RegisterBindingComposite<FourQuadrantDigitalVector2Composite>();
-        }
 
         /// <inheritdoc />
         public override Vector2 ReadValue(ref InputBindingCompositeContext context)

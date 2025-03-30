@@ -9,15 +9,6 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Devices
     [InputControlLayout(stateType = typeof(GenericUSBGamepadLayout))]
     public class GenericUSBGamepad : Gamepad
     {
-        internal static void Register()
-        {
-            InputSystem.RegisterLayout<GenericUSBGamepad>(
-                "Generic USB Gamepad",
-                new InputDeviceMatcher()
-                    .WithInterface("HID")
-                    .WithProduct("Generic.+USB.+Joystick.*"));
-        }
-        
         [StructLayout(LayoutKind.Explicit, Size = 8)]
         private struct GenericUSBGamepadLayout : IInputStateTypeInfo
         {

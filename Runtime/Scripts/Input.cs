@@ -127,7 +127,7 @@ namespace NPTP.InputSystemWrapper
             ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
             
             // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
-            CustomSetupsRegisterer.PerformRegistrations();
+            CustomSetupsRegisterer.PerformRegistrations(runtimeInputData);
             
             playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, maxPlayers);
 #if UNITY_EDITOR

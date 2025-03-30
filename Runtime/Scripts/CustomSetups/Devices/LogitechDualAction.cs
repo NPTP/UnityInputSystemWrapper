@@ -9,20 +9,6 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Devices
     [InputControlLayout(stateType = typeof(LogitechDualActionLayout))]
     public class LogitechDualAction : Gamepad
     {
-        internal static void Register()
-        {
-            InputSystem.RegisterLayout<LogitechDualAction>(
-                "Logitech Dual Action (XInput)",
-                new InputDeviceMatcher()
-                    .WithInterface("HID")
-                    .WithCapability("vendorId", 0x46D)
-                    .WithCapability("productId", 0xC216));
-
-            // Alternatively, manufacturer and product name can be used.
-            // .WithManufacturer("Logitech")
-            // .WithProduct("Logitech.+Dual.+Action.*"));
-        }
-        
         [StructLayout(LayoutKind.Explicit, Size = 7)]
         private struct LogitechDualActionLayout : IInputStateTypeInfo
         {

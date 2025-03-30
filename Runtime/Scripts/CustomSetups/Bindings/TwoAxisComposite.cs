@@ -20,10 +20,5 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
                 context.ReadValue<float>(yAxis) * -1f // Axis is inverted.
             );
         }
-
-        internal static void Register()
-        {
-            InputSystem.RegisterBindingComposite<TwoAxisComposite>();
-        }
     }
 }

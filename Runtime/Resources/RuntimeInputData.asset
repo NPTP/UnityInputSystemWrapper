@@ -13,3 +13,10 @@ MonoBehaviour:
   m_Name: RuntimeInputData
   m_EditorClassIdentifier: 
   inputActionAsset: {fileID: 0}
+  customLayouts:
+  - {fileID: 11400000, guid: ccce78815df2428489f300564376d523, type: 2}
+  - {fileID: 11400000, guid: ebd9e9244b238ae40bc8fec710b79691, type: 2}
+  customBindings:
+  - {fileID: 11400000, guid: cbc07a2735103854da8062de8ce7547f, type: 2}
+  - {fileID: 11400000, guid: f941eee3f8e1c4e4e9f33b1ab63d95b4, type: 2}
+  customInteractions: []

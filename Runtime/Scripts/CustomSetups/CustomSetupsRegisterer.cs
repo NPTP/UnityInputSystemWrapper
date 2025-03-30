@@ -1,7 +1,8 @@
-using NPTP.InputSystemWrapper.CustomSetups.Bindings;
-using NPTP.InputSystemWrapper.CustomSetups.Devices;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
 
 #if UNITY_EDITOR
+using NPTP.InputSystemWrapper.Utilities;
 using UnityEditor;
 using UnityEngine;
 #endif
@@ -10,13 +11,12 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 {
     /// <summary>
     /// Register additional interactions, bindings, and input device layouts with the ability for the developer
-    /// to define more and hook them in here via the partial methods.
+    /// to define more and hook them in via new CustomSetup assets added to RuntimeInputData.
     /// </summary>
-    // TODO: Create a custom setups overrideable class that gets called from here externally to this assembly, since partial methods would have to be in the same assembly, and this limits their usefulness.
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    public static partial class CustomSetupsRegisterer
+    public static class CustomSetupsRegisterer
     {
 #if UNITY_EDITOR
         static CustomSetupsRegisterer()
@@ -27,40 +27,16 @@ namespace NPTP.InputSystemWrapper.CustomSetups
                 return;
             }
 
-            PerformRegistrations();
+            if (RuntimeSafeEditorUtility.TryLoadViaAssetDatabase(out RuntimeInputData runtimeInputData))
+                PerformRegistrations(runtimeInputData);
         }
 #endif
-        
-        internal static void PerformRegistrations()
-        {
-            RegisterCustomInteractions();
-            RegisterCustomBindings();
-            RegisterCustomDevices();
-        }
 
-        private static void RegisterCustomInteractions()
+        internal static void PerformRegistrations(RuntimeInputData runtimeInputData)
         {
-            RegisterOptionalCustomInteractions();
+            runtimeInputData.CustomLayouts.ForEach(layout => layout.Register());
+            runtimeInputData.CustomBindings.ForEach(binding => binding.Register());
+            runtimeInputData.CustomInteractions.ForEach(interaction => interaction.Register());
         }
-
-        static partial void RegisterOptionalCustomInteractions();
-
-        private static void RegisterCustomBindings()
-        {
-            TwoAxisComposite.Register();
-            FourQuadrantDigitalVector2Composite.Register();
-            RegisterOptionalCustomBindings();
-        }
-        
-        static partial void RegisterOptionalCustomBindings();
-
-        private static void RegisterCustomDevices()
-        {
-            LogitechDualAction.Register();
-            GenericUSBGamepad.Register();
-            RegisterOptionalCustomDevices();
-        }
-        
-        static partial void RegisterOptionalCustomDevices();
     }
 }

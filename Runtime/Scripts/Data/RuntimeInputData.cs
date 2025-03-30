@@ -1,5 +1,6 @@
 using System;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,12 +14,21 @@ namespace NPTP.InputSystemWrapper.Data
     public class RuntimeInputData : ScriptableObject
     {
         [SerializeField] private InputActionAsset inputActionAsset;
-        public InputActionAsset InputActionAsset => inputActionAsset;
+        internal InputActionAsset InputActionAsset => inputActionAsset;
+
+        [SerializeField] private CustomLayout[] customLayouts;
+        internal CustomLayout[] CustomLayouts => customLayouts;
+        
+        [SerializeField] private CustomBinding[] customBindings;
+        internal CustomBinding[] CustomBindings => customBindings;
+        
+        [SerializeField] private CustomInteraction[] customInteractions;
+        internal CustomInteraction[] CustomInteractions => customInteractions;
 
         // MARKER.ControlSchemeBindingData.Start
         // MARKER.ControlSchemeBindingData.End
 
-        public BindingData GetControlSchemeBindingData(ControlScheme controlScheme)
+        internal BindingData GetControlSchemeBindingData(ControlScheme controlScheme)
         {
             return controlScheme switch
             {
