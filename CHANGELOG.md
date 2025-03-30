@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+3.1.1
+- Custom setups (bindings, layouts, interactions) are now asset-based and specified inside the RuntimeInputData asset for easier developer expansion
+
 3.1.0
 - Specify control schemes as either being mouse- or gamepad-based, higher abstraction
 - Fix binding composite part name recognition
