@@ -135,15 +135,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Multiplayer");
-
+            
+            EditorGUILayout.PropertyField(enableMultiplayer);
             if (enableMultiplayer.boolValue)
             {
                 // TODO (multiplayer): Remove this warning when MP support is ready.
                 DrawWarning("Multiplayer support is currently incomplete. Enable at your own risk.");
-            } 
-            EditorGUILayout.PropertyField(enableMultiplayer);
-            if (enableMultiplayer.boolValue)
-            {
+                
                 EditorGUILayout.PropertyField(maxPlayers);
                 maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
             }
@@ -159,14 +157,23 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             
             DrawHeader("Control Schemes");
             int length = controlSchemeBases.arraySize;
-            for (int i = 0; i < length; i++)
+            if (length == 0)
             {
-                SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
-                if (basisProperty.boxedValue is not ControlSchemeBasis basis)
-                    continue;
+                DrawSpecialNote("No Control Schemes are defined in your Input Action Asset.");
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
+                    if (basisProperty.boxedValue is not ControlSchemeBasis basis)
+                        continue;
 
-                SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlScheme.ToInputAssetName(), (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+                    SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
+                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(
+                        basis.ControlScheme.ToInputAssetName(),
+                        (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+                }
             }
 
             EditorInspectorUtility.DrawHorizontalLine();
