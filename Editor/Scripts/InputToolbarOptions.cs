@@ -10,7 +10,7 @@ namespace NPTP.InputSystemWrapper.Editor
         private const string REGENERATE_INPUT_CODE = TOOLBAR_NAME + "/Regenerate Input Wrapper Code";
         private const string OFFLINE_INPUT_DATA = TOOLBAR_NAME + "/Offline Input Data";
         private const string RUNTIME_INPUT_DATA = TOOLBAR_NAME + "/Runtime Input Data";
-        private const string OPEN_DEBUGGER_WINDOW = TOOLBAR_NAME + "/Open Input Wrapper Debugger Window";
+        private const string OPEN_DEBUGGER_WINDOW = TOOLBAR_NAME + "/Input Wrapper Debugger Window";
 
         [MenuItem(REGENERATE_INPUT_CODE, isValidateFunction: false, 0)]
         private static void RegenerateInputCode()
