@@ -21,5 +21,13 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
         {
             return array == null || array.Length == 0;
         }
+
+        internal static void DefaultAll<T>(this T[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = default;
+            }
+        }
     }
 }

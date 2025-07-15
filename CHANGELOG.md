@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+3.2.1
+- Temporary, but useful, `Input.OnControlsUpdated` event added for catch-all UI updates
+
 3.1.1
 - Custom setups (bindings, layouts, interactions) are now asset-based and specified inside the RuntimeInputData asset for easier developer expansion
 

@@ -40,6 +40,11 @@ namespace NPTP.InputSystemWrapper
         /// </summary>
         public static event Action<LocalizedStringRequest> OnLocalizedStringRequested;
 
+        /// <summary>
+        /// Use as a general purpose catch-all for when to update any UI that displays controls.
+        /// </summary>
+        public static event Action OnControlsUpdated;
+
         // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
         // Can we consolidate these events into a higher-level abstraction? Or separate them by desired events (binding change, control scheme change, etc with more granularity)
         public static event Action OnBindingsChanged;
@@ -143,6 +148,13 @@ namespace NPTP.InputSystemWrapper
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
             
+            // TODO (architecture): Support code gen around this
+            // MARKER.ControlsUpdatedSubscriptions.Start
+            OnInputUserChange += ControlsUpdate;
+            OnBindingsChanged += ControlsUpdate;
+            OnControlSchemeChanged += ControlsUpdate;
+            // MARKER.ControlsUpdatedSubscriptions.End
+
             initialized = true;
         }
 
@@ -167,7 +179,15 @@ namespace NPTP.InputSystemWrapper
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
 #endif
+            // TODO (architecture): Support code gen around this
+            // MARKER.ControlsUpdatedSubscriptions.Start
+            OnInputUserChange -= ControlsUpdate;
+            OnBindingsChanged -= ControlsUpdate;
+            OnControlSchemeChanged -= ControlsUpdate;
+            // MARKER.ControlsUpdatedSubscriptions.End
+            
             playerCollection.TerminateAll();
+            playerCollection = null;
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
         }
@@ -289,6 +309,14 @@ namespace NPTP.InputSystemWrapper
         internal static void BroadcastBindingsChanged()
         {
             OnBindingsChanged?.Invoke();
+        }
+
+        private static void ControlsUpdate(InputUserChangeInfo inputUserChangeInfo) => BroadcastControlsUpdated();
+        private static void ControlsUpdate(ControlScheme controlScheme) => BroadcastControlsUpdated();
+        private static void ControlsUpdate() => BroadcastControlsUpdated();
+        private static void BroadcastControlsUpdated()
+        {
+            OnControlsUpdated?.Invoke();
         }
         
         /// <summary>

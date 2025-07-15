@@ -61,6 +61,8 @@ namespace NPTP.InputSystemWrapper
                 p.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
                 p.Terminate();
             });
+
+            players.DefaultAll();
         }
 
         internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
