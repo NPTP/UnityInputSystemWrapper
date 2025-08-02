@@ -4,16 +4,16 @@ using System.Text.RegularExpressions;
 
 namespace NPTP.InputSystemWrapper.Utilities.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
-        public static string AllWhitespaceTrimmed(this string s)
+        internal static string AllWhitespaceTrimmed(this string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
             
             return new string(s.Where(c => !char.IsWhiteSpace(c)).ToArray());
         }
 
-        public static string SpaceBetweenWords(this string s)
+        internal static string SpaceBetweenWords(this string s)
         {
             StringBuilder sb = new();
             
@@ -41,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
             return sb.ToString();
         }
 
-        public static string CapitalizeFirst(this string s)
+        internal static string CapitalizeFirst(this string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
             
@@ -50,7 +50,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
             return upper[0] + s[1..];
         }
 
-        public static string LowercaseFirst(this string s)
+        internal static string LowercaseFirst(this string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
             
@@ -59,21 +59,21 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
             return lower[0] + s[1..];
         }
         
-        public static string AlphaNumericCharactersOnly(this string s)
+        internal static string AlphaNumericCharactersOnly(this string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
 
             return Regex.Replace(s, "[^a-zA-Z0-9]", string.Empty);
         }
 
-        public static string RemoveFirstCharacterIfNumber(this string s)
+        internal static string RemoveFirstCharacterIfNumber(this string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
             if (!char.IsNumber(s[0])) return s;
             return s.Length > 1 ? s[1..] : string.Empty;
         }
 
-        public static string GetLeadingWhitespace(this string s)
+        internal static string GetLeadingWhitespace(this string s)
         {
             return string.IsNullOrEmpty(s) ? string.Empty : s.Replace(s.TrimStart(), string.Empty);
         }

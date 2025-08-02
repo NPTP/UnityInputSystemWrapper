@@ -3,6 +3,7 @@
 
 3.2.2
 - A bunch of editor stuff changed to internal (formerly public)
+- Extension classes changed to all internal
 
 3.2.1
 - Temporary, but useful, `Input.OnControlsUpdated` event added for catch-all UI updates
