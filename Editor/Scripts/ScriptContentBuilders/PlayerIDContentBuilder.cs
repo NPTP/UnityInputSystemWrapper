@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        public PlayerIDContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal PlayerIDContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

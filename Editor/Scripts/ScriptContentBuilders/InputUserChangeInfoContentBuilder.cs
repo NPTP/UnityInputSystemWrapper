@@ -20,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        public InputUserChangeInfoContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal InputUserChangeInfoContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

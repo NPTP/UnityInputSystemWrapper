@@ -46,7 +46,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        public ControlSchemeContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal ControlSchemeContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

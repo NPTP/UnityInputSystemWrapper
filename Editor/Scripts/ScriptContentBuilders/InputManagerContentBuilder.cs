@@ -103,7 +103,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        public InputManagerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal InputManagerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

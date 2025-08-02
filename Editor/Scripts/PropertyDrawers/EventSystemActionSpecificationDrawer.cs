@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(EventSystemActionSpecification))]
-    public class EventSystemActionSpecificationDrawer : PropertyDrawer
+    internal class EventSystemActionSpecificationDrawer : PropertyDrawer
     {
         private const string ACTION_TYPE = "actionType";
         private const string ACTION_REFERENCE = "actionReference";

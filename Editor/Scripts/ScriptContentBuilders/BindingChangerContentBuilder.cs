@@ -27,7 +27,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        public BindingChangerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal BindingChangerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

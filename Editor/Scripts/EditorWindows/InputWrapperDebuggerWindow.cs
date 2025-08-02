@@ -9,17 +9,17 @@ using FontStyle = UnityEngine.FontStyle;
 
 namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 {
-	public class InputWrapperDebuggerWindow : EditorWindow
+	internal class InputWrapperDebuggerWindow : EditorWindow
 	{
 		private const string EMPTY = "";
 		private const int MAX_SHOWN_RECENT_CONTEXTS = 3;
 
 		private class TimestampedObject<T>
 		{
-			public T Value { get; }
-			public string Timestamp { get; }
+			internal T Value { get; }
+			internal string Timestamp { get; }
 
-			public TimestampedObject(T value, string timestamp)
+			internal TimestampedObject(T value, string timestamp)
 			{
 				Value = value;
 				Timestamp = timestamp;
@@ -76,7 +76,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 		}
 
 		// Updates the window when in play mode, so it shows up-to-date runtime debug info.
-		public void OnInspectorUpdate()
+		internal void OnInspectorUpdate()
 		{
 			if (!Application.isPlaying)
 			{

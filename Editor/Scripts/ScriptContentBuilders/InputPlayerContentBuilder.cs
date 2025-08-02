@@ -139,7 +139,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             lines.Add(line.ToString());
         }
 
-        public InputPlayerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal InputPlayerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

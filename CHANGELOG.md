@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+3.2.2
+- A bunch of editor stuff changed to internal (formerly public)
+
 3.2.1
 - Temporary, but useful, `Input.OnControlsUpdated` event added for catch-all UI updates
 

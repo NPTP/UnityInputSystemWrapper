@@ -7,14 +7,12 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal class InputScriptGeneratorMarkerInfo
     {
-        public string MarkerName { get; }
-        public string LeadingWhiteSpace { get; }
-        public List<string> NewLines { get; }
+        internal string MarkerName { get; }
+        internal List<string> NewLines { get; }
         
-        public InputScriptGeneratorMarkerInfo(string markerName, string leadingWhiteSpace, List<string> newLines)
+        internal InputScriptGeneratorMarkerInfo(string markerName, string leadingWhiteSpace, List<string> newLines)
         {
             MarkerName = markerName;
-            LeadingWhiteSpace = leadingWhiteSpace;
             NewLines = newLines;
         }
     }
