@@ -9,7 +9,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
     /// Based on one of Unity's serializable dictionaries for a customizable/maintainable version.
     /// </summary>
     [Serializable]
-    public sealed class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISerializationCallbackReceiver
+    internal sealed class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
         [SerializeField] private List<KeyValueCombo<TKey, TValue>> keyValueCombos = new();
 
@@ -25,7 +25,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             set => internalDictionary[key] = value;
         }
 
-        public TKey this[TValue value]
+        internal TKey this[TValue value]
         {
             get
             {
@@ -40,7 +40,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             }
         }
         
-        public void AddRange(IDictionary<TKey, TValue> items)
+        internal void AddRange(IDictionary<TKey, TValue> items)
         {
             foreach (TKey key in items.Keys)
             {
@@ -49,7 +49,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
         }
 
         public void Add(TKey key, TValue value) => internalDictionary.Add(key, value);
-        public bool TryAdd(TKey key, TValue value) => internalDictionary.TryAdd(key, value);
+        internal bool TryAdd(TKey key, TValue value) => internalDictionary.TryAdd(key, value);
         public bool ContainsKey(TKey key) => internalDictionary.ContainsKey(key);
         public bool Remove(TKey key) => internalDictionary.Remove(key);
         public bool TryGetValue(TKey key, out TValue value) => internalDictionary.TryGetValue(key, out value);
@@ -124,7 +124,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             keyValueCombos.RemoveAt(Mathf.Clamp(index, 0, keyValueCombos.Count - 1));
         }
 
-        public List<KeyValueCombo<TKey, TValue>> EDITOR_GetKeyValueCombos()
+        internal List<KeyValueCombo<TKey, TValue>> EDITOR_GetKeyValueCombos()
         {
             return keyValueCombos;
         }

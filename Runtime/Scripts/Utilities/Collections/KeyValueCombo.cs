@@ -7,15 +7,15 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
     /// Serializable version of a Key Value Pair struct.
     /// </summary>
     [Serializable]
-    public struct KeyValueCombo<TKey, TValue>
+    internal struct KeyValueCombo<TKey, TValue>
     {
         [SerializeField] private TKey key;
-        public TKey Key => key;
+        internal TKey Key => key;
         
         [SerializeField] private TValue value;
-        public TValue Value => value;
+        internal TValue Value => value;
         
-        public KeyValueCombo(TKey key, TValue value)
+        internal KeyValueCombo(TKey key, TValue value)
         {
             this.key = key;
             this.value = value;
