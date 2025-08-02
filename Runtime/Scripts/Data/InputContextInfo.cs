@@ -5,19 +5,19 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Data
 {
     [Serializable]
-    public class InputContextInfo
+    internal class InputContextInfo
     {
         [SerializeField] private string name;
-        public string Name => name;
+        internal string Name => name;
         
         [SerializeField] private bool enableKeyboardTextInput;
-        public bool EnableKeyboardTextInput => enableKeyboardTextInput;
+        internal bool EnableKeyboardTextInput => enableKeyboardTextInput;
 
         [InputMapSelector][SerializeField] private string[] activeMaps;
-        public string[] ActiveMaps => activeMaps;
+        internal string[] ActiveMaps => activeMaps;
         
         [SerializeField] private EventSystemActionSpecification[] eventSystemActionOverrides;
-        public EventSystemActionSpecification[] EventSystemActionOverrides => eventSystemActionOverrides;
+        internal EventSystemActionSpecification[] EventSystemActionOverrides => eventSystemActionOverrides;
 
 #if UNITY_EDITOR
         internal void EDITOR_SetName(string n)

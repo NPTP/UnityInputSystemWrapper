@@ -150,10 +150,10 @@ namespace NPTP.InputSystemWrapper
             
             // TODO (architecture): Support code gen around this
             // MARKER.ControlsUpdatedSubscriptions.Start
+            // MARKER.ControlsUpdatedSubscriptions.End
             OnInputUserChange += ControlsUpdate;
             OnBindingsChanged += ControlsUpdate;
             OnControlSchemeChanged += ControlsUpdate;
-            // MARKER.ControlsUpdatedSubscriptions.End
 
             initialized = true;
         }
@@ -181,10 +181,10 @@ namespace NPTP.InputSystemWrapper
 #endif
             // TODO (architecture): Support code gen around this
             // MARKER.ControlsUpdatedSubscriptions.Start
+            // MARKER.ControlsUpdatedSubscriptions.End
             OnInputUserChange -= ControlsUpdate;
             OnBindingsChanged -= ControlsUpdate;
             OnControlSchemeChanged -= ControlsUpdate;
-            // MARKER.ControlsUpdatedSubscriptions.End
             
             playerCollection.TerminateAll();
             playerCollection = null;

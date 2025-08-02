@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.Utilities;
 namespace NPTP.InputSystemWrapper.CustomSetups.Devices
 {
     [InputControlLayout(stateType = typeof(LogitechDualActionLayout))]
-    public class LogitechDualAction : Gamepad
+    public sealed class LogitechDualAction : Gamepad
     {
         [StructLayout(LayoutKind.Explicit, Size = 7)]
         private struct LogitechDualActionLayout : IInputStateTypeInfo

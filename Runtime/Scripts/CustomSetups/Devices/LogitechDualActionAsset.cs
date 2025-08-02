@@ -2,7 +2,7 @@ using UnityEngine.InputSystem.Layouts;
 
 namespace NPTP.InputSystemWrapper.CustomSetups.Devices
 {
-    public class LogitechDualActionAsset : CustomLayout<LogitechDualAction>
+    public sealed class LogitechDualActionAsset : CustomLayout<LogitechDualAction>
     {
         protected override string Name => "Logitech Dual Action (XInput)";
         protected override InputDeviceMatcher Matches => new InputDeviceMatcher()

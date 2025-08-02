@@ -1,4 +1,4 @@
 namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
 {
-    public class TwoAxisCompositeAsset : CustomBinding<TwoAxisComposite> { }
+    public sealed class TwoAxisCompositeAsset : CustomBinding<TwoAxisComposite> { }
 }

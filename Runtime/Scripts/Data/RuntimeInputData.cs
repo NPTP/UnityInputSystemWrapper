@@ -11,7 +11,7 @@ namespace NPTP.InputSystemWrapper.Data
     /// Input Data used at runtime, containing the input action asset template on which new assets are cloned,
     /// and the data that lets us resolve input bindings to display names & sprites on the UI.
     /// </summary>
-    public class RuntimeInputData : ScriptableObject
+    internal class RuntimeInputData : ScriptableObject
     {
         [SerializeField] private InputActionAsset inputActionAsset;
         internal InputActionAsset InputActionAsset => inputActionAsset;

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.Utilities;
 namespace NPTP.InputSystemWrapper.CustomSetups.Devices
 {
     [InputControlLayout(stateType = typeof(GenericUSBGamepadLayout))]
-    public class GenericUSBGamepad : Gamepad
+    public sealed class GenericUSBGamepad : Gamepad
     {
         [StructLayout(LayoutKind.Explicit, Size = 8)]
         private struct GenericUSBGamepadLayout : IInputStateTypeInfo

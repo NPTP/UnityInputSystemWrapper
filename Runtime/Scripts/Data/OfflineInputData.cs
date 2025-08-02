@@ -12,72 +12,72 @@ namespace NPTP.InputSystemWrapper.Data
     /// Input Data used only in constructing classes from inside the editor. It lives in the runtime assembly only
     /// because it needs access to internal members of that assembly, but it is NOT to be accessed at runtime.
     /// </summary>
-    public class OfflineInputData : ScriptableObject
+    internal class OfflineInputData : ScriptableObject
     {
 #if UNITY_EDITOR
-        public const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
-        public const int MAX_PLAYERS_LIMIT = 4;
+        internal const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
+        internal const int MAX_PLAYERS_LIMIT = 4;
 
         [SerializeField] private string assetsPathToPackage = "Assets/InputSystemWrapper";
-        public string AssetsPathToPackage => assetsPathToPackage;
+        internal string AssetsPathToPackage => assetsPathToPackage;
 
         [SerializeField] private RuntimeInputData runtimeInputData;
-        public RuntimeInputData RuntimeInputData => runtimeInputData;
+        internal RuntimeInputData RuntimeInputData => runtimeInputData;
         
         [SerializeField] private TextAsset mainInputScriptFile;
-        public TextAsset MainInputScriptFile => mainInputScriptFile;
+        internal TextAsset MainInputScriptFile => mainInputScriptFile;
 
         [SerializeField] private TextAsset actionsTemplateFile;
-        public TextAsset ActionsTemplateFile => actionsTemplateFile;
+        internal TextAsset ActionsTemplateFile => actionsTemplateFile;
 
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
-        public InitializationMode InitializationMode => initializationMode;
+        internal InitializationMode InitializationMode => initializationMode;
 
         [SerializeField] private bool enableMultiplayer;
-        public bool EnableMultiplayer => enableMultiplayer;
+        internal bool EnableMultiplayer => enableMultiplayer;
         
         // TODO (multiplayer): remove player limits, refactor playerIDs into guid-style structs etc. and use lazy initialization on ID entry/player creation 
         [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
-        public int MaxPlayers => maxPlayers;
+        internal int MaxPlayers => maxPlayers;
 
         [SerializeField] private InputContext defaultContext = 0;
-        public InputContext DefaultContext => defaultContext;
+        internal InputContext DefaultContext => defaultContext;
         
         [SerializeField] private InputContextInfo[] inputContexts;
-        public InputContextInfo[] InputContexts => inputContexts;
+        internal InputContextInfo[] InputContexts => inputContexts;
         
         [SerializeField] private ControlSchemeBasis[] controlSchemeBases;
-        public ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
+        internal ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
 
         [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the load call yourself.")]
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
-        public bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
+        internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
 
         [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
                  "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
         [SerializeField] private string[] bindingExcludedPaths;
-        public string[] BindingExcludedPaths => bindingExcludedPaths;
+        internal string[] BindingExcludedPaths => bindingExcludedPaths;
 
         [Tooltip("These control paths will cancel/exit an interact rebinding. " +
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [SerializeField] private string[] bindingCancelPaths;
-        public string[] BindingCancelPaths => bindingCancelPaths;
+        internal string[] BindingCancelPaths => bindingCancelPaths;
 
         [Header("Global Event System Options")]
         [SerializeField] private float moveRepeatDelay = 0.5f;
-        public float MoveRepeatDelay => moveRepeatDelay;
+        internal float MoveRepeatDelay => moveRepeatDelay;
 
         [SerializeField] private float moveRepeatRate = 0.1f;
-        public float MoveRepeatRate => moveRepeatRate;
+        internal float MoveRepeatRate => moveRepeatRate;
         
         [SerializeField] private bool deselectOnBackgroundClick;
-        public bool DeselectOnBackgroundClick => deselectOnBackgroundClick;
+        internal bool DeselectOnBackgroundClick => deselectOnBackgroundClick;
 
         [SerializeField] private UIPointerBehavior pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
-        public UIPointerBehavior PointerBehavior => pointerBehavior;
+        internal UIPointerBehavior PointerBehavior => pointerBehavior;
         
         [SerializeField] private InputSystemUIInputModule.CursorLockBehavior cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
-        public InputSystemUIInputModule.CursorLockBehavior CursorLockBehavior => cursorLockBehavior;
+        internal InputSystemUIInputModule.CursorLockBehavior CursorLockBehavior => cursorLockBehavior;
         
         // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
         [Header("Default Event System Actions")]
@@ -91,18 +91,18 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputActionReference cancel;
         [SerializeField] private InputActionReference trackedDevicePosition;
         [SerializeField] private InputActionReference trackedDeviceOrientation;
-        public InputActionReference Point => point;
-        public InputActionReference LeftClick => leftClick;
-        public InputActionReference MiddleClick => middleClick;
-        public InputActionReference RightClick => rightClick;
-        public InputActionReference ScrollWheel => scrollWheel;
-        public InputActionReference Move => move;
-        public InputActionReference Submit => submit;
-        public InputActionReference Cancel => cancel;
-        public InputActionReference TrackedDevicePosition => trackedDevicePosition;
-        public InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
+        internal InputActionReference Point => point;
+        internal InputActionReference LeftClick => leftClick;
+        internal InputActionReference MiddleClick => middleClick;
+        internal InputActionReference RightClick => rightClick;
+        internal InputActionReference ScrollWheel => scrollWheel;
+        internal InputActionReference Move => move;
+        internal InputActionReference Submit => submit;
+        internal InputActionReference Cancel => cancel;
+        internal InputActionReference TrackedDevicePosition => trackedDevicePosition;
+        internal InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
 
-        public int GetEventSystemActionNonNullOverrideCount()
+        internal int GetEventSystemActionNonNullOverrideCount()
         {
             return InputContexts
                 .SelectMany(inputContextInfo => inputContextInfo.EventSystemActionOverrides)

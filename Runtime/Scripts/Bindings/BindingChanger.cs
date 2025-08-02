@@ -8,7 +8,7 @@ using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtension
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    public static class BindingChanger
+    internal static class BindingChanger
     {
         private static string[] ExcludedPaths => new string[]
         {

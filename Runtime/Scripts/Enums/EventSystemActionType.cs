@@ -1,6 +1,6 @@
 namespace NPTP.InputSystemWrapper.Enums
 {
-    public enum EventSystemActionType
+    internal enum EventSystemActionType
     {
         Point,
         LeftClick,

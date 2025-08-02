@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
     /// </summary>
     [DisplayStringFormat("{up}/{left}/{down}/{right}")] // This results in WASD.
     [DisplayName("4-Quadrant Digital Up/Down/Left/Right Composite")]
-    public class FourQuadrantDigitalVector2Composite : InputBindingComposite<Vector2>
+    public sealed class FourQuadrantDigitalVector2Composite : InputBindingComposite<Vector2>
     {
         /// <summary>
         /// Binding for the button that represents the up (that is, <c>(0,1)</c>) direction of the vector.

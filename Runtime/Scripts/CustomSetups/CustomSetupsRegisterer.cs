@@ -16,7 +16,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
-    public static class CustomSetupsRegisterer
+    internal static class CustomSetupsRegisterer
     {
 #if UNITY_EDITOR
         static CustomSetupsRegisterer()

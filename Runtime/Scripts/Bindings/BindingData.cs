@@ -8,7 +8,7 @@ namespace NPTP.InputSystemWrapper.Bindings
     /// The dictionary takes an input control path/binding and returns a display name/sprite for that binding.
     /// </summary>
     [CreateAssetMenu(menuName = "InputSystemWrapper/BindingData")]
-    public class BindingData : ScriptableObject
+    internal class BindingData : ScriptableObject
     {
         [SerializeField] private SerializableDictionary<string, BindingInfo> bindingDataDictionary = new();
 

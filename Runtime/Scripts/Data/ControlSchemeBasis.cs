@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Data
 {
     [Serializable]
-    public class ControlSchemeBasis
+    internal class ControlSchemeBasis
     {
         internal enum BasisSpec
         {

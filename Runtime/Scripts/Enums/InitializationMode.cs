@@ -2,7 +2,7 @@ namespace NPTP.InputSystemWrapper.Enums
 {
     namespace NPTP.InputSystemWrapper
     {
-        public enum InitializationMode
+        internal enum InitializationMode
         {
             /// <summary>
             /// Initialize the system via RuntimeInitializeOnLoadMethod in BeforeSceneLoad.

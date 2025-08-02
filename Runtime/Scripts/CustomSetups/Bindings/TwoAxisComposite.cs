@@ -8,7 +8,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups.Bindings
 {
     [DisplayStringFormat("Axes {xAxis}, {yAxis}")]
     [DisplayName("X and Y Axes Composite")]
-    public class TwoAxisComposite : InputBindingComposite<Vector2>
+    public sealed class TwoAxisComposite : InputBindingComposite<Vector2>
     {
         [InputControl(layout = "Axis")] public int xAxis;
         [InputControl(layout = "Axis")] public int yAxis;
