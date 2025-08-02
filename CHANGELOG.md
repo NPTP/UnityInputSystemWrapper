@@ -3,6 +3,7 @@
 
 3.2.2
 - Numerous editor and runtime scripts changed from public classes/methods/fields to internal, public custom setup classes sealed
+- Input.WaitForAnyButtonPress custom yield instruction is now reusable without creating a new instance
 
 3.2.1
 - Temporary, but useful, `Input.OnControlsUpdated` event added for catch-all UI updates

@@ -195,30 +195,7 @@ namespace NPTP.InputSystemWrapper
         #endregion
         
         #region Public Interface
-        
-        /// <summary>
-        /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient.
-        /// Use like:
-        /// yield return new Input.WaitForAnyButtonPress();
-        /// </summary>
-        public class WaitForAnyButtonPress : CustomYieldInstruction
-        {
-            public override bool keepWaiting => !anyButtonPressed;
-            private bool anyButtonPressed;
-            ~WaitForAnyButtonPress() => OnAnyButtonPress -= HandleAnyButtonPress;
 
-            public WaitForAnyButtonPress()
-            {
-                OnAnyButtonPress += HandleAnyButtonPress;
-            }
-
-            private void HandleAnyButtonPress(InputControl inputControl)
-            {
-                anyButtonPressed = true;
-                OnAnyButtonPress -= HandleAnyButtonPress;
-            }
-        }
-        
         // TODO (multiplayer): MP method signature which takes a PlayerID
         public static bool ControlSchemeHas<TDevice>(ControlScheme controlScheme) where TDevice : InputDevice
         {
