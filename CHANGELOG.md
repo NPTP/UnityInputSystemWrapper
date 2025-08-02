@@ -2,7 +2,7 @@
 ## Changelog
 
 3.2.2
-- Numerous editor and runtime scripts changed from public classes/methods/fields to internal to further secure the package
+- Numerous editor and runtime scripts changed from public classes/methods/fields to internal, public custom setup classes sealed
 
 3.2.1
 - Temporary, but useful, `Input.OnControlsUpdated` event added for catch-all UI updates
