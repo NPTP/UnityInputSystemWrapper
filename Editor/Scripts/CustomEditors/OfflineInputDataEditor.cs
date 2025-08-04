@@ -15,11 +15,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private GUIStyle WarningStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 12, normal = new GUIStyleState {textColor = Color.yellow}};
         private GUIStyle SpecialNoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
         
-        private SerializedProperty assetsPathToPackage;
-        private SerializedProperty runtimeInputData;
-        private SerializedProperty mainInputScriptFile;
-        private SerializedProperty actionsTemplateFile;
         private SerializedProperty initializationMode;
+        
         private SerializedProperty enableMultiplayer;
         private SerializedProperty maxPlayers;
         private SerializedProperty defaultContext;
@@ -50,13 +47,9 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void OnEnable()
         {
-            assetsPathToPackage = serializedObject.FindProperty(nameof(assetsPathToPackage));
+            initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
             maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
-            runtimeInputData = serializedObject.FindProperty(nameof(runtimeInputData));
-            mainInputScriptFile = serializedObject.FindProperty(nameof(mainInputScriptFile));
-            actionsTemplateFile = serializedObject.FindProperty(nameof(actionsTemplateFile));
-            initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
@@ -126,25 +119,18 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.PropertyField(assetsPathToPackage);
-            EditorGUILayout.PropertyField(runtimeInputData);
-            EditorGUILayout.PropertyField(mainInputScriptFile);
-            EditorGUILayout.PropertyField(actionsTemplateFile);
-            EditorGUILayout.PropertyField(initializationMode);
+            // TODO (multiplayer): Remove the disabled group when MP support is completed.
+            DrawHeader("Multiplayer");
+            EditorGUI.BeginDisabledGroup(true);
+            DrawWarning("Multiplayer support is currently incomplete, so it cannot be enabled right now.");
+            EditorGUILayout.PropertyField(enableMultiplayer);
+            EditorGUILayout.PropertyField(maxPlayers);
+            maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
+            EditorGUI.EndDisabledGroup();
             
             EditorInspectorUtility.DrawHorizontalLine();
 
-            DrawHeader("Multiplayer");
-            
-            EditorGUILayout.PropertyField(enableMultiplayer);
-            if (enableMultiplayer.boolValue)
-            {
-                // TODO (multiplayer): Remove this warning when MP support is ready.
-                DrawWarning("Multiplayer support is currently incomplete. Enable at your own risk.");
-                
-                EditorGUILayout.PropertyField(maxPlayers);
-                maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
-            }
+            EditorGUILayout.PropertyField(initializationMode);
 
             EditorInspectorUtility.DrawHorizontalLine();
 

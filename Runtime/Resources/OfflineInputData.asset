@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35a0587628ac97441850631647acd26b, type: 3}
   m_Name: OfflineInputData
   m_EditorClassIdentifier: 
-  assetsPathToPackage: Assets/InputSystemWrapper
+  rootPathIdentifier: {fileID: 4900000, guid: 173c3a19d3220cc4894e20b2a481a462, type: 3}
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
   mainInputScriptFile: {fileID: 11500000, guid: 4a92096acb86454458f614b09a41859f, type: 3}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}

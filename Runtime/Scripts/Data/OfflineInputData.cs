@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
@@ -18,8 +22,15 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
         internal const int MAX_PLAYERS_LIMIT = 4;
 
-        [SerializeField] private string assetsPathToPackage = "Assets/InputSystemWrapper";
-        internal string AssetsPathToPackage => assetsPathToPackage;
+        [SerializeField] private TextAsset rootPathIdentifier;
+        internal string AssetsPathToPackage
+        {
+            get
+            {
+                string assetFilePath = AssetDatabase.GetAssetPath(rootPathIdentifier);
+                return assetFilePath[..assetFilePath.LastIndexOf('/')];
+            }
+        }
 
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
@@ -49,7 +60,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private ControlSchemeBasis[] controlSchemeBases;
         internal ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
 
-        [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the load call yourself.")]
+        [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the call to load bindings yourself.")]
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
         internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
 

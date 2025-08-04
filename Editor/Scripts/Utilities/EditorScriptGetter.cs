@@ -19,7 +19,7 @@ namespace NPTP.InputSystemWrapper.Editor.Utilities
 
         private static string GetSystemPath(Type type, PathType pathType)
         {
-            string[] guids = AssetDatabase.FindAssets($"t:Script", new[] {Helper.OfflineInputData.AssetsPathToPackage});
+            string[] guids = AssetDatabase.FindAssets($"t:Script", new[] { Helper.OfflineInputData.AssetsPathToPackage });
             foreach (string guid in guids)
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guid);
