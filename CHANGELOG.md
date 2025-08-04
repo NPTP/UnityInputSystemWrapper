@@ -1,6 +1,11 @@
 # Input System Wrapper
 ## Changelog
 
+3.2.3
+- Editor-only changes:
+  - Use root path identifier serialized field instead of making user set script path
+  - Clean up custom inspectors to hide fields that shouldn't be changed by user
+
 3.2.2
 - Numerous editor and runtime scripts changed from public classes/methods/fields to internal, public custom setup classes sealed
 - Input.WaitForAnyButtonPress custom yield instruction is now reusable without creating a new instance
