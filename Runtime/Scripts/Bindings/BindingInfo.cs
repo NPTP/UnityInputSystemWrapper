@@ -26,7 +26,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             get
             {
                 LocalizedStringRequest localizedStringRequest = new(localizationKey);
-                Input.BroadcastLocalizedStringRequested(localizedStringRequest);
+                ISW.BroadcastLocalizedStringRequested(localizedStringRequest);
                 return string.IsNullOrEmpty(localizedStringRequest.localizedString)
                     ? localizationKey
                     : localizedStringRequest.localizedString;

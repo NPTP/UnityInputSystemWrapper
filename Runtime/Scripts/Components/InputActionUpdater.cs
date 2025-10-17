@@ -26,18 +26,18 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void OnEnable()
         {
-            Input.OnInputUserChange += HandleInputUserChange;
-            Input.OnBindingsChanged += HandleBindingsChanged;
+            ISW.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
+            ISW.OnBindingsChanged += HandleBindingsChanged;
             UpdateEvents();
         }
 
         private void OnDisable()
         {
-            Input.OnInputUserChange -= HandleInputUserChange;
-            Input.OnBindingsChanged -= HandleBindingsChanged;
+            ISW.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
+            ISW.OnBindingsChanged -= HandleBindingsChanged;
         }
 
-        private void HandleInputUserChange(InputUserChangeInfo inputUserChangeInfo)
+        private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
             UpdateEvents();
         }

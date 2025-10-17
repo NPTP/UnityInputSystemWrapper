@@ -33,10 +33,8 @@ namespace NPTP.InputSystemWrapper.Editor
             
             ModifyExistingFile(Helper.ControlSchemeFileSystemPath, new ControlSchemeContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.PlayerIDFileSystemPath, new PlayerIDContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputPlayerFileSystemPath, new InputPlayerContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputManagerFileSystemPath, new InputManagerContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputUserChangeInfoFileSystemPath, new InputUserChangeInfoContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.RuntimeInputDataFileSystemPath, new RuntimeInputDataContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.BindingChangerFileSystemPath, new BindingChangerContentBuilder(offlineInputData));
             

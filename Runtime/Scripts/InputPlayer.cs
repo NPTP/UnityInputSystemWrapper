@@ -23,7 +23,7 @@ namespace NPTP.InputSystemWrapper
         /// </summary>
         public event Action<InputUserChangeInfo> OnInputUserChange;
         
-        public event Action<ControlScheme> OnControlSchemeChanged;
+        public event Action<InputPlayer> OnControlSchemeChanged;
 
         /// <summary>
         /// The input player can be used when enabled, and is ignored when disabled.
@@ -72,7 +72,7 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        public PlayerID ID { get; }
+        public int ID { get; }
         public ControlScheme CurrentControlScheme { get; private set; }
         
         // MARKER.ActionsProperties.Start
@@ -86,6 +86,11 @@ namespace NPTP.InputSystemWrapper
                 UpdateLastUsedDevice();
                 return lastUsedDevice;
             }
+        }
+
+        internal bool IsMultiplayer
+        {
+            set => playerInput.neverAutoSwitchControlSchemes = value;
         }
         
         internal InputActionAsset Asset { get; }
@@ -117,7 +122,7 @@ namespace NPTP.InputSystemWrapper
         
         #region Setup & Teardown
 
-        internal InputPlayer(InputActionAsset asset, PlayerID id, bool isMultiplayer, Transform parent)
+        internal InputPlayer(InputActionAsset asset, int id, bool isMultiplayer, Transform parent)
         {
             Asset = InstantiateNewActions(asset);
             ID = id;
@@ -128,7 +133,7 @@ namespace NPTP.InputSystemWrapper
             SetUpInputPlayerGameObject(isMultiplayer, parent);
             PopulateEventSystemActionsPool();
             
-            // Input context gets set by top Input class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
+            // Input context gets set by top ISW class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
         }
         
         internal void Terminate()
@@ -169,12 +174,8 @@ namespace NPTP.InputSystemWrapper
 
             playerInput = playerInputGameObject.AddComponent<PlayerInput>();
             playerInput.neverAutoSwitchControlSchemes = isMultiplayer;
-                
-            if (isMultiplayer)
-                playerInputGameObject.AddComponent<MultiplayerEventSystem>();
-            else
-                playerInputGameObject.AddComponent<EventSystem>();
-                
+            
+            playerInputGameObject.AddComponent<MultiplayerEventSystem>();
             uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
             uiInputModule.actionsAsset = Asset;
             SetEventSystemOptions();
@@ -335,7 +336,7 @@ namespace NPTP.InputSystemWrapper
                     CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
                     if (previousControlScheme != CurrentControlScheme)
                     {
-                        OnControlSchemeChanged?.Invoke(CurrentControlScheme);
+                        OnControlSchemeChanged?.Invoke(this);
                     }
                     break;
             }
@@ -452,6 +453,7 @@ namespace NPTP.InputSystemWrapper
         
         #region Editor-Only Debug
 #if UNITY_EDITOR
+        // ReSharper disable once InconsistentNaming
         internal event Action<InputPlayer> EDITOR_OnInputContextChanged;
 #endif
         #endregion

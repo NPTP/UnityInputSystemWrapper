@@ -60,7 +60,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 
                 callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
-                Input.BroadcastBindingsChanged();
+                ISW.BroadcastBindingsChanged();
             }
         }
 
@@ -115,7 +115,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
             if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
             {
-                Input.BroadcastBindingsChanged();
+                ISW.BroadcastBindingsChanged();
             }
         }
 
@@ -129,7 +129,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             if (changed)
             {
-                Input.BroadcastBindingsChanged();
+                ISW.BroadcastBindingsChanged();
             }
         }
 
@@ -140,7 +140,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             if (changed)
             {
-                Input.BroadcastBindingsChanged();
+                ISW.BroadcastBindingsChanged();
             }
         }
 

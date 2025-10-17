@@ -26,7 +26,8 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 			}
 		}
 		
-		private List<TimestampedObject<InputContext>> mostRecentContexts = new();
+		private readonly List<TimestampedObject<InputContext>> mostRecentContexts = new();
+		private int selectedPlayerID = 0; // TODO: Make switchable in the debugger UI
 
 		private OfflineInputData offlineInputData;
 		private OfflineInputData OfflineInputData
@@ -51,23 +52,22 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 
 		private void HandlePlayModeStateChanged(PlayModeStateChange state)
 		{
-			
 			switch (state)
 			{
 				case PlayModeStateChange.EnteredPlayMode:
 					mostRecentContexts.Clear();
-					mostRecentContexts.Add(new TimestampedObject<InputContext>(Input.Context, 0.ToString()));
-					Input.EDITOR_OnPlayerInputContextChanged += HandlePlayerInputContextChanged;
+					mostRecentContexts.Add(new TimestampedObject<InputContext>(ISW.EDITOR_GetDefaultContext(), 0.ToString()));
+					ISW.EDITOR_OnPlayerInputContextChanged += HandlePlayerInputContextChanged;
 					break;
 				case PlayModeStateChange.ExitingPlayMode:
-					Input.EDITOR_OnPlayerInputContextChanged -= HandlePlayerInputContextChanged;
+					ISW.EDITOR_OnPlayerInputContextChanged -= HandlePlayerInputContextChanged;
 					break;
 			}
 		}
 
-		private void HandlePlayerInputContextChanged(PlayerID playerID, InputContext inputContext)
+		private void HandlePlayerInputContextChanged(int playerID, InputContext inputContext)
 		{
-			ISWDebug.Log($"Input Context changed for {playerID}: {inputContext}");
+			ISWDebug.Log($"Input Context changed for player {playerID}: {inputContext}");
 			mostRecentContexts.Add(new TimestampedObject<InputContext>(inputContext, Time.frameCount.ToString()));
 			if (mostRecentContexts.Count > MAX_SHOWN_RECENT_CONTEXTS)
 			{
@@ -95,7 +95,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 				return;
 			}
 			
-			if (!Input.EDITOR_IsInitialized)
+			if (!ISW.EDITOR_IsInitialized)
 			{
 				EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 				EditorGUILayout.LabelField("Input not yet initialized, waiting...", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
@@ -103,8 +103,8 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 			}
 			
 			GUILayout.BeginVertical();
-			ShowDebugInfoField("Current Control Scheme", Input.CurrentControlScheme.ToString());
-			ShowDebugInfoField("Current Context", Input.Context.ToString());
+			ShowDebugInfoField("Current Control Scheme", ISW.Player(selectedPlayerID).CurrentControlScheme.ToString());
+			ShowDebugInfoField("Current Context", ISW.Player(selectedPlayerID).InputContext.ToString());
 			ShowIndentedField("Active Maps", ActiveMapLabelFields);
 			ShowIndentedField("Most Recent Contexts", MostRecentContextLabelFields);
 			GUILayout.EndVertical();
@@ -124,7 +124,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 		{
 			foreach (InputContextInfo inputContextInfo in OfflineInputData.InputContexts)
 			{
-				if (inputContextInfo.Name.AsEnumMember() != Input.Context.ToString())
+				if (inputContextInfo.Name.AsEnumMember() != ISW.Player(selectedPlayerID).InputContext.ToString())
 				{
 					continue;
 				}

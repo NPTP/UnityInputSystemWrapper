@@ -30,8 +30,6 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputPlayerFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputPlayer>();
         internal static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
         internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
-        internal static string PlayerIDFileSystemPath => EditorScriptGetter.GetSystemFilePath<PlayerID>();
-        internal static string InputUserChangeInfoFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputUserChangeInfo>();
         internal static string RuntimeInputDataFileSystemPath => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
         internal static string BindingChangerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(BindingChanger));
         private static string InputManagerFolderSystemPath => EditorAssetGetter.GetSystemFolderPath(OfflineInputData.MainInputScriptFile);

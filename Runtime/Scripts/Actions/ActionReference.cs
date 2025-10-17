@@ -22,9 +22,12 @@ namespace NPTP.InputSystemWrapper.Actions
         
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
+
+        [SerializeField] private bool applyToAllPlayers;
+        internal bool ApplyToAllPlayers => applyToAllPlayers;
         
-        // TODO (multiplayer): Ability to tie the reference to a particular player ID (ie change to serialized field with an "AllPlayers" option?)
-        internal PlayerID PlayerID => PlayerID.Player1;
+        [SerializeField] private int playerID;
+        internal int PlayerID => playerID;
         
         private ActionWrapper actionWrapper;
         public ActionWrapper ActionWrapper
@@ -32,12 +35,16 @@ namespace NPTP.InputSystemWrapper.Actions
             get
             {
                 if (actionWrapper != null)
+                {
                     return actionWrapper;
+                }
 
                 if (reference == null || reference.action == null)
+                {
                     return null;
+                }
                 
-                Input.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
+                ISW.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
                 return actionWrapper;
             }
         }
@@ -45,7 +52,7 @@ namespace NPTP.InputSystemWrapper.Actions
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
             if (inputActionReference != null && inputActionReference.action != null &&
-                Input.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
+                ISW.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
             {
                 actionReference = new ActionReference(inputActionReference.action) { actionWrapper = actionWrapper };
                 return true;
@@ -55,9 +62,9 @@ namespace NPTP.InputSystemWrapper.Actions
             return false;
         }
         
-        public static bool TryConvert(InputAction inputAction, out ActionReference actionReference)
+        public static bool TryConvert(InputAction inputAction, int playerID, out ActionReference actionReference)
         {
-            if (inputAction != null && Input.TryGetActionWrapper(PlayerID.Player1, inputAction, out ActionWrapper actionWrapper))
+            if (inputAction != null && ISW.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
             {
                 actionReference = new ActionReference(inputAction) { actionWrapper = actionWrapper };
                 return true;
@@ -75,10 +82,9 @@ namespace NPTP.InputSystemWrapper.Actions
                 return false;
             }
 
-            if (useCompositePart)
-                return ActionWrapper.TryGetCurrentBindingInfo(compositePart, out bindingInfos);
-            else
-                return ActionWrapper.TryGetCurrentBindingInfo(out bindingInfos);
+            return useCompositePart
+                ? ActionWrapper.TryGetCurrentBindingInfo(compositePart, out bindingInfos)
+                : ActionWrapper.TryGetCurrentBindingInfo(out bindingInfos);
         }
         
         public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
@@ -89,10 +95,9 @@ namespace NPTP.InputSystemWrapper.Actions
                 return false;
             }
 
-            if (useCompositePart)
-                return ActionWrapper.TryGetBindingInfo(controlScheme, compositePart, out bindingInfos);
-            else
-                return ActionWrapper.TryGetBindingInfo(controlScheme, out bindingInfos);
+            return useCompositePart
+                ? ActionWrapper.TryGetBindingInfo(controlScheme, compositePart, out bindingInfos)
+                : ActionWrapper.TryGetBindingInfo(controlScheme, out bindingInfos);
         }
 
         public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindInfo> callback = null)

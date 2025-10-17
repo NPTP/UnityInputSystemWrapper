@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
@@ -11,56 +12,103 @@ namespace NPTP.InputSystemWrapper
 {
     /// <summary>
     /// Useful interface layer for dealing with a collection of multiple players.
-    /// Note we avoid foreach & LINQ usage on the internal array to improve performance.
-    /// (Our ForEach extension is just a standard array for loop.)
     /// </summary>
-    internal sealed class InputPlayerCollection
+    internal sealed class InputPlayerCollection : IEnumerable<InputPlayer>
     {
-        internal IEnumerable<InputPlayer> Players => players;
-        internal InputPlayer this[PlayerID id] => players[(int)id];
-        internal int Count => players.Length;
+        internal event Action<InputPlayer> OnPlayerAdded;
+        internal event Action<int> OnPlayerRemoved;
         
-        private readonly InputPlayer[] players;
+        private readonly InputActionAsset inputActionAsset;
+        private readonly Transform inputParent;
+        private InputPlayer[] players = Array.Empty<InputPlayer>();
         
-        #region Internal
+        private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
+        private int PlayerCount => Players.Count();
         
-        internal InputPlayerCollection(InputActionAsset asset, int size)
+        public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        
+        internal InputPlayer this[int playerID]
         {
-            Transform parent = CreateInputParentInScene();
-            bool isMultiplayer = size > 1;
-            
-            players = new InputPlayer[size];
-            for (int i = 0; i < size; i++)
+            get
             {
-                PlayerID id = (PlayerID)i;
-                InputPlayer newPlayer = new(asset, id, isMultiplayer, parent);
-                players[i] = newPlayer;
+                Add(playerID);
+                return players[playerID];
+            }
+        }
+        
+        internal InputPlayerCollection(InputActionAsset asset)
+        {
+            inputParent = CreateInputParentInScene();
+            inputActionAsset = asset;
+        }
+
+        #region Internal Methods
+        
+        internal void Add(int playerID)
+        {
+            if (playerID >= players.Length)
+            {
+                InputPlayer[] extended = new InputPlayer[playerID - 1];
+                Array.Copy(players, extended, players.Length);
+                players = extended;
             }
 
-            // Loop again as the enabled/disabled handler requires a stable players array,
-            // and we're changing the value of player.Enabled here.
-            // Player 1 is always enabled by default when a new InputPlayerCollection is created (game is started).
-            for (int i = 0; i < players.Length; i++)
+            if (players[playerID] != null)
             {
-                InputPlayer player = players[i];
-                player.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
-                player.Enabled = player.ID == PlayerID.Player1;
-#if UNITY_EDITOR
-                player.EDITOR_OnInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
-#endif
+                return;
             }
+
+            InputPlayer newPlayer = new InputPlayer(inputActionAsset, playerID, true, inputParent);
+            players[playerID] = newPlayer;
+            newPlayer.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
+            newPlayer.Enabled = true;
+#if UNITY_EDITOR
+            newPlayer.EDITOR_OnInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
+#endif
+            
+            foreach (InputPlayer player in Players)
+            {
+                player.IsMultiplayer = true;
+            }
+            
+            OnPlayerAdded?.Invoke(newPlayer);
+        }
+
+        internal void Remove(int playerID)
+        {
+            if (playerID <= 0)
+            {
+                Debug.LogError("Cannot terminate the default player.");
+                return;
+            }
+            
+            if (playerID >= players.Length || players[playerID] == null)
+            {
+                return;
+            }
+
+            players[playerID].Terminate();
+            players[playerID] = null;
+            
+            if (PlayerCount == 1)
+            {
+                players[0].IsMultiplayer = false;
+            }
+            
+            OnPlayerRemoved?.Invoke(playerID);
         }
         
         internal void TerminateAll()
         {
-            players.ForEach(p =>
+            foreach (InputPlayer player in players)
             {
+                player.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
+                player.Terminate();
 #if UNITY_EDITOR
-                p.EDITOR_OnInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
+                player.EDITOR_OnInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
 #endif
-                p.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
-                p.Terminate();
-            });
+            }
 
             players.DefaultAll();
         }
@@ -93,6 +141,11 @@ namespace NPTP.InputSystemWrapper
         {
             for (int i = 0; i < players.Length; i++)
             {
+                if (players[i] == null)
+                {
+                    continue;
+                }
+                
                 if (players[i].IsDevicePaired(device))
                 {
                     player = players[i];
@@ -109,6 +162,11 @@ namespace NPTP.InputSystemWrapper
         {
             for (int i = 0; i < players.Length; i++)
             {
+                if (players[i] == null)
+                {
+                    continue;
+                }
+
                 InputPlayer player = players[i];
                 if (player.Asset == asset)
                 {
@@ -125,6 +183,11 @@ namespace NPTP.InputSystemWrapper
         {
             for (int i = 0; i < players.Length; i++)
             {
+                if (players[i] == null)
+                {
+                    continue;
+                }
+
                 InputPlayer player = players[i];
                 if (player.Enabled)
                 {
@@ -153,14 +216,17 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        internal void EnableContextForAll(InputContext inputContext)
+        internal void SetContextForAll(InputContext inputContext)
         {
-            players.ForEach(p => p.InputContext = inputContext);
+            foreach (InputPlayer player in players)
+            {
+                player.InputContext = inputContext;
+            }
         }
         
         #endregion
 
-        #region Private
+        #region Private Methods
 
         private Transform CreateInputParentInScene()
         {
@@ -181,7 +247,10 @@ namespace NPTP.InputSystemWrapper
             int enabledPlayersCount = players.Count(player => player.Enabled);
             if (enabledPlayersCount > 1)
             {
-                players.ForEach(p => p.EnableAutoSwitching(false));
+                foreach (InputPlayer player in players)
+                {
+                    player.EnableAutoSwitching(false);
+                }
             }
             else if (enabledPlayersCount == 1)
             {
@@ -193,7 +262,7 @@ namespace NPTP.InputSystemWrapper
         
         #endregion
         
-        #region Editor-Only Debug
+        #region Editor-Only Debug Fields/Properties/Methods
 #if UNITY_EDITOR
         internal event Action<InputPlayer> EDITOR_OnPlayerInputContextChanged;
 

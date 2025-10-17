@@ -1,5 +1,4 @@
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Utilities.Extensions;
 
 #if UNITY_EDITOR
 using NPTP.InputSystemWrapper.Utilities;
@@ -34,9 +33,10 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 
         internal static void PerformRegistrations(RuntimeInputData runtimeInputData)
         {
-            runtimeInputData.CustomLayouts.ForEach(layout => layout.Register());
-            runtimeInputData.CustomBindings.ForEach(binding => binding.Register());
-            runtimeInputData.CustomInteractions.ForEach(interaction => interaction.Register());
+            foreach (CustomSetup customSetup in runtimeInputData.AllCustomSetups)
+            {
+                customSetup.Register();
+            }
         }
     }
 }

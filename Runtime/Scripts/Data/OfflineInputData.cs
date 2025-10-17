@@ -20,7 +20,6 @@ namespace NPTP.InputSystemWrapper.Data
     {
 #if UNITY_EDITOR
         internal const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
-        internal const int MAX_PLAYERS_LIMIT = 4;
 
         [SerializeField] private TextAsset rootPathIdentifier;
         internal string AssetsPathToPackage
@@ -43,13 +42,6 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
-
-        [SerializeField] private bool enableMultiplayer;
-        internal bool EnableMultiplayer => enableMultiplayer;
-        
-        // TODO (multiplayer): remove player limits, refactor playerIDs into guid-style structs etc. and use lazy initialization on ID entry/player creation 
-        [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
-        internal int MaxPlayers => maxPlayers;
 
         [SerializeField] private InputContext defaultContext = 0;
         internal InputContext DefaultContext => defaultContext;

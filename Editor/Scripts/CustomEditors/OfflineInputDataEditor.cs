@@ -17,8 +17,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         
         private SerializedProperty initializationMode;
         
-        private SerializedProperty enableMultiplayer;
-        private SerializedProperty maxPlayers;
         private SerializedProperty defaultContext;
         private SerializedProperty inputContexts;
         
@@ -48,8 +46,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void OnEnable()
         {
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
-            enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
-            maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
             defaultContext = serializedObject.FindProperty(nameof(defaultContext));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
@@ -119,17 +115,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            // TODO (multiplayer): Remove the disabled group when MP support is completed.
-            DrawHeader("Multiplayer");
-            EditorGUI.BeginDisabledGroup(true);
-            DrawWarning("Multiplayer support is currently incomplete, so it cannot be enabled right now.");
-            EditorGUILayout.PropertyField(enableMultiplayer);
-            EditorGUILayout.PropertyField(maxPlayers);
-            maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
-            EditorGUI.EndDisabledGroup();
-            
-            EditorInspectorUtility.DrawHorizontalLine();
-
+            DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
 
             EditorInspectorUtility.DrawHorizontalLine();

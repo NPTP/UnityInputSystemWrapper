@@ -14,16 +14,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
         {
             switch (info.MarkerName)
             {
-                case "ControlSchemeEventDefinition":
-                    info.NewLines.Add(Data.EnableMultiplayer
-                        ? $"        public event Action<{nameof(InputPlayer)}> OnControlSchemeChanged;"
-                        : $"        public event Action<{nameof(ControlScheme)}> OnControlSchemeChanged;");
-                    break;
-                case "ControlSchemeEventInvocation":
-                    info.NewLines.Add(Data.EnableMultiplayer
-                    ? "                    OnControlSchemeChanged?.Invoke(this);"
-                    : "                    OnControlSchemeChanged?.Invoke(controlScheme);");
-                    break;
                 case "ActionsProperties":
                     foreach (string mapName in Helper.GetMapNames(Asset))
                         info.NewLines.Add($"        public {mapName.AsProperty()}Actions {mapName.AsProperty()}" + " { get; }");

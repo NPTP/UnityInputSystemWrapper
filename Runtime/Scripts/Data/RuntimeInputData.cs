@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
@@ -17,14 +18,21 @@ namespace NPTP.InputSystemWrapper.Data
         internal InputActionAsset InputActionAsset => inputActionAsset;
 
         [SerializeField] private CustomLayout[] customLayouts;
-        internal CustomLayout[] CustomLayouts => customLayouts;
-        
         [SerializeField] private CustomBinding[] customBindings;
-        internal CustomBinding[] CustomBindings => customBindings;
-        
         [SerializeField] private CustomInteraction[] customInteractions;
-        internal CustomInteraction[] CustomInteractions => customInteractions;
 
+        public IEnumerable<CustomSetup> AllCustomSetups
+        {
+            get
+            {
+                List<CustomSetup> customSetups = new();
+                customSetups.AddRange(customLayouts);
+                customSetups.AddRange(customBindings);
+                customSetups.AddRange(customInteractions);
+                return customSetups;
+            }
+        }
+        
         // MARKER.ControlSchemeBindingData.Start
         // MARKER.ControlSchemeBindingData.End
 

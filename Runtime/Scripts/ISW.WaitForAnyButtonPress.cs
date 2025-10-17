@@ -3,12 +3,12 @@ using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper
 {
-    public static partial class Input
+    public static partial class ISW
     {
         /// <summary>
         /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient.
         /// Use like:
-        /// yield return new Input.WaitForAnyButtonPress();
+        /// yield return new ISW.WaitForAnyButtonPress();
         /// </summary>
         public class WaitForAnyButtonPress : CustomYieldInstruction
         {
