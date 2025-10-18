@@ -101,13 +101,16 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 				EditorGUILayout.LabelField("Input not yet initialized, waiting...", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
 				return;
 			}
-			
-			GUILayout.BeginVertical();
-			ShowDebugInfoField("Current Control Scheme", ISW.Player(selectedPlayerID).CurrentControlScheme.ToString());
-			ShowDebugInfoField("Current Context", ISW.Player(selectedPlayerID).InputContext.ToString());
-			ShowIndentedField("Active Maps", ActiveMapLabelFields);
-			ShowIndentedField("Most Recent Contexts", MostRecentContextLabelFields);
-			GUILayout.EndVertical();
+
+			if (ISW.EDITOR_TryGetPlayer(selectedPlayerID, out InputPlayer player))
+			{
+				GUILayout.BeginVertical();
+				ShowDebugInfoField("Current Control Scheme", player.CurrentControlScheme.ToString());
+				ShowDebugInfoField("Current Context", player.InputContext.ToString());
+				ShowIndentedField("Active Maps", ActiveMapLabelFields);
+				ShowIndentedField("Most Recent Contexts", MostRecentContextLabelFields);
+				GUILayout.EndVertical();
+			}
 		}
 
 		private void ShowIndentedField(string fieldName, Action showAction)

@@ -40,9 +40,9 @@ namespace NPTP.InputSystemWrapper
         public bool Enabled
         {
             get => enabled;
-            internal set
+            set
             {
-                if (playerInput == null)
+                if (playerInput == null || enabled == value)
                 {
                     return;
                 }
@@ -73,8 +73,21 @@ namespace NPTP.InputSystemWrapper
         }
 
         public int ID { get; }
-        public ControlScheme CurrentControlScheme { get; private set; }
-        
+
+        private ControlScheme currentControlScheme;
+        public ControlScheme CurrentControlScheme
+        {
+            get => currentControlScheme;
+            private set
+            {
+                if (CurrentControlScheme == value)
+                    return;
+                
+                currentControlScheme = value;
+                OnControlSchemeChanged?.Invoke(this);
+            }
+        }
+
         // MARKER.ActionsProperties.Start
         // MARKER.ActionsProperties.End
 
@@ -90,7 +103,13 @@ namespace NPTP.InputSystemWrapper
 
         internal bool IsMultiplayer
         {
-            set => playerInput.neverAutoSwitchControlSchemes = value;
+            set
+            {
+                if (playerInput != null)
+                {
+                    playerInput.neverAutoSwitchControlSchemes = value;
+                }
+            }
         }
         
         internal InputActionAsset Asset { get; }
@@ -138,7 +157,7 @@ namespace NPTP.InputSystemWrapper
         
         internal void Terminate()
         {
-            Asset.Disable();
+            Enabled = false;
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
             Object.Destroy(playerInputGameObject);
@@ -182,10 +201,11 @@ namespace NPTP.InputSystemWrapper
             
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents; 
+            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+            // TODO: Fix for new players where the string reads "Null" !!!
+            // CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
         private void SetEventSystemOptions()
@@ -302,16 +322,6 @@ namespace NPTP.InputSystemWrapper
             // UpdateLastUsedDevice();
         }
 
-        internal void EnableAutoSwitching(bool enable)
-        {
-            if (playerInput == null)
-            {
-                return;
-            }
-
-            playerInput.neverAutoSwitchControlSchemes = !enable;
-        }
-        
         /// <summary>
         /// Called by the InputPlayerCollection. If we got here, it means we have already checked that the input user
         /// experiencing a change refers to this player.
@@ -332,12 +342,7 @@ namespace NPTP.InputSystemWrapper
                     UpdateDevices(inputDevice);
                     break;
                 case InputUserChange.ControlSchemeChanged:
-                    ControlScheme previousControlScheme = CurrentControlScheme;
                     CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-                    if (previousControlScheme != CurrentControlScheme)
-                    {
-                        OnControlSchemeChanged?.Invoke(this);
-                    }
                     break;
             }
             

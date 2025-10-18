@@ -14,6 +14,7 @@ namespace NPTP.InputSystemWrapper.Actions
     /// </summary>
     public class ActionWrapper
     {
+        internal int PlayerID { get; }
         internal InputAction InputAction { get; }
         
         private event Action<InputAction.CallbackContext> onEvent;
@@ -25,6 +26,27 @@ namespace NPTP.InputSystemWrapper.Actions
         
         public bool DownThisFrame => InputAction.WasPerformedThisFrame() && (InputAction.type != InputActionType.PassThrough || !InputAction.WasReleasedThisFrame());
         public bool IsDown => InputAction.phase == InputActionPhase.Performed;
+        
+        internal ActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table)
+        {
+            PlayerID = playerID;
+            InputAction = inputAction;
+            table.Add(inputAction.id, this);
+        }
+        
+        internal void RegisterCallbacks()
+        {
+            InputAction.started += HandleActionEvent;
+            InputAction.performed += HandleActionEvent;
+            InputAction.canceled += HandleActionEvent;
+        }
+        
+        internal void UnregisterCallbacks()
+        {
+            InputAction.started -= HandleActionEvent;
+            InputAction.performed -= HandleActionEvent;
+            InputAction.canceled -= HandleActionEvent;
+        }
 
         public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindInfo> callback = null) =>
             ISW.StartInteractiveRebind(new ActionBindingInfo(this, CompositePart.DontIsolatePart, controlScheme), callback);
@@ -43,26 +65,6 @@ namespace NPTP.InputSystemWrapper.Actions
 
         public bool TryGetBindingInfo(ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
             ISW.TryGetBindingInfo(new ActionBindingInfo(this, compositePart, controlScheme), out bindingInfos);
-
-        internal void RegisterCallbacks()
-        {
-            InputAction.started += HandleActionEvent;
-            InputAction.performed += HandleActionEvent;
-            InputAction.canceled += HandleActionEvent;
-        }
-        
-        internal void UnregisterCallbacks()
-        {
-            InputAction.started -= HandleActionEvent;
-            InputAction.performed -= HandleActionEvent;
-            InputAction.canceled -= HandleActionEvent;
-        }
-        
-        internal ActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table)
-        {
-            InputAction = inputAction;
-            table.Add(inputAction.id, this);
-        }
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);
     }

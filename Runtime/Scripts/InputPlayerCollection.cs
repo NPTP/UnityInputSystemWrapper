@@ -15,48 +15,47 @@ namespace NPTP.InputSystemWrapper
     /// </summary>
     internal sealed class InputPlayerCollection : IEnumerable<InputPlayer>
     {
-        internal event Action<InputPlayer> OnPlayerAdded;
-        internal event Action<int> OnPlayerRemoved;
+        private const int DEFAULT_PLAYER_PLAYER_ID = 0;
         
         private readonly InputActionAsset inputActionAsset;
         private readonly Transform inputParent;
-        private InputPlayer[] players = Array.Empty<InputPlayer>();
-        
+        private readonly Action<InputPlayer> onPlayerAdded;
+        private readonly Action<int> onPlayerRemoved;
+
+        internal InputPlayer DefaultPlayer { get; }
+
         private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
         private int PlayerCount => Players.Count();
         
+        private InputPlayer[] players = Array.Empty<InputPlayer>();
+
+        internal InputPlayerCollection(InputActionAsset asset, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
+        {
+            inputActionAsset = asset;
+            inputParent = CreateInputParentInScene();
+            onPlayerAdded = playerAddedListener;
+            onPlayerRemoved = playerRemovedListener;
+
+            DefaultPlayer = GetOrAdd(DEFAULT_PLAYER_PLAYER_ID);
+        }
+        
         public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        
-        internal InputPlayer this[int playerID]
-        {
-            get
-            {
-                Add(playerID);
-                return players[playerID];
-            }
-        }
-        
-        internal InputPlayerCollection(InputActionAsset asset)
-        {
-            inputParent = CreateInputParentInScene();
-            inputActionAsset = asset;
-        }
 
         #region Internal Methods
-        
-        internal void Add(int playerID)
+
+        internal InputPlayer GetOrAdd(int playerID)
         {
             if (playerID >= players.Length)
             {
-                InputPlayer[] extended = new InputPlayer[playerID - 1];
+                InputPlayer[] extended = new InputPlayer[playerID + 1];
                 Array.Copy(players, extended, players.Length);
                 players = extended;
             }
 
             if (players[playerID] != null)
             {
-                return;
+                return players[playerID];
             }
 
             InputPlayer newPlayer = new InputPlayer(inputActionAsset, playerID, true, inputParent);
@@ -67,19 +66,15 @@ namespace NPTP.InputSystemWrapper
             newPlayer.EDITOR_OnInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
             
-            foreach (InputPlayer player in Players)
-            {
-                player.IsMultiplayer = true;
-            }
-            
-            OnPlayerAdded?.Invoke(newPlayer);
+            onPlayerAdded?.Invoke(newPlayer);
+            return newPlayer;
         }
 
         internal void Remove(int playerID)
         {
-            if (playerID <= 0)
+            if (playerID <= DEFAULT_PLAYER_PLAYER_ID)
             {
-                Debug.LogError("Cannot terminate the default player.");
+                Debug.LogError($"Cannot remove the default player or get a player with ID < {DEFAULT_PLAYER_PLAYER_ID}.");
                 return;
             }
             
@@ -90,18 +85,13 @@ namespace NPTP.InputSystemWrapper
 
             players[playerID].Terminate();
             players[playerID] = null;
-            
-            if (PlayerCount == 1)
-            {
-                players[0].IsMultiplayer = false;
-            }
-            
-            OnPlayerRemoved?.Invoke(playerID);
+
+            onPlayerRemoved?.Invoke(playerID);
         }
         
-        internal void TerminateAll()
+        internal void Terminate()
         {
-            foreach (InputPlayer player in players)
+            foreach (InputPlayer player in Players)
             {
                 player.OnEnabledOrDisabled -= HandlePlayerEnabledOrDisabled;
                 player.Terminate();
@@ -112,83 +102,56 @@ namespace NPTP.InputSystemWrapper
 
             players.DefaultAll();
         }
+        
+        public void SetMultiplayer(bool isMultiplayer)
+        {
+            foreach (InputPlayer player in Players)
+            {
+                player.IsMultiplayer = isMultiplayer;
+            }
+        }
 
         internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
         {
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (players[i].LastUsedDevice == device)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return Players.Any(player => player.LastUsedDevice == device);
         }
         
         internal bool AnyPlayerDisabled()
         {
-            for (int i = 0; i < players.Length; i++)
+            return Players.Any(player => !player.Enabled);
+        }
+
+        internal bool TryGetPlayer(int playerID, out InputPlayer player)
+        {
+            if (!players.IndexIsValid(playerID) || players[playerID] == null)
             {
-                InputPlayer player = players[i];
-                if (!player.Enabled) return true;
+                player = default;
+                return false;
             }
 
-            return false;
+            player = players[playerID];
+            return true;
         }
         
-        internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
+        internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer pairedPlayer)
         {
-            for (int i = 0; i < players.Length; i++)
+            foreach (var player in Players)
             {
-                if (players[i] == null)
+                if (player.IsDevicePaired(device))
                 {
-                    continue;
-                }
-                
-                if (players[i].IsDevicePaired(device))
-                {
-                    player = players[i];
+                    pairedPlayer = player;
                     return true;
                 }
             }
 
-            player = null;
+            pairedPlayer = null;
             return false;
         }
 
-        // TODO (optimization): ActionWrapper should have a playerID perhaps, or link to player, or something, to optimize this.
-        internal bool TryGetPlayerAssociatedWithAsset(InputActionAsset asset, out InputPlayer playerAssociatedWithAsset)
-        {
-            for (int i = 0; i < players.Length; i++)
-            {
-                if (players[i] == null)
-                {
-                    continue;
-                }
-
-                InputPlayer player = players[i];
-                if (player.Asset == asset)
-                {
-                    playerAssociatedWithAsset = player;
-                    return true;
-                }
-            }
-
-            playerAssociatedWithAsset = null;
-            return false;
-        }
-        
         internal bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer pairedPlayer)
         {
-            for (int i = 0; i < players.Length; i++)
+            foreach (var player in Players)
             {
-                if (players[i] == null)
-                {
-                    continue;
-                }
-
-                InputPlayer player = players[i];
                 if (player.Enabled)
                 {
                     continue;
@@ -203,11 +166,15 @@ namespace NPTP.InputSystemWrapper
             return false;
         }
 
+        internal void PairDeviceToNewPlayer(InputDevice device)
+        {
+            AddFirstPossiblePlayerID().PairDevice(device);
+        }
+
         internal void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
         {
-            for (int i = 0; i < players.Length; i++)
+            foreach (InputPlayer player in Players)
             {
-                InputPlayer player = players[i];
                 if (player.IsUser(inputUser))
                 {
                     player.HandleInputUserChange(inputUserChange, inputDevice);
@@ -218,7 +185,7 @@ namespace NPTP.InputSystemWrapper
 
         internal void SetContextForAll(InputContext inputContext)
         {
-            foreach (InputPlayer player in players)
+            foreach (InputPlayer player in Players)
             {
                 player.InputContext = inputContext;
             }
@@ -227,6 +194,23 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private Methods
+        
+        /// <summary>
+        /// Add a new player at the first possible player ID.
+        /// This may be between, or greater than any existing player IDS.
+        /// </summary>
+        private InputPlayer AddFirstPossiblePlayerID()
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] == null)
+                {
+                    return GetOrAdd(i);
+                }
+            }
+
+            return GetOrAdd(players.Length);
+        }
 
         private Transform CreateInputParentInScene()
         {
@@ -243,23 +227,23 @@ namespace NPTP.InputSystemWrapper
             {
                 enabledOrDisabledPlayer.UnpairDevices();
             }
+
+            int enabledPlayersCount = Players.Count(player => player.Enabled);
             
-            int enabledPlayersCount = players.Count(player => player.Enabled);
             if (enabledPlayersCount > 1)
             {
-                foreach (InputPlayer player in players)
+                foreach (InputPlayer player in Players)
                 {
-                    player.EnableAutoSwitching(false);
+                    player.IsMultiplayer = true;
                 }
             }
             else if (enabledPlayersCount == 1)
             {
-                // If there's only one player active, let them switch between all available devices.
-                InputPlayer soleEnabledPlayer = players.First(player => player.Enabled);
-                soleEnabledPlayer.EnableAutoSwitching(true);
+                InputPlayer soleEnabledPlayer = Players.First(player => player.Enabled);
+                soleEnabledPlayer.IsMultiplayer = false;
             }
         }
-        
+
         #endregion
         
         #region Editor-Only Debug Fields/Properties/Methods

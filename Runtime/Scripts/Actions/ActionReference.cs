@@ -15,6 +15,15 @@ namespace NPTP.InputSystemWrapper.Actions
     [Serializable]
     public partial class ActionReference
     {
+        public event Action<InputAction.CallbackContext> OnEvent
+        {
+            add => ActionWrapper.OnEvent += value;
+            remove => ActionWrapper.OnEvent -= value;
+        }
+        
+        public bool DownThisFrame => ActionWrapper.DownThisFrame;
+        public bool IsDown => ActionWrapper.IsDown;
+        
         [SerializeField] private InputActionReference reference;
         
         [SerializeField] private bool useCompositePart; 
@@ -30,7 +39,7 @@ namespace NPTP.InputSystemWrapper.Actions
         internal int PlayerID => playerID;
         
         private ActionWrapper actionWrapper;
-        public ActionWrapper ActionWrapper
+        internal ActionWrapper ActionWrapper
         {
             get
             {
@@ -48,6 +57,8 @@ namespace NPTP.InputSystemWrapper.Actions
                 return actionWrapper;
             }
         }
+
+        public string ActionName => ActionWrapper != null ? ActionWrapper.InputAction.name : "Not found";
         
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {

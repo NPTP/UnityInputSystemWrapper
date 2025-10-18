@@ -20,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     break;
                 case "ActionsInstantiation":
                     foreach (string map in Helper.GetMapNames(Asset))
-                        info.NewLines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(Asset, actionWrapperTable);");
+                        info.NewLines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(ID, Asset, actionWrapperTable);");
                     break;
                 case "EventSystemOptions":
                     info.NewLines.Add($"            uiInputModule.moveRepeatDelay = {Data.MoveRepeatDelay.ToString(CultureInfo.InvariantCulture)}f;");

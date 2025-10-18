@@ -15,5 +15,10 @@ namespace NPTP.InputSystemWrapper.Utilities.Extensions
                 array[i] = default;
             }
         }
+
+        internal static bool IndexIsValid<T>(this T[] array, int index)
+        {
+            return array != null && 0 <= index && index < array.Length;
+        }
     }
 }

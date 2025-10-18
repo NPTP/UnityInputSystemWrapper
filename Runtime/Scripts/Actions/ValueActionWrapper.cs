@@ -6,7 +6,7 @@ namespace NPTP.InputSystemWrapper.Actions
 {
     public abstract class ValueActionWrapper : ActionWrapper
     {
-        protected ValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
+        protected ValueActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(playerID, inputAction, table)
         {
         }
     }
@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public T ReadValue() => InputAction.ReadValue<T>();
 
-        internal ValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
+        internal ValueActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(playerID, inputAction, table)
         {
         }
     }
@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         public object ReadValue() => InputAction.ReadValueAsObject();
         
-        internal AnyValueActionWrapper(InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(inputAction, table)
+        internal AnyValueActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table) : base(playerID, inputAction, table)
         {
         }
     }

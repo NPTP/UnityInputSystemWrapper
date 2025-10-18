@@ -31,7 +31,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
         private bool enabled;
         
         // MARKER.ConstructorSignature.Start
-        internal ActionsTemplate(InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
+        internal ActionsTemplate(int playerID, InputActionAsset asset, Dictionary<Guid, ActionWrapper> table)
         // MARKER.ConstructorSignature.End
         {
             // MARKER.ActionMapAssignment.Start
@@ -39,8 +39,8 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             // MARKER.ActionMapAssignment.End
             
             // MARKER.ActionWrapperAssignments.Start
-            TemplateAction1 = new (ActionMap.FindAction("TemplateAction1", throwIfNotFound: true), table);
-            TemplateAction2 = new (ActionMap.FindAction("TemplateAction2", throwIfNotFound: true), table);
+            TemplateAction1 = new (playerID, ActionMap.FindAction("TemplateAction1", throwIfNotFound: true), table);
+            TemplateAction2 = new (playerID, ActionMap.FindAction("TemplateAction2", throwIfNotFound: true), table);
             // MARKER.ActionWrapperAssignments.End
             // MARKER.Ignore.Start
             throw new System.NotImplementedException($"This template class {nameof(ActionsTemplate)} should never be instantiated!");

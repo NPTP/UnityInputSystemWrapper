@@ -47,22 +47,24 @@ namespace NPTP.InputSystemWrapper
         /// </summary>
         public static event Action OnControlsUpdated;
 
+        /// <summary>
+        /// Invoked on any button pressed on any connected device regardless of actions mapped, assets enabled, etc.
+        /// </summary>
+        public static event Action<InputControl> OnAnyButtonPress
+        {
+            add => AddAnyButtonPressListener(value);
+            remove => RemoveAnyButtonPressListener(value);
+        }
+        
         // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
         // Can we consolidate these events into a higher-level abstraction? Or separate them by desired events (binding change, control scheme change, etc with more granularity)
         public static event Action OnBindingsChanged;
         public static event Action<InputUserChangeInfo> OnAnyPlayerInputUserChange;
         public static event Action<InputPlayer> OnAnyPlayerControlSchemeChanged;
         public static event Action<char> OnAnyPlayerKeyboardTextInput;
-        public static event Action<InputControl> OnAnyButtonPress
-        {
-            add => AddAnyButtonPressListener(value);
-            remove => RemoveAnyButtonPressListener(value);
-        }
-
+        
         // MARKER.SinglePlayerFieldsAndProperties.Start
         // MARKER.SinglePlayerFieldsAndProperties.End
-        
-        public static Vector2 MousePosition => Mouse.current.position.ReadValue();
         
         private static bool allowPlayerJoining;
         public static bool AllowPlayerJoining
@@ -71,21 +73,20 @@ namespace NPTP.InputSystemWrapper
             set
             {
                 if (value == allowPlayerJoining)
-                {
                     return;
-                }
-                
+
                 allowPlayerJoining = value;
                 if (value) OnAnyButtonPress += JoinPlayerByActivatedInputControl;
                 else OnAnyButtonPress -= JoinPlayerByActivatedInputControl;
             }
         }
         
+        public static Vector2 MousePosition => Mouse.current.position.ReadValue();
+
         // MARKER.DefaultContextProperty.Start
         private static InputContext DefaultContext => InputContext.Default;
         // MARKER.DefaultContextProperty.End
-        
-        private static InputPlayer DefaultPlayer => Player(0);
+        private static InputPlayer DefaultPlayer => playerCollection.DefaultPlayer;
 
         private static bool initialized;
         private static HashSet<Action<InputControl>> anyButtonPressListeners;
@@ -128,14 +129,10 @@ namespace NPTP.InputSystemWrapper
             // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
             CustomSetupsRegisterer.PerformRegistrations(runtimeInputData);
             
-            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset);
-            playerCollection.OnPlayerAdded += HandlePlayerAdded;
-            playerCollection.OnPlayerRemoved += HandlePlayerRemoved;
+            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, HandlePlayerAdded, HandlePlayerRemoved);
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
-            
-            playerCollection.Add(0);
             
             // MARKER.LoadAllBindingsOnInitialization.Start
             LoadBindingsForAllPlayers();
@@ -181,7 +178,7 @@ namespace NPTP.InputSystemWrapper
             OnBindingsChanged -= BroadcastControlsUpdated;
             OnAnyPlayerControlSchemeChanged -= BroadcastControlsUpdated;
             
-            playerCollection.TerminateAll();
+            playerCollection.Terminate();
             playerCollection = null;
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
@@ -190,13 +187,14 @@ namespace NPTP.InputSystemWrapper
         #endregion
         
         #region Public Interface
-        
+
+        public static void AddPlayer(int playerID) => Player(playerID);
         public static InputPlayer Player(int playerID)
         {
-            return playerCollection[playerID];
+            return playerCollection.GetOrAdd(playerID);
         }
 
-        public static void ClearPlayer(int playerID)
+        public static void RemovePlayer(int playerID)
         {
             playerCollection.Remove(playerID);
         }
@@ -220,7 +218,7 @@ namespace NPTP.InputSystemWrapper
         {
             if (inputActionReference != null && inputActionReference.action != null)
             {
-                InputPlayer player = playerCollection[playerID];
+                InputPlayer player = playerCollection.GetOrAdd(playerID);
                 return player.TryGetMatchingActionWrapper(inputActionReference.action, out actionWrapper);
             }
 
@@ -319,7 +317,7 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
         {
-            if (!playerCollection.TryGetPlayerAssociatedWithAsset(actionWrapper.InputAction.actionMap.asset, out InputPlayer player))
+            if (!playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player))
             {
                 bindingInfos = default;
                 return false;
@@ -441,22 +439,38 @@ namespace NPTP.InputSystemWrapper
         {
             InputDevice device = inputControl.device;
 
-            // Mouse + Keyboard is always joined, currently used devices can't be stolen, and we can't join an inactive player if they're all already active.
-            if (device is Mouse or Keyboard || playerCollection.IsDeviceLastUsedByAnyPlayer(device) || !playerCollection.AnyPlayerDisabled())
+            if (device == null)
             {
                 return;
             }
 
-            // Allow "stealing" a device paired to, but currently unused by, another player.
+            // Mouse + Keyboard is always joined.
+            if (device is Mouse or Keyboard)
+            {
+                return;
+            }
+            
+            // Any devices already in use can't be stolen.
+            if (playerCollection.IsDeviceLastUsedByAnyPlayer(device))
+            {
+                return;
+            }
+
+            // Allow stealing a device paired to, but currently unused by, another player.
             if (playerCollection.TryGetPlayerPairedWithDevice(device, out InputPlayer pairedPlayer))
             {
                 pairedPlayer.UnpairDevice(device);
             }
 
+            // Find a player to pair the device to.
             if (playerCollection.TryPairDeviceToFirstDisabledPlayer(device, out InputPlayer disabledPlayer))
             {
                 disabledPlayer.Enabled = true;
+                return;
             }
+
+            // If no disabled players exist, create and pair to a new player.
+            playerCollection.PairDeviceToNewPlayer(device);
         }
 
         private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)
@@ -472,6 +486,18 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool EDITOR_IsInitialized => initialized;
         internal static InputContext EDITOR_GetDefaultContext() => DefaultContext;
+
+        internal static bool EDITOR_TryGetPlayer(int playerID, out InputPlayer inputPlayer)
+        {
+            if (playerCollection == null)
+            {
+                inputPlayer = default;
+                return false;
+            }
+
+            inputPlayer = playerCollection.GetOrAdd(playerID);
+            return true;
+        }
 
         private static void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
         {
