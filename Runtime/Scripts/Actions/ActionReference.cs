@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Actions
     [Serializable]
     public partial class ActionReference
     {
-        public event Action<InputAction.CallbackContext> OnEvent
+        public event Action<ActionEventInfo> OnEvent
         {
             add => ActionWrapper.OnEvent += value;
             remove => ActionWrapper.OnEvent -= value;

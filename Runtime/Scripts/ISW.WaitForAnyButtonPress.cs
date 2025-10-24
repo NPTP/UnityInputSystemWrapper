@@ -10,6 +10,7 @@ namespace NPTP.InputSystemWrapper
         /// Use like:
         /// yield return new ISW.WaitForAnyButtonPress();
         /// </summary>
+        // TODO: Player-specific version specified by playerID int
         public class WaitForAnyButtonPress : CustomYieldInstruction
         {
             public override bool keepWaiting
@@ -48,7 +49,7 @@ namespace NPTP.InputSystemWrapper
             
             private bool anyButtonPressed;
             
-            ~WaitForAnyButtonPress() => OnAnyButtonPress -= HandleAnyButtonPress;
+            ~WaitForAnyButtonPress() => ListeningForAnyButtonPress = false;
 
             public WaitForAnyButtonPress()
             {

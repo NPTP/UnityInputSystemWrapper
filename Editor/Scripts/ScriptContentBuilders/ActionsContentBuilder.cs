@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"namespace {Helper.InputNamespace}.{Helper.GENERATED}.{Helper.ACTIONS}");
                     break;
                 case "ClassSignature":
-                    lines.Add($"    public class {className()}");
+                    lines.Add($"    public sealed class {className()}");
                     break;
                 case "ActionWrapperPublicProperties":
                     foreach (InputAction action in map)

@@ -4,6 +4,7 @@ using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.Actions;
+using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -35,6 +36,16 @@ namespace NPTP.InputSystemWrapper
         /// but only if the current InputContext that allows keyboard text input is active.
         /// </summary>
         public event Action<char> OnKeyboardTextInput;
+
+        /// <summary>
+        /// Invoked when any device paired to this player has any button pressed,
+        /// regardless of which assets/maps/actions are enabled or disabled.
+        /// </summary>
+        public event AnyButtonPressListener OnAnyButtonPress
+        {
+            add => AddAnyButtonPressListener(value);
+            remove => RemoveAnyButtonPressListener(value);
+        }
 
         private bool enabled;
         public bool Enabled
@@ -123,6 +134,7 @@ namespace NPTP.InputSystemWrapper
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
         private bool keyboardTextInputEnabled;
+        private SpecificPlayerAnyButtonPressListenerCollection anyButtonPressListenerCollection;
 
         // Event System actions
         private readonly Dictionary<string, InputActionReference> eventSystemActionsPool = new();
@@ -158,6 +170,7 @@ namespace NPTP.InputSystemWrapper
         internal void Terminate()
         {
             Enabled = false;
+            anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
             Object.Destroy(playerInputGameObject);
@@ -201,10 +214,12 @@ namespace NPTP.InputSystemWrapper
             
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
+            // TODO: Unity means to add a "None" behavior which we will use once it's available since any events here are unnecessary overhead that we don't use
+            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents; 
+            
+            // TODO: Fix for new players where the string reads "Null"
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            // TODO: Fix for new players where the string reads "Null" !!!
             // CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
@@ -362,7 +377,22 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Private
-        
+
+        private void AddAnyButtonPressListener(AnyButtonPressListener listener)
+        {
+            anyButtonPressListenerCollection ??= new SpecificPlayerAnyButtonPressListenerCollection(this);
+            anyButtonPressListenerCollection.Add(listener);
+        }
+
+        private void RemoveAnyButtonPressListener(AnyButtonPressListener listener)
+        {
+            anyButtonPressListenerCollection.Remove(listener);
+            if (anyButtonPressListenerCollection.Count == 0)
+            {
+                anyButtonPressListenerCollection = null;
+            }
+        }
+
         private void UpdateDevices(InputDevice changedDevice)
         {
             if (changedDevice is Keyboard && keyboardTextInputEnabled)

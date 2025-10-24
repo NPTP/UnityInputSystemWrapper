@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
@@ -8,7 +7,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
-using UnityEngine.InputSystem.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
@@ -50,10 +48,10 @@ namespace NPTP.InputSystemWrapper
         /// <summary>
         /// Invoked on any button pressed on any connected device regardless of actions mapped, assets enabled, etc.
         /// </summary>
-        public static event Action<InputControl> OnAnyButtonPress
+        public static event AnyButtonPressListener OnAnyButtonPress
         {
-            add => AddAnyButtonPressListener(value);
-            remove => RemoveAnyButtonPressListener(value);
+            add => anyButtonPressListenerCollection.Add(value);
+            remove => anyButtonPressListenerCollection.Remove(value);
         }
         
         // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
@@ -89,11 +87,10 @@ namespace NPTP.InputSystemWrapper
         private static InputPlayer DefaultPlayer => playerCollection.DefaultPlayer;
 
         private static bool initialized;
-        private static HashSet<Action<InputControl>> anyButtonPressListeners;
-        private static IDisposable anyButtonPressCaller;
         private static InputPlayerCollection playerCollection;
         private static RuntimeInputData runtimeInputData;
         private static RebindingOperation rebindingOperation;
+        private static AnyButtonPressListenerCollection anyButtonPressListenerCollection;
         
         #endregion
 
@@ -133,6 +130,7 @@ namespace NPTP.InputSystemWrapper
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
+            UpdateAfterPlayerCollectionChange();
             
             // MARKER.LoadAllBindingsOnInitialization.Start
             LoadBindingsForAllPlayers();
@@ -140,7 +138,7 @@ namespace NPTP.InputSystemWrapper
 
             SetContextForAllPlayers(DefaultContext);
             
-            anyButtonPressListeners = new HashSet<Action<InputControl>>();
+            anyButtonPressListenerCollection = new AnyButtonPressListenerCollection();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
             OnAnyPlayerInputUserChange += BroadcastControlsUpdated;
@@ -170,7 +168,7 @@ namespace NPTP.InputSystemWrapper
 
         private static void Terminate()
         {
-            UnregisterAllAnyButtonPressListeners();
+            anyButtonPressListenerCollection.Clear();
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
 #endif
@@ -341,21 +339,6 @@ namespace NPTP.InputSystemWrapper
 
         #region Private Runtime Functionality
 
-        private static void UpdatePlayerCollectionListeners()
-        {
-            foreach (InputPlayer player in playerCollection)
-            {
-                player.OnInputUserChange -= HandleAnyPlayerInputUserChange;
-                player.OnInputUserChange += HandleAnyPlayerInputUserChange;
-                
-                player.OnControlSchemeChanged -= HandleAnyPlayerControlSchemeChanged;
-                player.OnControlSchemeChanged += HandleAnyPlayerControlSchemeChanged;
-                
-                player.OnKeyboardTextInput -= HandleAnyPlayerKeyboardTextInput;
-                player.OnKeyboardTextInput += HandleAnyPlayerKeyboardTextInput;
-            }
-        }
-        
         private static void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
             OnAnyPlayerInputUserChange?.Invoke(inputUserChangeInfo);
@@ -371,60 +354,22 @@ namespace NPTP.InputSystemWrapper
             OnAnyPlayerKeyboardTextInput?.Invoke(c);
         }
         
-        private static void HandlePlayerAdded(InputPlayer inputPlayer)
-        {
-            UpdatePlayerCollectionListeners();
-        }
-
-        private static void HandlePlayerRemoved(int playerID)
-        {
-            UpdatePlayerCollectionListeners();
-        }
-
-        private static void AddAnyButtonPressListener(Action<InputControl> action)
-        {
-            if (action == null || anyButtonPressListeners.Contains(action))
-                return;
-            anyButtonPressListeners.Add(action);
-            if (anyButtonPressCaller == null)
-                anyButtonPressCaller = InputSystem.onAnyButtonPress.Call(HandleAnyButtonPressed);
-        }
+        private static void HandlePlayerAdded(InputPlayer inputPlayer) => UpdateAfterPlayerCollectionChange();
+        private static void HandlePlayerRemoved(int playerID) => UpdateAfterPlayerCollectionChange();
         
-        private static void RemoveAnyButtonPressListener(Action<InputControl> value)
+        private static void UpdateAfterPlayerCollectionChange()
         {
-            if (value == null || !anyButtonPressListeners.Contains(value))
-                return;
-            anyButtonPressListeners.Remove(value);
-            DisposeAnyButtonPressCallerIfNoListeners();
-        }
-        
-        private static void DisposeAnyButtonPressCallerIfNoListeners()
-        {
-            if (anyButtonPressListeners.Count == 0 && anyButtonPressCaller != null)
+            foreach (InputPlayer player in playerCollection)
             {
-                anyButtonPressCaller.Dispose();
-                anyButtonPressCaller = null;
+                player.OnInputUserChange -= HandleAnyPlayerInputUserChange;
+                player.OnInputUserChange += HandleAnyPlayerInputUserChange;
+                
+                player.OnControlSchemeChanged -= HandleAnyPlayerControlSchemeChanged;
+                player.OnControlSchemeChanged += HandleAnyPlayerControlSchemeChanged;
+                
+                player.OnKeyboardTextInput -= HandleAnyPlayerKeyboardTextInput;
+                player.OnKeyboardTextInput += HandleAnyPlayerKeyboardTextInput;
             }
-        }
-
-        private static void UnregisterAllAnyButtonPressListeners()
-        {
-            anyButtonPressListeners.Clear();
-            DisposeAnyButtonPressCallerIfNoListeners();
-        }
-
-        private static void HandleAnyButtonPressed(InputControl inputControl)
-        {
-            InvokeAnyButtonPressListeners(inputControl);
-        }
-
-        private static void InvokeAnyButtonPressListeners(InputControl inputControl)
-        {
-            // Temp array for invocation instead of enumerating the anyButtonPressListeners hash set, since
-            // listeners could unsubscribe during invocation which would modify the hashset.
-            Action<InputControl>[] listeners = anyButtonPressListeners.ToArray();
-            for (int i = 0; i < listeners.Length; i++)
-                listeners[i]?.Invoke(inputControl);
         }
 
         private static void LoadBindingsForAllPlayers()

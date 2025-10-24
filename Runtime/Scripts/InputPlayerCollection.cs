@@ -16,27 +16,29 @@ namespace NPTP.InputSystemWrapper
     internal sealed class InputPlayerCollection : IEnumerable<InputPlayer>
     {
         private const int DEFAULT_PLAYER_PLAYER_ID = 0;
-        
-        private readonly InputActionAsset inputActionAsset;
-        private readonly Transform inputParent;
-        private readonly Action<InputPlayer> onPlayerAdded;
-        private readonly Action<int> onPlayerRemoved;
 
-        internal InputPlayer DefaultPlayer { get; }
+        internal InputPlayer DefaultPlayer { get; private set; }
 
         private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
         private int PlayerCount => Players.Count();
         
+        private readonly InputActionAsset inputActionAsset;
+        private readonly Transform inputParent;
+        private Action<InputPlayer> onPlayerAdded;
+        private Action<int> onPlayerRemoved;
         private InputPlayer[] players = Array.Empty<InputPlayer>();
 
         internal InputPlayerCollection(InputActionAsset asset, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
         {
             inputActionAsset = asset;
             inputParent = CreateInputParentInScene();
+            
+            // Add default player before setting player added listener,
+            // since this object is not created yet and external listeners may try to access it.
+            DefaultPlayer = GetOrAdd(DEFAULT_PLAYER_PLAYER_ID);
+            
             onPlayerAdded = playerAddedListener;
             onPlayerRemoved = playerRemovedListener;
-
-            DefaultPlayer = GetOrAdd(DEFAULT_PLAYER_PLAYER_ID);
         }
         
         public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
@@ -100,7 +102,9 @@ namespace NPTP.InputSystemWrapper
 #endif
             }
 
-            players.DefaultAll();
+            onPlayerAdded = null;
+            onPlayerRemoved = null;
+            players = null;
         }
         
         public void SetMultiplayer(bool isMultiplayer)

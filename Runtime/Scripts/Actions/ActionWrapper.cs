@@ -17,8 +17,8 @@ namespace NPTP.InputSystemWrapper.Actions
         internal int PlayerID { get; }
         internal InputAction InputAction { get; }
         
-        private event Action<InputAction.CallbackContext> onEvent;
-        public event Action<InputAction.CallbackContext> OnEvent
+        private event Action<ActionEventInfo> onEvent;
+        public event Action<ActionEventInfo> OnEvent
         {
             add { onEvent -= value; onEvent += value; }
             remove => onEvent -= value;
@@ -66,6 +66,6 @@ namespace NPTP.InputSystemWrapper.Actions
         public bool TryGetBindingInfo(ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
             ISW.TryGetBindingInfo(new ActionBindingInfo(this, compositePart, controlScheme), out bindingInfos);
 
-        private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(context);
+        private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(new ActionEventInfo(this, context));
     }
 }
