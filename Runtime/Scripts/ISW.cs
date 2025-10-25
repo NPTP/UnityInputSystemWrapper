@@ -9,7 +9,6 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Generated.Actions;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Utilities;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
@@ -28,9 +27,7 @@ namespace NPTP.InputSystemWrapper
     {
         #region Fields & Properties
 
-        // MARKER.RuntimeInputDataPath.Start
-        private const string RUNTIME_INPUT_DATA_PATH = "RuntimeInputData";
-        // MARKER.RuntimeInputDataPath.End
+        private const string RUNTIME_INPUT_DATA_RESOURCES_PATH = "RuntimeInputData";
         
         /// <summary>
         /// For use with any localization system in your project: handle this event by taking the passed request,
@@ -60,10 +57,7 @@ namespace NPTP.InputSystemWrapper
         public static event Action<InputUserChangeInfo> OnAnyPlayerInputUserChange;
         public static event Action<InputPlayer> OnAnyPlayerControlSchemeChanged;
         public static event Action<char> OnAnyPlayerKeyboardTextInput;
-        
-        // MARKER.SinglePlayerFieldsAndProperties.Start
-        // MARKER.SinglePlayerFieldsAndProperties.End
-        
+
         private static bool allowPlayerJoining;
         public static bool AllowPlayerJoining
         {
@@ -80,10 +74,7 @@ namespace NPTP.InputSystemWrapper
         }
         
         public static Vector2 MousePosition => Mouse.current.position.ReadValue();
-
-        // MARKER.DefaultContextProperty.Start
-        private static InputContext DefaultContext => InputContext.Default;
-        // MARKER.DefaultContextProperty.End
+        
         private static InputPlayer DefaultPlayer => playerCollection.DefaultPlayer;
 
         private static bool initialized;
@@ -95,11 +86,8 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Setup
-        
-        // MARKER.Initialize.Start
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void Initialize()
-        // MARKER.Initialize.End
+
+        private static void InitializationProcess()
         {
             if (initialized)
             {
@@ -113,8 +101,8 @@ namespace NPTP.InputSystemWrapper
             }
             
             SetUpTerminationConditions();
-            
-            runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_PATH);
+
+            runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_RESOURCES_PATH);
             if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
             {
                 throw new Exception($"{nameof(RuntimeInputData)} is null or its input action asset is null - input will not work!");
@@ -131,11 +119,7 @@ namespace NPTP.InputSystemWrapper
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
             UpdateAfterPlayerCollectionChange();
-            
-            // MARKER.LoadAllBindingsOnInitialization.Start
-            LoadBindingsForAllPlayers();
-            // MARKER.LoadAllBindingsOnInitialization.End
-
+            SetUpBindings();
             SetContextForAllPlayers(DefaultContext);
             
             anyButtonPressListenerCollection = new AnyButtonPressListenerCollection();
@@ -186,10 +170,14 @@ namespace NPTP.InputSystemWrapper
         
         #region Public Interface
 
-        public static void AddPlayer(int playerID) => Player(playerID);
         public static InputPlayer Player(int playerID)
         {
             return playerCollection.GetOrAdd(playerID);
+        }
+        
+        public static void AddPlayer(int playerID)
+        {
+            Player(playerID);
         }
 
         public static void RemovePlayer(int playerID)

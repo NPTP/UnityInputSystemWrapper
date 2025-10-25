@@ -6,7 +6,7 @@ using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
 
 namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
 {
-    internal class InputManagerContentBuilder : ContentBuilder
+    internal class ISWContentBuilder : ContentBuilder
     {
         private const string DEFAULT_PLAYER_FIELD = "DefaultPlayer";
         
@@ -14,9 +14,6 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
         {
             switch (info.MarkerName)
             {
-                case "RuntimeInputDataPath":
-                    info.NewLines.Add($"        private const string RUNTIME_INPUT_DATA_PATH = \"{OfflineInputData.RUNTIME_INPUT_DATA_PATH}\";");
-                    break;
                 case "SinglePlayerFieldsAndProperties":
                     string[] mapNames = Helper.GetMapNames(Asset).ToArray();
                     info.NewLines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => {DEFAULT_PLAYER_FIELD}.{mapName.AsType()};"));
@@ -47,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             }
         }
 
-        internal InputManagerContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
+        internal ISWContentBuilder(OfflineInputData offlineInputData) : base(offlineInputData)
         {
         }
     }

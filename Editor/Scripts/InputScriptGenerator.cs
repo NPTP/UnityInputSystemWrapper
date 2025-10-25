@@ -28,13 +28,13 @@ namespace NPTP.InputSystemWrapper.Editor
                 return;
             }
             
-            Helper.ClearFolderRecursive(Helper.GeneratedFolderSystemPath);
+            Helper.ClearFolderRecursive(Helper.GeneratedCompleteFolderSystemPath);
             GenerateActionClasses(offlineInputData.RuntimeInputData.InputActionAsset);
             
             ModifyExistingFile(Helper.ControlSchemeFileSystemPath, new ControlSchemeContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputPlayerFileSystemPath, new InputPlayerContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputManagerFileSystemPath, new InputManagerContentBuilder(offlineInputData));
+            ModifyExistingFile(Helper.ISWPartialFileSystemPath, new ISWContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.RuntimeInputDataFileSystemPath, new RuntimeInputDataContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.BindingChangerFileSystemPath, new BindingChangerContentBuilder(offlineInputData));
             
@@ -48,7 +48,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 GenerateFile(map,
                     Helper.ActionsTemplateFileSystemPath,
                     ActionsContentBuilder.AddContent,
-                Helper.GeneratedActionsSystemPath + map.name.AsType() + "Actions.cs");
+                Helper.GeneratedCompleteFolderSystemPath + map.name.AsType() + "Actions.cs");
             }
         }
 

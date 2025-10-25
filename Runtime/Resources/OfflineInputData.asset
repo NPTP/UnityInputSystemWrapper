@@ -14,11 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rootPathIdentifier: {fileID: 4900000, guid: 173c3a19d3220cc4894e20b2a481a462, type: 3}
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
-  mainInputScriptFile: {fileID: 11500000, guid: 4a92096acb86454458f614b09a41859f, type: 3}
+  iswScriptFile: {fileID: 11500000, guid: 4a92096acb86454458f614b09a41859f, type: 3}
+  iswPartialScriptFile: {fileID: 11500000, guid: fea2854135df48ce886420b202708bed, type: 3}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
-  enableMultiplayer: 0
-  maxPlayers: 2
   defaultContext: 0
   inputContexts:
   - name: Default

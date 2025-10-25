@@ -19,8 +19,6 @@ namespace NPTP.InputSystemWrapper.Data
     internal class OfflineInputData : ScriptableObject
     {
 #if UNITY_EDITOR
-        internal const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
-
         [SerializeField] private TextAsset rootPathIdentifier;
         internal string AssetsPathToPackage
         {
@@ -34,8 +32,11 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
         
-        [SerializeField] private TextAsset mainInputScriptFile;
-        internal TextAsset MainInputScriptFile => mainInputScriptFile;
+        [SerializeField] private TextAsset iswScriptFile;
+        internal TextAsset ISWScriptFile => iswScriptFile;
+        
+        [SerializeField] private TextAsset iswPartialScriptFile;
+        internal TextAsset ISWPartialScriptFile => iswPartialScriptFile;
 
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;
