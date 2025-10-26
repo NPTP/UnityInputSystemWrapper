@@ -21,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.AddRange(Helper.GetGeneratorNoticeLines());
                     break;
                 case "Namespace":
-                    lines.Add($"namespace {Helper.InputNamespace}.{Helper.GENERATED}.{Helper.ACTIONS}");
+                    lines.Add($"namespace {Helper.InputNamespace}.Actions");
                     break;
                 case "ClassSignature":
                     lines.Add($"    public sealed class {className()}");

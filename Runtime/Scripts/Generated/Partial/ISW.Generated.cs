@@ -8,13 +8,10 @@ namespace NPTP.InputSystemWrapper
     public static partial class ISW
     {
         // MARKER.SinglePlayerFieldsAndProperties.Start
-        public static GameplayActions Gameplay => DefaultPlayer.Gameplay;
-        public static UIActions UI => DefaultPlayer.UI;
-        public static ControlScheme CurrentControlScheme => DefaultPlayer.CurrentControlScheme;
         // MARKER.SinglePlayerFieldsAndProperties.End
         
         // MARKER.DefaultContextProperty.Start
-        private static InputContext DefaultContext => InputContext.Default;
+        private static InputContext DefaultContext => 0;
         // MARKER.DefaultContextProperty.End
         
         // MARKER.Initialize.Start

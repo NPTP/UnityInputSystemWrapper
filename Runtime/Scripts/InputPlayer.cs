@@ -15,7 +15,7 @@ using Object = UnityEngine.Object;
 
 namespace NPTP.InputSystemWrapper
 {
-    public sealed class InputPlayer
+    public sealed partial class InputPlayer
     {
         #region Field & Properties
 
@@ -99,9 +99,6 @@ namespace NPTP.InputSystemWrapper
             }
         }
 
-        // MARKER.ActionsProperties.Start
-        // MARKER.ActionsProperties.End
-
         private InputDevice lastUsedDevice;
         internal InputDevice LastUsedDevice
         {
@@ -153,20 +150,6 @@ namespace NPTP.InputSystemWrapper
         
         #region Setup & Teardown
 
-        internal InputPlayer(InputActionAsset asset, int id, bool isMultiplayer, Transform parent)
-        {
-            Asset = InstantiateNewActions(asset);
-            ID = id;
-            
-            // MARKER.ActionsInstantiation.Start
-            // MARKER.ActionsInstantiation.End
-            
-            SetUpInputPlayerGameObject(isMultiplayer, parent);
-            PopulateEventSystemActionsPool();
-            
-            // Input context gets set by top ISW class after this instantiation, which sets up maps & event system actions/overrides, so we don't have to handle that here.
-        }
-        
         internal void Terminate()
         {
             Enabled = false;
@@ -221,27 +204,6 @@ namespace NPTP.InputSystemWrapper
             // TODO: Fix for new players where the string reads "Null"
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
             // CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
-        }
-
-        private void SetEventSystemOptions()
-        {
-            // MARKER.EventSystemOptions.Start
-            uiInputModule.moveRepeatDelay = 0.5f;
-            uiInputModule.moveRepeatRate = 0.1f;
-            uiInputModule.deselectOnBackgroundClick = false;
-            uiInputModule.pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
-            uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
-            // MARKER.EventSystemOptions.End
-        }
-        
-        /// <summary>
-        /// Adds all default and override event system InputActionReferences to a shared pool to
-        /// reduce duplication and lookup time.
-        /// </summary>
-        private void PopulateEventSystemActionsPool()
-        {
-            // MARKER.PopulateEventSystemActionsPool.Start
-            // MARKER.PopulateEventSystemActionsPool.End
         }
 
         private void SetDefaultEventSystemActions()
@@ -454,34 +416,10 @@ namespace NPTP.InputSystemWrapper
                 lastUsedDevice = fallbackDevice;
             }
         }
-        
-        private void DisableAllMapsAndRemoveCallbacks()
-        {
-            // MARKER.DisableAllMapsAndRemoveCallbacksBody.Start
-            // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
-        }
-        
+
         private void HandleTextInput(char c)
         {
             OnKeyboardTextInput?.Invoke(c);
-        }
-        
-        private void EnableMapsForContext(InputContext context)
-        {
-            if (!Enabled)
-            {
-                return;
-            }
-            
-            SetDefaultEventSystemActions();
-            
-            switch (context)
-            {
-                // MARKER.EnableContextSwitchMembers.Start
-                // MARKER.EnableContextSwitchMembers.End
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(context), context, null);
-            }
         }
 
         #endregion

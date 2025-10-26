@@ -54,8 +54,7 @@ namespace NPTP.InputSystemWrapper
                 Array.Copy(players, extended, players.Length);
                 players = extended;
             }
-
-            if (players[playerID] != null)
+            else if (players[playerID] != null)
             {
                 return players[playerID];
             }

@@ -34,6 +34,11 @@ namespace NPTP.InputSystemWrapper.Enums
 
     internal static class InternalControlSchemeExtensions
     {
+        internal static InputBinding ToBindingMask(this ControlScheme controlScheme)
+        {
+            return new InputBinding(groups: controlScheme.ToInputAssetName(), path: default);
+        }
+        
         /// <summary>
         /// Convert the enum to the string name in the asset from which the control scheme originates,
         /// so the string name can be used in the Input System API.
@@ -59,11 +64,6 @@ namespace NPTP.InputSystemWrapper.Enums
                 // MARKER.StringToEnumSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeName), controlSchemeName, null)
             };
-        }
-
-        internal static InputBinding ToBindingMask(this ControlScheme controlScheme)
-        {
-            return new InputBinding(groups: controlScheme.ToInputAssetName(), path: default);
         }
     }
 }

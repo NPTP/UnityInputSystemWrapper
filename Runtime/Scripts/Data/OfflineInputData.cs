@@ -19,6 +19,9 @@ namespace NPTP.InputSystemWrapper.Data
     internal class OfflineInputData : ScriptableObject
     {
 #if UNITY_EDITOR
+
+        #region Fields Hidden From User
+        
         [SerializeField] private TextAsset rootPathIdentifier;
         internal string AssetsPathToPackage
         {
@@ -28,18 +31,32 @@ namespace NPTP.InputSystemWrapper.Data
                 return assetFilePath[..assetFilePath.LastIndexOf('/')];
             }
         }
-
+        
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
-        
+
         [SerializeField] private TextAsset iswScriptFile;
         internal TextAsset ISWScriptFile => iswScriptFile;
         
         [SerializeField] private TextAsset iswPartialScriptFile;
         internal TextAsset ISWPartialScriptFile => iswPartialScriptFile;
+        
+        [SerializeField] private TextAsset inputPlayerPartialScriptFile;
+        internal TextAsset InputPlayerPartialScriptFile => inputPlayerPartialScriptFile;
+
+        [SerializeField] private TextAsset controlSchemeScriptFile;
+        public TextAsset ControlSchemeScriptFile => controlSchemeScriptFile;
+
+        [SerializeField] private TextAsset inputContextScriptFile;
+        public TextAsset InputContextScriptFile => inputContextScriptFile;
+
+        [SerializeField] private TextAsset bindingChangerPartialScriptFile;
+        public TextAsset BindingChangerPartialScriptFile => bindingChangerPartialScriptFile;
 
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;
+
+        #endregion
 
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
@@ -86,24 +103,24 @@ namespace NPTP.InputSystemWrapper.Data
         // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
         [Header("Default Event System Actions")]
         [SerializeField] private InputActionReference point;
-        [SerializeField] private InputActionReference leftClick;
-        [SerializeField] private InputActionReference middleClick;
-        [SerializeField] private InputActionReference rightClick;
-        [SerializeField] private InputActionReference scrollWheel;
-        [SerializeField] private InputActionReference move;
-        [SerializeField] private InputActionReference submit;
-        [SerializeField] private InputActionReference cancel;
-        [SerializeField] private InputActionReference trackedDevicePosition;
-        [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference Point => point;
+        [SerializeField] private InputActionReference leftClick;
         internal InputActionReference LeftClick => leftClick;
+        [SerializeField] private InputActionReference middleClick;
         internal InputActionReference MiddleClick => middleClick;
+        [SerializeField] private InputActionReference rightClick;
         internal InputActionReference RightClick => rightClick;
+        [SerializeField] private InputActionReference scrollWheel;
         internal InputActionReference ScrollWheel => scrollWheel;
+        [SerializeField] private InputActionReference move;
         internal InputActionReference Move => move;
+        [SerializeField] private InputActionReference submit;
         internal InputActionReference Submit => submit;
+        [SerializeField] private InputActionReference cancel;
         internal InputActionReference Cancel => cancel;
+        [SerializeField] private InputActionReference trackedDevicePosition;
         internal InputActionReference TrackedDevicePosition => trackedDevicePosition;
+        [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
 
         internal int GetEventSystemActionNonNullOverrideCount()

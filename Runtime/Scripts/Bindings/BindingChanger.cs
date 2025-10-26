@@ -8,20 +8,10 @@ using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtension
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    internal static class BindingChanger
+    internal static partial class BindingChanger
     {
-        private static string[] ExcludedPaths => new string[]
-        {
-            // MARKER.BindingExcludedPaths.Start
-            // MARKER.BindingExcludedPaths.End
-        };
-        
-        private static string[] CancelPaths => new string[]
-        {
-            // MARKER.BindingCancelPaths.Start
-            "/Keyboard/escape"
-            // MARKER.BindingCancelPaths.End
-        };
+        private static string[] ExcludedPaths => GetExcludedPathsGenerated();
+        private static string[] CancelPaths => GetCancelPathsGenerated();
 
         internal static RebindingOperation StartInteractiveRebind(ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
         {

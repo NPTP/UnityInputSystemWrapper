@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
-using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEngine.InputSystem;
@@ -14,16 +12,14 @@ namespace NPTP.InputSystemWrapper.Editor
 {
     internal static class Helper
     {
+        private const string GENERATED = "Generated";
         private const string MARKER = "// MARKER";
         private const string START = "Start";
         private const string END = "End";
-        internal const string GENERATED = "Generated";
-        internal const string PARTIAL = "Partial";
-        internal const string COMPLETE = "Complete";
-        internal const string ACTIONS = "Actions";
-        
+        private const string PARTIAL = "Partial";
+        private const string COMPLETE = "Complete";
+
         // Assets
-        internal static InputActionAsset InputActionAsset => EditorAssetGetter.GetFirst<RuntimeInputData>().InputActionAsset;
         internal static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
         internal static string InputNamespace => GetNamespace(ISWFileSystemPath);
         
@@ -31,11 +27,11 @@ namespace NPTP.InputSystemWrapper.Editor
         private static string ISWFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ISWScriptFile);
         private static string ISWFolderSystemPath => EditorAssetGetter.GetSystemFolderPath(OfflineInputData.ISWScriptFile);
         internal static string ISWPartialFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ISWPartialScriptFile);
-        internal static string InputPlayerFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputPlayer>();
-        internal static string ControlSchemeFileSystemPath => EditorScriptGetter.GetSystemFilePath<ControlScheme>();
-        internal static string InputContextFileSystemPath => EditorScriptGetter.GetSystemFilePath<InputContext>();
-        internal static string RuntimeInputDataFileSystemPath => EditorScriptGetter.GetSystemFilePath<RuntimeInputData>();
-        internal static string BindingChangerFileSystemPath => EditorScriptGetter.GetSystemFilePath(typeof(BindingChanger));
+        internal static string InputPlayerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputPlayerPartialScriptFile);
+        internal static string ControlSchemeFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ControlSchemeScriptFile);
+        internal static string InputContextFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputContextScriptFile);
+        internal static string RuntimeInputDataFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.RuntimeInputData);
+        internal static string BindingChangerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.BindingChangerPartialScriptFile);
         
         // Template paths
         internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);
