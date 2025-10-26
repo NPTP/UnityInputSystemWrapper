@@ -23,7 +23,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     string defaultContextValue = $"{nameof(InputContext)}.{Data.DefaultContext}";
                     if (Data.InputContexts.Length == 0)
                     {
-                        info.NewLines.Add(">>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Comment out this line to allow recompilation, add at least 1 InputContext, then re-save the asset.");
+                        info.NewLines.Add("        // >>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Add at least 1 InputContext, then re-save the asset.");
                         defaultContextValue = "0";
                     }
                     else if (Enum.GetNames(typeof(InputContext)).Length == 0)
