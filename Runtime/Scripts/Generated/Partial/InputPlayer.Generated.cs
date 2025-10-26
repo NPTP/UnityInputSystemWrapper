@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;
