@@ -1,6 +1,14 @@
 # Input System Wrapper
 ## Changelog
 
+4.0.0
+- Rename `Input` class to `ISW` (acronym) to avoid needing aliases against Unity's built-in "Input" class.
+- Multiplayer support initial version working.
+- `OnAnyButtonPress` event uses new custom delegate `AnyButtonPressListener` (same signature as before). This applies to all devices.
+  - Individual players now have their own non-global `OnAnyButtonPress` event which applies only to devices paired with that player at the time of invocation.
+- ActionWrapper events pass a custom struct now instead of Unity's `InputAction.CallbackContext`, for better encapsulation and cordoning-off of properties that were accessible in Unity's struct that could break the ISW architecture.
+- Separated auto-generated code into partial classes in separate folder to make package updates simpler.
+
 3.2.3
 - Editor-only changes:
   - Use root path identifier serialized field instead of making user set script path

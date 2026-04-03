@@ -1,3 +1,4 @@
+// ReSharper disable once CheckNamespace
 namespace NPTP.InputSystemWrapper.Enums
 {
     public enum InputContext

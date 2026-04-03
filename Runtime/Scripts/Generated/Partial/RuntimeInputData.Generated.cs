@@ -3,6 +3,7 @@ using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace NPTP.InputSystemWrapper.Data
 {
     internal partial class RuntimeInputData

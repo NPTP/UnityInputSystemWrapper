@@ -7,27 +7,24 @@ namespace NPTP.InputSystemWrapper
     {
         /// <summary>
         /// Custom yield instruction for coroutines to make waiting for any button press a lot more syntactically convenient.
-        /// Use like:
+        /// To listen for ANY player:
         /// yield return new ISW.WaitForAnyButtonPress();
+        /// To listen to a specific player:
+        /// yield return new ISW.WaitForAnyButtonPress(int playerID);
         /// </summary>
-        // TODO: Player-specific version specified by playerID int
         public class WaitForAnyButtonPress : CustomYieldInstruction
         {
             public override bool keepWaiting
             {
                 get
                 {
-                    if (anyButtonPressed)
+                    if (anyButtonPressed || !DoesPlayerExist(playerID))
                     {
                         ResetYieldInstruction();
                         return false;
                     }
 
-                    if (!ListeningForAnyButtonPress)
-                    {
-                        ListeningForAnyButtonPress = true;
-                    }
-                    
+                    ListeningForAnyButtonPress = true;
                     return !anyButtonPressed;
                 }
             }
@@ -35,24 +32,49 @@ namespace NPTP.InputSystemWrapper
             private bool listeningForAnyButtonPress;
             private bool ListeningForAnyButtonPress
             {
-                get => listeningForAnyButtonPress;
                 set
                 {
                     if (listeningForAnyButtonPress == value)
+                    {
                         return;
+                    }
+
+                    if (DoesPlayerExist(playerID))
+                    {
+                        if (value) Player(playerID).OnAnyButtonPress += HandleAnyButtonPress;
+                        else Player(playerID).OnAnyButtonPress -= HandleAnyButtonPress;
+                    }
+                    else
+                    {
+                        if (value) OnAnyButtonPress += HandleAnyButtonPress;
+                        else OnAnyButtonPress -= HandleAnyButtonPress;
+                    }
                     
-                    if (value) OnAnyButtonPress += HandleAnyButtonPress;
-                    else OnAnyButtonPress -= HandleAnyButtonPress;
                     listeningForAnyButtonPress = value;
                 }
             }
-            
+
+            private readonly int playerID = -1;
             private bool anyButtonPressed;
             
             ~WaitForAnyButtonPress() => ListeningForAnyButtonPress = false;
 
+            /// <summary>
+            /// Listen for any button press for any player/device.
+            /// </summary>
             public WaitForAnyButtonPress()
             {
+                ListeningForAnyButtonPress = true;
+            }
+
+            /// <summary>
+            /// Listen for any button press for a specific player.
+            /// If that player doesn't exist yet, the yield will end immediately, but can be reused again later
+            /// after the player has been created to properly wait for their button press.
+            /// </summary>
+            public WaitForAnyButtonPress(int playerID)
+            {
+                this.playerID = playerID;
                 ListeningForAnyButtonPress = true;
             }
 

@@ -1,4 +1,5 @@
-﻿namespace NPTP.InputSystemWrapper.Bindings
+// ReSharper disable once CheckNamespace
+namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static partial class BindingChanger
     {
@@ -16,7 +17,7 @@
             return new string[]
             {
                 // MARKER.BindingCancelPaths.Start
-                "/Keyboard/escape"
+            "/Keyboard/escape"
                 // MARKER.BindingCancelPaths.End
             };
         }

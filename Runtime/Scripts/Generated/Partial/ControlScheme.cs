@@ -5,6 +5,11 @@ namespace NPTP.InputSystemWrapper.Enums
 {
     public enum ControlScheme
     {
+        /// <summary>
+        /// Corresponds to "Null" string for newly created, unassigned players in Unity's PlayerInput.
+        /// </summary>
+        None,
+        
         // MARKER.Members.Start
         // MARKER.Members.End
     }
@@ -54,7 +59,8 @@ namespace NPTP.InputSystemWrapper.Enums
         }
 
         /// <summary>
-        /// Convert the control scheme asset name to the corresponding enum value.
+        /// Try to convert the control scheme name from the input actions asset,
+        /// used internally by Unity's input system, to its corresponding enum value.
         /// </summary>
         internal static ControlScheme ToControlSchemeEnum(this string controlSchemeName)
         {
@@ -62,7 +68,7 @@ namespace NPTP.InputSystemWrapper.Enums
             {
                 // MARKER.StringToEnumSwitch.Start
                 // MARKER.StringToEnumSwitch.End
-                _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeName), controlSchemeName, null)
+                _ => ControlScheme.None
             };
         }
     }

@@ -183,7 +183,7 @@ namespace NPTP.InputSystemWrapper
             
             playerInputGameObject = new GameObject
             {
-                name = $"{ID}Input",
+                name = $"Player[{ID}]Input",
                 transform = { position = Vector3.zero, parent = parent}
             };
 
@@ -197,13 +197,14 @@ namespace NPTP.InputSystemWrapper
             
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
+
+            // TODO: Unity means to add a "None" behavior to the InputSystem which we will use once it's available.
+            // This is because any events here are unnecessary overhead that we don't use.
+            // C# events are just the lowest overhead in the meantime.
+            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
-            // TODO: Unity means to add a "None" behavior which we will use once it's available since any events here are unnecessary overhead that we don't use
-            playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents; 
-            
-            // TODO: Fix for new players where the string reads "Null"
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            // CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
         private void SetDefaultEventSystemActions()

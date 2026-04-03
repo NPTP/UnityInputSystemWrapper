@@ -4,6 +4,7 @@ using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace NPTP.InputSystemWrapper
 {
     public static partial class ISW

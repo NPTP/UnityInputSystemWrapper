@@ -68,6 +68,7 @@ namespace NPTP.InputSystemWrapper
                     return;
 
                 allowPlayerJoining = value;
+                playerCollection.SetMultiplayer(value);
                 if (value) OnAnyButtonPress += JoinPlayerByActivatedInputControl;
                 else OnAnyButtonPress -= JoinPlayerByActivatedInputControl;
             }
@@ -105,7 +106,7 @@ namespace NPTP.InputSystemWrapper
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_RESOURCES_PATH);
             if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
             {
-                throw new Exception($"{nameof(RuntimeInputData)} is null or its input action asset is null - input will not work!");
+                throw new Exception($"{nameof(RuntimeInputData)} is null or its input action asset is null - input will not work! Did you move the asset from its original location in 'Resources'?");
             }
             
             // Clear out anything in the scene that would interfere with the ISW's autonomous operation.
@@ -327,6 +328,11 @@ namespace NPTP.InputSystemWrapper
 
         #region Private Runtime Functionality
 
+        private static bool DoesPlayerExist(int playerID)
+        {
+            return playerCollection.TryGetPlayer(playerID, out _);
+        }
+        
         private static void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
             OnAnyPlayerInputUserChange?.Invoke(inputUserChangeInfo);
@@ -374,36 +380,42 @@ namespace NPTP.InputSystemWrapper
 
             if (device == null)
             {
+                Debug.Log("Device is null");
                 return;
             }
 
             // Mouse + Keyboard is always joined.
             if (device is Mouse or Keyboard)
             {
+                Debug.Log("Device is MKB");
                 return;
             }
             
             // Any devices already in use can't be stolen.
             if (playerCollection.IsDeviceLastUsedByAnyPlayer(device))
             {
+                Debug.Log($"Already using {device.name}");
                 return;
             }
 
             // Allow stealing a device paired to, but currently unused by, another player.
             if (playerCollection.TryGetPlayerPairedWithDevice(device, out InputPlayer pairedPlayer))
             {
+                Debug.Log($"Unpairing {device.name} from player {pairedPlayer.ID}");
                 pairedPlayer.UnpairDevice(device);
             }
 
             // Find a player to pair the device to.
             if (playerCollection.TryPairDeviceToFirstDisabledPlayer(device, out InputPlayer disabledPlayer))
             {
+                Debug.Log("Paired to disabled player");
                 disabledPlayer.Enabled = true;
                 return;
             }
 
             // If no disabled players exist, create and pair to a new player.
             playerCollection.PairDeviceToNewPlayer(device);
+            Debug.Log("Paired to new player");
         }
 
         private static void HandleInputUserChange(InputUser inputUser, InputUserChange inputUserChange, InputDevice inputDevice)

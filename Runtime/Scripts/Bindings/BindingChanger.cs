@@ -81,7 +81,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             {
                 // >>> NOTE: OnPotentialMatch will not read inputs outside of your current control scheme. So if you're
                 // rebinding on gamepad and hit Escape to cancel, Escape had better be your primaryCancelPath (above)
-                // or else it won't get caught here. TODO: Find a better solution for this.
+                // or else it won't get caught here. TODO: Find a better solution for this, perhaps an AnyButtonPress listener that catches cancel paths.
                 rebindingOperation.OnPotentialMatch(operation =>
                 {
                     if (paths.Any(path => operation.selectedControl.path == path))

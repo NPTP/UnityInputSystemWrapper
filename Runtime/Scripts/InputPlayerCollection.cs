@@ -17,11 +17,10 @@ namespace NPTP.InputSystemWrapper
     {
         private const int DEFAULT_PLAYER_PLAYER_ID = 0;
 
-        internal InputPlayer DefaultPlayer { get; private set; }
+        internal InputPlayer DefaultPlayer { get; }
 
         private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
-        private int PlayerCount => Players.Count();
-        
+
         private readonly InputActionAsset inputActionAsset;
         private readonly Transform inputParent;
         private Action<InputPlayer> onPlayerAdded;
@@ -200,7 +199,7 @@ namespace NPTP.InputSystemWrapper
         
         /// <summary>
         /// Add a new player at the first possible player ID.
-        /// This may be between, or greater than any existing player IDS.
+        /// This may be between, or greater than any existing player IDs.
         /// </summary>
         private InputPlayer AddFirstPossiblePlayerID()
         {
