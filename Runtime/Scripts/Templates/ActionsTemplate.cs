@@ -6,9 +6,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using Button = UnityEngine.InputSystem.HID.HID.Button;
 // MARKER.Ignore.Start
-// ---------------------------------- WARNING ! ---------------------------------------
+// ---------------------------------- WARNING ! -------------------------------------------
 // This template script is used to auto-generate new C# input classes and their respective
 // .cs files. Do not modify it unless you know what you're doing!
+// ----------------------------------------------------------------------------------------
 // MARKER.Ignore.End
 
 // MARKER.GeneratorNotice.Start
