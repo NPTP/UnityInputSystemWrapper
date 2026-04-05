@@ -102,7 +102,6 @@ namespace NPTP.InputSystemWrapper.Player
 
             onPlayerAdded = null;
             onPlayerRemoved = null;
-            players = null;
         }
         
         public void SetMultiplayer(bool isMultiplayer)

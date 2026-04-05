@@ -102,7 +102,7 @@ namespace NPTP.InputSystemWrapper
                 ReflectionUtility.ResetStaticClassMembersToDefault(typeof(ISW));
             }
             
-            SetUpTerminationConditions();
+            SetUpQuittingConditions();
 
             runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_RESOURCES_PATH);
             if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
@@ -134,7 +134,7 @@ namespace NPTP.InputSystemWrapper
             initialized = true;
         }
 
-        private static void SetUpTerminationConditions()
+        private static void SetUpQuittingConditions()
         {
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged -= handlePlayModeStateChanged;
@@ -143,29 +143,24 @@ namespace NPTP.InputSystemWrapper
             {
                 if (playModeStateChange is PlayModeStateChange.ExitingPlayMode)
                 {
-                    Terminate();
+                    OnQuitting();
                 }
             }
-#else
-            Application.quitting -= Terminate;
-            Application.quitting += Terminate;
 #endif
         }
 
-        private static void Terminate()
+        private static void OnQuitting()
         {
-            anyButtonPressListenerCollection.Clear();
 #if UNITY_EDITOR
+            anyButtonPressListenerCollection.Clear();
             playerCollection.EDITOR_OnPlayerInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
-#endif
             OnAnyPlayerInputUserChange -= BroadcastControlsUpdated;
             OnBindingsChanged -= BroadcastControlsUpdated;
             OnAnyPlayerControlSchemeChanged -= BroadcastControlsUpdated;
-            
             playerCollection.Terminate();
-            playerCollection = null;
             --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
+#endif
         }
 
         #endregion

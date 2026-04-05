@@ -142,9 +142,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                         continue;
 
                     SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(
-                        basis.ControlScheme.ToInputAssetName(),
-                        (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlScheme.ToInputAssetName(), (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
                 }
             }
 

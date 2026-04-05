@@ -155,7 +155,6 @@ namespace NPTP.InputSystemWrapper.Player
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
-            Object.Destroy(playerInputGameObject);
         }
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
