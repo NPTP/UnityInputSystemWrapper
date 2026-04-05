@@ -140,7 +140,10 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                     SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
                     if (basisProperty.boxedValue is not ControlSchemeBasis basis)
                         continue;
-
+                    
+                    if (basis.ControlScheme == ControlScheme.None)
+                        continue;
+                    
                     SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
                     specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlScheme.ToInputAssetName(), (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
                 }
