@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Components

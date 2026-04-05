@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
+using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,8 +11,8 @@ using UnityEngine.InputSystem.Users;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.CustomSetups;
+using NPTP.InputSystemWrapper.Player;
 using NPTP.InputSystemWrapper.Utilities;
-using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -81,7 +82,7 @@ namespace NPTP.InputSystemWrapper
         private static bool initialized;
         private static InputPlayerCollection playerCollection;
         private static RuntimeInputData runtimeInputData;
-        private static RebindingOperation rebindingOperation;
+        private static InputActionRebindingExtensions.RebindingOperation rebindingOperation;
         private static AnyButtonPressListenerCollection anyButtonPressListenerCollection;
         
         #endregion
@@ -233,24 +234,36 @@ namespace NPTP.InputSystemWrapper
             BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlScheme);
         }
 
-        public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int playerID = 0)
+        public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int? playerID = null)
         {
-            BindingChanger.ResetBindingsToDefaultForControlScheme(Player(playerID).Asset, controlScheme);
+            if (playerID.HasValue)
+                BindingChanger.ResetBindingsToDefaultForControlScheme(Player(playerID.Value).Asset, controlScheme);
+            else foreach (InputPlayer player in playerCollection)
+                    BindingChanger.ResetBindingsToDefaultForControlScheme(player.Asset, controlScheme);
         }
 
-        public static void LoadAllBindings(int playerID = 0)
+        public static void LoadAllBindings(int? playerID = null)
         {
-            BindingSaveLoad.LoadBindingsFromDiskForPlayer(Player(playerID));
+            if (playerID.HasValue)
+                BindingSaveLoad.LoadBindingsFromDiskForPlayer(Player(playerID.Value));
+            else foreach (InputPlayer player in playerCollection)
+                    BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
         }
 
-        public static void SaveAllBindings(int playerID = 0)
+        public static void SaveAllBindings(int? playerID = null)
         {
-            BindingSaveLoad.SaveBindingsToDiskForPlayer(Player(playerID));
+            if (playerID.HasValue)
+                BindingSaveLoad.SaveBindingsToDiskForPlayer(Player(playerID.Value));
+            else foreach (InputPlayer player in playerCollection)
+                    BindingSaveLoad.SaveBindingsToDiskForPlayer(player);
         }
 
-        public static void ResetAllBindings(int playerID = 0)
+        public static void ResetAllBindings(int? playerID = 0)
         {
-            BindingChanger.ResetBindingsToDefault(Player(playerID).Asset);
+            if (playerID.HasValue)
+                BindingChanger.ResetBindingsToDefault(Player(playerID.Value).Asset);
+            else foreach (InputPlayer player in playerCollection)
+                    BindingChanger.ResetBindingsToDefault(player.Asset);
         }
 
         #endregion
@@ -323,15 +336,15 @@ namespace NPTP.InputSystemWrapper
         {
             return Player(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
-
-        #endregion
-
-        #region Private Runtime Functionality
-
-        private static bool DoesPlayerExist(int playerID)
+        
+        internal static bool DoesPlayerExist(int playerID)
         {
             return playerCollection.TryGetPlayer(playerID, out _);
         }
+        
+        #endregion
+
+        #region Private Runtime Functionality
         
         private static void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {

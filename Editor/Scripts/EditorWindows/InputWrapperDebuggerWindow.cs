@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
 using UnityEditor;
 using UnityEngine;
 using FontStyle = UnityEngine.FontStyle;

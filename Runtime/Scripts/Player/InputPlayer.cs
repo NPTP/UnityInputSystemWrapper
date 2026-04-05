@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
+using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
-using NPTP.InputSystemWrapper.Generated.Actions;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 using Object = UnityEngine.Object;
 
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Player
 {
     public sealed partial class InputPlayer
     {

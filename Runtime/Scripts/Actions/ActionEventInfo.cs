@@ -5,19 +5,19 @@ namespace NPTP.InputSystemWrapper.Actions
     public readonly struct ActionEventInfo
     {
         public InputActionPhase Phase { get; }
-        public int PlayerID => action.PlayerID;
+        public int PlayerID => actionWrapper.PlayerID;
         
-        private readonly ActionWrapper action;
+        private readonly ActionWrapper actionWrapper;
 
         public ActionEventInfo(ActionWrapper actionWrapper, InputAction.CallbackContext callbackContext)
         {
             Phase = callbackContext.phase;
-            action = actionWrapper;
+            this.actionWrapper = actionWrapper;
         }
         
         public T ReadValue<T>() where T : struct
         {
-            return action.InputAction.ReadValue<T>();
+            return actionWrapper.InputAction.ReadValue<T>();
         }
     }
     
@@ -25,15 +25,15 @@ namespace NPTP.InputSystemWrapper.Actions
     public readonly struct ActionEventInfo<T> where T : struct
     {
         public InputActionPhase Phase { get; }
-        public int PlayerID => action.PlayerID;
-        public T Value => action.ReadValue();
+        public int PlayerID => valueActionWrapper.PlayerID;
+        public T Value => valueActionWrapper.ReadValue();
         
-        private readonly ValueActionWrapper<T> action;
+        private readonly ValueActionWrapper<T> valueActionWrapper;
 
-        public ActionEventInfo(ValueActionWrapper<T> actionWrapper, InputAction.CallbackContext callbackContext)
+        public ActionEventInfo(ValueActionWrapper<T> valueActionWrapper, InputAction.CallbackContext callbackContext)
         {
             Phase = callbackContext.phase;
-            action = actionWrapper;
+            this.valueActionWrapper = valueActionWrapper;
         }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 
 // ReSharper disable once CheckNamespace
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Player
 {
     public sealed partial class InputPlayer
     {

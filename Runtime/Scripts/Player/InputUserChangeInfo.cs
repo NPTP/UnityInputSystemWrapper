@@ -1,7 +1,7 @@
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem.Users;
 
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Player
 {
     public struct InputUserChangeInfo
     {

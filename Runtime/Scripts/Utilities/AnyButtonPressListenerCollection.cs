@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NPTP.InputSystemWrapper.AnyButtonPress;
+using NPTP.InputSystemWrapper.Player;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 

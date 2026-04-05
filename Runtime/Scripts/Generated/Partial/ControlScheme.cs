@@ -1,6 +1,7 @@
 using System;
 using UnityEngine.InputSystem;
 
+// ReSharper disable once CheckNamespace
 namespace NPTP.InputSystemWrapper.Enums
 {
     public enum ControlScheme

@@ -2,13 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
-namespace NPTP.InputSystemWrapper
+namespace NPTP.InputSystemWrapper.Player
 {
     /// <summary>
     /// Useful interface layer for dealing with a collection of multiple players.
