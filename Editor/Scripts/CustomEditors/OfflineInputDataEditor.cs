@@ -19,6 +19,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private SerializedProperty initializationMode;
 
+        /// <summary>
+        /// These four are authored here but stored on the runtime asset, which is the only thing that
+        /// reads them. Editing them through its SerializedObject means there is one copy of each value
+        /// rather than an authored copy and a generated one that can drift apart.
+        /// </summary>
+        private SerializedObject runtimeInputDataObject;
+
         private SerializedProperty defaultContextIndex;
         private SerializedProperty inputContexts;
 
@@ -48,14 +55,17 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void OnEnable()
         {
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
-            defaultContextIndex = serializedObject.FindProperty(nameof(defaultContextIndex));
+            RuntimeInputData runtimeInputData = ((OfflineInputData)target).RuntimeInputData;
+            runtimeInputDataObject = runtimeInputData == null ? null : new SerializedObject(runtimeInputData);
+
+            defaultContextIndex = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_DefaultContextIndexField);
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
 
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
-            loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(nameof(loadAllBindingOverridesOnInitialize));
-            bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
-            bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
+            loadAllBindingOverridesOnInitialize = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
+            bindingExcludedPaths = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_BindingExcludedPathsField);
+            bindingCancelPaths = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_BindingCancelPathsField);
 
             moveRepeatDelay = serializedObject.FindProperty(nameof(moveRepeatDelay));
             moveRepeatRate = serializedObject.FindProperty(nameof(moveRepeatRate));
@@ -83,6 +93,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             if (contexts == null || contexts.Length == 0)
             {
                 EditorGUILayout.LabelField("Default Context", "No input contexts defined");
+                return;
+            }
+
+            if (defaultContextIndex == null)
+            {
+                EditorGUILayout.LabelField("Default Context", "No Runtime Input Data assigned");
                 return;
             }
 
@@ -132,6 +148,9 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
+            // The runtime asset is a second serialized object, so it needs its own update and apply.
+            runtimeInputDataObject?.Update();
+
             DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
 
@@ -169,12 +188,17 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Bindings");
-            EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
-            EditorGUILayout.Space();
-            DrawSpecialNote("Excluded Path format: \"<Device>/path\"");
-            EditorGUILayout.PropertyField(bindingExcludedPaths);
-            DrawSpecialNote("Cancel Path format: \"/Device/path\"");
-            EditorGUILayout.PropertyField(bindingCancelPaths);
+            if (runtimeInputDataObject == null)
+            {
+                DrawWarning("Assign a Runtime Input Data asset to edit binding settings.");
+            }
+            else
+            {
+                EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
+                EditorGUILayout.Space();
+                EditorGUILayout.PropertyField(bindingExcludedPaths);
+                EditorGUILayout.PropertyField(bindingCancelPaths);
+            }
 
             EditorInspectorUtility.DrawHorizontalLine();
 
@@ -197,6 +221,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(trackedDeviceOrientation);
 
             serializedObject.ApplyModifiedProperties();
+            runtimeInputDataObject?.ApplyModifiedProperties();
         }
     }
 }

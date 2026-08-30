@@ -26,15 +26,11 @@ namespace NPTP.InputSystemWrapper.Editor
 
             SerializedObject serializedObject = new(runtimeInputData);
 
-            CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingExcludedPathsField), offlineInputData.BindingExcludedPaths);
-            CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingCancelPathsField), offlineInputData.BindingCancelPaths);
             SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
             SyncDeviceBindingData(serializedObject, runtimeInputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, offlineInputData);
             SyncInputContexts(serializedObject, offlineInputData);
             WarnAboutUnknownMapNames(offlineInputData, runtimeInputData.InputActionAsset);
-            serializedObject.FindProperty(RuntimeInputData.EDITOR_DefaultContextIndexField).intValue = offlineInputData.DefaultContextIndex;
-            serializedObject.FindProperty(RuntimeInputData.EDITOR_LoadAllBindingOverridesOnInitializeField).boolValue = offlineInputData.LoadAllBindingOverridesOnInitialize;
 
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(runtimeInputData);

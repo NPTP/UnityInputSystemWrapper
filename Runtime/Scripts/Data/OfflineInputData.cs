@@ -1,4 +1,3 @@
-using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -21,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Data
 #if UNITY_EDITOR
 
         #region Fields Hidden From User
-        
+
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
 
@@ -34,28 +33,11 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
 
-        [SerializeField] private int defaultContextIndex;
-        internal int DefaultContextIndex => defaultContextIndex;
-        
         [SerializeField] private InputContextInfo[] inputContexts;
         internal InputContextInfo[] InputContexts => inputContexts;
-        
+
         [SerializeField] private ControlSchemeBasis[] controlSchemeBases;
         internal ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
-
-        [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized. Set false if you want more precise control over when this happens and to make the call to load bindings yourself.")]
-        [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
-        internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
-
-        [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
-                 "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
-        [ControlPathSelector][SerializeField] private string[] bindingExcludedPaths;
-        internal string[] BindingExcludedPaths => bindingExcludedPaths;
-
-        [Tooltip("These control paths will cancel/exit an interact rebinding. " +
-                 "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
-        [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
-        internal string[] BindingCancelPaths => bindingCancelPaths;
 
         [Header("Global Event System Options")]
         [SerializeField] private float moveRepeatDelay = 0.5f;
@@ -63,16 +45,16 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private float moveRepeatRate = 0.1f;
         internal float MoveRepeatRate => moveRepeatRate;
-        
+
         [SerializeField] private bool deselectOnBackgroundClick;
         internal bool DeselectOnBackgroundClick => deselectOnBackgroundClick;
 
         [SerializeField] private UIPointerBehavior pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
         internal UIPointerBehavior PointerBehavior => pointerBehavior;
-        
+
         [SerializeField] private InputSystemUIInputModule.CursorLockBehavior cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
         internal InputSystemUIInputModule.CursorLockBehavior CursorLockBehavior => cursorLockBehavior;
-        
+
         // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
         [Header("Default Event System Actions")]
         [SerializeField] private InputActionReference point;
