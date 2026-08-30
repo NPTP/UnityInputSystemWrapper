@@ -18,8 +18,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     [CustomEditor(typeof(BindingData))]
     internal class BindingDataEditor : UnityEditor.Editor
     {
-        private const float PREVIEW_SIZE = 46f;
-        private const float SPRITE_COLUMN_WIDTH = 190f;
+        private const float SPRITE_SIZE = 64f;
         private const float ROW_SPACING = 2f;
 
         private SerializedProperty keyValueCombos;
@@ -118,69 +117,32 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 // The control path identifies the entry and is owned by generation, so it is shown rather
                 // than edited.
                 EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);
-                localizationKey.stringValue = EditorGUILayout.TextField("Localization Key", localizationKey.stringValue);
+
+                // Label above the field rather than beside it, so the field gets the column's full width.
+                EditorGUILayout.LabelField("Localization Key", EditorStyles.miniLabel);
+                EditorGUILayout.PropertyField(localizationKey, GUIContent.none);
+
+                GUILayout.FlexibleSpace();
             }
             EditorGUILayout.EndVertical();
 
-            EditorGUILayout.BeginVertical(GUILayout.Width(SPRITE_COLUMN_WIDTH));
-            {
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUILayout.PropertyField(sprite, GUIContent.none, GUILayout.Width(SPRITE_COLUMN_WIDTH - PREVIEW_SIZE - ROW_SPACING * 2));
-                    DrawSpritePreview(sprite.objectReferenceValue as Sprite);
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUILayout.EndVertical();
+            DrawSpriteField(sprite);
 
             EditorGUILayout.EndHorizontal();
             GUILayout.Space(ROW_SPACING);
         }
 
-        private static void DrawSpritePreview(Sprite sprite)
+        /// <summary>
+        /// A square object field. Given a rect this tall, Unity draws its large object field - a preview of
+        /// the sprite inside a bordered square, keeping the same square when nothing is assigned - which is
+        /// the same control its own inspectors use for sprite and texture slots.
+        /// </summary>
+        private static void DrawSpriteField(SerializedProperty sprite)
         {
-            Rect previewRect = GUILayoutUtility.GetRect(PREVIEW_SIZE, PREVIEW_SIZE, GUILayout.Width(PREVIEW_SIZE), GUILayout.Height(PREVIEW_SIZE));
+            Rect spriteRect = GUILayoutUtility.GetRect(SPRITE_SIZE, SPRITE_SIZE,
+                GUILayout.Width(SPRITE_SIZE), GUILayout.Height(SPRITE_SIZE));
 
-            if (sprite == null)
-            {
-                EditorGUI.DrawRect(previewRect, new Color(0f, 0f, 0f, 0.1f));
-                return;
-            }
-
-            // Drawing the sprite's own rect out of its texture shows the right frame of an atlas, which a
-            // whole-texture draw would not.
-            Texture2D texture = sprite.texture;
-            if (texture == null)
-            {
-                return;
-            }
-
-            Rect textureRect = sprite.textureRect;
-            Rect normalized = new(textureRect.x / texture.width, textureRect.y / texture.height,
-                textureRect.width / texture.width, textureRect.height / texture.height);
-
-            GUI.DrawTextureWithTexCoords(FitToAspect(previewRect, textureRect.width / textureRect.height), texture, normalized, alphaBlend: true);
-        }
-
-        /// <summary>Centre the drawn sprite in the square preview without stretching it.</summary>
-        private static Rect FitToAspect(Rect available, float aspect)
-        {
-            if (aspect <= 0f)
-            {
-                return available;
-            }
-
-            float width = available.width;
-            float height = width / aspect;
-
-            if (height > available.height)
-            {
-                height = available.height;
-                width = height * aspect;
-            }
-
-            return new Rect(available.x + (available.width - width) * 0.5f,
-                available.y + (available.height - height) * 0.5f, width, height);
+            EditorGUI.ObjectField(spriteRect, sprite, typeof(Sprite), GUIContent.none);
         }
     }
 }
