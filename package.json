@@ -12,6 +12,6 @@
     },
     "dependencies": {
         "com.unity.inputsystem": "1.4.1",
-        "com.nptp.unity-source-gen": "0.1.6"
+        "com.nptp.unity-source-gen": "1.0.1"
     }
 }
