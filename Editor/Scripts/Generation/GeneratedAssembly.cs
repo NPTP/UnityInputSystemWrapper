@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using NPTP.UnitySourceGen.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -57,6 +58,25 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             return Application.dataPath + assetPath.Substring("Assets".Length) + Path.DirectorySeparatorChar;
         }
 
+        /// <summary>
+        /// Delete generated scripts this run did not produce, so renaming an action map does not leave its
+        /// old actions class behind. Only .cs files are touched, never the assembly definition or assets.
+        /// </summary>
+        internal static void PruneStaleScripts(string folderAssetPath)
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:MonoScript", new[] { folderAssetPath }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path.Substring(0, path.LastIndexOf(''/'')) != folderAssetPath || GenerationReport.WasWritten(path))
+                {
+                    continue;
+                }
+
+                AssetDatabase.DeleteAsset(path);
+                GenerationReport.Record($"{path} (deleted, no longer generated)");
+            }
+        }
+
         private static string FindAsmdefFolder()
         {
             foreach (string guid in AssetDatabase.FindAssets($"{ASSEMBLY_NAME} t:AssemblyDefinitionAsset"))
@@ -94,7 +114,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 "}"
             };
 
-            Helper.WriteLinesToFile(lines, Application.dataPath + folderAssetPath.Substring("Assets".Length) + "/" + ASSEMBLY_NAME + ".asmdef");
+            SourceGen.WriteToPath(folderAssetPath + "/" + ASSEMBLY_NAME + ".asmdef", string.Join(System.Environment.NewLine, lines) + System.Environment.NewLine);
         }
     }
 }

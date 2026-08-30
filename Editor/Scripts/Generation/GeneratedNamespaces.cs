@@ -10,5 +10,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         internal const string ENUMS = ROOT + ".Enums";
         internal const string ACTIONS = ROOT + ".Actions";
         internal const string PLAYER = ROOT + ".Player";
+        internal const string BINDINGS = ROOT + ".Bindings";
+        internal const string UTILITIES = ROOT + ".Utilities";
+        internal const string ANY_BUTTON_PRESS = ROOT + ".AnyButtonPress";
     }
 }

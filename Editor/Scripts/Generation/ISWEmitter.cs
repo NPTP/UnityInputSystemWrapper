@@ -1,6 +1,8 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
+using NPTP.UnitySourceGen.Editor;
+using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -11,129 +13,163 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     /// </summary>
     internal static class ISWEmitter
     {
-        internal static List<string> BuildLines(InputActionAsset asset, OfflineInputData offlineInputData)
+        private const string CONTROL_SCHEME = "ControlScheme";
+        private const string INPUT_CONTEXT = "InputContext";
+        private const string INPUT_PLAYER = "InputPlayer";
+        private const string ACTION_WRAPPER = "ActionWrapper";
+        private const string PLAYER_ID = "playerID";
+        private const string NULLABLE_PLAYER_ID = "int?";
+
+        internal static GeneratableTypeDefinition Build(InputActionAsset asset, OfflineInputData offlineInputData)
         {
-            List<string> lines = new()
-            {
-                "using System;",
-                "using System.Collections.Generic;",
-                "using NPTP.InputSystemWrapper.Actions;",
-                "using NPTP.InputSystemWrapper.AnyButtonPress;",
-                "using NPTP.InputSystemWrapper.Bindings;",
-                "using NPTP.InputSystemWrapper.Enums;",
-                "using NPTP.InputSystemWrapper.Player;",
-                "using NPTP.InputSystemWrapper.Utilities;",
-                "using UnityEngine;",
-                "using UnityEngine.InputSystem;",
-                string.Empty
-            };
+            GeneratableTypeDefinition isw = SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+                .InNamespace(GeneratedNamespaces.ROOT)
+                .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.InputSystem",
+                    GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS, GeneratedNamespaces.BINDINGS,
+                    GeneratedNamespaces.ENUMS, GeneratedNamespaces.PLAYER, GeneratedNamespaces.UTILITIES)
+                .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
+                .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER).Private().Static().Expression("Runtime.DefaultPlayer"));
 
-            lines.AddRange(Helper.GetGeneratorNoticeLines());
-            lines.Add($"namespace {GeneratedNamespaces.ROOT}");
-            lines.Add("{");
-            lines.Add("    /// <summary>");
-            lines.Add("    /// Main point of usage for all input in the game. ISW stands for \"Input System Wrapper\".");
-            lines.Add("    /// </summary>");
-            lines.Add("    public static class ISW");
-            lines.Add("    {");
-            lines.Add("        private static InputRuntime Runtime => InputRuntime.Current;");
-            lines.Add("        private static InputPlayer DefaultPlayer => Runtime.DefaultPlayer;");
-            lines.Add(string.Empty);
+            AddSinglePlayerAccess(isw, asset);
+            AddInitialization(isw, asset, offlineInputData);
+            AddEvents(isw);
+            AddPublicInterface(isw);
 
-            foreach (string mapName in Helper.GetMapNames(asset))
-                lines.Add($"        public static {mapName.AsType()}Actions {mapName.AsType()} => DefaultPlayer.{mapName.AsType()}();");
-
-            lines.Add("        public static ControlScheme CurrentControlScheme => DefaultPlayer.CurrentControlScheme();");
-            lines.Add(string.Empty);
-            lines.AddRange(InitializeLines(offlineInputData, asset));
-            lines.AddRange(EventLines());
-            lines.AddRange(InterfaceLines());
-            lines.Add("    }");
-            lines.Add("}");
-            return lines;
+            return isw;
         }
 
-        private static IEnumerable<string> InitializeLines(OfflineInputData offlineInputData, InputActionAsset asset)
+        /// <summary>
+        /// The convenience surface for single-player games: the default player's actions, reachable without
+        /// naming a player at all.
+        /// </summary>
+        private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset)
         {
-            List<string> lines = new();
+            foreach (string mapName in Helper.GetMapNames(asset))
+            {
+                isw.WithProperty(SourceGen.NewProperty(mapName.AsType(), $"{mapName.AsType()}Actions")
+                    .Public()
+                    .Static()
+                    .Expression($"DefaultPlayer.{mapName.AsType()}()"));
+            }
+
+            isw.WithProperty(SourceGen.NewProperty("CurrentControlScheme", CONTROL_SCHEME)
+                .Public()
+                .Static()
+                .Expression("DefaultPlayer.CurrentControlScheme()"));
+        }
+
+        private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, OfflineInputData offlineInputData)
+        {
+            GeneratableMethod initialize = SourceGen.NewMethod("Initialize")
+                .Static()
+                .Returning<void>()
+                .Body("InputPlayer.ActionMapWrapperFactory = CreateActionMapWrappers;",
+                    "InputRuntime.Initialize();");
+
             if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
-                lines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
-
-            string accessibility = offlineInputData.InitializationMode == InitializationMode.Manual ? "public" : "private";
-            lines.Add($"        {accessibility} static void Initialize()");
-            lines.Add("        {");
-            lines.Add("            InputPlayer.ActionMapWrapperFactory = CreateActionMapWrappers;");
-            lines.Add("            InputRuntime.Initialize();");
-            lines.Add("        }");
-            lines.Add(string.Empty);
-            lines.Add("        private static void CreateActionMapWrappers(InputPlayer player, Dictionary<string, IActionMapWrapper> wrappers)");
-            lines.Add("        {");
-
-            foreach (string mapName in Helper.GetMapNames(asset))
-                lines.Add($"            wrappers.Add(\"{mapName}\", new {mapName.AsType()}Actions(player.ID, player.Asset, player.ActionWrapperTable));");
-
-            lines.Add("        }");
-            lines.Add(string.Empty);
-            return lines;
-        }
-
-        private static IEnumerable<string> EventLines()
-        {
-            return new List<string>
             {
-                Event("Action<LocalizedStringRequest>", "OnLocalizedStringRequested"),
-                Event("Action", "OnControlsUpdated"),
-                Event("AnyButtonPressListener", "OnAnyButtonPress"),
-                Event("Action", "OnBindingsChanged"),
-                Event("Action<InputUserChangeInfo>", "OnAnyPlayerInputUserChange"),
-                Event("Action<InputPlayer>", "OnAnyPlayerControlSchemeChanged"),
-                Event("Action<char>", "OnAnyPlayerKeyboardTextInput"),
-                string.Empty
-            };
-        }
+                initialize.WithAttribute("RuntimeInitializeOnLoadMethod", "RuntimeInitializeLoadType.BeforeSceneLoad");
+            }
 
-        private static string Event(string handlerType, string name)
-        {
-            return $"        public static event {handlerType} {name} {{ add => Runtime.{name} += value; remove => Runtime.{name} -= value; }}";
-        }
+            // Manual initialization is the user's to call, so it has to be reachable.
+            if (offlineInputData.InitializationMode == InitializationMode.Manual) initialize.Public();
+            else initialize.Private();
 
-        private static IEnumerable<string> InterfaceLines()
-        {
-            return new List<string>
+            isw.WithMethod(initialize);
+
+            GeneratableMethod factory = SourceGen.NewMethod("CreateActionMapWrappers")
+                .Private()
+                .Static()
+                .Returning<void>()
+                .Taking(GeneratableParameter.Of(INPUT_PLAYER, "player"),
+                    GeneratableParameter.Of("Dictionary<string, IActionMapWrapper>", "wrappers"));
+
+            string[] registrations = new string[asset.actionMaps.Count];
+            for (int i = 0; i < asset.actionMaps.Count; i++)
             {
-                "        public static bool AllowPlayerJoining { get => Runtime.AllowPlayerJoining; set => Runtime.AllowPlayerJoining = value; }",
-                "        public static Vector2 MousePosition => Mouse.current.position.ReadValue();",
-                string.Empty,
-                "        public static InputPlayer GetPlayer(int playerID) => Runtime.GetPlayer(playerID);",
-                "        public static void AddPlayer(int playerID) => Runtime.AddPlayer(playerID);",
-                "        public static void RemovePlayer(int playerID) => Runtime.RemovePlayer(playerID);",
-                string.Empty,
-                "        public static bool ControlSchemeHas<TDevice>(ControlScheme controlScheme, int playerID = 0) where TDevice : InputDevice =>",
-                "            Runtime.ControlSchemeHas<TDevice>(controlScheme.ToId(), playerID);",
-                string.Empty,
-                "        public static void SetContextForAllPlayers(InputContext inputContext) => Runtime.SetContextForAllPlayers(inputContext.ToId());",
-                string.Empty,
-                "        /// <summary>",
-                "        /// Try to get the ActionWrapper for the (deprecated) InputActionReference's action.",
-                "        /// Useful as a transitional tool from normal Unity Input System usage to full ISW integration.",
-                "        /// </summary>",
-                "        public static bool TryConvert(InputActionReference inputActionReference, int playerID, out ActionWrapper actionWrapper) =>",
-                "            Runtime.TryConvert(inputActionReference, playerID, out actionWrapper);",
-                string.Empty,
-                "        /// <summary>",
-                "        /// Single-player overload",
-                "        /// </summary>",
-                "        public static bool TryConvert(InputActionReference inputActionReference, out ActionWrapper actionWrapper) =>",
-                "            Runtime.TryConvert(inputActionReference, out actionWrapper);",
-                string.Empty,
-                "        public static void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme) =>",
-                "            Runtime.ResetBindingForAction(actionReference, controlScheme.ToId());",
-                "        public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int? playerID = null) =>",
-                "            Runtime.ResetAllBindingsForControlScheme(controlScheme.ToId(), playerID);",
-                "        public static void LoadAllBindings(int? playerID = null) => Runtime.LoadAllBindings(playerID);",
-                "        public static void SaveAllBindings(int? playerID = null) => Runtime.SaveAllBindings(playerID);",
-                "        public static void ResetAllBindings(int? playerID = 0) => Runtime.ResetAllBindings(playerID);"
-            };
+                string mapName = asset.actionMaps[i].name;
+                registrations[i] = $"wrappers.Add(\"{mapName}\", new {mapName.AsType()}Actions(player.ID, player.Asset, player.ActionWrapperTable));";
+            }
+
+            isw.WithMethod(factory.Body(registrations));
+        }
+
+        /// <summary>
+        /// Every event simply re-exposes the runtime's, so the accessors forward rather than storing any
+        /// delegate of their own.
+        /// </summary>
+        private static void AddEvents(GeneratableTypeDefinition isw)
+        {
+            AddForwardedEvent(isw, "OnLocalizedStringRequested", "Action<LocalizedStringRequest>");
+            AddForwardedEvent(isw, "OnControlsUpdated", "Action");
+            AddForwardedEvent(isw, "OnAnyButtonPress", "AnyButtonPressListener");
+            AddForwardedEvent(isw, "OnBindingsChanged", "Action");
+            AddForwardedEvent(isw, "OnAnyPlayerInputUserChange", "Action<InputUserChangeInfo>");
+            AddForwardedEvent(isw, "OnAnyPlayerControlSchemeChanged", $"Action<{INPUT_PLAYER}>");
+            AddForwardedEvent(isw, "OnAnyPlayerKeyboardTextInput", "Action<char>");
+        }
+
+        private static void AddForwardedEvent(GeneratableTypeDefinition isw, string eventName, string handlerType)
+        {
+            isw.WithEvent(SourceGen.NewEvent(eventName)
+                .Public()
+                .Static()
+                .Of(handlerType)
+                .Forwarding($"Runtime.{eventName}"));
+        }
+
+        private static void AddPublicInterface(GeneratableTypeDefinition isw)
+        {
+            isw
+                .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
+                .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER)
+                    .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
+                    .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("AddPlayer").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
+                    .Expression($"Runtime.AddPlayer({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("RemovePlayer").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
+                    .Expression($"Runtime.RemovePlayer({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("ControlSchemeHas").Public().Static().Returning<bool>()
+                    .Generic(GeneratableTypeParameter.Of("TDevice", "InputDevice"))
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of<int>(PLAYER_ID, "0"))
+                    .Expression($"Runtime.ControlSchemeHas<TDevice>(controlScheme.ToId(), {PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("SetContextForAllPlayers").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of(INPUT_CONTEXT, "inputContext"))
+                    .Expression("Runtime.SetContextForAllPlayers(inputContext.ToId())"))
+                .WithMethod(SourceGen.NewMethod("TryConvert").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of("InputActionReference", "inputActionReference"),
+                        GeneratableParameter.Of<int>(PLAYER_ID),
+                        GeneratableParameter.Out(ACTION_WRAPPER, "actionWrapper"))
+                    .Expression($"Runtime.TryConvert(inputActionReference, {PLAYER_ID}, out actionWrapper)"))
+                .WithMethod(SourceGen.NewMethod("TryConvert").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of("InputActionReference", "inputActionReference"),
+                        GeneratableParameter.Out(ACTION_WRAPPER, "actionWrapper"))
+                    .Expression("Runtime.TryConvert(inputActionReference, out actionWrapper)"))
+                .WithMethod(SourceGen.NewMethod("ResetBindingForAction").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
+                        GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
+                    .Expression("Runtime.ResetBindingForAction(actionReference, controlScheme.ToId())"))
+                .WithMethod(SourceGen.NewMethod("ResetAllBindingsForControlScheme").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
+                    .Expression($"Runtime.ResetAllBindingsForControlScheme(controlScheme.ToId(), {PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("LoadAllBindings").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
+                    .Expression($"Runtime.LoadAllBindings({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("SaveAllBindings").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
+                    .Expression($"Runtime.SaveAllBindings({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("ResetAllBindings").Public().Static().Returning<void>()
+                    .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "0"))
+                    .Expression($"Runtime.ResetAllBindings({PLAYER_ID})"));
+
+            isw.WithProperty(SourceGen.NewProperty("AllowPlayerJoining", "bool")
+                .Public()
+                .Static()
+                .WithAccessors("Runtime.AllowPlayerJoining", "Runtime.AllowPlayerJoining = value"));
         }
     }
 }

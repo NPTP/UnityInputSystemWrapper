@@ -28,9 +28,6 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_RuntimeInputDataField = nameof(runtimeInputData);
 #endif
 
-        [SerializeField] private TextAsset actionsTemplateFile;
-        internal TextAsset ActionsTemplateFile => actionsTemplateFile;
-
         #endregion
 
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;

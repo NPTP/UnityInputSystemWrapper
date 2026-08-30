@@ -1,74 +1,85 @@
 using System.Collections.Generic;
-using System.Linq;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.UnitySourceGen.Editor;
+using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
 {
     /// <summary>
     /// Emits the ControlScheme and InputContext enums and the extension methods that convert them to the
-    /// id types the package runtime works in. Enum values are emitted in asset order so that the cast
-    /// between an enum value and an id index is exact.
+    /// id types the package runtime works in. Enum values are emitted explicitly, in asset order, so that
+    /// the cast between an enum value and an id index stays exact even if the asset is reordered.
     /// </summary>
     internal static class EnumEmitter
     {
-        internal static List<string> BuildControlSchemeLines(InputActionAsset asset)
+        internal static GeneratableFile BuildControlSchemeFile(InputActionAsset asset)
         {
-            List<string> lines = Header();
+            GeneratableEnum controlScheme = SourceGen.NewEnum("ControlScheme", AccessModifier.Public)
+                .InNamespace(GeneratedNamespaces.ENUMS)
+                .WithMember("None", -1);
 
-            lines.Add("    public enum ControlScheme");
-            lines.Add("    {");
-            lines.Add("        /// <summary>");
-            lines.Add("        /// Corresponds to \"Null\" string for newly created, unassigned players in Unity's PlayerInput.");
-            lines.Add("        /// </summary>");
-            lines.Add("        None = -1,");
-            lines.AddRange(asset.controlSchemes.Select((controlScheme, i) => $"        {controlScheme.name.AsEnumMember()} = {i},"));
-            lines.Add("    }");
-            lines.Add(string.Empty);
-            lines.Add("    public static class ControlSchemeExtensions");
-            lines.Add("    {");
-            lines.Add("        internal static ControlSchemeId ToId(this ControlScheme controlScheme) => InputRuntime.Current.GetControlSchemeId((int)controlScheme);");
-            lines.Add(string.Empty);
-            lines.Add("        public static bool IsMouseBased(this ControlScheme controlScheme) => controlScheme.ToId().IsMouseBased;");
-            lines.Add("        public static bool IsGamepadBased(this ControlScheme controlScheme) => controlScheme.ToId().IsGamepadBased;");
-            lines.Add("    }");
-            lines.Add("}");
-            return lines;
+            for (int i = 0; i < asset.controlSchemes.Count; i++)
+            {
+                controlScheme.WithMember(asset.controlSchemes[i].name.AsEnumMember(), i);
+            }
+
+            GeneratableTypeDefinition extensions = SourceGen.NewStaticClass("ControlSchemeExtensions", AccessModifier.Public)
+                .InNamespace(GeneratedNamespaces.ENUMS)
+                .WithDirective(GeneratedNamespaces.ROOT)
+                .WithMethod(SourceGen.NewMethod("ToId")
+                    .Internal()
+                    .Returning("ControlSchemeId")
+                    .Extending("ControlScheme", "controlScheme")
+                    .Expression("InputRuntime.Current.GetControlSchemeId((int)controlScheme)"))
+                .WithMethod(SourceGen.NewMethod("IsMouseBased")
+                    .Public()
+                    .Returning<bool>()
+                    .Extending("ControlScheme", "controlScheme")
+                    .Expression("controlScheme.ToId().IsMouseBased"))
+                .WithMethod(SourceGen.NewMethod("IsGamepadBased")
+                    .Public()
+                    .Returning<bool>()
+                    .Extending("ControlScheme", "controlScheme")
+                    .Expression("controlScheme.ToId().IsGamepadBased"));
+
+            return SourceGen.NewFile()
+                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .Containing(controlScheme, extensions);
         }
 
-        internal static List<string> BuildInputContextLines(InputContextInfo[] inputContexts)
+        internal static GeneratableFile BuildInputContextFile(InputContextInfo[] inputContexts)
         {
-            List<string> lines = Header();
+            GeneratableEnum inputContext = SourceGen.NewEnum("InputContext", AccessModifier.Public)
+                .InNamespace(GeneratedNamespaces.ENUMS);
 
-            lines.Add("    public enum InputContext");
-            lines.Add("    {");
+            List<string> headerComment = new(Helper.GetGeneratorNoticeLines());
+
             if (inputContexts == null || inputContexts.Length == 0)
             {
-                lines.Add("        // >>> WARNING: No InputContexts have been defined in your OfflineInputData asset.");
-                lines.Add("        // >>> Add at least 1 InputContext, then re-run input code generation.");
+                headerComment.Add("// >>> WARNING: No InputContexts have been defined in your OfflineInputData asset.");
+                headerComment.Add("// >>> Add at least 1 InputContext, then re-run input code generation.");
             }
             else
             {
-                lines.AddRange(inputContexts.Select((context, i) => $"        {context.Name.AsEnumMember()} = {i},"));
+                for (int i = 0; i < inputContexts.Length; i++)
+                {
+                    inputContext.WithMember(inputContexts[i].Name.AsEnumMember(), i);
+                }
             }
 
-            lines.Add("    }");
-            lines.Add(string.Empty);
-            lines.Add("    public static class InputContextExtensions");
-            lines.Add("    {");
-            lines.Add("        internal static InputContextId ToId(this InputContext inputContext) => new((int)inputContext);");
-            lines.Add("    }");
-            lines.Add("}");
-            return lines;
-        }
+            GeneratableTypeDefinition extensions = SourceGen.NewStaticClass("InputContextExtensions", AccessModifier.Public)
+                .InNamespace(GeneratedNamespaces.ENUMS)
+                .WithMethod(SourceGen.NewMethod("ToId")
+                    .Internal()
+                    .Returning("InputContextId")
+                    .Extending("InputContext", "inputContext")
+                    .Expression("new((int)inputContext)"));
 
-        private static List<string> Header()
-        {
-            List<string> lines = new() { "using NPTP.InputSystemWrapper;" , string.Empty };
-            lines.AddRange(Helper.GetGeneratorNoticeLines());
-            lines.Add($"namespace {GeneratedNamespaces.ENUMS}");
-            lines.Add("{");
-            return lines;
+            return SourceGen.NewFile()
+                .WithHeaderComment(headerComment.ToArray())
+                .Containing(inputContext, extensions);
         }
     }
 }

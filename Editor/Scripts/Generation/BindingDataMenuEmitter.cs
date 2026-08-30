@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.UnitySourceGen.Editor;
+using NPTP.UnitySourceGen.Editor.Enums;
+using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using UnityEditor;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -12,44 +16,35 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     internal static class BindingDataMenuEmitter
     {
         private const string MENU_PATH = "Input/Binding Data/";
+        private const string EDITOR_ONLY = "UNITY_EDITOR";
 
-        internal static List<string> BuildLines()
+        internal static GeneratableFile BuildFile()
         {
-            List<string> lines = new()
-            {
-                "#if UNITY_EDITOR",
-                "using UnityEditor;",
-                string.Empty
-            };
-
-            lines.AddRange(Helper.GetGeneratorNoticeLines());
-            lines.Add($"namespace {GeneratedNamespaces.ROOT}");
-            lines.Add("{");
-            lines.Add("    internal static class BindingDataMenuItems");
-            lines.Add("    {");
-
-            List<(string Name, string Guid)> bindingDataAssets = FindBindingDataAssets();
-            if (bindingDataAssets.Count == 0)
-            {
-                lines.Add("        // No BindingData assets found in the project when this was generated.");
-            }
+            GeneratableTypeDefinition menuItems = SourceGen.NewStaticClass("BindingDataMenuItems", AccessModifier.Internal)
+                .InNamespace(GeneratedNamespaces.ROOT)
+                .WithDirective("UnityEditor");
 
             HashSet<string> usedMethodNames = new();
-            foreach ((string name, string guid) in bindingDataAssets)
+            foreach ((string name, string guid) in FindBindingDataAssets())
             {
-                string methodName = UniqueMethodName(name, usedMethodNames);
-                lines.Add($"        [MenuItem(\"{MENU_PATH}{name}\", isValidateFunction: false, 100)]");
-                lines.Add($"        private static void Select{methodName}()");
-                lines.Add("        {");
-                lines.Add($"            Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(\"{guid}\"));");
-                lines.Add("        }");
-                lines.Add(string.Empty);
+                // Selection is by GUID rather than path, so moving or renaming the asset does not break
+                // the shortcut until the next generation run.
+                menuItems.WithMethod(SourceGen.NewMethod($"Select{UniqueMethodName(name, usedMethodNames)}")
+                    .Private()
+                    .Static()
+                    .Returning<void>()
+                    .WithAttribute("MenuItem",
+                        AddableAttribute.StringArgument(MENU_PATH + name),
+                        "isValidateFunction: false",
+                        "100")
+                    .Expression($"Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(\"{guid}\"))"));
             }
 
-            lines.Add("    }");
-            lines.Add("}");
-            lines.Add("#endif");
-            return lines;
+            // The whole file is editor-only, but lives in the generated runtime assembly.
+            return SourceGen.NewFile()
+                .OnlyIf(EDITOR_ONLY)
+                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .Containing(menuItems);
         }
 
         /// <summary>

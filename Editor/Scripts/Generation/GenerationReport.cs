@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Editor.Utilities;
+using NPTP.UnitySourceGen.Editor.ScriptWriting;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -15,6 +16,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         internal static void Begin()
         {
             entries = new List<string>();
+            writtenPaths.Clear();
+            unchangedCount = 0;
         }
 
         /// <summary>
@@ -24,6 +27,32 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             entries = null;
         }
+
+        /// <summary>
+        /// Record what a write did. Files already up to date are counted rather than listed, so the report
+        /// shows what actually changed.
+        /// </summary>
+        internal static void RecordWrite(string assetPath, ScriptWriteResult result)
+        {
+            writtenPaths.Add(assetPath);
+
+            switch (result)
+            {
+                case ScriptWriteResult.Written:
+                    Record(assetPath);
+                    break;
+                case ScriptWriteResult.Unchanged:
+                    unchangedCount++;
+                    break;
+            }
+        }
+
+        private static int unchangedCount;
+
+        private static readonly HashSet<string> writtenPaths = new();
+
+        /// <summary>True if this run produced the file, whether it changed or was already correct.</summary>
+        internal static bool WasWritten(string assetPath) => writtenPaths.Contains(assetPath);
 
         internal static void RecordFile(string systemFilePath)
         {
@@ -44,7 +73,9 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             if (entries.Count == 0)
             {
+                ISWDebug.Log($"{header}: everything already up to date ({unchangedCount} files).");
                 entries = null;
+                unchangedCount = 0;
                 return;
             }
 
