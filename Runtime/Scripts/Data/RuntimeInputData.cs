@@ -89,9 +89,9 @@ namespace NPTP.InputSystemWrapper.Data
                 : controlSchemes[controlSchemeId.Index].BindingData;
         }
 
-        internal InputContextDefinition GetContextDefinition(InputContext inputContext)
+        internal InputContextDefinition GetContextDefinition(InputContextId inputContextId)
         {
-            int index = (int)inputContext;
+            int index = inputContextId.Index;
             return inputContexts == null || index < 0 || index >= inputContexts.Length ? null : inputContexts[index];
         }
 

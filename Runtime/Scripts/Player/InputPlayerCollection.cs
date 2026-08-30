@@ -185,11 +185,11 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
-        internal void SetContextForAll(InputContext inputContext)
+        internal void SetContextForAll(InputContextId inputContextId)
         {
             foreach (InputPlayer player in Players)
             {
-                player.InputContext = inputContext;
+                player.InputContextId = inputContextId;
             }
         }
         

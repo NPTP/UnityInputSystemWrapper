@@ -61,7 +61,7 @@ namespace NPTP.InputSystemWrapper.Player
                 enabled = value;
                 playerInputGameObject.SetActive(value);
                 if (value)
-                    InputContext = inputContext;
+                    InputContextId = inputContextId;
                 else
                     Asset.Disable();
                 // UpdateLastUsedDevice();
@@ -69,18 +69,24 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
         
-        private InputContext inputContext;
-        public InputContext InputContext
+        private InputContextId inputContextId;
+        internal InputContextId InputContextId
         {
-            get => inputContext;
+            get => inputContextId;
             set
             {
-                inputContext = value;
+                inputContextId = value;
                 EnableMapsForContext(value);
 #if UNITY_EDITOR
                 EDITOR_OnInputContextChanged?.Invoke(this);
 #endif
             }
+        }
+
+        public InputContext InputContext
+        {
+            get => (InputContext)inputContextId.Index;
+            set => InputContextId = new InputContextId((int)value);
         }
 
         public int ID { get; }
@@ -290,7 +296,7 @@ namespace NPTP.InputSystemWrapper.Player
                 actionMapWrapper.DisableAndUnregisterCallbacks();
         }
 
-        private void EnableMapsForContext(InputContext context)
+        private void EnableMapsForContext(InputContextId context)
         {
             if (!Enabled)
             {

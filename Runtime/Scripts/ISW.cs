@@ -189,7 +189,7 @@ namespace NPTP.InputSystemWrapper
 
         public static void SetContextForAllPlayers(InputContext inputContext)
         {
-            playerCollection.SetContextForAll(inputContext);
+            playerCollection.SetContextForAll(new InputContextId((int)inputContext));
         }
         
         /// <summary>
