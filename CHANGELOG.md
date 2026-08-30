@@ -1,6 +1,26 @@
 # Input System Wrapper
 ## Changelog
 
+5.0.0
+- Package can now be installed read-only, e.g. by git URL. No code is generated into the package any more
+- Generated code lives in its own assembly in your project (`Assets/ISW.Generated` by default), which reaches package internals through `InternalsVisibleTo`
+- Editable input assets are created in your project on first generation; the package's copies are defaults only
+- Code generation is built on the UnitySourceGen package rather than text templates and markers
+- Generation only rewrites files whose contents changed, and reports one console entry per run instead of one per file
+- Stale generated scripts are deleted when an action map is renamed or removed
+- Data that was generated as C# now lives on the `RuntimeInputData` asset: control scheme metadata, input contexts, event system options and rebinding paths
+- `ISW` is a generated facade over the new `InputRuntime`, which is an instance rather than a static class
+- `InputPlayer` is no longer partial. Its generated members moved to extension methods:
+  - `player.UI` becomes `player.UI()`
+  - `player.CurrentControlScheme` becomes `player.CurrentControlScheme()`
+  - `player.InputContext` becomes `player.GetInputContext()` / `player.SetInputContext(x)`
+  - `changeInfo.ControlScheme` becomes `changeInfo.ControlScheme()`
+- `ISW.Player(id)` renamed to `ISW.GetPlayer(id)`
+- `ControlScheme.None` is now `-1`, so enum values match the control scheme order in the input action asset. Re-check any serialized `ControlScheme` fields
+- `ControlSchemeBasis` and the default context are keyed by name rather than by enum, so re-set them in `OfflineInputData`
+- Generation warns when an input context names an action map that does not exist, or has no active maps
+- New `Input > Binding Data` submenu with a shortcut per binding data asset
+
 4.0.0
 - Rename `Input` class to `ISW` (acronym) to avoid needing aliases against Unity's built-in "Input" class.
 - Multiplayer support initial version working.
