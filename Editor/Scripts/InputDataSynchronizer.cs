@@ -15,8 +15,20 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal static class InputDataSynchronizer
     {
-        private const string POINTER_LAYOUT = "Pointer";
-        private const string GAMEPAD_LAYOUT = "Gamepad";
+        /// <summary>
+        /// Every device layout the input system registers directly under InputDevice, against the family
+        /// it stands for. Anything else is derived from one of these, so matching by inheritance puts
+        /// every device in a family.
+        /// </summary>
+        private static readonly (string Layout, ControlSchemeBasisSpec Family)[] deviceFamilies =
+        {
+            ("Pointer", ControlSchemeBasisSpec.IsPointerBased),
+            ("Gamepad", ControlSchemeBasisSpec.IsGamepadBased),
+            ("Keyboard", ControlSchemeBasisSpec.IsKeyboardBased),
+            ("Joystick", ControlSchemeBasisSpec.IsJoystickBased),
+            ("Sensor", ControlSchemeBasisSpec.IsSensorBased),
+            ("TrackedDevice", ControlSchemeBasisSpec.IsTrackedDeviceBased)
+        };
 
         internal static void Synchronize(InputData inputData)
         {
@@ -261,8 +273,7 @@ namespace NPTP.InputSystemWrapper.Editor
 
         /// <summary>
         /// Which device families a control scheme is built on, taken from the devices it requires. A
-        /// scheme with both a pointer and a gamepad is both. Layouts are matched by inheritance, so a
-        /// mouse, pen or touchscreen all count as pointers, and a DualShockGamepad counts as a gamepad.
+        /// scheme can be several at once, e.g. one requiring a keyboard and a mouse.
         /// </summary>
         private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
         {
@@ -270,8 +281,10 @@ namespace NPTP.InputSystemWrapper.Editor
 
             foreach (string layout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
             {
-                if (InputSystem.IsFirstLayoutBasedOnSecond(layout, POINTER_LAYOUT)) basis |= ControlSchemeBasisSpec.IsPointerBased;
-                if (InputSystem.IsFirstLayoutBasedOnSecond(layout, GAMEPAD_LAYOUT)) basis |= ControlSchemeBasisSpec.IsGamepadBased;
+                foreach ((string familyLayout, ControlSchemeBasisSpec family) in deviceFamilies)
+                {
+                    if (InputSystem.IsFirstLayoutBasedOnSecond(layout, familyLayout)) basis |= family;
+                }
             }
 
             return basis;

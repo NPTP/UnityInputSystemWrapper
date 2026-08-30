@@ -32,16 +32,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Returning("ControlSchemeId")
                     .Extending("ControlScheme", "controlScheme")
                     .Expression("InputRuntime.Current.GetControlSchemeId((int)controlScheme)"))
-                .WithMethod(SourceGen.NewMethod("IsPointerBased")
-                    .Public()
-                    .Returning<bool>()
-                    .Extending("ControlScheme", "controlScheme")
-                    .Expression("controlScheme.ToId().IsPointerBased"))
-                .WithMethod(SourceGen.NewMethod("IsGamepadBased")
-                    .Public()
-                    .Returning<bool>()
-                    .Extending("ControlScheme", "controlScheme")
-                    .Expression("controlScheme.ToId().IsGamepadBased"));
+                .WithMethods(BuildDeviceFamilyMethods());
 
             return SourceGen.NewFile()
                 .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
@@ -79,6 +70,31 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             return SourceGen.NewFile()
                 .WithHeaderComment(headerComment.ToArray())
                 .Containing(inputContext, extensions);
+        }
+
+        /// <summary>
+        /// One test per device family, so a call site can ask what a control scheme is built on without
+        /// naming the id struct behind it.
+        /// </summary>
+        private static GeneratableMethod[] BuildDeviceFamilyMethods()
+        {
+            string[] families =
+            {
+                "IsPointerBased", "IsGamepadBased", "IsKeyboardBased",
+                "IsJoystickBased", "IsSensorBased", "IsTrackedDeviceBased"
+            };
+
+            GeneratableMethod[] methods = new GeneratableMethod[families.Length];
+            for (int i = 0; i < families.Length; i++)
+            {
+                methods[i] = SourceGen.NewMethod(families[i])
+                    .Public()
+                    .Returning<bool>()
+                    .Extending("ControlScheme", "controlScheme")
+                    .Expression($"controlScheme.ToId().{families[i]}");
+            }
+
+            return methods;
         }
     }
 }
