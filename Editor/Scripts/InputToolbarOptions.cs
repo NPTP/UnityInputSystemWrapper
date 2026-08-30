@@ -27,7 +27,7 @@ namespace NPTP.InputSystemWrapper.Editor
         [MenuItem(RUNTIME_INPUT_DATA, isValidateFunction: false, 100)]
         private static void RuntimeInputData()
         {
-            SelectAsset(Helper.OfflineInputData.RuntimeInputData);
+            SelectAsset(Helper.OfflineInputData == null ? null : Helper.OfflineInputData.RuntimeInputData);
         }
 
         [MenuItem(OPEN_DEBUGGER_WINDOW, isValidateFunction: false, 200)]

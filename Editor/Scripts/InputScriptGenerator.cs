@@ -46,6 +46,7 @@ namespace NPTP.InputSystemWrapper.Editor
             Helper.WriteLinesToFile(EnumEmitter.BuildInputContextLines(offlineInputData.InputContexts), outputFolder + "InputContext.cs");
             Helper.WriteLinesToFile(InputPlayerExtensionsEmitter.BuildLines(asset), outputFolder + "InputPlayerExtensions.cs");
             Helper.WriteLinesToFile(ISWEmitter.BuildLines(asset, offlineInputData), outputFolder + "ISW.cs");
+            Helper.WriteLinesToFile(BindingDataMenuEmitter.BuildLines(), outputFolder + "BindingDataMenuItems.cs");
 
             // Control scheme metadata, input contexts and rebinding paths are plain data, so they get written
             // into the RuntimeInputData asset rather than generated as C#.
