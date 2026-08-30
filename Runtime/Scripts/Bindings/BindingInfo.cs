@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         [FormerlySerializedAs("displayName")]
         [SerializeField]
         private string localizationKey;
-        
+
         /// <summary>
         /// If no localization is hooked into Input.OnLocalizedStringRequested, this
         /// will simply return the localization key string itself.
@@ -37,5 +37,20 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         [SerializeField] private Sprite sprite;
         public Sprite Sprite => sprite;
+
+#if UNITY_EDITOR
+        internal const string EDITOR_LocalizationKeyField = nameof(localizationKey);
+        internal const string EDITOR_SpriteField = nameof(sprite);
+
+        /// <summary>
+        /// Starts a binding off with the display name the input system gives the control, so a generated
+        /// asset is readable before anyone edits it.
+        /// </summary>
+        internal BindingInfo(string localizationKey)
+        {
+            this.localizationKey = localizationKey;
+            sprite = null;
+        }
+#endif
     }
 }

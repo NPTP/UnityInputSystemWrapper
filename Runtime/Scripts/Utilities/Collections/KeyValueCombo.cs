@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Utilities.Collections
@@ -11,14 +11,19 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
     {
         [SerializeField] private TKey key;
         internal TKey Key => key;
-        
+
         [SerializeField] private TValue value;
         internal TValue Value => value;
-        
+
         internal KeyValueCombo(TKey key, TValue value)
         {
             this.key = key;
             this.value = value;
         }
+
+#if UNITY_EDITOR
+        internal const string EDITOR_KeyField = nameof(key);
+        internal const string EDITOR_ValueField = nameof(value);
+#endif
     }
 }

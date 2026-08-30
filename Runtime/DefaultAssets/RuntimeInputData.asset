@@ -22,25 +22,28 @@ MonoBehaviour:
   customInteractions: []
   controlSchemes:
   - controlSchemeName: Keyboard&Mouse
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Gamepad
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Touch
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Joystick
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: XR
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
+  deviceBindingData:
+  - deviceLayoutName: Keyboard
+    bindingData: {fileID: 11400000, guid: 5f09eeb46fa5d824693aa90c6e28db1b, type: 2}
+  - deviceLayoutName: Mouse
+    bindingData: {fileID: 11400000, guid: e3237326c3dc69b41b36e821f4428859, type: 2}
+  - deviceLayoutName: Gamepad
+    bindingData: {fileID: 11400000, guid: ac71e3bea7814754cb46b25eb4ba79b0, type: 2}
+  - deviceLayoutName: Touchscreen
+    bindingData: {fileID: 11400000, guid: 7beb8025558e2434b96f040c07565278, type: 2}
+  - deviceLayoutName: Joystick
+    bindingData: {fileID: 11400000, guid: 4f5e8bd00dcda674baa89064f58b6713, type: 2}
+  - deviceLayoutName: XRController
+    bindingData: {fileID: 11400000, guid: 2775955cedea9854f96a69c9a016b0de, type: 2}
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape

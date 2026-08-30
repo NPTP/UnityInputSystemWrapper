@@ -38,4 +38,3 @@ TODO's exist in the code for immediate next attention, as well as the following 
 #### Future nice-to-haves:
 - Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
-- Control schemes currently generate a field in RuntimeInputData for their BindingData, but that's all. Ideally, have them automatically generate a BindingData asset (if it does not already exist) that contains all of the control paths for the devices in the control scheme, with default display names/localization keys.

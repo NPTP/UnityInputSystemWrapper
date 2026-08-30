@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using System.Linq;
 using UnityEngine.InputSystem;
@@ -15,24 +16,24 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private GUIStyle HeaderStyle => new(EditorStyles.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
         private GUIStyle WarningStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 12, normal = new GUIStyleState {textColor = Color.yellow}};
         private GUIStyle SpecialNoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
-        
+
         private SerializedProperty initializationMode;
-        
+
         private SerializedProperty defaultContextIndex;
         private SerializedProperty inputContexts;
-        
+
         private SerializedProperty controlSchemeBases;
-        
+
         private SerializedProperty loadAllBindingOverridesOnInitialize;
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
-        
+
         private SerializedProperty moveRepeatDelay;
         private SerializedProperty moveRepeatRate;
         private SerializedProperty deselectOnBackgroundClick;
         private SerializedProperty pointerBehavior;
         private SerializedProperty cursorLockBehavior;
-        
+
         private SerializedProperty point;
         private SerializedProperty leftClick;
         private SerializedProperty middleClick;
@@ -49,19 +50,19 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             defaultContextIndex = serializedObject.FindProperty(nameof(defaultContextIndex));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
-            
+
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
             loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(nameof(loadAllBindingOverridesOnInitialize));
             bindingExcludedPaths = serializedObject.FindProperty(nameof(bindingExcludedPaths));
             bindingCancelPaths = serializedObject.FindProperty(nameof(bindingCancelPaths));
-            
+
             moveRepeatDelay = serializedObject.FindProperty(nameof(moveRepeatDelay));
             moveRepeatRate = serializedObject.FindProperty(nameof(moveRepeatRate));
             deselectOnBackgroundClick = serializedObject.FindProperty(nameof(deselectOnBackgroundClick));
             pointerBehavior = serializedObject.FindProperty(nameof(pointerBehavior));
             cursorLockBehavior = serializedObject.FindProperty(nameof(cursorLockBehavior));
-            
+
             point = serializedObject.FindProperty(nameof(point));
             leftClick = serializedObject.FindProperty(nameof(leftClick));
             middleClick = serializedObject.FindProperty(nameof(middleClick));
@@ -72,7 +73,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             cancel = serializedObject.FindProperty(nameof(cancel));
             trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
-            
+
             PopulateControlSchemeBases();
         }
 
@@ -92,13 +93,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void PopulateControlSchemeBases()
         {
-            Dictionary<string, ControlSchemeBasis.BasisSpec> schemeToSpec = new();
+            Dictionary<string, ControlSchemeBasisSpec> schemeToSpec = new();
             for (int i = 0; i < controlSchemeBases.arraySize; i++)
             {
                 if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is ControlSchemeBasis basis)
                     schemeToSpec[basis.ControlSchemeName] = basis.Basis;
             }
-            
+
             controlSchemeBases.ClearArray();
 
             InputActionAsset asset = ((OfflineInputData)target).RuntimeInputData == null ? null : ((OfflineInputData)target).RuntimeInputData.InputActionAsset;
@@ -106,7 +107,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             int index = 0;
             foreach (string scheme in enumValues)
             {
-                schemeToSpec.TryGetValue(scheme, out ControlSchemeBasis.BasisSpec basisSpec);
+                schemeToSpec.TryGetValue(scheme, out ControlSchemeBasisSpec basisSpec);
                 controlSchemeBases.InsertArrayElementAtIndex(index);
                 controlSchemeBases.GetArrayElementAtIndex(index).boxedValue = new ControlSchemeBasis(scheme, basisSpec);
                 index++;
@@ -140,9 +141,9 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             DrawDefaultContextPopup();
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
-            
+
             EditorInspectorUtility.DrawHorizontalLine();
-            
+
             DrawHeader("Control Schemes");
             int length = controlSchemeBases.arraySize;
             if (length == 0)
@@ -156,17 +157,17 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                     SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
                     if (basisProperty.boxedValue is not ControlSchemeBasis basis)
                         continue;
-                    
+
                     if (string.IsNullOrEmpty(basis.ControlSchemeName))
                         continue;
-                    
+
                     SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlSchemeName, (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+                    specProperty.enumValueIndex = (int)(ControlSchemeBasisSpec)EditorGUILayout.EnumPopup(basis.ControlSchemeName, (ControlSchemeBasisSpec)specProperty.enumValueIndex);
                 }
             }
 
             EditorInspectorUtility.DrawHorizontalLine();
-            
+
             DrawHeader("Bindings");
             EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
             EditorGUILayout.Space();
@@ -176,14 +177,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(bindingCancelPaths);
 
             EditorInspectorUtility.DrawHorizontalLine();
-            
+
             DrawHeader("Event System");
             EditorGUILayout.PropertyField(moveRepeatDelay);
             EditorGUILayout.PropertyField(moveRepeatRate);
             EditorGUILayout.PropertyField(deselectOnBackgroundClick);
             EditorGUILayout.PropertyField(pointerBehavior);
             EditorGUILayout.PropertyField(cursorLockBehavior);
-            
+
             EditorGUILayout.PropertyField(point);
             EditorGUILayout.PropertyField(leftClick);
             EditorGUILayout.PropertyField(middleClick);

@@ -1,4 +1,5 @@
 using System;
+using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Data
@@ -11,24 +12,17 @@ namespace NPTP.InputSystemWrapper.Data
     [Serializable]
     internal class ControlSchemeBasis
     {
-        internal enum BasisSpec
-        {
-            Undefined = 0,
-            IsMouseBased,
-            IsGamepadBased
-        }
-
         [SerializeField] private string controlSchemeName;
         internal string ControlSchemeName => controlSchemeName;
 
-        [SerializeField] private BasisSpec basis;
-        internal BasisSpec Basis
+        [SerializeField] private ControlSchemeBasisSpec basis;
+        internal ControlSchemeBasisSpec Basis
         {
             get => basis;
             set => basis = value;
         }
 
-        internal ControlSchemeBasis(string controlSchemeName, BasisSpec basis)
+        internal ControlSchemeBasis(string controlSchemeName, ControlSchemeBasisSpec basis)
         {
             this.controlSchemeName = controlSchemeName;
             this.basis = basis;

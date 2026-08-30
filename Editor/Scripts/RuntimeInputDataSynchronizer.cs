@@ -4,6 +4,7 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -28,6 +29,7 @@ namespace NPTP.InputSystemWrapper.Editor
             CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingExcludedPathsField), offlineInputData.BindingExcludedPaths);
             CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingCancelPathsField), offlineInputData.BindingCancelPaths);
             SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
+            SyncDeviceBindingData(serializedObject, runtimeInputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, offlineInputData);
             SyncInputContexts(serializedObject, offlineInputData);
             WarnAboutUnknownMapNames(offlineInputData, runtimeInputData.InputActionAsset);
@@ -155,24 +157,12 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Rebuild the control scheme list from the asset's control schemes, preserving any BindingData
-        /// the user has already assigned to a control scheme of the same name, and baking in each scheme's
-        /// device basis from the offline data.
+        /// Rebuild the control scheme list from the asset's control schemes, baking in each scheme's device
+        /// basis from the offline data.
         /// </summary>
         private static void SyncControlSchemes(SerializedObject serializedObject, OfflineInputData offlineInputData, InputActionAsset asset)
         {
             SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_ControlSchemesField);
-
-            Dictionary<string, BindingData> existingByName = new();
-            for (int i = 0; i < entries.arraySize; i++)
-            {
-                SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                string name = entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue;
-                if (!string.IsNullOrEmpty(name))
-                {
-                    existingByName[name] = entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue as BindingData;
-                }
-            }
 
             entries.arraySize = asset == null ? 0 : asset.controlSchemes.Count;
             if (asset == null)
@@ -185,20 +175,98 @@ namespace NPTP.InputSystemWrapper.Editor
                 string controlSchemeName = asset.controlSchemes[i].name;
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByName.TryGetValue(controlSchemeName, out BindingData bindingData) ? bindingData : null;
-
-                ControlSchemeBasis.BasisSpec basis = GetBasis(offlineInputData, controlSchemeName);
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsMouseBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsMouseBased;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsGamepadBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsGamepadBased;
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(offlineInputData, controlSchemeName);
             }
         }
 
-        private static ControlSchemeBasis.BasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
+        /// <summary>
+        /// Rebuild the binding data list from every device used by any control scheme, deduplicated: a
+        /// device shared by several schemes gets one set of binding data, not one per scheme. Assets the
+        /// user has already assigned to a device are kept.
+        /// </summary>
+        private static void SyncDeviceBindingData(SerializedObject serializedObject, InputActionAsset asset)
+        {
+            SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_DeviceBindingDataField);
+
+            Dictionary<string, BindingData> existingByDevice = new();
+            for (int i = 0; i < entries.arraySize; i++)
+            {
+                SerializedProperty entry = entries.GetArrayElementAtIndex(i);
+                string deviceLayoutName = entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue;
+                if (!string.IsNullOrEmpty(deviceLayoutName))
+                {
+                    existingByDevice[deviceLayoutName] = entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue as BindingData;
+                }
+            }
+
+            List<string> deviceLayouts = GetAllDeviceLayouts(asset);
+            entries.arraySize = deviceLayouts.Count;
+
+            for (int i = 0; i < deviceLayouts.Count; i++)
+            {
+                string deviceLayoutName = deviceLayouts[i];
+                SerializedProperty entry = entries.GetArrayElementAtIndex(i);
+                entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue = deviceLayoutName;
+                entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue =
+                    existingByDevice.GetValueOrDefault(deviceLayoutName) ?? GetOrCreateBindingData(deviceLayoutName);
+            }
+        }
+
+        /// <summary>
+        /// Every distinct device layout named by any control scheme, in the order first encountered so the
+        /// list stays stable between runs.
+        /// </summary>
+        private static List<string> GetAllDeviceLayouts(InputActionAsset asset)
+        {
+            List<string> deviceLayouts = new();
+            if (asset == null)
+            {
+                return deviceLayouts;
+            }
+
+            foreach (InputControlScheme controlScheme in asset.controlSchemes)
+            {
+                foreach (string deviceLayout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
+                {
+                    if (!deviceLayouts.Contains(deviceLayout)) deviceLayouts.Add(deviceLayout);
+                }
+            }
+
+            return deviceLayouts;
+        }
+
+        /// <summary>
+        /// The binding data asset for a device that has none assigned yet. An existing asset named after
+        /// the device is reused; otherwise one is created, populated with every control that device can
+        /// produce so it is useful before anyone edits it.
+        /// </summary>
+        private static BindingData GetOrCreateBindingData(string deviceLayoutName)
+        {
+            string assetName = deviceLayoutName.AsType();
+
+            if (Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
+            {
+                return existing;
+            }
+
+            BindingData created = ScriptableObject.CreateInstance<BindingData>();
+            foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+            {
+                created.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
+            }
+
+            string assetPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
+            AssetDatabase.CreateAsset(created, assetPath);
+            Generation.GenerationReport.Record($"{assetPath} (created for device '{deviceLayoutName}')");
+
+            return created;
+        }
+
+        private static ControlSchemeBasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
         {
             if (offlineInputData.ControlSchemeBases == null)
             {
-                return ControlSchemeBasis.BasisSpec.Undefined;
+                return ControlSchemeBasisSpec.Undefined;
             }
 
             foreach (ControlSchemeBasis controlSchemeBasis in offlineInputData.ControlSchemeBases)
@@ -209,7 +277,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 }
             }
 
-            return ControlSchemeBasis.BasisSpec.Undefined;
+            return ControlSchemeBasisSpec.Undefined;
         }
     }
 }

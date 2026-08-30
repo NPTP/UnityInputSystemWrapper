@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
         public ICollection<TKey> Keys => internalDictionary.Keys;
         public ICollection<TValue> Values => internalDictionary.Values;
         public int Count => internalDictionary.Count;
-        
+
         public TValue this[TKey key]
         {
             get => internalDictionary[key];
@@ -39,7 +39,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
                 return keys[index];
             }
         }
-        
+
         internal void AddRange(IDictionary<TKey, TValue> items)
         {
             foreach (TKey key in items.Keys)
@@ -66,8 +66,24 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
                 TryAdd(keyValuePair.Key, keyValuePair.Value);
             }
         }
-        
+
 #if UNITY_EDITOR
+        internal const string EDITOR_KeyValueCombosField = nameof(keyValueCombos);
+
+        /// <summary>
+        /// Whether the serialized list already holds this key. Unlike ContainsKey this does not depend on
+        /// the deserialized lookup, which is empty on an instance built in code rather than loaded.
+        /// </summary>
+        internal bool EDITOR_ContainsKey(TKey key)
+        {
+            foreach (KeyValueCombo<TKey, TValue> keyValueCombo in keyValueCombos)
+            {
+                if (EqualityComparer<TKey>.Default.Equals(keyValueCombo.Key, key)) return true;
+            }
+
+            return false;
+        }
+
         internal void EDITOR_SetKey(TValue value, TKey newKey)
         {
             for (int i = 0; i < keyValueCombos.Count; i++)
@@ -96,7 +112,7 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
                     return;
                 }
             }
-            
+
             keyValueCombos.Add(new KeyValueCombo<TKey, TValue>(key, value));
         }
 

@@ -15,6 +15,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     internal static class ProjectAssets
     {
         private const string RESOURCES_FOLDER_NAME = "Resources";
+        private const string BINDING_DATA_FOLDER_NAME = "BindingData";
         private const string PACKAGE_DEFAULTS_FOLDER_NAME = "DefaultAssets";
         private const string RUNTIME_INPUT_DATA_NAME = "RuntimeInputData";
         private const string OFFLINE_INPUT_DATA_NAME = "OfflineInputData";
@@ -23,6 +24,21 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// The asset-database path of the project's own Resources folder for this package's assets.
         /// </summary>
         internal static string ResourcesFolderAssetPath => GeneratedAssembly.GetOrCreateFolderAssetPath() + "/" + RESOURCES_FOLDER_NAME;
+
+        /// <summary>
+        /// Where binding data assets live, both the copies seeded from the package and any created for a
+        /// control scheme that did not have one. Created if it is not there yet.
+        /// </summary>
+        internal static string GetOrCreateBindingDataFolder()
+        {
+            string folderAssetPath = ResourcesFolderAssetPath + "/" + BINDING_DATA_FOLDER_NAME;
+            if (!AssetDatabase.IsValidFolder(folderAssetPath))
+            {
+                AssetDatabase.CreateFolder(ResourcesFolderAssetPath, BINDING_DATA_FOLDER_NAME);
+            }
+
+            return folderAssetPath;
+        }
 
         /// <summary>
         /// Copy the package's default assets into the project if they are not there yet, and return the
