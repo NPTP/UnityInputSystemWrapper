@@ -11,12 +11,13 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
         private const string REFERENCE = "reference";
         private const string USE_COMPOSITE_PART = "useCompositePart";
         private const string COMPOSITE_PART = "compositePart";
+        private const string PLAYER_ID = "playerID";
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             // The number of lines is dependent on this bool value (showing composite part of action/binding).
             bool useCompositePart = property.FindPropertyRelative(USE_COMPOSITE_PART).boolValue;
-            float multiplier = useCompositePart ? 4 : 3;
+            float multiplier = useCompositePart ? 5 : 4;
             return multiplier * EditorGUIUtility.singleLineHeight;
         }
         
@@ -40,6 +41,10 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
             SerializedProperty useCompositePart = property.FindPropertyRelative(USE_COMPOSITE_PART);
             currentRect.y += lineHeight;
             EditorGUI.PropertyField(currentRect, useCompositePart);
+            
+            SerializedProperty playerID = property.FindPropertyRelative(PLAYER_ID);
+            currentRect.y += lineHeight;
+            EditorGUI.PropertyField(currentRect, playerID);
             
             if (useCompositePart.boolValue)
             {

@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
+
+using NPTP.InputSystemWrapper;
 
 namespace NPTP.InputSystemWrapper.Components
 {
@@ -26,18 +29,18 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void OnEnable()
         {
-            Input.OnInputUserChange += HandleInputUserChange;
-            Input.OnBindingsChanged += HandleBindingsChanged;
+            InputRuntime.Current.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
+            InputRuntime.Current.OnBindingsChanged += HandleBindingsChanged;
             UpdateEvents();
         }
 
         private void OnDisable()
         {
-            Input.OnInputUserChange -= HandleInputUserChange;
-            Input.OnBindingsChanged -= HandleBindingsChanged;
+            InputRuntime.Current.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
+            InputRuntime.Current.OnBindingsChanged -= HandleBindingsChanged;
         }
 
-        private void HandleInputUserChange(InputUserChangeInfo inputUserChangeInfo)
+        private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
             UpdateEvents();
         }

@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7040b43e86090f64ab12b4354d024341, type: 3}
+  m_Name: RuntimeInputData
+  m_EditorClassIdentifier: 
+  inputActionAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  customLayouts:
+  - {fileID: 11400000, guid: ccce78815df2428489f300564376d523, type: 2}
+  - {fileID: 11400000, guid: ebd9e9244b238ae40bc8fec710b79691, type: 2}
+  customBindings:
+  - {fileID: 11400000, guid: cbc07a2735103854da8062de8ce7547f, type: 2}
+  - {fileID: 11400000, guid: f941eee3f8e1c4e4e9f33b1ab63d95b4, type: 2}
+  customInteractions: []
+  controlSchemes:
+  - controlSchemeName: Keyboard&Mouse
+    bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
+  - controlSchemeName: Gamepad
+    bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
+  - controlSchemeName: Touch
+    bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
+  - controlSchemeName: Joystick
+    bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
+  - controlSchemeName: XR
+    bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
+  bindingExcludedPaths: []
+  bindingCancelPaths:
+  - /Keyboard/escape
+  eventSystemOptions:
+    moveRepeatDelay: 0.5
+    moveRepeatRate: 0.1
+    deselectOnBackgroundClick: 0
+    pointerBehavior: 0
+    cursorLockBehavior: 0
+    defaultActions:
+    - actionType: 0
+      actionID: 
+    - actionType: 1
+      actionID: 
+    - actionType: 2
+      actionID: 
+    - actionType: 3
+      actionID: 
+    - actionType: 4
+      actionID: 
+    - actionType: 5
+      actionID: 
+    - actionType: 6
+      actionID: 
+    - actionType: 7
+      actionID: 
+    - actionType: 8
+      actionID: 
+    - actionType: 9
+      actionID: 
+  inputContexts:
+  - name: Default
+    enableKeyboardTextInput: 0
+    activeMapNames:
+    - Player
+    eventSystemActionOverrides: []
+  defaultContextIndex: 0
+  loadAllBindingOverridesOnInitialize: 1

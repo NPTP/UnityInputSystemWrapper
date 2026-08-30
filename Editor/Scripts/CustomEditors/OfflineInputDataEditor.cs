@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
-using NPTP.InputSystemWrapper.Enums;
+using System.Linq;
+using UnityEngine.InputSystem;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,9 +18,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         
         private SerializedProperty initializationMode;
         
-        private SerializedProperty enableMultiplayer;
-        private SerializedProperty maxPlayers;
-        private SerializedProperty defaultContext;
+        private SerializedProperty defaultContextIndex;
         private SerializedProperty inputContexts;
         
         private SerializedProperty controlSchemeBases;
@@ -48,9 +47,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void OnEnable()
         {
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
-            enableMultiplayer = serializedObject.FindProperty(nameof(enableMultiplayer));
-            maxPlayers = serializedObject.FindProperty(nameof(maxPlayers));
-            defaultContext = serializedObject.FindProperty(nameof(defaultContext));
+            defaultContextIndex = serializedObject.FindProperty(nameof(defaultContextIndex));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
@@ -79,20 +76,35 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             PopulateControlSchemeBases();
         }
 
+        private void DrawDefaultContextPopup()
+        {
+            InputContextInfo[] contexts = ((OfflineInputData)target).InputContexts;
+            if (contexts == null || contexts.Length == 0)
+            {
+                EditorGUILayout.LabelField("Default Context", "No input contexts defined");
+                return;
+            }
+
+            string[] names = contexts.Select(context => context.Name).ToArray();
+            int index = Mathf.Clamp(defaultContextIndex.intValue, 0, names.Length - 1);
+            defaultContextIndex.intValue = EditorGUILayout.Popup("Default Context", index, names);
+        }
+
         private void PopulateControlSchemeBases()
         {
-            Dictionary<ControlScheme, ControlSchemeBasis.BasisSpec> schemeToSpec = new();
+            Dictionary<string, ControlSchemeBasis.BasisSpec> schemeToSpec = new();
             for (int i = 0; i < controlSchemeBases.arraySize; i++)
             {
                 if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is ControlSchemeBasis basis)
-                    schemeToSpec[basis.ControlScheme] = basis.Basis;
+                    schemeToSpec[basis.ControlSchemeName] = basis.Basis;
             }
             
             controlSchemeBases.ClearArray();
 
-            Array enumValues = Enum.GetValues(typeof(ControlScheme));
+            InputActionAsset asset = ((OfflineInputData)target).RuntimeInputData == null ? null : ((OfflineInputData)target).RuntimeInputData.InputActionAsset;
+            string[] enumValues = asset == null ? Array.Empty<string>() : asset.controlSchemes.Select(controlScheme => controlScheme.name).ToArray();
             int index = 0;
-            foreach (ControlScheme scheme in enumValues)
+            foreach (string scheme in enumValues)
             {
                 schemeToSpec.TryGetValue(scheme, out ControlSchemeBasis.BasisSpec basisSpec);
                 controlSchemeBases.InsertArrayElementAtIndex(index);
@@ -119,23 +131,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            // TODO (multiplayer): Remove the disabled group when MP support is completed.
-            DrawHeader("Multiplayer");
-            EditorGUI.BeginDisabledGroup(true);
-            DrawWarning("Multiplayer support is currently incomplete, so it cannot be enabled right now.");
-            EditorGUILayout.PropertyField(enableMultiplayer);
-            EditorGUILayout.PropertyField(maxPlayers);
-            maxPlayers.intValue = Mathf.Clamp(maxPlayers.intValue, 2, OfflineInputData.MAX_PLAYERS_LIMIT);
-            EditorGUI.EndDisabledGroup();
-            
-            EditorInspectorUtility.DrawHorizontalLine();
-
+            DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
 
             EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Input Contexts");
-            EditorGUILayout.PropertyField(defaultContext);
+            DrawDefaultContextPopup();
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
             
@@ -154,11 +156,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                     SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
                     if (basisProperty.boxedValue is not ControlSchemeBasis basis)
                         continue;
-
+                    
+                    if (string.IsNullOrEmpty(basis.ControlSchemeName))
+                        continue;
+                    
                     SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(
-                        basis.ControlScheme.ToInputAssetName(),
-                        (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
+                    specProperty.enumValueIndex = (int)(ControlSchemeBasis.BasisSpec)EditorGUILayout.EnumPopup(basis.ControlSchemeName, (ControlSchemeBasis.BasisSpec)specProperty.enumValueIndex);
                 }
             }
 

@@ -1,4 +1,3 @@
-using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -19,40 +18,23 @@ namespace NPTP.InputSystemWrapper.Data
     internal class OfflineInputData : ScriptableObject
     {
 #if UNITY_EDITOR
-        internal const string RUNTIME_INPUT_DATA_PATH = nameof(RuntimeInputData);
-        internal const int MAX_PLAYERS_LIMIT = 4;
 
-        [SerializeField] private TextAsset rootPathIdentifier;
-        internal string AssetsPathToPackage
-        {
-            get
-            {
-                string assetFilePath = AssetDatabase.GetAssetPath(rootPathIdentifier);
-                return assetFilePath[..assetFilePath.LastIndexOf('/')];
-            }
-        }
-
+        #region Fields Hidden From User
+        
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
-        
-        [SerializeField] private TextAsset mainInputScriptFile;
-        internal TextAsset MainInputScriptFile => mainInputScriptFile;
 
-        [SerializeField] private TextAsset actionsTemplateFile;
-        internal TextAsset ActionsTemplateFile => actionsTemplateFile;
+#if UNITY_EDITOR
+        internal const string EDITOR_RuntimeInputDataField = nameof(runtimeInputData);
+#endif
+
+        #endregion
 
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
 
-        [SerializeField] private bool enableMultiplayer;
-        internal bool EnableMultiplayer => enableMultiplayer;
-        
-        // TODO (multiplayer): remove player limits, refactor playerIDs into guid-style structs etc. and use lazy initialization on ID entry/player creation 
-        [SerializeField][Range(2, MAX_PLAYERS_LIMIT)] private int maxPlayers = MAX_PLAYERS_LIMIT;
-        internal int MaxPlayers => maxPlayers;
-
-        [SerializeField] private InputContext defaultContext = 0;
-        internal InputContext DefaultContext => defaultContext;
+        [SerializeField] private int defaultContextIndex;
+        internal int DefaultContextIndex => defaultContextIndex;
         
         [SerializeField] private InputContextInfo[] inputContexts;
         internal InputContextInfo[] InputContexts => inputContexts;
@@ -93,32 +75,25 @@ namespace NPTP.InputSystemWrapper.Data
         // TODO (architecture): these can probably just be ActionReference, now (and change how they get initialized then)
         [Header("Default Event System Actions")]
         [SerializeField] private InputActionReference point;
-        [SerializeField] private InputActionReference leftClick;
-        [SerializeField] private InputActionReference middleClick;
-        [SerializeField] private InputActionReference rightClick;
-        [SerializeField] private InputActionReference scrollWheel;
-        [SerializeField] private InputActionReference move;
-        [SerializeField] private InputActionReference submit;
-        [SerializeField] private InputActionReference cancel;
-        [SerializeField] private InputActionReference trackedDevicePosition;
-        [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference Point => point;
+        [SerializeField] private InputActionReference leftClick;
         internal InputActionReference LeftClick => leftClick;
+        [SerializeField] private InputActionReference middleClick;
         internal InputActionReference MiddleClick => middleClick;
+        [SerializeField] private InputActionReference rightClick;
         internal InputActionReference RightClick => rightClick;
+        [SerializeField] private InputActionReference scrollWheel;
         internal InputActionReference ScrollWheel => scrollWheel;
+        [SerializeField] private InputActionReference move;
         internal InputActionReference Move => move;
+        [SerializeField] private InputActionReference submit;
         internal InputActionReference Submit => submit;
+        [SerializeField] private InputActionReference cancel;
         internal InputActionReference Cancel => cancel;
+        [SerializeField] private InputActionReference trackedDevicePosition;
         internal InputActionReference TrackedDevicePosition => trackedDevicePosition;
+        [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
-
-        internal int GetEventSystemActionNonNullOverrideCount()
-        {
-            return InputContexts
-                .SelectMany(inputContextInfo => inputContextInfo.EventSystemActionOverrides)
-                .Count(spec => spec.ActionReference != null && spec.ActionReference.action != null);
-        }
 
         private void OnValidate()
         {

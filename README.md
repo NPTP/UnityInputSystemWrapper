@@ -5,6 +5,24 @@ A wrapper for Unity's "new" input system to make usage simpler and more convenie
 
 The minimum required `com.unity.inputsystem` version is due to bugs in some core functionality of earlier versions of that package.
 
+#### Installation
+
+Install via the Package Manager using **Add package from git URL**, or by adding these entries to your project's `Packages/manifest.json`:
+
+```json
+"com.nptp.unity-source-gen": "https://github.com/NPTP/UnitySourceGen.git",
+"com.nptp.unity-input-system-wrapper": "https://github.com/NPTP/UnityInputSystemWrapper.git"
+```
+
+Both are required. Unity's Package Manager cannot resolve a git URL listed inside another package's dependencies, so `com.nptp.unity-source-gen` has to be added to your project manifest yourself, before or alongside this package.
+
+Then run **Input > Regenerate Input Wrapper Code and Assets**. This creates `Assets/ISW.Generated/`, containing:
+
+- the generated API (`ISW`, the actions classes, the `ControlScheme` and `InputContext` enums), in its own assembly
+- `Resources/`, holding your own editable copies of `OfflineInputData`, `RuntimeInputData` and the binding data assets
+
+Edit the assets in `Assets/ISW.Generated/Resources/`. The copies inside the package are read-only defaults, and are only used to seed your project the first time. Both folders are yours to commit or to gitignore and regenerate.
+
 #### Advantages
 - Subscribe to any player's input events at any time in Awake or later without running into race conditions or null references. Don’t need to know whether the player exists or not. In singleplayer mode, the API is automatically simplified so you don’t even need to specify which player.
 - Prevents double subscriptions to any input events.
@@ -18,7 +36,6 @@ The minimum required `com.unity.inputsystem` version is due to bugs in some core
 TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
 
 #### Future nice-to-haves:
-- Nicer code generation, reformat all classes with code-gen into partial classes with partial method calls that separate generated from non-generated .cs files for easier modularity, and allowing for this package to be installed with the package manager going forward
 - OfflineInputData "excluded" and "cancel" controls selectable from non-duplicate-entry, foolproof dropdown of all possible paths instead of string fields, with nice readable formatting.
 - Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.

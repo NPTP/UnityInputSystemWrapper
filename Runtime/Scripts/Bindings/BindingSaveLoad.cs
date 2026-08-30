@@ -1,5 +1,5 @@
 using System.IO;
-using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,9 +11,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         private const string FILE_TYPE = "json";
         private const string BINDING_FILE_NAME_PREFIX = "InputBindingOverrides_";
         
-        private static string GetBindingFilePathForPlayer(PlayerID playerID)
+        private static string GetBindingFilePathForPlayer(int playerID)
         {
-            return $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}{BINDING_FILE_NAME_PREFIX}{playerID.ToString()}.{FILE_TYPE}";
+            return $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}{BINDING_FILE_NAME_PREFIX}PlayerID{playerID}.{FILE_TYPE}";
         }
         
         internal static void LoadBindingsFromDiskForPlayer(InputPlayer inputPlayer)

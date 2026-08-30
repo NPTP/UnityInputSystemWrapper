@@ -1,9 +1,13 @@
 using System;
-using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Data
 {
+    /// <summary>
+    /// Authoring-time record of which device family a control scheme is based on. Keyed by the control
+    /// scheme's name in the input action asset rather than the generated enum, so that the package does
+    /// not depend on generated code.
+    /// </summary>
     [Serializable]
     internal class ControlSchemeBasis
     {
@@ -13,9 +17,9 @@ namespace NPTP.InputSystemWrapper.Data
             IsMouseBased,
             IsGamepadBased
         }
-        
-        [SerializeField] private ControlScheme controlScheme;
-        internal ControlScheme ControlScheme => controlScheme;
+
+        [SerializeField] private string controlSchemeName;
+        internal string ControlSchemeName => controlSchemeName;
 
         [SerializeField] private BasisSpec basis;
         internal BasisSpec Basis
@@ -23,10 +27,10 @@ namespace NPTP.InputSystemWrapper.Data
             get => basis;
             set => basis = value;
         }
-        
-        internal ControlSchemeBasis(ControlScheme controlScheme, BasisSpec basis)
+
+        internal ControlSchemeBasis(string controlSchemeName, BasisSpec basis)
         {
-            this.controlScheme = controlScheme;
+            this.controlSchemeName = controlSchemeName;
             this.basis = basis;
         }
     }

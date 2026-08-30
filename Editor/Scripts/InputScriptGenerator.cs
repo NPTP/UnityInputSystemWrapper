@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
-using NPTP.InputSystemWrapper.Editor.Utilities;
-using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.InputSystemWrapper.Editor.Generation;
+using NPTP.UnitySourceGen.Editor;
+using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,129 +10,62 @@ namespace NPTP.InputSystemWrapper.Editor
 {
     internal static class InputScriptGenerator
     {
-        private enum ReadState
-        {
-            Normal = 0,
-            WaitingForMarkerEnd
-        }
-        
         internal static void GenerateInputScriptCode()
         {
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
-            if (offlineInputData.RuntimeInputData.InputActionAsset == null)
+            GenerationReport.Begin();
+
+            // The package may be read-only, so the assets the generator writes to live in the project.
+            OfflineInputData offlineInputData = ProjectAssets.EnsureProjectAssets();
+            if (offlineInputData == null)
             {
-                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                GenerationReport.End();
                 return;
             }
-            
-            Helper.ClearFolderRecursive(Helper.GeneratedFolderSystemPath);
-            GenerateActionClasses(offlineInputData.RuntimeInputData.InputActionAsset);
-            
-            ModifyExistingFile(Helper.ControlSchemeFileSystemPath, new ControlSchemeContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.PlayerIDFileSystemPath, new PlayerIDContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputPlayerFileSystemPath, new InputPlayerContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputManagerFileSystemPath, new InputManagerContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.InputUserChangeInfoFileSystemPath, new InputUserChangeInfoContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.RuntimeInputDataFileSystemPath, new RuntimeInputDataContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.BindingChangerFileSystemPath, new BindingChangerContentBuilder(offlineInputData));
-            
+
+            InputActionAsset asset = offlineInputData.RuntimeInputData == null ? null : offlineInputData.RuntimeInputData.InputActionAsset;
+            if (asset == null)
+            {
+                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                GenerationReport.End();
+                return;
+            }
+
+            // All generated code goes into its own assembly in the consuming project, so that the package
+            // itself never has to be written to and can be installed read-only.
+            string outputFolder = GeneratedAssembly.GetOrCreateFolderAssetPath();
+
+            string actionsFolder = $"{outputFolder}/{GeneratedAssembly.ACTIONS_SUBFOLDER}";
+            foreach (InputActionMap map in asset.actionMaps)
+            {
+                WriteType($"{map.name.AsType()}Actions", ActionsEmitter.Build(map), actionsFolder);
+            }
+
+            WriteFile("ControlScheme", EnumEmitter.BuildControlSchemeFile(asset), outputFolder);
+            WriteFile("InputContext", EnumEmitter.BuildInputContextFile(offlineInputData.InputContexts), outputFolder);
+            WriteFile("InputPlayerExtensions", InputPlayerExtensionsEmitter.BuildFile(asset), outputFolder);
+            WriteType("ISW", ISWEmitter.Build(asset, offlineInputData), outputFolder);
+            WriteFile("BindingDataMenuItems", BindingDataMenuEmitter.BuildFile(), outputFolder);
+
+            GeneratedAssembly.PruneStaleScripts(outputFolder);
+
+            // Control scheme metadata, input contexts and rebinding paths are plain data, so they get written
+            // into the RuntimeInputData asset rather than generated as C#.
+            RuntimeInputDataSynchronizer.Synchronize(offlineInputData);
+
+            GenerationReport.LogAndEnd("Input wrapper generation complete");
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
-        private static void GenerateActionClasses(InputActionAsset asset)
+        private static void WriteType(string fileName, GeneratableBase generatable, string outputFolder)
         {
-            foreach (InputActionMap map in asset.actionMaps)
-            {
-                GenerateFile(map,
-                    Helper.ActionsTemplateFileSystemPath,
-                    ActionsContentBuilder.AddContent,
-                Helper.GeneratedActionsSystemPath + map.name.AsType() + "Actions.cs");
-            }
+            string assetPath = $"{outputFolder}/{fileName}.cs";
+            GenerationReport.RecordWrite(assetPath, SourceGen.WriteToPath(assetPath, generatable));
         }
 
-        private static void GenerateFile(InputActionMap map, string readPath,
-            Action<string, InputActionMap, List<string>> addContentAction, string writePath)
+        private static void WriteFile(string fileName, GeneratableFile file, string outputFolder)
         {
-            List<string> newLines = new();
-
-            try
-            {
-                using StreamReader sr = new(readPath);
-                ReadState readState = ReadState.Normal;
-                while (sr.ReadLine() is { } line)
-                {
-                    switch (readState)
-                    {
-                        case ReadState.Normal:
-                            if (Helper.IsMarkerStart(line, out string markerName))
-                            {
-                                addContentAction(markerName, map, newLines);
-                                readState = ReadState.WaitingForMarkerEnd;
-                            }
-                            else
-                            {
-                                newLines.Add(line);
-                            }
-
-                            break;
-                        case ReadState.WaitingForMarkerEnd:
-                            if (Helper.IsMarkerEnd(line)) readState = ReadState.Normal;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ISWDebug.Log($"The file could not be read: {e.Message}");
-                return;
-            }
-
-            Helper.WriteLinesToFile(newLines, writePath);
-        }
-
-        private static void ModifyExistingFile(string filePath, ContentBuilder contentBuilder)
-        {
-            List<string> newLines = new();
-
-            try
-            {
-                using StreamReader sr = new(filePath);
-                ReadState readState = ReadState.Normal;
-                while (sr.ReadLine() is { } line)
-                {
-                    switch (readState)
-                    {
-                        case ReadState.Normal:
-                            newLines.Add(line);
-                            if (Helper.IsMarkerStart(line, out string markerName))
-                            {
-                                InputScriptGeneratorMarkerInfo info = new(markerName, line.GetLeadingWhitespace(), newLines);
-                                contentBuilder.AddContent(info);
-                                readState = ReadState.WaitingForMarkerEnd;
-                            }
-                            break;
-                        case ReadState.WaitingForMarkerEnd:
-                            if (Helper.IsMarkerEnd(line))
-                            {
-                                newLines.Add(line);
-                                readState = ReadState.Normal;
-                            }
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ISWDebug.Log($"The file could not be read: {e.Message}");
-                return;
-            }
-
-            Helper.WriteLinesToFile(newLines, filePath);
+            string assetPath = $"{outputFolder}/{fileName}.cs";
+            GenerationReport.RecordWrite(assetPath, SourceGen.WriteToPath(assetPath, file));
         }
     }
 }

@@ -6,16 +6,16 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         internal ActionWrapper ActionWrapper { get; }
         internal CompositePart CompositePart { get; }
-        internal ControlScheme ControlScheme { get; }
+        internal ControlSchemeId ControlSchemeId { get; }
         
         internal bool DontUseCompositePart => CompositePart == CompositePart.DontIsolatePart;
         internal bool UseCompositePart => !DontUseCompositePart;
         
-        internal ActionBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, ControlScheme controlScheme)
+        internal ActionBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId)
         {
             ActionWrapper = actionWrapper;
             CompositePart = compositePart;
-            ControlScheme = controlScheme;
+            ControlSchemeId = controlSchemeId;
         }
     }
 }

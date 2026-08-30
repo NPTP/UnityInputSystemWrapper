@@ -14,13 +14,13 @@ namespace NPTP.InputSystemWrapper.Bindings
             bindingInfos = default;
             
             // Get the string control paths for the used input action & composite part.
-            if (!TryGetControlPaths(actionBindingInfo, actionBindingInfo.ControlScheme, out List<string> controlPaths))
+            if (!TryGetControlPaths(actionBindingInfo, actionBindingInfo.ControlSchemeId, out List<string> controlPaths))
             {
                 return false;
             }
             
             // Get the asset on disk containing binding data.
-            if (!TryGetBindingData(runtimeInputData, actionBindingInfo.ControlScheme, out BindingData bindingData))
+            if (!TryGetBindingData(runtimeInputData, actionBindingInfo.ControlSchemeId, out BindingData bindingData))
             {
                 return false;
             }
@@ -47,20 +47,20 @@ namespace NPTP.InputSystemWrapper.Bindings
             return bindingInfoList.Count > 0;
         }
 
-        private static bool TryGetBindingData(RuntimeInputData runtimeInputData, ControlScheme controlScheme, out BindingData bindingData)
+        private static bool TryGetBindingData(RuntimeInputData runtimeInputData, ControlSchemeId controlSchemeId, out BindingData bindingData)
         {
-            bindingData = runtimeInputData.GetControlSchemeBindingData(controlScheme);
+            bindingData = runtimeInputData.GetBindingData(controlSchemeId);
             bool bindingDataNull = bindingData == null;
             if (bindingDataNull)
-                ISWDebug.LogWarning($"Control scheme {controlScheme} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
+                ISWDebug.LogWarning($"Control scheme {controlSchemeId} is not supported by any {nameof(BindingData)} and cannot produce display names/sprites!");
             
             return !bindingDataNull;
         }
         
-        private static bool TryGetControlPaths(ActionBindingInfo actionBindingInfo, ControlScheme controlScheme, out List<string> controlPaths)
+        private static bool TryGetControlPaths(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId, out List<string> controlPaths)
         {
             List<string> paths = new();
-            InputBinding bindingMask = controlScheme.ToBindingMask();
+            InputBinding bindingMask = controlSchemeId.ToBindingMask();
                 
             for (int i = 0; i < actionBindingInfo.ActionWrapper.InputAction.bindings.Count; i++)
             {
@@ -80,7 +80,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         {
             firstBindingIndex = -1;
 
-            InputBinding bindingMask = actionBindingInfo.ControlScheme.ToBindingMask();
+            InputBinding bindingMask = actionBindingInfo.ControlSchemeId.ToBindingMask();
             
             for (int i = 0; i < actionBindingInfo.ActionWrapper.InputAction.bindings.Count; i++)
             {
