@@ -1,6 +1,11 @@
 # Input System Wrapper
 ## Changelog
 
+8.1.0
+- `BindingSerializationMode` on the input data asset chooses where saved bindings live: a JSON file per player, the project's own storage through events, both, or neither
+- `ISW.OnBindingsSaveRequested` hands out a player's bindings as JSON to store; `ISW.OnBindingsLoadRequested` asks for them back
+- With both sources enabled, stored bindings supplied by the project take precedence over the file
+
 8.0.0
 - An action can have any number of bindings per control scheme, each addressed by a UI index. Previously only the first was reachable
 - A UI index names one slot: a plain binding, or a whole composite counted as one. A d-pad taking four entries in the input action asset stays on the row the player last saw it on

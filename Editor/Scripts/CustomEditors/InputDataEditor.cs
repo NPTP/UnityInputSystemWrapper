@@ -30,6 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty controlSchemeBases;
 
         private SerializedProperty loadAllBindingOverridesOnInitialize;
+        private SerializedProperty bindingSerializationMode;
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
 
@@ -64,6 +65,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
             loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(InputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
+            bindingSerializationMode = serializedObject.FindProperty(InputData.EDITOR_BindingSerializationModeField);
             bindingExcludedPaths = serializedObject.FindProperty(InputData.EDITOR_BindingExcludedPathsField);
             bindingCancelPaths = serializedObject.FindProperty(InputData.EDITOR_BindingCancelPathsField);
 
@@ -231,6 +233,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             DrawHeader("Bindings");
             EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
+            EditorGUILayout.PropertyField(bindingSerializationMode);
+            if (((InputData)target).BindingSerializationMode.UsesEvent())
+            {
+                DrawSpecialNote("Handle ISW.OnBindingsSaveRequested to store the JSON, and ISW.OnBindingsLoadRequested to supply it back.");
+            }
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(bindingExcludedPaths);
             EditorGUILayout.PropertyField(bindingCancelPaths);

@@ -50,6 +50,11 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
         internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
 
+        [Tooltip("Where saved bindings are written to and read back from: a JSON file per player, your own " +
+                 "storage through the ISW binding serialization events, or both.")]
+        [SerializeField] private BindingSerializationMode bindingSerializationMode = BindingSerializationMode.File;
+        internal BindingSerializationMode BindingSerializationMode => bindingSerializationMode;
+
         #endregion
 
         #region Authored, Editor Only, Baked Into The Generated Fields
@@ -197,6 +202,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_ContextDefinitionsField = nameof(contextDefinitions);
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
+        internal const string EDITOR_BindingSerializationModeField = nameof(bindingSerializationMode);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
         internal const string EDITOR_DeviceBindingDataField = nameof(deviceBindingData);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);

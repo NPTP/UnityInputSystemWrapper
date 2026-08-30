@@ -104,6 +104,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             AddForwardedEvent(isw, "OnControlsUpdated", "Action");
             AddForwardedEvent(isw, "OnAnyButtonPress", "AnyButtonPressListener");
             AddForwardedEvent(isw, "OnBindingsChanged", "Action");
+            AddForwardedEvent(isw, "OnBindingsSaveRequested", "Action<BindingsSaveRequest>");
+            AddForwardedEvent(isw, "OnBindingsLoadRequested", "Action<BindingsLoadRequest>");
             AddForwardedEvent(isw, "OnAnyPlayerInputUserChange", "Action<InputUserChangeInfo>");
             AddForwardedEvent(isw, "OnAnyPlayerControlSchemeChanged", $"Action<{INPUT_PLAYER}>");
             AddForwardedEvent(isw, "OnAnyPlayerKeyboardTextInput", "Action<char>");
