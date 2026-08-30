@@ -49,6 +49,8 @@ namespace NPTP.InputSystemWrapper.Editor
 
             GeneratedAssembly.PruneStaleScripts(outputFolder);
 
+            BindingAudit.Run(asset);
+
             // Control scheme metadata, input contexts and rebinding paths are data, so they are written into
             // the InputData asset.
             InputDataSynchronizer.Synchronize(inputData);
