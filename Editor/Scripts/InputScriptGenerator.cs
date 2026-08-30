@@ -4,6 +4,7 @@ using System.IO;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Generation;
 using NPTP.InputSystemWrapper.Editor.ScriptContentBuilders;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEditor;
 using UnityEngine;
