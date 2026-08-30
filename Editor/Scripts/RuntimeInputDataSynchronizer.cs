@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
 using UnityEngine.InputSystem;
@@ -29,6 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor
             SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, offlineInputData);
             SyncInputContexts(serializedObject, offlineInputData);
+            WarnAboutUnknownMapNames(offlineInputData, runtimeInputData.InputActionAsset);
             serializedObject.FindProperty(RuntimeInputData.EDITOR_DefaultContextIndexField).intValue = offlineInputData.DefaultContextIndex;
             serializedObject.FindProperty(RuntimeInputData.EDITOR_LoadAllBindingOverridesOnInitializeField).boolValue = offlineInputData.LoadAllBindingOverridesOnInitialize;
 
@@ -93,6 +95,50 @@ namespace NPTP.InputSystemWrapper.Editor
                     overrides.Add((spec.ActionType, spec.ActionReference));
 
                 WriteActionBindings(context.FindPropertyRelative(InputContextDefinition.EDITOR_EventSystemActionOverridesField), overrides);
+            }
+        }
+
+        /// <summary>
+        /// A context that names an action map the asset does not have enables nothing at runtime, which
+        /// looks exactly like input being broken. Usually it means a map was renamed in the asset without
+        /// updating the contexts that referenced it.
+        /// </summary>
+        private static void WarnAboutUnknownMapNames(OfflineInputData offlineInputData, InputActionAsset asset)
+        {
+            if (offlineInputData.InputContexts == null || asset == null)
+            {
+                return;
+            }
+
+            List<string> mapNames = new();
+            foreach (InputActionMap map in asset.actionMaps)
+            {
+                mapNames.Add(map.name);
+            }
+
+            foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
+            {
+                if (contextInfo.ActiveMaps == null)
+                {
+                    continue;
+                }
+
+                foreach (string activeMap in contextInfo.ActiveMaps)
+                {
+                    if (!mapNames.Contains(activeMap))
+                    {
+                        ISWDebug.LogWarning($"Input context '{contextInfo.Name}' lists active map '{activeMap}', which does not exist in " +
+                                            $"{asset.name}. No maps will be enabled for it. Available maps: {string.Join(", ", mapNames)}.");
+                    }
+                }
+            }
+
+            foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
+            {
+                if (contextInfo.ActiveMaps == null || contextInfo.ActiveMaps.Length == 0)
+                {
+                    ISWDebug.LogWarning($"Input context '{contextInfo.Name}' has no active maps, so no input will be received while it is set.");
+                }
             }
         }
 
