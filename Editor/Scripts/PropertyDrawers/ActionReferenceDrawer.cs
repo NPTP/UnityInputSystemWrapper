@@ -13,7 +13,7 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
     /// <summary>
     /// Draws an ActionReference, picking its action from the project input data's input action asset. On an
     /// ActionReference&lt;T&gt; only the actions read as T are offered, so an assigned reference always has
-    /// a value to read.
+    /// a value to read. With no asset to pick from, the field is replaced by a note saying so.
     /// </summary>
     [CustomPropertyDrawer(typeof(ActionReference), useForChildren: true)]
     internal class ActionReferenceDrawer : PropertyDrawer
@@ -23,6 +23,9 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
         private const string USE_COMPOSITE_PART = "useCompositePart";
         private const string COMPOSITE_PART = "compositePart";
         private const string PLAYER_ID = "playerID";
+        private const string NO_ASSET_NOTE = "No input action asset is assigned.";
+
+        private static GUIStyle NoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -69,15 +72,16 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
 
         private void DrawReference(Rect position, SerializedProperty reference)
         {
+            Rect fieldRect = EditorGUI.PrefixLabel(position, new GUIContent(reference.displayName));
             InputData inputData = ProjectAssets.FindProjectInputData();
+
             if (inputData == null || inputData.InputActionAsset == null)
             {
-                EditorGUI.PropertyField(position, reference);
+                EditorGUI.LabelField(fieldRect, NO_ASSET_NOTE, NoteStyle);
                 return;
             }
 
-            Rect dropdownRect = EditorGUI.PrefixLabel(position, new GUIContent(reference.displayName));
-            InputActionReferenceDropdown.DrawWithoutLabel(dropdownRect, reference, inputData.InputActionAsset, BuildValueTypeFilter());
+            InputActionReferenceDropdown.DrawWithoutLabel(fieldRect, reference, inputData.InputActionAsset, BuildValueTypeFilter());
         }
 
         /// <summary>
