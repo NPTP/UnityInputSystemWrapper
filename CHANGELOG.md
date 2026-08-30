@@ -1,6 +1,14 @@
 # Input System Wrapper
 ## Changelog
 
+6.0.0
+- `OfflineInputData` and `RuntimeInputData` are merged into a single `InputData` asset, loaded from Resources under that name. Authored and generated fields live together, with the editor-only ones excluded from builds as before
+- Values the runtime can use as authored are no longer copied between assets, so the value a designer edits is the one the game reads. Only InputActionReferences are still baked, into the action IDs a player's cloned asset can resolve
+- One inspector for the whole asset, `InputDataEditor`, with a section for the input action asset and custom setups
+- The `Input > Offline Input Data` and `Input > Runtime Input Data` menu items are replaced by `Input > Input Data`
+- `InitializationMode` moved out of an accidentally nested namespace into `NPTP.InputSystemWrapper.Enums`
+- Upgrading: the old two assets are not migrated. Assign your input action asset on the new `InputData` and re-author input contexts, control scheme bases and event system actions
+
 5.1.0
 - Binding data is keyed by device rather than by control scheme, so a device used by several schemes has one set of entries instead of a copy per scheme
 - A `BindingData` asset is generated per device if one does not exist, populated from the input system's own layout registry with every control that device has and the display names it gives them
