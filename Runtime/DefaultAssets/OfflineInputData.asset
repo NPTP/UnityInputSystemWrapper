@@ -14,14 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rootPathIdentifier: {fileID: 4900000, guid: 173c3a19d3220cc4894e20b2a481a462, type: 3}
   runtimeInputData: {fileID: 11400000, guid: ebfe31d05ccd848469684445391d2296, type: 2}
-  iswScriptFile: {fileID: 11500000, guid: 4a92096acb86454458f614b09a41859f, type: 3}
-  iswPartialScriptFile: {fileID: 11500000, guid: fea2854135df48ce886420b202708bed, type: 3}
-  inputPlayerPartialScriptFile: {fileID: 11500000, guid: e81925db712f4314a964e72efbd1a3b2, type: 3}
-  controlSchemeScriptFile: {fileID: 11500000, guid: af0b6eed9da99544b93d6a25a0255a20, type: 3}
-  inputContextScriptFile: {fileID: 11500000, guid: 90e1eb4fb9f799e4fa39382da0c021d3, type: 3}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
-  defaultContext: 0
+  defaultContextIndex: 0
   inputContexts:
   - name: Default
     enableKeyboardTextInput: 0
@@ -29,17 +24,15 @@ MonoBehaviour:
     - Player
     eventSystemActionOverrides: []
   controlSchemeBases:
-  - controlScheme: 0
+  - controlSchemeName: Keyboard&Mouse
     basis: 0
-  - controlScheme: 1
+  - controlSchemeName: Gamepad
     basis: 0
-  - controlScheme: 2
+  - controlSchemeName: Touch
     basis: 0
-  - controlScheme: 3
+  - controlSchemeName: Joystick
     basis: 0
-  - controlScheme: 4
-    basis: 0
-  - controlScheme: 5
+  - controlSchemeName: XR
     basis: 0
   loadAllBindingOverridesOnInitialize: 1
   bindingExcludedPaths: []

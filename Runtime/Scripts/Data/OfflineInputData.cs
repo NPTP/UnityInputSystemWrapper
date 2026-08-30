@@ -21,18 +21,12 @@ namespace NPTP.InputSystemWrapper.Data
 
         #region Fields Hidden From User
         
-        [SerializeField] private TextAsset rootPathIdentifier;
-        internal string AssetsPathToPackage
-        {
-            get
-            {
-                string assetFilePath = AssetDatabase.GetAssetPath(rootPathIdentifier);
-                return assetFilePath[..assetFilePath.LastIndexOf('/')];
-            }
-        }
-        
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
+
+#if UNITY_EDITOR
+        internal const string EDITOR_RuntimeInputDataField = nameof(runtimeInputData);
+#endif
 
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;

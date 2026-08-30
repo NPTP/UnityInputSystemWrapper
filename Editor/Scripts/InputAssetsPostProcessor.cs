@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
@@ -10,7 +10,7 @@ namespace NPTP.InputSystemWrapper.Editor
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets,
             string[] movedAssets, string[] movedFromAssetPaths)
         {
-            OfflineInputData offlineInputData = EditorAssetGetter.GetFirst<OfflineInputData>();
+            Generation.ProjectAssets.TryFindProjectAsset("OfflineInputData", out OfflineInputData offlineInputData);
             if (offlineInputData == null || offlineInputData.RuntimeInputData == null || offlineInputData.RuntimeInputData.InputActionAsset == null)
             {
                 return;

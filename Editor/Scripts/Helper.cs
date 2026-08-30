@@ -17,7 +17,8 @@ namespace NPTP.InputSystemWrapper.Editor
         private const string END = "End";
 
         // Assets
-        internal static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
+        internal static OfflineInputData OfflineInputData =>
+            Generation.ProjectAssets.TryFindProjectAsset(nameof(OfflineInputData), out OfflineInputData offlineInputData) ? offlineInputData : null;
         
         // Template paths
         internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);

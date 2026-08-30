@@ -22,7 +22,13 @@ namespace NPTP.InputSystemWrapper.Editor
 
         internal static void GenerateInputScriptCode()
         {
-            OfflineInputData offlineInputData = Helper.OfflineInputData;
+            // The package may be read-only, so the assets the generator writes to live in the project.
+            OfflineInputData offlineInputData = ProjectAssets.EnsureProjectAssets();
+            if (offlineInputData == null)
+            {
+                return;
+            }
+
             InputActionAsset asset = offlineInputData.RuntimeInputData == null ? null : offlineInputData.RuntimeInputData.InputActionAsset;
             if (asset == null)
             {
