@@ -28,7 +28,8 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
         {
             ("Keyboard", () => BindingPathHelper.KeyboardControlPaths),
             ("Mouse", () => BindingPathHelper.MouseControlPaths),
-            ("Gamepad", () => BindingPathHelper.GamepadControlPaths)
+            ("Gamepad", () => BindingPathHelper.GamepadControlPaths),
+            ("Joystick", () => BindingPathHelper.JoystickControlPaths)
         };
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
