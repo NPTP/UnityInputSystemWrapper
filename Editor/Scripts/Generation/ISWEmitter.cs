@@ -1,5 +1,5 @@
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.UnitySourceGen.Editor;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
