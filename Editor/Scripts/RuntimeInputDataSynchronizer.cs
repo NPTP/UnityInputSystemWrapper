@@ -4,6 +4,7 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -186,10 +187,35 @@ namespace NPTP.InputSystemWrapper.Editor
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByName.GetValueOrDefault(controlSchemeName);
+                    existingByName.GetValueOrDefault(controlSchemeName) ?? GetOrCreateBindingData(controlSchemeName);
 
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(offlineInputData, controlSchemeName);
             }
+        }
+
+        /// <summary>
+        /// The binding data asset for a control scheme that has none assigned yet. An existing asset named
+        /// after the scheme is reused, which is what matches a scheme called "Keyboard&amp;Mouse" to the
+        /// KeyboardMouse asset shipped with the package; otherwise an empty one is created so the reference
+        /// is never left null and the designer has somewhere to fill in display names and sprites.
+        /// </summary>
+        private static BindingData GetOrCreateBindingData(string controlSchemeName)
+        {
+            string assetName = controlSchemeName.AsType();
+
+            if (Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
+            {
+                return existing;
+            }
+
+            string folderAssetPath = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
+
+            BindingData created = ScriptableObject.CreateInstance<BindingData>();
+            string assetPath = $"{folderAssetPath}/{assetName}.asset";
+            AssetDatabase.CreateAsset(created, assetPath);
+            Generation.GenerationReport.Record($"{assetPath} (created for control scheme '{controlSchemeName}')");
+
+            return created;
         }
 
         private static ControlSchemeBasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
