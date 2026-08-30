@@ -18,31 +18,31 @@ namespace NPTP.InputSystemWrapper.Actions
     {
         internal int PlayerID { get; }
         internal InputAction InputAction { get; }
-        
+
         private event Action<ActionEventInfo> onEvent;
         public event Action<ActionEventInfo> OnEvent
         {
             add { onEvent -= value; onEvent += value; }
             remove => onEvent -= value;
         }
-        
+
         public bool DownThisFrame => InputAction.WasPerformedThisFrame() && (InputAction.type != InputActionType.PassThrough || !InputAction.WasReleasedThisFrame());
         public bool IsDown => InputAction.phase == InputActionPhase.Performed;
-        
+
         internal ActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table)
         {
             PlayerID = playerID;
             InputAction = inputAction;
             table.Add(inputAction.id, this);
         }
-        
+
         internal void RegisterCallbacks()
         {
             InputAction.started += HandleActionEvent;
             InputAction.performed += HandleActionEvent;
             InputAction.canceled += HandleActionEvent;
         }
-        
+
         internal void UnregisterCallbacks()
         {
             InputAction.started -= HandleActionEvent;
@@ -50,23 +50,23 @@ namespace NPTP.InputSystemWrapper.Actions
             InputAction.canceled -= HandleActionEvent;
         }
 
-        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, Action<RebindInfo> callback = null) =>
-            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, CompositePart.DontIsolatePart, controlSchemeId), callback);
+        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, int uiIndex, Action<RebindInfo> callback = null) =>
+            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, CompositePart.DontIsolatePart, controlSchemeId, uiIndex), callback);
 
-        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, CompositePart compositePart, Action<RebindInfo> callback = null) =>
-            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, compositePart, controlSchemeId), callback);
+        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, CompositePart compositePart, int uiIndex, Action<RebindInfo> callback = null) =>
+            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, compositePart, controlSchemeId, uiIndex), callback);
 
-        public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos) =>
-            InputRuntime.Current.TryGetCurrentBindingInfo(this, CompositePart.DontIsolatePart, out bindingInfos);
+        internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
+            InputRuntime.Current.ResetBindingForAction(this, CompositePart.DontIsolatePart, controlSchemeId, uiIndex);
 
-        public bool TryGetCurrentBindingInfo(CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
-            InputRuntime.Current.TryGetCurrentBindingInfo(this, compositePart, out bindingInfos);
+        internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
+            InputRuntime.Current.ResetAllBindingsForAction(this, CompositePart.DontIsolatePart, controlSchemeId);
 
-        internal bool TryGetBindingInfo(ControlSchemeId controlSchemeId, out IEnumerable<BindingInfo> bindingInfos) =>
-            InputRuntime.Current.TryGetBindingInfo(new ActionBindingInfo(this, CompositePart.DontIsolatePart, controlSchemeId), out bindingInfos);
+        /// <summary>Every slot of this action on the control scheme the player is currently using.</summary>
+        public BindingSlots GetCurrentBindingSlots() => InputRuntime.Current.GetCurrentBindingSlots(this);
 
-        internal bool TryGetBindingInfo(ControlSchemeId controlSchemeId, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
-            InputRuntime.Current.TryGetBindingInfo(new ActionBindingInfo(this, compositePart, controlSchemeId), out bindingInfos);
+        internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId) =>
+            InputRuntime.Current.GetBindingSlots(this, controlSchemeId);
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(new ActionEventInfo(this, context));
     }

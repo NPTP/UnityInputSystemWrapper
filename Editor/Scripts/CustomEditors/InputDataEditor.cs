@@ -205,7 +205,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             EditorInspectorUtility.DrawHorizontalLine();
 
-            DrawHeader("Control Schemes");
+            DrawHeader("Control Scheme Device Families");
             int length = controlSchemeBases.arraySize;
             if (length == 0)
             {
