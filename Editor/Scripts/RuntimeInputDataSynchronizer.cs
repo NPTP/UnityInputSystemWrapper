@@ -187,7 +187,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByName.GetValueOrDefault(controlSchemeName) ?? GetOrCreateBindingData(controlSchemeName);
+                    existingByName.GetValueOrDefault(controlSchemeName) ?? GetOrCreateBindingData(asset.controlSchemes[i]);
 
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(offlineInputData, controlSchemeName);
             }
@@ -199,9 +199,9 @@ namespace NPTP.InputSystemWrapper.Editor
         /// KeyboardMouse asset shipped with the package; otherwise an empty one is created so the reference
         /// is never left null and the designer has somewhere to fill in display names and sprites.
         /// </summary>
-        private static BindingData GetOrCreateBindingData(string controlSchemeName)
+        private static BindingData GetOrCreateBindingData(InputControlScheme controlScheme)
         {
-            string assetName = controlSchemeName.AsType();
+            string assetName = controlScheme.name.AsType();
 
             if (Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
@@ -211,11 +211,29 @@ namespace NPTP.InputSystemWrapper.Editor
             string folderAssetPath = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
 
             BindingData created = ScriptableObject.CreateInstance<BindingData>();
+            Populate(created, controlScheme);
+
             string assetPath = $"{folderAssetPath}/{assetName}.asset";
             AssetDatabase.CreateAsset(created, assetPath);
-            Generation.GenerationReport.Record($"{assetPath} (created for control scheme '{controlSchemeName}')");
+            Generation.GenerationReport.Record($"{assetPath} (created for control scheme '{controlScheme.name}')");
 
             return created;
+        }
+
+        /// <summary>
+        /// Fill a binding data asset with every control the scheme's own devices can produce, taken from
+        /// the input system's layout registry rather than a hand-written list, so it covers whatever
+        /// devices the scheme was built from. Existing entries are never overwritten.
+        /// </summary>
+        private static void Populate(BindingData bindingData, InputControlScheme controlScheme)
+        {
+            foreach (string deviceLayout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
+            {
+                foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayout))
+                {
+                    bindingData.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
+                }
+            }
         }
 
         private static ControlSchemeBasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)

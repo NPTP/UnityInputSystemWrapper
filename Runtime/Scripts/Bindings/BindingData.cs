@@ -13,19 +13,22 @@ namespace NPTP.InputSystemWrapper.Bindings
         [SerializeField] private SerializableDictionary<string, BindingInfo> bindingDataDictionary = new();
 
         public bool TryGetBindingInfo(string controlPath, out BindingInfo bindingInfo) => bindingDataDictionary.TryGetValue(controlPath, out bindingInfo);
-        
+
 #if UNITY_EDITOR
-        internal void EDITOR_AddMouseBindings() => EDITOR_AddBindings(BindingPathHelper.MouseControlPaths);
-        internal void EDITOR_AddKeyboardBindings() => EDITOR_AddBindings(BindingPathHelper.KeyboardControlPaths);
-        internal void EDITOR_AddGamepadBindings() => EDITOR_AddBindings(BindingPathHelper.GamepadControlPaths);
-        internal void EDITOR_AddJoystickBindings() => EDITOR_AddBindings(BindingPathHelper.JoystickControlPaths);
-        
-        private void EDITOR_AddBindings(string[] bindingNames)
+        internal bool EDITOR_Contains(string controlPath) => bindingDataDictionary.TryGetValue(controlPath, out _);
+
+        /// <summary>
+        /// Add a control path with a starting localization key. Existing entries are left alone, so
+        /// anything already filled in - a sprite, an edited key - survives being repopulated.
+        /// </summary>
+        internal void EDITOR_AddBinding(string controlPath, string localizationKey)
         {
-            foreach (string controlPath in bindingNames)
+            if (string.IsNullOrEmpty(controlPath) || EDITOR_Contains(controlPath))
             {
-                bindingDataDictionary.EDITOR_Add(controlPath, new BindingInfo());
+                return;
             }
+
+            bindingDataDictionary.EDITOR_Add(controlPath, new BindingInfo(localizationKey));
         }
 #endif
     }

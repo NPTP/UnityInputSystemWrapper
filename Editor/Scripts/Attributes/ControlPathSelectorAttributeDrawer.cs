@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Attributes;
-using NPTP.InputSystemWrapper.Bindings;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -20,17 +19,12 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
         private const string ARRAY_PATH_SUFFIX = ".Array.data[";
 
         /// <summary>
-        /// The devices offered, in the order they appear in the dropdown. Paths are stored with a leading
-        /// slash and the device name, e.g. "/Keyboard/escape", which is the form the input system's
-        /// rebinding API expects.
+        /// The devices offered, in the order they appear in the dropdown. Their controls come from the
+        /// input system's layout registry, so the list is whatever Unity actually supports. Paths are
+        /// stored with a leading slash and the device name, e.g. "/Keyboard/escape", which is the form the
+        /// input system's rebinding API expects.
         /// </summary>
-        private static readonly (string Device, Func<string[]> GetPaths)[] deviceGroups =
-        {
-            ("Keyboard", () => BindingPathHelper.KeyboardControlPaths),
-            ("Mouse", () => BindingPathHelper.MouseControlPaths),
-            ("Gamepad", () => BindingPathHelper.GamepadControlPaths),
-            ("Joystick", () => BindingPathHelper.JoystickControlPaths)
-        };
+        private static readonly string[] deviceLayouts = { "Keyboard", "Mouse", "Gamepad", "Joystick" };
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -70,9 +64,9 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
             HashSet<string> alreadyUsed = GetSiblingValues(property);
             List<(string, string)> selectable = new();
 
-            foreach ((string device, Func<string[]> getPaths) in deviceGroups)
+            foreach (string device in deviceLayouts)
             {
-                foreach (string controlPath in getPaths())
+                foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(device).Keys)
                 {
                     string fullPath = $"/{device}/{controlPath}";
                     if (!alreadyUsed.Contains(fullPath)) selectable.Add((device, fullPath));
