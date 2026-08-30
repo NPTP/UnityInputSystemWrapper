@@ -35,6 +35,7 @@ namespace NPTP.InputSystemWrapper.Editor
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(runtimeInputData);
             AssetDatabase.SaveAssetIfDirty(runtimeInputData);
+            Generation.GenerationReport.Record($"{AssetDatabase.GetAssetPath(runtimeInputData)} (synchronized)");
         }
 
         private static void CopyStringArray(SerializedProperty arrayProperty, string[] source)

@@ -60,7 +60,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             }
 
             RelinkRuntimeInputData(copied);
-            ISWDebug.Log($"Input assets created in {resourcesFolder}. Edit these - the package's copies are defaults only.");
+            GenerationReport.Record($"{resourcesFolder} (project input assets created - edit these, the package's copies are defaults only)");
             return copied;
         }
 

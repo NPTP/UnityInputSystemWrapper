@@ -73,11 +73,11 @@ namespace NPTP.InputSystemWrapper.Editor
                     }
                 }
 
-                ISWDebug.Log($"{filePath} written successfully!");
+                Generation.GenerationReport.RecordFile(filePath);
             }
             catch (Exception e)
             {
-                ISWDebug.Log($"File could not be written: {e.Message}");
+                ISWDebug.LogError($"File could not be written: {e.Message}");
             }
         }
 

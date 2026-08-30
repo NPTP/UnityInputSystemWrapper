@@ -22,10 +22,12 @@ namespace NPTP.InputSystemWrapper.Editor
 
         internal static void GenerateInputScriptCode()
         {
+            GenerationReport.Begin();
             // The package may be read-only, so the assets the generator writes to live in the project.
             OfflineInputData offlineInputData = ProjectAssets.EnsureProjectAssets();
             if (offlineInputData == null)
             {
+                GenerationReport.End();
                 return;
             }
 
@@ -33,6 +35,7 @@ namespace NPTP.InputSystemWrapper.Editor
             if (asset == null)
             {
                 Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                GenerationReport.End();
                 return;
             }
 
@@ -52,6 +55,7 @@ namespace NPTP.InputSystemWrapper.Editor
             // into the RuntimeInputData asset rather than generated as C#.
             RuntimeInputDataSynchronizer.Synchronize(offlineInputData);
 
+            GenerationReport.LogAndEnd("Input wrapper generation complete");
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
@@ -101,7 +105,7 @@ namespace NPTP.InputSystemWrapper.Editor
             }
             catch (Exception e)
             {
-                ISWDebug.Log($"The file could not be read: {e.Message}");
+                ISWDebug.LogError($"The file could not be read: {e.Message}");
                 return;
             }
 
