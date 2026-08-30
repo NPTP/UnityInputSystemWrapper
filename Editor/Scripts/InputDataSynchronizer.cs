@@ -260,25 +260,21 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Which device family a control scheme is built on, taken from the devices it requires. A
-        /// scheme with a pointer is pointer based, one with a gamepad is gamepad based, and one with
-        /// neither is undefined. Layouts are matched by inheritance, so a mouse, pen or touchscreen all
-        /// count as pointers, and a DualShockGamepad counts as a gamepad.
+        /// Which device families a control scheme is built on, taken from the devices it requires. A
+        /// scheme with both a pointer and a gamepad is both. Layouts are matched by inheritance, so a
+        /// mouse, pen or touchscreen all count as pointers, and a DualShockGamepad counts as a gamepad.
         /// </summary>
         private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
         {
-            bool isPointerBased = false;
-            bool isGamepadBased = false;
+            ControlSchemeBasisSpec basis = ControlSchemeBasisSpec.Undefined;
 
             foreach (string layout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
             {
-                isPointerBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, POINTER_LAYOUT);
-                isGamepadBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, GAMEPAD_LAYOUT);
+                if (InputSystem.IsFirstLayoutBasedOnSecond(layout, POINTER_LAYOUT)) basis |= ControlSchemeBasisSpec.IsPointerBased;
+                if (InputSystem.IsFirstLayoutBasedOnSecond(layout, GAMEPAD_LAYOUT)) basis |= ControlSchemeBasisSpec.IsGamepadBased;
             }
 
-            if (isPointerBased) return ControlSchemeBasisSpec.IsPointerBased;
-            if (isGamepadBased) return ControlSchemeBasisSpec.IsGamepadBased;
-            return ControlSchemeBasisSpec.Undefined;
+            return basis;
         }
     }
 }
