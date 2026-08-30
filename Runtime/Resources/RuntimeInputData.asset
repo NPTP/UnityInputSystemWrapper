@@ -20,17 +20,27 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cbc07a2735103854da8062de8ce7547f, type: 2}
   - {fileID: 11400000, guid: f941eee3f8e1c4e4e9f33b1ab63d95b4, type: 2}
   customInteractions: []
-  controlSchemeBindingData:
+  controlSchemes:
   - controlSchemeName: Keyboard&Mouse
     bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
   - controlSchemeName: Gamepad
     bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
   - controlSchemeName: Touch
     bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
   - controlSchemeName: Joystick
     bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
   - controlSchemeName: XR
     bindingData: {fileID: 0}
+    isMouseBased: 0
+    isGamepadBased: 0
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape

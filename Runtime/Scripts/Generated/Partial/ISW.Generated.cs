@@ -8,8 +8,8 @@ namespace NPTP.InputSystemWrapper
     public static partial class ISW
     {
         // MARKER.SinglePlayerFieldsAndProperties.Start
-        public static PlayerActions Player => DefaultPlayer.Player();
-        public static UIActions UI => DefaultPlayer.UI();
+        public static PlayerActions Player => DefaultPlayer.Player;
+        public static UIActions UI => DefaultPlayer.UI;
         public static ControlScheme CurrentControlScheme => DefaultPlayer.CurrentControlScheme;
         // MARKER.SinglePlayerFieldsAndProperties.End
         

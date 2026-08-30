@@ -5,6 +5,7 @@ using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Player;
+using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

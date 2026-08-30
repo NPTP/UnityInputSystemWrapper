@@ -8,8 +8,10 @@ namespace NPTP.InputSystemWrapper.Player
         private void CreateActionMapWrappers()
         {
             // MARKER.ActionsInstantiation.Start
-            actionMapWrappers.Add("Player", new PlayerActions(ID, Asset, actionWrapperTable));
-            actionMapWrappers.Add("UI", new UIActions(ID, Asset, actionWrapperTable));
+            Player = new PlayerActions(ID, Asset, actionWrapperTable);
+            actionMapWrappers.Add("Player", Player);
+            UI = new UIActions(ID, Asset, actionWrapperTable);
+            actionMapWrappers.Add("UI", UI);
             // MARKER.ActionsInstantiation.End
         }
     }
