@@ -236,7 +236,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(bindingSerializationMode);
             if (((InputData)target).BindingSerializationMode.UsesEvent())
             {
-                DrawSpecialNote("Handle ISW.OnBindingsSaveRequested to store the JSON, and ISW.OnBindingsLoadRequested to supply it back.");
+                DrawSpecialNote("Handle ISW.OnBindingsSaveRequested to save.");
+                DrawSpecialNote("Handle ISW.OnBindingsLoadRequested and populate the request to load.");
             }
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(bindingExcludedPaths);
