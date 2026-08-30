@@ -1,6 +1,12 @@
 # Input System Wrapper
 ## Changelog
 
+5.1.0
+- Binding data is keyed by device rather than by control scheme, so a device used by several schemes has one set of entries instead of a copy per scheme
+- A `BindingData` asset is generated per device if one does not exist, populated from the input system's own layout registry with every control that device has and the display names it gives them
+- The default `BindingData` assets no longer ship with the package, since they are generated more precisely than the ones that were provided
+- `BindingData` inspector shows every entry expanded: control path and localization key on the left, a square sprite field on the right, with a search box. Control paths come from generation and are no longer editable
+
 5.0.0
 - Package can now be installed read-only, e.g. by git URL. No code is generated into the package any more
 - Generated code lives in its own assembly in your project (`Assets/ISW.Generated` by default), which reaches package internals through `InternalsVisibleTo`
@@ -21,10 +27,6 @@
 - Generation warns when an input context names an action map that does not exist, or has no active maps
 - New `Input > Binding Data` submenu with a shortcut per binding data asset
 - Excluded and cancel rebinding paths in `OfflineInputData` are chosen from a searchable dropdown grouped by device, rather than typed as strings. Paths already in the list are not offered again
-- Binding data is keyed by device rather than by control scheme, so a device used by several schemes has one set of entries instead of a copy per scheme
-- A `BindingData` asset is generated per device if one does not exist, populated from the input system's own layout registry with every control that device has and the display names it gives them
-- The default `BindingData` assets no longer ship with the package, since they are generated more precisely than the ones that were provided
-- `BindingData` inspector shows every entry expanded: control path and localization key on the left, a square sprite field on the right, with a search box. Control paths come from generation and are no longer editable
 
 4.0.0
 - Rename `Input` class to `ISW` (acronym) to avoid needing aliases against Unity's built-in "Input" class.
