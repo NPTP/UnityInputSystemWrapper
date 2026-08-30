@@ -57,7 +57,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             if (inputContexts == null || inputContexts.Length == 0)
             {
-                headerComment.Add("// >>> WARNING: No InputContexts have been defined in your OfflineInputData asset.");
+                headerComment.Add("// >>> WARNING: No InputContexts have been defined in your InputData asset.");
                 headerComment.Add("// >>> Add at least 1 InputContext, then re-run input code generation.");
             }
             else

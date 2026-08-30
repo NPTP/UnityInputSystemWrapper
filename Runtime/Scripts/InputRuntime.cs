@@ -30,8 +30,8 @@ namespace NPTP.InputSystemWrapper
 
         #region Fields & Properties
 
-        private const string RUNTIME_INPUT_DATA_RESOURCES_PATH = "RuntimeInputData";
-        
+        private const string INPUT_DATA_RESOURCES_PATH = "InputData";
+
         /// <summary>
         /// For use with any localization system in your project: handle this event by taking the passed request,
         /// using localizationKey to find the right string in your localization system, and setting localizedDisplayName
@@ -53,7 +53,7 @@ namespace NPTP.InputSystemWrapper
             add => anyButtonPressListenerCollection.Add(value);
             remove => anyButtonPressListenerCollection.Remove(value);
         }
-        
+
         // TODO (architecture): Shortcoming here. OnInputUserChange doesn't always get called when a binding changes, so we have this as well.
         // Can we consolidate these events into a higher-level abstraction? Or separate them by desired events (binding change, control scheme change, etc with more granularity)
         public event Action OnBindingsChanged;
@@ -76,17 +76,17 @@ namespace NPTP.InputSystemWrapper
                 else OnAnyButtonPress -= JoinPlayerByActivatedInputControl;
             }
         }
-        
+
         public Vector2 MousePosition => Mouse.current.position.ReadValue();
-        
+
         internal InputPlayer DefaultPlayer => playerCollection.DefaultPlayer;
 
         private bool initialized;
         private InputPlayerCollection playerCollection;
-        private RuntimeInputData runtimeInputData;
+        private InputData inputData;
         private InputActionRebindingExtensions.RebindingOperation rebindingOperation;
         private AnyButtonPressListenerCollection anyButtonPressListenerCollection;
-        
+
         #endregion
 
         #region Setup
@@ -102,26 +102,26 @@ namespace NPTP.InputSystemWrapper
         {
             SetUpQuittingConditions();
 
-            runtimeInputData = Resources.Load<RuntimeInputData>(RUNTIME_INPUT_DATA_RESOURCES_PATH);
-            if (runtimeInputData == null || runtimeInputData.InputActionAsset == null)
+            inputData = Resources.Load<InputData>(INPUT_DATA_RESOURCES_PATH);
+            if (inputData == null || inputData.InputActionAsset == null)
             {
-                throw new Exception($"{nameof(RuntimeInputData)} is null or its input action asset is null - input will not work! Did you move the asset from its original location in 'Resources'?");
+                throw new Exception($"{nameof(InputData)} is null or its input action asset is null - input will not work! Did you move the asset from its original location in 'Resources'?");
             }
-            
+
             // Clear out anything in the scene that would interfere with the ISW's autonomous operation.
             ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
-            
+
             // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
-            CustomSetupsRegisterer.PerformRegistrations(runtimeInputData);
-            
-            playerCollection = new InputPlayerCollection(runtimeInputData, HandlePlayerAdded, HandlePlayerRemoved);
+            CustomSetupsRegisterer.PerformRegistrations(inputData);
+
+            playerCollection = new InputPlayerCollection(inputData, HandlePlayerAdded, HandlePlayerRemoved);
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
             UpdateAfterPlayerCollectionChange();
-            if (runtimeInputData.LoadAllBindingOverridesOnInitialize) LoadBindingsForAllPlayers();
-            playerCollection.SetContextForAll(runtimeInputData.DefaultContextId);
-            
+            if (inputData.LoadAllBindingOverridesOnInitialize) LoadBindingsForAllPlayers();
+            playerCollection.SetContextForAll(inputData.DefaultContextId);
+
             anyButtonPressListenerCollection = new AnyButtonPressListenerCollection();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
@@ -162,14 +162,14 @@ namespace NPTP.InputSystemWrapper
         }
 
         #endregion
-        
+
         #region Public Interface
 
         public InputPlayer GetPlayer(int playerID)
         {
             return playerCollection.GetOrAdd(playerID);
         }
-        
+
         public void AddPlayer(int playerID)
         {
             GetPlayer(playerID);
@@ -189,7 +189,7 @@ namespace NPTP.InputSystemWrapper
         {
             playerCollection.SetContextForAll(inputContextId);
         }
-        
+
         /// <summary>
         /// Try to get the ActionWrapper for the (deprecated) InputActionReference's action.
         /// Useful as a transitional tool from normal Unity Input System usage to full ISW integration.
@@ -221,7 +221,7 @@ namespace NPTP.InputSystemWrapper
             {
                 return;
             }
-            
+
             // Note that player ID is contained in the ActionReference.
             ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId);
             BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
@@ -260,16 +260,16 @@ namespace NPTP.InputSystemWrapper
         }
 
         #endregion
-        
+
         #region Internal Interface
 
-        internal ControlSchemeId GetControlSchemeId(int index) => runtimeInputData.GetControlSchemeId(index);
+        internal ControlSchemeId GetControlSchemeId(int index) => inputData.GetControlSchemeId(index);
 
         internal void BroadcastLocalizedStringRequested(LocalizedStringRequest localizedStringRequest)
         {
             OnLocalizedStringRequested?.Invoke(localizedStringRequest);
         }
-        
+
         internal void BroadcastBindingsChanged()
         {
             OnBindingsChanged?.Invoke();
@@ -281,7 +281,7 @@ namespace NPTP.InputSystemWrapper
         {
             OnControlsUpdated?.Invoke();
         }
-        
+
         /// <summary>
         /// Start an interactive rebind: wait for input from the given player and device to bind a new control to the action given in the action reference.
         /// </summary>
@@ -299,7 +299,7 @@ namespace NPTP.InputSystemWrapper
 
             if (BindingGetter.TryGetFirstBindingIndex(actionBindingInfo, out int bindingIndex))
             {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(runtimeInputData, actionBindingInfo, bindingIndex, callback);
+                rebindingOperation = BindingChanger.StartInteractiveRebind(inputData, actionBindingInfo, bindingIndex, callback);
             }
             else
             {
@@ -319,28 +319,28 @@ namespace NPTP.InputSystemWrapper
             }
 
             ActionBindingInfo actionBindingInfo = new(actionWrapper, compositePart, player.CurrentControlSchemeId);
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionBindingInfo, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(inputData, actionBindingInfo, out bindingInfos);
         }
 
         internal bool TryGetBindingInfo(ActionBindingInfo actionBindingInfo, out IEnumerable<BindingInfo> bindingInfos)
         {
-            return BindingGetter.TryGetBindingInfo(runtimeInputData, actionBindingInfo, out bindingInfos);
+            return BindingGetter.TryGetBindingInfo(inputData, actionBindingInfo, out bindingInfos);
         }
 
         internal bool TryGetActionWrapper(int playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
             return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
-        
+
         internal bool DoesPlayerExist(int playerID)
         {
             return playerCollection.TryGetPlayer(playerID, out _);
         }
-        
+
         #endregion
 
         #region Private Runtime Functionality
-        
+
         private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)
         {
             OnAnyPlayerInputUserChange?.Invoke(inputUserChangeInfo);
@@ -350,25 +350,25 @@ namespace NPTP.InputSystemWrapper
         {
             OnAnyPlayerControlSchemeChanged?.Invoke(inputPlayer);
         }
-        
+
         private void HandleAnyPlayerKeyboardTextInput(char c)
         {
             OnAnyPlayerKeyboardTextInput?.Invoke(c);
         }
-        
+
         private void HandlePlayerAdded(InputPlayer inputPlayer) => UpdateAfterPlayerCollectionChange();
         private void HandlePlayerRemoved(int playerID) => UpdateAfterPlayerCollectionChange();
-        
+
         private void UpdateAfterPlayerCollectionChange()
         {
             foreach (InputPlayer player in playerCollection)
             {
                 player.OnInputUserChange -= HandleAnyPlayerInputUserChange;
                 player.OnInputUserChange += HandleAnyPlayerInputUserChange;
-                
+
                 player.OnControlSchemeChanged -= HandleAnyPlayerControlSchemeChanged;
                 player.OnControlSchemeChanged += HandleAnyPlayerControlSchemeChanged;
-                
+
                 player.OnKeyboardTextInput -= HandleAnyPlayerKeyboardTextInput;
                 player.OnKeyboardTextInput += HandleAnyPlayerKeyboardTextInput;
             }
@@ -381,7 +381,7 @@ namespace NPTP.InputSystemWrapper
                 BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
             }
         }
-        
+
         private void JoinPlayerByActivatedInputControl(InputControl inputControl)
         {
             InputDevice device = inputControl.device;
@@ -398,7 +398,7 @@ namespace NPTP.InputSystemWrapper
                 Debug.Log("Device is MKB");
                 return;
             }
-            
+
             // Any devices already in use can't be stolen.
             if (playerCollection.IsDeviceLastUsedByAnyPlayer(device))
             {
@@ -430,7 +430,7 @@ namespace NPTP.InputSystemWrapper
         {
             playerCollection.HandleInputUserChange(inputUser, inputUserChange, inputDevice);
         }
-        
+
         #endregion
 
         #region Editor-Only Debug
@@ -438,8 +438,8 @@ namespace NPTP.InputSystemWrapper
         internal static event Action<int, InputContextId> EDITOR_OnPlayerInputContextChanged;
 
         internal bool EDITOR_IsInitialized => initialized;
-        internal InputContextId EDITOR_GetDefaultContext() => runtimeInputData.DefaultContextId;
-        internal string EDITOR_GetContextName(InputContextId id) => runtimeInputData.GetContextDefinition(id)?.Name ?? id.Index.ToString();
+        internal InputContextId EDITOR_GetDefaultContext() => inputData.DefaultContextId;
+        internal string EDITOR_GetContextName(InputContextId id) => inputData.GetContextDefinition(id)?.Name ?? id.Index.ToString();
 
         internal bool EDITOR_TryGetPlayer(int playerID, out InputPlayer inputPlayer)
         {

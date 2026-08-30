@@ -10,14 +10,14 @@ namespace NPTP.InputSystemWrapper.Editor
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets,
             string[] movedAssets, string[] movedFromAssetPaths)
         {
-            Generation.ProjectAssets.TryFindProjectAsset("OfflineInputData", out OfflineInputData offlineInputData);
-            if (offlineInputData == null || offlineInputData.RuntimeInputData == null || offlineInputData.RuntimeInputData.InputActionAsset == null)
+            Generation.ProjectAssets.TryFindProjectAsset("InputData", out InputData inputData);
+            if (inputData == null || inputData == null || inputData.InputActionAsset == null)
             {
                 return;
             }
-            
-            if (importedAssets.Any(importedAsset => importedAsset.EndsWith($"{offlineInputData.RuntimeInputData.InputActionAsset.name}.inputactions") ||
-                                                    importedAsset.EndsWith($"{offlineInputData.name}.asset")))
+
+            if (importedAssets.Any(importedAsset => importedAsset.EndsWith($"{inputData.InputActionAsset.name}.inputactions") ||
+                                                    importedAsset.EndsWith($"{inputData.name}.asset")))
             {
                 InputScriptGenerator.GenerateInputScriptCode();
             }

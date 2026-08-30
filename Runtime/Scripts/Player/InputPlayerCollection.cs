@@ -22,25 +22,25 @@ namespace NPTP.InputSystemWrapper.Player
 
         private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
 
-        private readonly RuntimeInputData runtimeInputData;
+        private readonly InputData inputData;
         private readonly Transform inputParent;
         private Action<InputPlayer> onPlayerAdded;
         private Action<int> onPlayerRemoved;
         private InputPlayer[] players = Array.Empty<InputPlayer>();
 
-        internal InputPlayerCollection(RuntimeInputData runtimeInputData, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
+        internal InputPlayerCollection(InputData inputData, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
         {
-            this.runtimeInputData = runtimeInputData;
+            this.inputData = inputData;
             inputParent = CreateInputParentInScene();
-            
+
             // Add default player before setting player added listener,
             // since this object is not created yet and external listeners may try to access it.
             DefaultPlayer = GetOrAdd(DEFAULT_PLAYER_PLAYER_ID);
-            
+
             onPlayerAdded = playerAddedListener;
             onPlayerRemoved = playerRemovedListener;
         }
-        
+
         public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -59,14 +59,14 @@ namespace NPTP.InputSystemWrapper.Player
                 return players[playerID];
             }
 
-            InputPlayer newPlayer = new InputPlayer(runtimeInputData, playerID, true, inputParent);
+            InputPlayer newPlayer = new InputPlayer(inputData, playerID, true, inputParent);
             players[playerID] = newPlayer;
             newPlayer.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
             newPlayer.Enabled = true;
 #if UNITY_EDITOR
             newPlayer.EDITOR_OnInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif
-            
+
             onPlayerAdded?.Invoke(newPlayer);
             return newPlayer;
         }
@@ -78,7 +78,7 @@ namespace NPTP.InputSystemWrapper.Player
                 Debug.LogError($"Cannot remove the default player or get a player with ID < {DEFAULT_PLAYER_PLAYER_ID}.");
                 return;
             }
-            
+
             if (playerID >= players.Length || players[playerID] == null)
             {
                 return;
@@ -89,7 +89,7 @@ namespace NPTP.InputSystemWrapper.Player
 
             onPlayerRemoved?.Invoke(playerID);
         }
-        
+
         internal void Terminate()
         {
             foreach (InputPlayer player in Players)
@@ -104,7 +104,7 @@ namespace NPTP.InputSystemWrapper.Player
             onPlayerAdded = null;
             onPlayerRemoved = null;
         }
-        
+
         public void SetMultiplayer(bool isMultiplayer)
         {
             foreach (InputPlayer player in Players)
@@ -117,7 +117,7 @@ namespace NPTP.InputSystemWrapper.Player
         {
             return Players.Any(player => player.LastUsedDevice == device);
         }
-        
+
         internal bool AnyPlayerDisabled()
         {
             return Players.Any(player => !player.Enabled);
@@ -134,7 +134,7 @@ namespace NPTP.InputSystemWrapper.Player
             player = players[playerID];
             return true;
         }
-        
+
         internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer pairedPlayer)
         {
             foreach (var player in Players)
@@ -158,7 +158,7 @@ namespace NPTP.InputSystemWrapper.Player
                 {
                     continue;
                 }
-                
+
                 player.PairDevice(device);
                 pairedPlayer = player;
                 return true;
@@ -192,11 +192,11 @@ namespace NPTP.InputSystemWrapper.Player
                 player.InputContextId = inputContextId;
             }
         }
-        
+
         #endregion
 
         #region Private Methods
-        
+
         /// <summary>
         /// Add a new player at the first possible player ID.
         /// This may be between, or greater than any existing player IDs.
@@ -231,7 +231,7 @@ namespace NPTP.InputSystemWrapper.Player
             }
 
             int enabledPlayersCount = Players.Count(player => player.Enabled);
-            
+
             if (enabledPlayersCount > 1)
             {
                 foreach (InputPlayer player in Players)
@@ -247,7 +247,7 @@ namespace NPTP.InputSystemWrapper.Player
         }
 
         #endregion
-        
+
         #region Editor-Only Debug Fields/Properties/Methods
 #if UNITY_EDITOR
         internal event Action<InputPlayer> EDITOR_OnPlayerInputContextChanged;

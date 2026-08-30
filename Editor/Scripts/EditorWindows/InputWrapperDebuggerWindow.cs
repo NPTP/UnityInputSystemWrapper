@@ -26,17 +26,17 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 				Timestamp = timestamp;
 			}
 		}
-		
+
 		private readonly List<TimestampedObject<string>> mostRecentContexts = new();
 		private int selectedPlayerID = 0; // TODO: Make switchable in the debugger UI
 
-		private OfflineInputData offlineInputData;
-		private OfflineInputData OfflineInputData
+		private InputData inputData;
+		private InputData InputData
 		{
 			get
 			{
-				if (offlineInputData == null) offlineInputData = Helper.OfflineInputData;
-				return offlineInputData;
+				if (inputData == null) inputData = Helper.InputData;
+				return inputData;
 			}
 		}
 
@@ -89,10 +89,10 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 			{
 				return;
 			}
-			
+
 			Repaint();
 		}
-		
+
 		private void OnGUI()
 		{
 			if (!Application.isPlaying)
@@ -101,7 +101,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 				EditorGUILayout.LabelField("You must be in play mode to use the debugger.", new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.BoldAndItalic });
 				return;
 			}
-			
+
 			if (InputRuntime.Current is not { EDITOR_IsInitialized: true })
 			{
 				EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
@@ -132,7 +132,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 
 		private void ActiveMapLabelFields()
 		{
-			foreach (InputContextInfo inputContextInfo in OfflineInputData.InputContexts)
+			foreach (InputContextInfo inputContextInfo in InputData.AuthoredContexts)
 			{
 				if (inputContextInfo.Name != ContextName(InputRuntime.Current.GetPlayer(selectedPlayerID).InputContextId))
 				{
@@ -161,7 +161,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 			string labelExtended = boldLabel + ": ";
 			GUIStyle boldStyle = new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold };
 			Vector2 labelSize = boldStyle.CalcSize(new GUIContent(labelExtended));
-			
+
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField(labelExtended, boldStyle, GUILayout.Width(labelSize.x));
 			EditorGUILayout.LabelField(info, EditorStyles.label);

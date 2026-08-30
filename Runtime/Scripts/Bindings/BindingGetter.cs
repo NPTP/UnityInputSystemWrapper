@@ -9,7 +9,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        internal static bool TryGetBindingInfo(RuntimeInputData runtimeInputData, ActionBindingInfo actionBindingInfo, out IEnumerable<BindingInfo> bindingInfos)
+        internal static bool TryGetBindingInfo(InputData inputData, ActionBindingInfo actionBindingInfo, out IEnumerable<BindingInfo> bindingInfos)
         {
             bindingInfos = default;
 
@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             List<BindingInfo> bindingInfoList = new();
             foreach (ControlPath controlPath in controlPaths)
             {
-                BindingData bindingData = runtimeInputData.GetBindingData(controlPath.DeviceLayoutName);
+                BindingData bindingData = inputData.GetBindingData(controlPath.DeviceLayoutName);
                 if (bindingData == null)
                 {
                     ISWDebug.LogWarning($"Device {controlPath.DeviceLayoutName} has no {nameof(BindingData)} and cannot produce display names/sprites!");

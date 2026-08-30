@@ -11,7 +11,7 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
     {
         protected override string[] GetNames()
         {
-            InputActionAsset asset = Generation.ProjectAssets.TryFindProjectAsset("RuntimeInputData", out RuntimeInputData runtimeInputData) ? runtimeInputData.InputActionAsset : null;
+            InputActionAsset asset = Generation.ProjectAssets.TryFindProjectAsset("InputData", out InputData inputData) ? inputData.InputActionAsset : null;
             if (asset == null)
             {
                 return System.Array.Empty<string>();

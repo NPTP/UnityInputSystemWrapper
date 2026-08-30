@@ -15,17 +15,17 @@ namespace NPTP.InputSystemWrapper.Editor
             GenerationReport.Begin();
 
             // The package may be read-only, so the assets the generator writes to live in the project.
-            OfflineInputData offlineInputData = ProjectAssets.EnsureProjectAssets();
-            if (offlineInputData == null)
+            InputData inputData = ProjectAssets.EnsureProjectAssets();
+            if (inputData == null)
             {
                 GenerationReport.End();
                 return;
             }
 
-            InputActionAsset asset = offlineInputData.RuntimeInputData == null ? null : offlineInputData.RuntimeInputData.InputActionAsset;
+            InputActionAsset asset = inputData.InputActionAsset;
             if (asset == null)
             {
-                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(RuntimeInputData)} asset first. Aborting...");
+                Debug.LogError($"Can't generate InputSystemWrapper code: You need to specify an InputActionAsset in the {nameof(InputData)} asset first. Aborting...");
                 GenerationReport.End();
                 return;
             }
@@ -41,16 +41,16 @@ namespace NPTP.InputSystemWrapper.Editor
             }
 
             WriteFile("ControlScheme", EnumEmitter.BuildControlSchemeFile(asset), outputFolder);
-            WriteFile("InputContext", EnumEmitter.BuildInputContextFile(offlineInputData.InputContexts), outputFolder);
+            WriteFile("InputContext", EnumEmitter.BuildInputContextFile(inputData.AuthoredContexts), outputFolder);
             WriteFile("InputPlayerExtensions", InputPlayerExtensionsEmitter.BuildFile(asset), outputFolder);
-            WriteType("ISW", ISWEmitter.Build(asset, offlineInputData), outputFolder);
+            WriteType("ISW", ISWEmitter.Build(asset, inputData), outputFolder);
             WriteFile("BindingDataMenuItems", BindingDataMenuEmitter.BuildFile(), outputFolder);
 
             GeneratedAssembly.PruneStaleScripts(outputFolder);
 
-            // Control scheme metadata, input contexts and rebinding paths are plain data, so they get written
-            // into the RuntimeInputData asset rather than generated as C#.
-            RuntimeInputDataSynchronizer.Synchronize(offlineInputData);
+            // Control scheme metadata, input contexts and rebinding paths are data, so they are written into
+            // the InputData asset.
+            InputDataSynchronizer.Synchronize(inputData);
 
             GenerationReport.LogAndEnd("Input wrapper generation complete");
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);

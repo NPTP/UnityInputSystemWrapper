@@ -17,8 +17,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string RESOURCES_FOLDER_NAME = "Resources";
         private const string BINDING_DATA_FOLDER_NAME = "BindingData";
         private const string PACKAGE_DEFAULTS_FOLDER_NAME = "DefaultAssets";
-        private const string RUNTIME_INPUT_DATA_NAME = "RuntimeInputData";
-        private const string OFFLINE_INPUT_DATA_NAME = "OfflineInputData";
+        private const string INPUT_DATA_NAME = "InputData";
 
         /// <summary>
         /// The asset-database path of the project's own Resources folder for this package's assets.
@@ -42,11 +41,11 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         /// <summary>
         /// Copy the package's default assets into the project if they are not there yet, and return the
-        /// project's OfflineInputData. Safe to call repeatedly - existing project assets are never touched.
+        /// project's InputData. Existing project assets are never overwritten.
         /// </summary>
-        internal static OfflineInputData EnsureProjectAssets()
+        internal static InputData EnsureProjectAssets()
         {
-            if (TryFindProjectAsset(OFFLINE_INPUT_DATA_NAME, out OfflineInputData existing))
+            if (TryFindProjectAsset(INPUT_DATA_NAME, out InputData existing))
             {
                 return existing;
             }
@@ -69,13 +68,12 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             CopyContents(defaultsFolder, resourcesFolder);
             AssetDatabase.Refresh();
 
-            if (!TryFindProjectAsset(OFFLINE_INPUT_DATA_NAME, out OfflineInputData copied))
+            if (!TryFindProjectAsset(INPUT_DATA_NAME, out InputData copied))
             {
-                ISWDebug.LogError($"Failed to create the project's {OFFLINE_INPUT_DATA_NAME} asset.");
+                ISWDebug.LogError($"Failed to create the project's {INPUT_DATA_NAME} asset.");
                 return null;
             }
 
-            RelinkRuntimeInputData(copied);
             GenerationReport.Record($"{resourcesFolder} (project input assets created - edit these, the package's copies are defaults only)");
             return copied;
         }
@@ -106,30 +104,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     AssetDatabase.CopyAsset(path, destination);
                 }
             }
-        }
-
-        /// <summary>
-        /// A folder copy should carry this reference over, but the OfflineInputData is useless if it points
-        /// at the package's RuntimeInputData instead of the project's, so make sure of it.
-        /// </summary>
-        private static void RelinkRuntimeInputData(OfflineInputData offlineInputData)
-        {
-            if (!TryFindProjectAsset(RUNTIME_INPUT_DATA_NAME, out RuntimeInputData runtimeInputData))
-            {
-                return;
-            }
-
-            SerializedObject serializedObject = new(offlineInputData);
-            SerializedProperty property = serializedObject.FindProperty(OfflineInputData.EDITOR_RuntimeInputDataField);
-            if (property.objectReferenceValue == runtimeInputData)
-            {
-                return;
-            }
-
-            property.objectReferenceValue = runtimeInputData;
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(offlineInputData);
-            AssetDatabase.SaveAssetIfDirty(offlineInputData);
         }
 
         /// <summary>
