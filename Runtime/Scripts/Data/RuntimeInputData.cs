@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
@@ -25,12 +26,12 @@ namespace NPTP.InputSystemWrapper.Data
 
         [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
                  "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
-        [SerializeField] private string[] bindingExcludedPaths;
+        [ControlPathSelector][SerializeField] private string[] bindingExcludedPaths;
         internal string[] BindingExcludedPaths => bindingExcludedPaths;
 
         [Tooltip("These control paths will cancel/exit an interactive rebinding. " +
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
-        [SerializeField] private string[] bindingCancelPaths;
+        [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
 
         [SerializeField] private EventSystemOptions eventSystemOptions;

@@ -186,19 +186,17 @@ namespace NPTP.InputSystemWrapper.Editor
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByName.TryGetValue(controlSchemeName, out BindingData bindingData) ? bindingData : null;
+                    existingByName.GetValueOrDefault(controlSchemeName);
 
-                ControlSchemeBasis.BasisSpec basis = GetBasis(offlineInputData, controlSchemeName);
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsMouseBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsMouseBased;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsGamepadBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsGamepadBased;
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(offlineInputData, controlSchemeName);
             }
         }
 
-        private static ControlSchemeBasis.BasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
+        private static ControlSchemeBasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
         {
             if (offlineInputData.ControlSchemeBases == null)
             {
-                return ControlSchemeBasis.BasisSpec.Undefined;
+                return ControlSchemeBasisSpec.Undefined;
             }
 
             foreach (ControlSchemeBasis controlSchemeBasis in offlineInputData.ControlSchemeBases)
@@ -209,7 +207,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 }
             }
 
-            return ControlSchemeBasis.BasisSpec.Undefined;
+            return ControlSchemeBasisSpec.Undefined;
         }
     }
 }

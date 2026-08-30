@@ -22,19 +22,23 @@ namespace NPTP.InputSystemWrapper.Enums
         /// </summary>
         internal string Name { get; }
 
-        internal bool IsMouseBased { get; }
-        internal bool IsGamepadBased { get; }
+        /// <summary>
+        /// Which device family the scheme is based on.
+        /// </summary>
+        internal ControlSchemeBasisSpec Basis { get; }
+
+        internal bool IsMouseBased => Basis is ControlSchemeBasisSpec.IsMouseBased;
+        internal bool IsGamepadBased => Basis is ControlSchemeBasisSpec.IsGamepadBased;
 
         internal bool IsNone => Index == NONE_INDEX;
 
-        internal static ControlSchemeId None => new(NONE_INDEX, string.Empty, false, false);
+        internal static ControlSchemeId None => new(NONE_INDEX, string.Empty, ControlSchemeBasisSpec.Undefined);
 
-        internal ControlSchemeId(int index, string name, bool isMouseBased, bool isGamepadBased)
+        internal ControlSchemeId(int index, string name, ControlSchemeBasisSpec basis)
         {
             Index = index;
             Name = name;
-            IsMouseBased = isMouseBased;
-            IsGamepadBased = isGamepadBased;
+            Basis = basis;
         }
 
         internal InputBinding ToBindingMask() => new(groups: Name, path: default);

@@ -18,20 +18,16 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private BindingData bindingData;
         internal BindingData BindingData => bindingData;
+        
+        [SerializeField] private ControlSchemeBasisSpec basis;
+        internal ControlSchemeBasisSpec Basis => basis;
 
-        [SerializeField] private bool isMouseBased;
-        internal bool IsMouseBased => isMouseBased;
-
-        [SerializeField] private bool isGamepadBased;
-        internal bool IsGamepadBased => isGamepadBased;
-
-        internal ControlSchemeId ToId(int index) => new(index, controlSchemeName, isMouseBased, isGamepadBased);
+        internal ControlSchemeId ToId(int index) => new(index, controlSchemeName, basis);
 
 #if UNITY_EDITOR
         internal const string EDITOR_ControlSchemeNameField = nameof(controlSchemeName);
         internal const string EDITOR_BindingDataField = nameof(bindingData);
-        internal const string EDITOR_IsMouseBasedField = nameof(isMouseBased);
-        internal const string EDITOR_IsGamepadBasedField = nameof(isGamepadBased);
+        internal const string EDITOR_BasisField = nameof(basis);
 #endif
     }
 }
