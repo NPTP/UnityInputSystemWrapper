@@ -20,6 +20,7 @@
 - `ControlSchemeBasis` and the default context are keyed by name rather than by enum, so re-set them in `OfflineInputData`
 - Generation warns when an input context names an action map that does not exist, or has no active maps
 - New `Input > Binding Data` submenu with a shortcut per binding data asset
+- Excluded and cancel rebinding paths in `OfflineInputData` are chosen from a searchable dropdown grouped by device, rather than typed as strings. Paths already in the list are not offered again
 
 4.0.0
 - Rename `Input` class to `ISW` (acronym) to avoid needing aliases against Unity's built-in "Input" class.
