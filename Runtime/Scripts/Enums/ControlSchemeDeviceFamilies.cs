@@ -12,7 +12,7 @@ namespace NPTP.InputSystemWrapper.Enums
     /// </para>
     /// </summary>
     [Flags]
-    internal enum ControlSchemeBasisSpec
+    internal enum ControlSchemeDeviceFamilies
     {
         Undefined = 0,
         UsesPointer = 1 << 0,

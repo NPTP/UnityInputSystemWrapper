@@ -20,14 +20,14 @@ namespace NPTP.InputSystemWrapper.Editor
         /// it stands for. Anything else is derived from one of these, so matching by inheritance puts
         /// every device in a family.
         /// </summary>
-        private static readonly (string Layout, ControlSchemeBasisSpec Family)[] deviceFamilies =
+        private static readonly (string Layout, ControlSchemeDeviceFamilies Family)[] deviceFamilies =
         {
-            ("Pointer", ControlSchemeBasisSpec.UsesPointer),
-            ("Gamepad", ControlSchemeBasisSpec.UsesGamepad),
-            ("Keyboard", ControlSchemeBasisSpec.UsesKeyboard),
-            ("Joystick", ControlSchemeBasisSpec.UsesJoystick),
-            ("Sensor", ControlSchemeBasisSpec.UsesSensor),
-            ("TrackedDevice", ControlSchemeBasisSpec.UsesTrackedDevice)
+            ("Pointer", ControlSchemeDeviceFamilies.UsesPointer),
+            ("Gamepad", ControlSchemeDeviceFamilies.UsesGamepad),
+            ("Keyboard", ControlSchemeDeviceFamilies.UsesKeyboard),
+            ("Joystick", ControlSchemeDeviceFamilies.UsesJoystick),
+            ("Sensor", ControlSchemeDeviceFamilies.UsesSensor),
+            ("TrackedDevice", ControlSchemeDeviceFamilies.UsesTrackedDevice)
         };
 
         internal static void Synchronize(InputData inputData)
@@ -39,7 +39,7 @@ namespace NPTP.InputSystemWrapper.Editor
 
             SerializedObject serializedObject = new(inputData);
 
-            SyncControlSchemes(serializedObject, inputData, inputData.InputActionAsset);
+            SyncControlSchemes(serializedObject, inputData.InputActionAsset);
             SyncDeviceBindingData(serializedObject, inputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, inputData);
             SyncInputContexts(serializedObject, inputData);
@@ -166,10 +166,10 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Rebuild the control scheme list from the asset's control schemes, baking in each scheme's device
-        /// basis from the offline data.
+        /// Rebuild the control scheme list from the asset's control schemes, baking in the device families
+        /// each one uses.
         /// </summary>
-        private static void SyncControlSchemes(SerializedObject serializedObject, InputData inputData, InputActionAsset asset)
+        private static void SyncControlSchemes(SerializedObject serializedObject, InputActionAsset asset)
         {
             SerializedProperty entries = serializedObject.FindProperty(InputData.EDITOR_ControlSchemesField);
 
@@ -184,7 +184,9 @@ namespace NPTP.InputSystemWrapper.Editor
                 InputControlScheme controlScheme = asset.controlSchemes[i];
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlScheme.name;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(controlScheme);
+                // intValue, not enumValueIndex: this is a flags enum, so the value is a bit mask rather
+                // than a position in the enum's declaration.
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_DeviceFamiliesField).intValue = (int)GetDeviceFamilies(controlScheme);
             }
         }
 
@@ -275,19 +277,19 @@ namespace NPTP.InputSystemWrapper.Editor
         /// Which device families a control scheme uses, taken from the devices it requires. A scheme can
         /// use several at once, e.g. one requiring a keyboard and a mouse.
         /// </summary>
-        private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
+        private static ControlSchemeDeviceFamilies GetDeviceFamilies(InputControlScheme controlScheme)
         {
-            ControlSchemeBasisSpec basis = ControlSchemeBasisSpec.Undefined;
+            ControlSchemeDeviceFamilies used = ControlSchemeDeviceFamilies.Undefined;
 
             foreach (string layout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
             {
-                foreach ((string familyLayout, ControlSchemeBasisSpec family) in deviceFamilies)
+                foreach ((string familyLayout, ControlSchemeDeviceFamilies family) in deviceFamilies)
                 {
-                    if (InputSystem.IsFirstLayoutBasedOnSecond(layout, familyLayout)) basis |= family;
+                    if (InputSystem.IsFirstLayoutBasedOnSecond(layout, familyLayout)) used |= family;
                 }
             }
 
-            return basis;
+            return used;
         }
     }
 }

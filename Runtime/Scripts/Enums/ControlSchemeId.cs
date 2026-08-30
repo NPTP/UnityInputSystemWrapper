@@ -6,7 +6,7 @@ namespace NPTP.InputSystemWrapper.Enums
     /// <summary>
     /// Identifies one control scheme without naming the generated ControlScheme enum, so that the package
     /// runtime does not depend on generated code. Carries a copy of the scheme's baked metadata, so
-    /// resolving a name or a basis never needs a lookup back into the runtime input data.
+    /// resolving a name or a device family never needs a lookup back into the runtime input data.
     /// </summary>
     internal readonly struct ControlSchemeId : IEquatable<ControlSchemeId>
     {
@@ -25,26 +25,26 @@ namespace NPTP.InputSystemWrapper.Enums
         /// <summary>
         /// Which device families the scheme uses.
         /// </summary>
-        internal ControlSchemeBasisSpec Basis { get; }
+        internal ControlSchemeDeviceFamilies DeviceFamilies { get; }
 
-        internal bool UsesPointer => Has(ControlSchemeBasisSpec.UsesPointer);
-        internal bool UsesGamepad => Has(ControlSchemeBasisSpec.UsesGamepad);
-        internal bool UsesKeyboard => Has(ControlSchemeBasisSpec.UsesKeyboard);
-        internal bool UsesJoystick => Has(ControlSchemeBasisSpec.UsesJoystick);
-        internal bool UsesSensor => Has(ControlSchemeBasisSpec.UsesSensor);
-        internal bool UsesTrackedDevice => Has(ControlSchemeBasisSpec.UsesTrackedDevice);
+        internal bool UsesPointer => Has(ControlSchemeDeviceFamilies.UsesPointer);
+        internal bool UsesGamepad => Has(ControlSchemeDeviceFamilies.UsesGamepad);
+        internal bool UsesKeyboard => Has(ControlSchemeDeviceFamilies.UsesKeyboard);
+        internal bool UsesJoystick => Has(ControlSchemeDeviceFamilies.UsesJoystick);
+        internal bool UsesSensor => Has(ControlSchemeDeviceFamilies.UsesSensor);
+        internal bool UsesTrackedDevice => Has(ControlSchemeDeviceFamilies.UsesTrackedDevice);
 
-        private bool Has(ControlSchemeBasisSpec family) => (Basis & family) != 0;
+        private bool Has(ControlSchemeDeviceFamilies family) => (DeviceFamilies & family) != 0;
 
         internal bool IsNone => Index == NONE_INDEX;
 
-        internal static ControlSchemeId None => new(NONE_INDEX, string.Empty, ControlSchemeBasisSpec.Undefined);
+        internal static ControlSchemeId None => new(NONE_INDEX, string.Empty, ControlSchemeDeviceFamilies.Undefined);
 
-        internal ControlSchemeId(int index, string name, ControlSchemeBasisSpec basis)
+        internal ControlSchemeId(int index, string name, ControlSchemeDeviceFamilies deviceFamilies)
         {
             Index = index;
             Name = name;
-            Basis = basis;
+            DeviceFamilies = deviceFamilies;
         }
 
         internal InputBinding ToBindingMask() => new(groups: Name, path: default);
