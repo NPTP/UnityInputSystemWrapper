@@ -34,9 +34,10 @@ namespace NPTP.InputSystemWrapper.Editor
             // itself never has to be written to and can be installed read-only.
             string outputFolder = GeneratedAssembly.GetOrCreateFolderAssetPath();
 
+            string actionsFolder = $"{outputFolder}/{GeneratedAssembly.ACTIONS_SUBFOLDER}";
             foreach (InputActionMap map in asset.actionMaps)
             {
-                WriteType($"{map.name.AsType()}Actions", ActionsEmitter.Build(map), outputFolder);
+                WriteType($"{map.name.AsType()}Actions", ActionsEmitter.Build(map), actionsFolder);
             }
 
             WriteFile("ControlScheme", EnumEmitter.BuildControlSchemeFile(asset), outputFolder);

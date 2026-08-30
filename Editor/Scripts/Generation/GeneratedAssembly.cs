@@ -27,6 +27,12 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private const string DEFAULT_FOLDER_NAME = "ISW.Generated";
 
+        /// <summary>
+        /// One actions class is generated per action map, so they get a folder of their own rather than
+        /// crowding the handful of files at the root of the generated assembly.
+        /// </summary>
+        internal const string ACTIONS_SUBFOLDER = "Actions";
+
         private const string DEFAULT_ASSETS_FOLDER = "Assets/" + DEFAULT_FOLDER_NAME;
         private const string PACKAGE_RUNTIME_ASSEMBLY = "InputSystemWrapper";
 
@@ -61,9 +67,24 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// <summary>
         /// Delete generated scripts this run did not produce, so renaming an action map does not leave its
         /// old actions class behind. Only .cs files are touched, never the assembly definition or assets.
+        /// <para>
+        /// The generated folder and its Actions subfolder are each pruned by their own direct contents, so
+        /// anything the user has put in a folder of their own underneath is left alone.
+        /// </para>
         /// </summary>
         internal static void PruneStaleScripts(string folderAssetPath)
         {
+            PruneFolder(folderAssetPath);
+            PruneFolder(folderAssetPath + "/" + ACTIONS_SUBFOLDER);
+        }
+
+        private static void PruneFolder(string folderAssetPath)
+        {
+            if (!AssetDatabase.IsValidFolder(folderAssetPath))
+            {
+                return;
+            }
+
             foreach (string guid in AssetDatabase.FindAssets("t:MonoScript", new[] { folderAssetPath }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
