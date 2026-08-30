@@ -67,7 +67,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             foreach (string guid in AssetDatabase.FindAssets("t:MonoScript", new[] { folderAssetPath }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (path.Substring(0, path.LastIndexOf(''/'')) != folderAssetPath || GenerationReport.WasWritten(path))
+                if (path.Substring(0, path.LastIndexOf('/')) != folderAssetPath || GenerationReport.WasWritten(path))
                 {
                     continue;
                 }
