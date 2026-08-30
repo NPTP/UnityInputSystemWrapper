@@ -15,6 +15,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string CONTROL_SCHEME = "ControlScheme";
         private const string INPUT_CONTEXT = "InputContext";
         private const string INPUT_PLAYER = "InputPlayer";
+        private const string INPUT_PLAYER_REF = InputPlayerRefEmitter.TYPE_NAME;
         private const string ACTION_WRAPPER = "ActionWrapper";
         private const string PLAYER_ID = "playerID";
         private const string NULLABLE_PLAYER_ID = "int?";
@@ -27,7 +28,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS, GeneratedNamespaces.BINDINGS,
                     GeneratedNamespaces.ENUMS, GeneratedNamespaces.PLAYER, GeneratedNamespaces.UTILITIES)
                 .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
-                .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER).Private().Static().Expression("Runtime.DefaultPlayer"));
+                .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER_REF).Private().Static().Expression("Runtime.DefaultPlayer"));
 
             AddSinglePlayerAccess(isw, asset);
             AddInitialization(isw, asset, inputData);
@@ -48,13 +49,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 isw.WithProperty(SourceGen.NewProperty(mapName.AsType(), $"{mapName.AsType()}Actions")
                     .Public()
                     .Static()
-                    .Expression($"DefaultPlayer.{mapName.AsType()}()"));
+                    .Expression($"DefaultPlayer.{mapName.AsType()}"));
             }
 
             isw.WithProperty(SourceGen.NewProperty("CurrentControlScheme", CONTROL_SCHEME)
                 .Public()
                 .Static()
-                .Expression("DefaultPlayer.CurrentControlScheme()"));
+                .Expression("DefaultPlayer.CurrentControlScheme"));
         }
 
         private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
@@ -121,7 +122,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             isw
                 .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
-                .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER)
+                .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER_REF)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
                 .WithMethod(SourceGen.NewMethod("AddPlayer").Public().Static().ReturningVoid()
