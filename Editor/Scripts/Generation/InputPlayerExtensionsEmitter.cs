@@ -45,7 +45,10 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             lines.Add("        public static bool ControlSchemeHas<TDevice>(this InputPlayer inputPlayer, ControlScheme controlScheme) where TDevice : InputDevice =>");
             lines.Add("            inputPlayer.ControlSchemeHas<TDevice>(controlScheme.ToId());");
             lines.Add("    }");
+            lines.Add("}");
             lines.Add(string.Empty);
+            lines.Add($"namespace {GeneratedNamespaces.ACTIONS}");
+            lines.Add("{");
             lines.Add("    public static class ActionWrapperExtensions");
             lines.Add("    {");
             lines.Add("        public static void StartInteractiveRebind(this ActionWrapper actionWrapper, ControlScheme controlScheme, Action<RebindInfo> callback = null) =>");
