@@ -4,6 +4,8 @@ using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Actions
 {
     /// <summary>
@@ -49,22 +51,22 @@ namespace NPTP.InputSystemWrapper.Actions
         }
 
         public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindInfo> callback = null) =>
-            ISW.StartInteractiveRebind(new ActionBindingInfo(this, CompositePart.DontIsolatePart, ISW.ToControlSchemeId(controlScheme)), callback);
+            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, CompositePart.DontIsolatePart, InputRuntime.Current.ToControlSchemeId(controlScheme)), callback);
 
         public void StartInteractiveRebind(ControlScheme controlScheme, CompositePart compositePart, Action<RebindInfo> callback = null) =>
-            ISW.StartInteractiveRebind(new ActionBindingInfo(this, compositePart, ISW.ToControlSchemeId(controlScheme)), callback);
+            InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, compositePart, InputRuntime.Current.ToControlSchemeId(controlScheme)), callback);
 
         public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos) =>
-            ISW.TryGetCurrentBindingInfo(this, CompositePart.DontIsolatePart, out bindingInfos);
+            InputRuntime.Current.TryGetCurrentBindingInfo(this, CompositePart.DontIsolatePart, out bindingInfos);
 
         public bool TryGetCurrentBindingInfo(CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
-            ISW.TryGetCurrentBindingInfo(this, compositePart, out bindingInfos);
+            InputRuntime.Current.TryGetCurrentBindingInfo(this, compositePart, out bindingInfos);
 
         public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos) =>
-            ISW.TryGetBindingInfo(new ActionBindingInfo(this, CompositePart.DontIsolatePart, ISW.ToControlSchemeId(controlScheme)), out bindingInfos);
+            InputRuntime.Current.TryGetBindingInfo(new ActionBindingInfo(this, CompositePart.DontIsolatePart, InputRuntime.Current.ToControlSchemeId(controlScheme)), out bindingInfos);
 
         public bool TryGetBindingInfo(ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>
-            ISW.TryGetBindingInfo(new ActionBindingInfo(this, compositePart, ISW.ToControlSchemeId(controlScheme)), out bindingInfos);
+            InputRuntime.Current.TryGetBindingInfo(new ActionBindingInfo(this, compositePart, InputRuntime.Current.ToControlSchemeId(controlScheme)), out bindingInfos);
 
         private void HandleActionEvent(InputAction.CallbackContext context) => onEvent?.Invoke(new ActionEventInfo(this, context));
     }

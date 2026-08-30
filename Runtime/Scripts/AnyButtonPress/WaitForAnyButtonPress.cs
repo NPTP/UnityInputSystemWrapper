@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
+
+using NPTP.InputSystemWrapper;
 
 namespace NPTP.InputSystemWrapper.AnyButtonPress
 {
@@ -16,7 +18,7 @@ namespace NPTP.InputSystemWrapper.AnyButtonPress
         {
             get
             {
-                if (anyButtonPressed || !ISW.DoesPlayerExist(playerID))
+                if (anyButtonPressed || !InputRuntime.PlayerExists(playerID))
                 {
                     ResetYieldInstruction();
                     return false;
@@ -37,15 +39,15 @@ namespace NPTP.InputSystemWrapper.AnyButtonPress
                     return;
                 }
 
-                if (ISW.DoesPlayerExist(playerID))
+                if (InputRuntime.PlayerExists(playerID))
                 {
-                    if (value) ISW.GetPlayer(playerID).OnAnyButtonPress += HandleAnyButtonPress;
-                    else ISW.GetPlayer(playerID).OnAnyButtonPress -= HandleAnyButtonPress;
+                    if (value) InputRuntime.Current.GetPlayer(playerID).OnAnyButtonPress += HandleAnyButtonPress;
+                    else InputRuntime.Current.GetPlayer(playerID).OnAnyButtonPress -= HandleAnyButtonPress;
                 }
                 else
                 {
-                    if (value) ISW.OnAnyButtonPress += HandleAnyButtonPress;
-                    else ISW.OnAnyButtonPress -= HandleAnyButtonPress;
+                    if (value) InputRuntime.Current.OnAnyButtonPress += HandleAnyButtonPress;
+                    else InputRuntime.Current.OnAnyButtonPress -= HandleAnyButtonPress;
                 }
                     
                 listeningForAnyButtonPress = value;

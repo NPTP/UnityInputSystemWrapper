@@ -22,6 +22,7 @@ namespace NPTP.InputSystemWrapper.Editor
         // Assets
         internal static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
         internal static string InputNamespace => GetNamespace(ISWFileSystemPath);
+        internal static string GeneratedActionsNamespace => InputNamespace + ".Actions";
         
         // Existing script paths
         private static string ISWFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ISWScriptFile);

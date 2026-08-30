@@ -159,6 +159,21 @@ namespace NPTP.InputSystemWrapper.Player
             DisableAllMapsAndRemoveCallbacks();
         }
 
+        internal InputPlayer(RuntimeInputData runtimeInputData, int id, bool isMultiplayer, Transform parent)
+        {
+            this.runtimeInputData = runtimeInputData;
+            Asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
+            ID = id;
+
+            CreateActionMapWrappers();
+
+            SetUpInputPlayerGameObject(isMultiplayer, parent);
+            PopulateEventSystemActionsPool();
+
+            // Input context gets set by the runtime after this instantiation, which sets up maps & event
+            // system actions/overrides, so we don't have to handle that here.
+        }
+
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
         {
             InputActionAsset oldActions = actions;
@@ -338,6 +353,15 @@ namespace NPTP.InputSystemWrapper.Player
 
         #region Internal
         
+        /// <summary>
+        /// Get the actions object for one action map by its name in the input action asset.
+        /// The generated extension methods on this type are the type-safe way in.
+        /// </summary>
+        internal IActionMapWrapper GetActionMapWrapper(string mapName)
+        {
+            return actionMapWrappers.TryGetValue(mapName, out IActionMapWrapper wrapper) ? wrapper : null;
+        }
+
         internal bool ControlSchemeHas<TDevice>(ControlSchemeId controlSchemeId) where TDevice : InputDevice
         {
             for (int i = 0; i < Asset.controlSchemes.Count; i++)

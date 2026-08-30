@@ -5,6 +5,8 @@ using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Components
 {
     /// <summary>
@@ -27,15 +29,15 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void OnEnable()
         {
-            ISW.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
-            ISW.OnBindingsChanged += HandleBindingsChanged;
+            InputRuntime.Current.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
+            InputRuntime.Current.OnBindingsChanged += HandleBindingsChanged;
             UpdateEvents();
         }
 
         private void OnDisable()
         {
-            ISW.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
-            ISW.OnBindingsChanged -= HandleBindingsChanged;
+            InputRuntime.Current.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
+            InputRuntime.Current.OnBindingsChanged -= HandleBindingsChanged;
         }
 
         private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo)

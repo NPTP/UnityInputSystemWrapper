@@ -39,6 +39,13 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputContextDefinition[] inputContexts;
         internal InputContextDefinition[] InputContexts => inputContexts;
 
+        [SerializeField] private int defaultContextIndex;
+        internal InputContextId DefaultContextId => new(defaultContextIndex);
+
+        [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized.")]
+        [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
+        internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
+
         public IEnumerable<CustomSetup> AllCustomSetups
         {
             get
@@ -98,6 +105,8 @@ namespace NPTP.InputSystemWrapper.Data
 #if UNITY_EDITOR
         internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
         internal const string EDITOR_InputContextsField = nameof(inputContexts);
+        internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
+        internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);
         internal const string EDITOR_BindingCancelPathsField = nameof(bindingCancelPaths);

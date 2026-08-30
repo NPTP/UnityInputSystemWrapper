@@ -30,6 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor
             
             Helper.ClearFolderRecursive(Helper.GeneratedCompleteFolderSystemPath);
             GenerateActionClasses(offlineInputData.RuntimeInputData.InputActionAsset);
+            GenerateInputPlayerActionsExtensions(offlineInputData.RuntimeInputData.InputActionAsset);
             
             ModifyExistingFile(Helper.ControlSchemeFileSystemPath, new ControlSchemeContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
@@ -52,6 +53,13 @@ namespace NPTP.InputSystemWrapper.Editor
                     ActionsContentBuilder.AddContent,
                 Helper.GeneratedCompleteFolderSystemPath + map.name.AsType() + "Actions.cs");
             }
+        }
+
+        private static void GenerateInputPlayerActionsExtensions(InputActionAsset asset)
+        {
+            Helper.WriteLinesToFile(
+                new List<string>(InputPlayerActionsExtensionsBuilder.BuildLines(asset, Helper.GeneratedActionsNamespace)),
+                Helper.GeneratedCompleteFolderSystemPath + "InputPlayerActionsExtensions.cs");
         }
 
         private static void GenerateFile(InputActionMap map, string readPath,

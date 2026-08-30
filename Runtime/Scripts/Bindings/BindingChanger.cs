@@ -7,6 +7,8 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingChanger
@@ -47,11 +49,11 @@ namespace NPTP.InputSystemWrapper.Bindings
                 // TODO <optimization>: Temporary measure to return binding info with completed binding.
                 // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
                 IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
-                ISW.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
+                InputRuntime.Current.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
                 
                 callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
@@ -106,7 +108,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
             if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlSchemeId.ToBindingMask(), compositeCondition))
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
@@ -120,7 +122,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             if (changed)
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
@@ -131,7 +133,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             if (changed)
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 

@@ -16,30 +16,13 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
             {
                 case "SinglePlayerFieldsAndProperties":
                     string[] mapNames = Helper.GetMapNames(Asset).ToArray();
-                    info.NewLines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => {DEFAULT_PLAYER_FIELD}.{mapName.AsType()};"));
+                    info.NewLines.AddRange(mapNames.Select(mapName => $"        public static {mapName.AsType()}Actions {mapName.AsType()} => {DEFAULT_PLAYER_FIELD}.{mapName.AsType()}();"));
                     info.NewLines.Add($"        public static {nameof(ControlScheme)} CurrentControlScheme => {DEFAULT_PLAYER_FIELD}.CurrentControlScheme;");
-                    break;
-                case "DefaultContextProperty":
-                    string defaultContextValue = $"{nameof(InputContext)}.{Data.DefaultContext}";
-                    if (Data.InputContexts.Length == 0)
-                    {
-                        info.NewLines.Add("        // >>> WARNING: No InputContexts have been defined in your OfflineInputData asset. Add at least 1 InputContext, then re-save the asset.");
-                        defaultContextValue = "0";
-                    }
-                    else if (Enum.GetNames(typeof(InputContext)).Length == 0)
-                    {
-                        defaultContextValue = $"{nameof(InputContext)}.{Data.InputContexts[0].Name}";
-                    }
-                    info.NewLines.Add($"        private static {nameof(InputContext)} DefaultContext => {defaultContextValue};");
                     break;
                 case "Initialize":
                     if (Data.InitializationMode == InitializationMode.BeforeSceneLoad)
                         info.NewLines.Add("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
                     info.NewLines.Add($"        {(Data.InitializationMode == InitializationMode.Manual ? "public" : "private")} static void Initialize()");
-                    break;
-                case "LoadAllBindingsOnInitialization":
-                    if (Data.LoadAllBindingOverridesOnInitialize)
-                        info.NewLines.Add("            LoadBindingsForAllPlayers();");
                     break;
             }
         }

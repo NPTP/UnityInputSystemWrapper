@@ -5,6 +5,8 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Actions
 {
     /// <summary>
@@ -53,7 +55,7 @@ namespace NPTP.InputSystemWrapper.Actions
                     return null;
                 }
                 
-                ISW.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
+                InputRuntime.Current.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
                 return actionWrapper;
             }
         }
@@ -63,7 +65,7 @@ namespace NPTP.InputSystemWrapper.Actions
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
             if (inputActionReference != null && inputActionReference.action != null &&
-                ISW.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
+                InputRuntime.Current.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
             {
                 actionReference = new ActionReference(inputActionReference.action) { actionWrapper = actionWrapper };
                 return true;
@@ -75,7 +77,7 @@ namespace NPTP.InputSystemWrapper.Actions
         
         public static bool TryConvert(InputAction inputAction, int playerID, out ActionReference actionReference)
         {
-            if (inputAction != null && ISW.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
+            if (inputAction != null && InputRuntime.Current.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
             {
                 actionReference = new ActionReference(inputAction) { actionWrapper = actionWrapper };
                 return true;

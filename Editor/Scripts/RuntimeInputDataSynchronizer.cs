@@ -29,6 +29,8 @@ namespace NPTP.InputSystemWrapper.Editor
             SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, offlineInputData);
             SyncInputContexts(serializedObject, offlineInputData);
+            serializedObject.FindProperty(RuntimeInputData.EDITOR_DefaultContextIndexField).intValue = (int)offlineInputData.DefaultContext;
+            serializedObject.FindProperty(RuntimeInputData.EDITOR_LoadAllBindingOverridesOnInitializeField).boolValue = offlineInputData.LoadAllBindingOverridesOnInitialize;
 
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(runtimeInputData);

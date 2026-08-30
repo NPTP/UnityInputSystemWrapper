@@ -8,15 +8,10 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
         {
             switch (info.MarkerName)
             {
-                case "ActionsProperties":
-                    foreach (string mapName in Helper.GetMapNames(Asset))
-                        info.NewLines.Add($"        public {mapName.AsProperty()}Actions {mapName.AsProperty()}" + " { get; }");
-                    break;
                 case "ActionsInstantiation":
                     foreach (string map in Helper.GetMapNames(Asset))
                     {
-                        info.NewLines.Add($"            {map.AsProperty()} = new {map.AsType()}Actions(ID, Asset, actionWrapperTable);");
-                        info.NewLines.Add($"            actionMapWrappers.Add(\"{map}\", {map.AsProperty()});");
+                        info.NewLines.Add($"            actionMapWrappers.Add(\"{map}\", new {map.AsType()}Actions(ID, Asset, actionWrapperTable));");
                     }
                     break;
             }
