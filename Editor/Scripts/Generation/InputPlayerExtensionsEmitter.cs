@@ -14,8 +14,11 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             List<string> lines = new()
             {
+                "using System;",
+                "using System.Collections.Generic;",
                 "using NPTP.InputSystemWrapper;",
                 "using NPTP.InputSystemWrapper.Actions;",
+                "using NPTP.InputSystemWrapper.Bindings;",
                 "using NPTP.InputSystemWrapper.Enums;",
                 "using UnityEngine.InputSystem;",
                 string.Empty
@@ -41,6 +44,27 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             lines.Add(string.Empty);
             lines.Add("        public static bool ControlSchemeHas<TDevice>(this InputPlayer inputPlayer, ControlScheme controlScheme) where TDevice : InputDevice =>");
             lines.Add("            inputPlayer.ControlSchemeHas<TDevice>(controlScheme.ToId());");
+            lines.Add("    }");
+            lines.Add(string.Empty);
+            lines.Add("    public static class ActionWrapperExtensions");
+            lines.Add("    {");
+            lines.Add("        public static void StartInteractiveRebind(this ActionWrapper actionWrapper, ControlScheme controlScheme, Action<RebindInfo> callback = null) =>");
+            lines.Add("            actionWrapper.StartInteractiveRebind(controlScheme.ToId(), callback);");
+            lines.Add(string.Empty);
+            lines.Add("        public static void StartInteractiveRebind(this ActionWrapper actionWrapper, ControlScheme controlScheme, CompositePart compositePart, Action<RebindInfo> callback = null) =>");
+            lines.Add("            actionWrapper.StartInteractiveRebind(controlScheme.ToId(), compositePart, callback);");
+            lines.Add(string.Empty);
+            lines.Add("        public static bool TryGetBindingInfo(this ActionWrapper actionWrapper, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos) =>");
+            lines.Add("            actionWrapper.TryGetBindingInfo(controlScheme.ToId(), out bindingInfos);");
+            lines.Add(string.Empty);
+            lines.Add("        public static bool TryGetBindingInfo(this ActionWrapper actionWrapper, ControlScheme controlScheme, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos) =>");
+            lines.Add("            actionWrapper.TryGetBindingInfo(controlScheme.ToId(), compositePart, out bindingInfos);");
+            lines.Add(string.Empty);
+            lines.Add("        public static void StartInteractiveRebind(this ActionReference actionReference, ControlScheme controlScheme, Action<RebindInfo> callback = null) =>");
+            lines.Add("            actionReference.StartInteractiveRebind(controlScheme.ToId(), callback);");
+            lines.Add(string.Empty);
+            lines.Add("        public static bool TryGetBindingInfo(this ActionReference actionReference, ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos) =>");
+            lines.Add("            actionReference.TryGetBindingInfo(controlScheme.ToId(), out bindingInfos);");
             lines.Add("    }");
             lines.Add("}");
             return lines;

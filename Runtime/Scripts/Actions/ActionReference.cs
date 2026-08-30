@@ -100,7 +100,7 @@ namespace NPTP.InputSystemWrapper.Actions
                 : ActionWrapper.TryGetCurrentBindingInfo(out bindingInfos);
         }
         
-        public bool TryGetBindingInfo(ControlScheme controlScheme, out IEnumerable<BindingInfo> bindingInfos)
+        internal bool TryGetBindingInfo(ControlSchemeId controlSchemeId, out IEnumerable<BindingInfo> bindingInfos)
         {
             if (ActionWrapper == null)
             {
@@ -109,11 +109,11 @@ namespace NPTP.InputSystemWrapper.Actions
             }
 
             return useCompositePart
-                ? ActionWrapper.TryGetBindingInfo(controlScheme, compositePart, out bindingInfos)
-                : ActionWrapper.TryGetBindingInfo(controlScheme, out bindingInfos);
+                ? ActionWrapper.TryGetBindingInfo(controlSchemeId, compositePart, out bindingInfos)
+                : ActionWrapper.TryGetBindingInfo(controlSchemeId, out bindingInfos);
         }
 
-        public void StartInteractiveRebind(ControlScheme controlScheme, Action<RebindInfo> callback = null)
+        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, Action<RebindInfo> callback = null)
         {
             if (ActionWrapper == null)
             {
@@ -121,9 +121,9 @@ namespace NPTP.InputSystemWrapper.Actions
             }
             
             if (useCompositePart)
-                ActionWrapper.StartInteractiveRebind(controlScheme, compositePart, callback);
+                ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, callback);
             else
-                ActionWrapper.StartInteractiveRebind(controlScheme, callback);
+                ActionWrapper.StartInteractiveRebind(controlSchemeId, callback);
         }
         
         private ActionReference(InputAction action)

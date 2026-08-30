@@ -18,7 +18,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         
         private SerializedProperty initializationMode;
         
-        private SerializedProperty defaultContext;
+        private SerializedProperty defaultContextIndex;
         private SerializedProperty inputContexts;
         
         private SerializedProperty controlSchemeBases;
@@ -47,7 +47,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void OnEnable()
         {
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
-            defaultContext = serializedObject.FindProperty(nameof(defaultContext));
+            defaultContextIndex = serializedObject.FindProperty(nameof(defaultContextIndex));
             inputContexts = serializedObject.FindProperty(nameof(inputContexts));
             
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
@@ -74,6 +74,20 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
             
             PopulateControlSchemeBases();
+        }
+
+        private void DrawDefaultContextPopup()
+        {
+            InputContextInfo[] contexts = ((OfflineInputData)target).InputContexts;
+            if (contexts == null || contexts.Length == 0)
+            {
+                EditorGUILayout.LabelField("Default Context", "No input contexts defined");
+                return;
+            }
+
+            string[] names = contexts.Select(context => context.Name).ToArray();
+            int index = Mathf.Clamp(defaultContextIndex.intValue, 0, names.Length - 1);
+            defaultContextIndex.intValue = EditorGUILayout.Popup("Default Context", index, names);
         }
 
         private void PopulateControlSchemeBases()
@@ -123,7 +137,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Input Contexts");
-            EditorGUILayout.PropertyField(defaultContext);
+            DrawDefaultContextPopup();
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(inputContexts);
             

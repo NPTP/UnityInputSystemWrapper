@@ -42,8 +42,8 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
 
-        [SerializeField] private InputContext defaultContext = 0;
-        internal InputContext DefaultContext => defaultContext;
+        [SerializeField] private int defaultContextIndex;
+        internal int DefaultContextIndex => defaultContextIndex;
         
         [SerializeField] private InputContextInfo[] inputContexts;
         internal InputContextInfo[] InputContexts => inputContexts;
