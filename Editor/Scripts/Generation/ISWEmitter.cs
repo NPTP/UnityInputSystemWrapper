@@ -113,7 +113,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             isw.WithEvent(SourceGen.NewEvent(eventName)
                 .Public()
                 .Static()
-                .Of(handlerType)
+                .OfType(handlerType)
                 .Forwarding($"Runtime.{eventName}"));
         }
 

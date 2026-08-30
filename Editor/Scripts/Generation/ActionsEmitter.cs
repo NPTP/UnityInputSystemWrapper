@@ -1,5 +1,6 @@
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.UnitySourceGen.Editor;
+using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine.InputSystem;
