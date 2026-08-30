@@ -1,29 +1,31 @@
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
-        internal static bool TryGetBindingInfo(InputData inputData, ActionBindingInfo actionBindingInfo, out IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>
+        /// What to display for a run of bindings. Each binding names the device it is on, so binding data
+        /// is looked up per binding rather than once for the whole control scheme. A scheme spanning a
+        /// keyboard and a mouse therefore reads each control from the data for the device it belongs to.
+        /// </summary>
+        internal static IReadOnlyList<BindingInfo> GetBindingInfos(InputData inputData, ReadOnlyArray<InputBinding> bindings,
+            InputBinding bindingMask, int startIndex, int count)
         {
-            bindingInfos = default;
+            List<BindingInfo> bindingInfos = new();
 
-            // Each binding names the device it is on, so binding data is looked up per binding rather than
-            // once for the whole control scheme. A scheme spanning a keyboard and a mouse therefore reads
-            // each control from the data for the device that control actually belongs to.
-            if (!TryGetControlPaths(actionBindingInfo, actionBindingInfo.ControlSchemeId, out List<ControlPath> controlPaths))
+            for (int i = startIndex; i < startIndex + count; i++)
             {
-                return false;
-            }
+                InputBinding binding = bindings[i];
+                if (!bindingMask.Matches(binding) || !ControlPath.TryParse(binding.effectivePath, out ControlPath controlPath))
+                {
+                    continue;
+                }
 
-            List<BindingInfo> bindingInfoList = new();
-            foreach (ControlPath controlPath in controlPaths)
-            {
                 BindingData bindingData = inputData.GetBindingData(controlPath.DeviceLayoutName);
                 if (bindingData == null)
                 {
@@ -33,12 +35,11 @@ namespace NPTP.InputSystemWrapper.Bindings
 
                 if (bindingData.TryGetBindingInfo(controlPath.PathOnDevice, out BindingInfo bindingInfo))
                 {
-                    bindingInfoList.Add(bindingInfo);
+                    bindingInfos.Add(bindingInfo);
                 }
             }
 
-            bindingInfos = bindingInfoList;
-            return bindingInfoList.Count > 0;
+            return bindingInfos;
         }
 
         /// <summary>
@@ -71,46 +72,6 @@ namespace NPTP.InputSystemWrapper.Bindings
                 controlPath = new ControlPath(deviceLayoutName.Trim('<', '>'), effectivePath.Substring(deviceEndIndex + 2));
                 return true;
             }
-        }
-
-        private static bool TryGetControlPaths(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId, out List<ControlPath> controlPaths)
-        {
-            List<ControlPath> paths = new();
-            InputBinding bindingMask = controlSchemeId.ToBindingMask();
-
-            for (int i = 0; i < actionBindingInfo.ActionWrapper.InputAction.bindings.Count; i++)
-            {
-                InputBinding binding = actionBindingInfo.ActionWrapper.InputAction.bindings[i];
-                if (bindingMask.Matches(binding) && (actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding)) &&
-                    ControlPath.TryParse(binding.effectivePath, out ControlPath controlPath))
-                {
-                    paths.Add(controlPath);
-                }
-            }
-
-            controlPaths = paths;
-            return controlPaths.Count > 0;
-        }
-
-        internal static bool TryGetFirstBindingIndex(ActionBindingInfo actionBindingInfo, out int firstBindingIndex)
-        {
-            firstBindingIndex = -1;
-
-            InputBinding bindingMask = actionBindingInfo.ControlSchemeId.ToBindingMask();
-
-            for (int i = 0; i < actionBindingInfo.ActionWrapper.InputAction.bindings.Count; i++)
-            {
-                InputBinding binding = actionBindingInfo.ActionWrapper.InputAction.bindings[i];
-                if (bindingMask.Matches(binding) &&
-                    ((actionBindingInfo.UseCompositePart && actionBindingInfo.CompositePart.Matches(binding)) ||
-                    (actionBindingInfo.DontUseCompositePart && binding is { isComposite: false, isPartOfComposite: false })))
-                {
-                    firstBindingIndex = i;
-                    break;
-                }
-            }
-
-            return firstBindingIndex != -1;
         }
     }
 }

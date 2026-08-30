@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 
 namespace NPTP.InputSystemWrapper.Bindings
@@ -14,16 +13,21 @@ namespace NPTP.InputSystemWrapper.Bindings
             Canceled,
             Completed
         }
-        
+
         public ActionWrapper ActionWrapper { get; }
         public Status RebindStatus { get; }
-        public IEnumerable<BindingInfo> BindingInfos { get; }
 
-        public RebindInfo(ActionWrapper actionWrapper, Status rebindStatus, IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>
+        /// Every slot of the action on the control scheme that was rebound, not just the one that changed,
+        /// so a screen can repaint all of its rows from one callback.
+        /// </summary>
+        public BindingSlots BindingSlots { get; }
+
+        public RebindInfo(ActionWrapper actionWrapper, Status rebindStatus, BindingSlots bindingSlots)
         {
             ActionWrapper = actionWrapper;
             RebindStatus = rebindStatus;
-            BindingInfos = bindingInfos;
+            BindingSlots = bindingSlots;
         }
     }
 }

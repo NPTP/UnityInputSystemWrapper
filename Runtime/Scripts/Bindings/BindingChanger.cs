@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
@@ -38,7 +37,8 @@ namespace NPTP.InputSystemWrapper.Bindings
             void onCancel(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Canceled, Array.Empty<BindingInfo>()));
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Canceled,
+                    InputRuntime.Current.GetBindingSlots(actionWrapper, actionBindingInfo.ControlSchemeId)));
                 CleanUpRebindingOperation(ref rebindingOperation);
             }
 
@@ -46,12 +46,8 @@ namespace NPTP.InputSystemWrapper.Bindings
             {
                 if (actionWasEnabled) action.Enable();
 
-                // TODO <optimization>: Temporary measure to return binding info with completed binding.
-                // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
-                IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
-                InputRuntime.Current.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
-
-                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed,
+                    InputRuntime.Current.GetBindingSlots(actionWrapper, actionBindingInfo.ControlSchemeId)));
                 CleanUpRebindingOperation(ref rebindingOperation);
                 InputRuntime.Current.BroadcastBindingsChanged();
             }
