@@ -48,8 +48,8 @@ namespace NPTP.InputSystemWrapper.Editor
 
             GeneratedAssembly.PruneStaleScripts(outputFolder);
 
-            // Control scheme metadata, input contexts and rebinding paths are plain data, so they get written
-            // into the InputData asset rather than generated as C#.
+            // Control scheme metadata, input contexts and rebinding paths are data, so they are written into
+            // the InputData asset.
             InputDataSynchronizer.Synchronize(inputData);
 
             GenerationReport.LogAndEnd("Input wrapper generation complete");

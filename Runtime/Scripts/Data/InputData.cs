@@ -14,17 +14,12 @@ using NPTP.InputSystemWrapper.Utilities.Extensions;
 namespace NPTP.InputSystemWrapper.Data
 {
     /// <summary>
-    /// The one input data asset: everything the designer authors, and everything the runtime reads.
+    /// Everything the designer authors and everything the runtime reads.
     /// <para>
-    /// Fields fall into three groups. Most are authored and read directly, with no copying involved. A few
-    /// are authored in a form the runtime cannot use - chiefly InputActionReferences, which name actions in
-    /// the source asset rather than in a player's clone of it - so those are editor-only and are baked by
-    /// code generation into the generated fields below them. The rest are derived from the input action
-    /// asset itself.
-    /// </para>
-    /// <para>
-    /// The editor-only fields are inside UNITY_EDITOR, so they do not exist on the class in a build and
-    /// nothing they reference is pulled into one.
+    /// Fields the runtime can use as authored are read directly. Fields it cannot - chiefly
+    /// InputActionReferences, which name actions in the source asset rather than in a player's clone of it
+    /// - are editor-only and baked by code generation into the generated fields. Editor-only fields are
+    /// inside UNITY_EDITOR, so nothing they reference is pulled into a build.
     /// </para>
     /// </summary>
     internal class InputData : ScriptableObject
@@ -115,10 +110,7 @@ namespace NPTP.InputSystemWrapper.Data
 
         [SerializeField] private ControlSchemeDefinition[] controlSchemes;
 
-        /// <summary>
-        /// One entry per device used by any control scheme. A device that several schemes share has a
-        /// single set of binding data, rather than one copy per scheme.
-        /// </summary>
+        /// <summary>One entry per device used by any control scheme.</summary>
         [SerializeField] private DeviceBindingData[] deviceBindingData;
 
         [SerializeField] private EventSystemOptions eventSystemOptions;

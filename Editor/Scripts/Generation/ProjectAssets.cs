@@ -41,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         /// <summary>
         /// Copy the package's default assets into the project if they are not there yet, and return the
-        /// project's InputData. Safe to call repeatedly - existing project assets are never touched.
+        /// project's InputData. Existing project assets are never overwritten.
         /// </summary>
         internal static InputData EnsureProjectAssets()
         {

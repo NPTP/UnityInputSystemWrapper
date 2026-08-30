@@ -123,15 +123,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 index++;
             }
 
-            // Applied here rather than left in the buffer: the next Update() would discard it, and this
-            // list mirrors the input action asset rather than being something the user edited.
+            // Applied immediately, since the next Update() would discard it. Without undo, because this
+            // list mirrors the action asset rather than being a user edit.
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        /// <summary>
-        /// Whether the mirrored list has fallen behind the input action asset, which happens when a
-        /// different asset is assigned while the inspector is already open.
-        /// </summary>
+        /// <summary>Whether the mirrored list no longer matches the input action asset's control schemes.</summary>
         private bool ControlSchemeBasesAreStale()
         {
             InputActionAsset asset = ((InputData)target).InputActionAsset;

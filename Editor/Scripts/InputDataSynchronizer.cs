@@ -10,10 +10,8 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Editor
 {
     /// <summary>
-    /// Keeps the serialized data on <see cref="InputData"/> in sync with the input action asset and the
-    /// authored, editor-only fields on the same asset. Only values the runtime cannot use in their authored
-    /// form are baked - chiefly InputActionReferences, which become the action IDs a player's cloned asset
-    /// can resolve.
+    /// Bakes the generated fields on <see cref="InputData"/> from the input action asset and the authored
+    /// editor-only fields. InputActionReferences become the action IDs a player's cloned asset can resolve.
     /// </summary>
     internal static class InputDataSynchronizer
     {
