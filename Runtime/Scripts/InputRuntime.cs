@@ -39,6 +39,18 @@ namespace NPTP.InputSystemWrapper
         public event Action<LocalizedStringRequest> OnLocalizedStringRequested;
 
         /// <summary>
+        /// Raised when a player's bindings are saved, if the binding serialization mode includes Event.
+        /// Handle it by storing the request's JSON against its player ID.
+        /// </summary>
+        public event Action<BindingsSaveRequest> OnBindingsSaveRequested;
+
+        /// <summary>
+        /// Raised when a player's bindings are loaded, if the binding serialization mode includes Event.
+        /// Handle it by setting the request's json to what was last saved for its player ID.
+        /// </summary>
+        public event Action<BindingsLoadRequest> OnBindingsLoadRequested;
+
+        /// <summary>
         /// Use as a general purpose catch-all for when to update any UI that displays controls.
         /// Invoked on InputUserChange, on ControlScheme change, and on bindings changed.
         /// </summary>
@@ -258,17 +270,17 @@ namespace NPTP.InputSystemWrapper
         public void LoadAllBindings(int? playerID = null)
         {
             if (playerID.HasValue)
-                BindingSaveLoad.LoadBindingsFromDiskForPlayer(GetPlayer(playerID.Value));
+                BindingSaveLoad.LoadBindingsForPlayer(GetPlayer(playerID.Value), inputData.BindingSerializationMode);
             else foreach (InputPlayer player in playerCollection)
-                    BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
+                    BindingSaveLoad.LoadBindingsForPlayer(player, inputData.BindingSerializationMode);
         }
 
         public void SaveAllBindings(int? playerID = null)
         {
             if (playerID.HasValue)
-                BindingSaveLoad.SaveBindingsToDiskForPlayer(GetPlayer(playerID.Value));
+                BindingSaveLoad.SaveBindingsForPlayer(GetPlayer(playerID.Value), inputData.BindingSerializationMode);
             else foreach (InputPlayer player in playerCollection)
-                    BindingSaveLoad.SaveBindingsToDiskForPlayer(player);
+                    BindingSaveLoad.SaveBindingsForPlayer(player, inputData.BindingSerializationMode);
         }
 
         public void ResetAllBindings(int? playerID = 0)
@@ -293,6 +305,16 @@ namespace NPTP.InputSystemWrapper
         internal void BroadcastBindingsChanged()
         {
             OnBindingsChanged?.Invoke();
+        }
+
+        internal void BroadcastBindingsSaveRequested(BindingsSaveRequest request)
+        {
+            OnBindingsSaveRequested?.Invoke(request);
+        }
+
+        internal void BroadcastBindingsLoadRequested(BindingsLoadRequest request)
+        {
+            OnBindingsLoadRequested?.Invoke(request);
         }
 
         private void BroadcastControlsUpdated(InputUserChangeInfo inputUserChangeInfo) => BroadcastControlsUpdated();
@@ -425,7 +447,7 @@ namespace NPTP.InputSystemWrapper
         {
             foreach (InputPlayer player in playerCollection)
             {
-                BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
+                BindingSaveLoad.LoadBindingsForPlayer(player, inputData.BindingSerializationMode);
             }
         }
 

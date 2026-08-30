@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Editor.Utilities;
@@ -27,9 +25,9 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
-        private SerializedProperty controlSchemeBases;
 
         private SerializedProperty loadAllBindingOverridesOnInitialize;
+        private SerializedProperty bindingSerializationMode;
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
 
@@ -61,9 +59,9 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
-            controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
             loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(InputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
+            bindingSerializationMode = serializedObject.FindProperty(InputData.EDITOR_BindingSerializationModeField);
             bindingExcludedPaths = serializedObject.FindProperty(InputData.EDITOR_BindingExcludedPathsField);
             bindingCancelPaths = serializedObject.FindProperty(InputData.EDITOR_BindingCancelPathsField);
 
@@ -83,8 +81,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             cancel = serializedObject.FindProperty(nameof(cancel));
             trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
-
-            PopulateControlSchemeBases();
         }
 
         private void DrawDefaultContextPopup()
@@ -99,56 +95,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             string[] names = contexts.Select(context => context.Name).ToArray();
             int index = Mathf.Clamp(defaultContextIndex.intValue, 0, names.Length - 1);
             defaultContextIndex.intValue = EditorGUILayout.Popup("Default Context", index, names);
-        }
-
-        private void PopulateControlSchemeBases()
-        {
-            Dictionary<string, ControlSchemeBasisSpec> schemeToSpec = new();
-            for (int i = 0; i < controlSchemeBases.arraySize; i++)
-            {
-                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is ControlSchemeBasis basis)
-                    schemeToSpec[basis.ControlSchemeName] = basis.Basis;
-            }
-
-            controlSchemeBases.ClearArray();
-
-            InputActionAsset asset = ((InputData)target).InputActionAsset;
-            string[] enumValues = asset == null ? Array.Empty<string>() : asset.controlSchemes.Select(controlScheme => controlScheme.name).ToArray();
-            int index = 0;
-            foreach (string scheme in enumValues)
-            {
-                schemeToSpec.TryGetValue(scheme, out ControlSchemeBasisSpec basisSpec);
-                controlSchemeBases.InsertArrayElementAtIndex(index);
-                controlSchemeBases.GetArrayElementAtIndex(index).boxedValue = new ControlSchemeBasis(scheme, basisSpec);
-                index++;
-            }
-
-            // Applied immediately, since the next Update() would discard it. Without undo, because this
-            // list mirrors the action asset rather than being a user edit.
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        /// <summary>Whether the mirrored list no longer matches the input action asset's control schemes.</summary>
-        private bool ControlSchemeBasesAreStale()
-        {
-            InputActionAsset asset = ((InputData)target).InputActionAsset;
-            int schemeCount = asset == null ? 0 : asset.controlSchemes.Count;
-
-            if (controlSchemeBases.arraySize != schemeCount)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < schemeCount; i++)
-            {
-                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is not ControlSchemeBasis basis ||
-                    basis.ControlSchemeName != asset.controlSchemes[i].name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private void DrawHeader(string text)
@@ -167,14 +113,37 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.LabelField(text, SpecialNoteStyle);
         }
 
+        /// <summary>
+        /// The actions the event system drives, each picked from the assigned input action asset. With
+        /// no asset assigned there is nothing to pick from, so the fields are left out entirely.
+        /// </summary>
+        private void DrawDefaultEventSystemActions()
+        {
+            EditorGUILayout.Space();
+            DrawHeader("Default Event System Actions");
+
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
+            if (asset == null)
+            {
+                DrawSpecialNote("No input action asset is assigned.");
+                return;
+            }
+
+            InputActionReferenceDropdown.Draw(point, asset);
+            InputActionReferenceDropdown.Draw(leftClick, asset);
+            InputActionReferenceDropdown.Draw(middleClick, asset);
+            InputActionReferenceDropdown.Draw(rightClick, asset);
+            InputActionReferenceDropdown.Draw(scrollWheel, asset);
+            InputActionReferenceDropdown.Draw(move, asset);
+            InputActionReferenceDropdown.Draw(submit, asset);
+            InputActionReferenceDropdown.Draw(cancel, asset);
+            InputActionReferenceDropdown.Draw(trackedDevicePosition, asset);
+            InputActionReferenceDropdown.Draw(trackedDeviceOrientation, asset);
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-
-            if (ControlSchemeBasesAreStale())
-            {
-                PopulateControlSchemeBases();
-            }
 
             DrawHeader("Input Action Asset");
             EditorGUILayout.PropertyField(inputActionAsset);
@@ -205,32 +174,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             EditorInspectorUtility.DrawHorizontalLine();
 
-            DrawHeader("Control Scheme Device Families");
-            int length = controlSchemeBases.arraySize;
-            if (length == 0)
-            {
-                DrawSpecialNote("No Control Schemes are defined in your Input Action Asset.");
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
-                    if (basisProperty.boxedValue is not ControlSchemeBasis basis)
-                        continue;
-
-                    if (string.IsNullOrEmpty(basis.ControlSchemeName))
-                        continue;
-
-                    SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                    specProperty.enumValueIndex = (int)(ControlSchemeBasisSpec)EditorGUILayout.EnumPopup(basis.ControlSchemeName, (ControlSchemeBasisSpec)specProperty.enumValueIndex);
-                }
-            }
-
-            EditorInspectorUtility.DrawHorizontalLine();
-
             DrawHeader("Bindings");
             EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
+            EditorGUILayout.PropertyField(bindingSerializationMode);
+            if (((InputData)target).BindingSerializationMode.UsesEvent())
+            {
+                DrawSpecialNote("Handle ISW.OnBindingsSaveRequested to save.");
+                DrawSpecialNote("Handle ISW.OnBindingsLoadRequested and populate the request to load.");
+            }
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(bindingExcludedPaths);
             EditorGUILayout.PropertyField(bindingCancelPaths);
@@ -244,16 +195,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(pointerBehavior);
             EditorGUILayout.PropertyField(cursorLockBehavior);
 
-            EditorGUILayout.PropertyField(point);
-            EditorGUILayout.PropertyField(leftClick);
-            EditorGUILayout.PropertyField(middleClick);
-            EditorGUILayout.PropertyField(rightClick);
-            EditorGUILayout.PropertyField(scrollWheel);
-            EditorGUILayout.PropertyField(move);
-            EditorGUILayout.PropertyField(submit);
-            EditorGUILayout.PropertyField(cancel);
-            EditorGUILayout.PropertyField(trackedDevicePosition);
-            EditorGUILayout.PropertyField(trackedDeviceOrientation);
+            DrawDefaultEventSystemActions();
 
             serializedObject.ApplyModifiedProperties();
         }

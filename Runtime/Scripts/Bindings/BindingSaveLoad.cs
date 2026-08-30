@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Player;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
@@ -18,26 +19,64 @@ namespace NPTP.InputSystemWrapper.Bindings
             return $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}{BINDING_FILE_NAME_PREFIX}PlayerID{playerID}.{FILE_TYPE}";
         }
 
-        internal static void LoadBindingsFromDiskForPlayer(InputPlayer inputPlayer)
+        /// <summary>
+        /// Load a player's saved bindings from wherever the mode says they live. With both sources in
+        /// play the project's own storage wins, since it is the one that can outlive a reinstall.
+        /// </summary>
+        internal static void LoadBindingsForPlayer(InputPlayer inputPlayer, BindingSerializationMode mode)
         {
-            string filePath = GetBindingFilePathForPlayer(inputPlayer.ID);
-            if (!FileReadWrite.TryReadLinesFromFile(filePath, out string fileContents))
+            string json = null;
+
+            if (mode.UsesEvent())
             {
-                ISWDebug.LogWarning($"Couldn't load binding overrides for {inputPlayer.ID.ToString()} at path: {filePath}. Aborting...");
+                BindingsLoadRequest request = new(inputPlayer.ID);
+                InputRuntime.Current.BroadcastBindingsLoadRequested(request);
+                json = request.json;
+            }
+
+            if (string.IsNullOrEmpty(json) && mode.UsesFile() && !TryReadFile(inputPlayer, out json))
+            {
                 return;
             }
 
-            inputPlayer.Asset.LoadBindingOverridesFromJson(DropOverridesWithNoBinding(inputPlayer, fileContents));
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
+
+            inputPlayer.Asset.LoadBindingOverridesFromJson(DropOverridesWithNoBinding(inputPlayer, json));
         }
 
-        internal static void SaveBindingsToDiskForPlayer(InputPlayer inputPlayer)
+        /// <summary>Serialize a player's bindings out to everything the mode names.</summary>
+        internal static void SaveBindingsForPlayer(InputPlayer inputPlayer, BindingSerializationMode mode)
         {
-            string fileContents = inputPlayer.Asset.SaveBindingOverridesAsJson();
-            string filePath = GetBindingFilePathForPlayer(inputPlayer.ID);
-            if (!FileReadWrite.TryWriteToFile(filePath, fileContents))
+            string json = inputPlayer.Asset.SaveBindingOverridesAsJson();
+
+            if (mode.UsesFile())
             {
-                ISWDebug.LogWarning($"Couldn't write binding overrides for {inputPlayer.ID.ToString()} to path: {filePath}. Aborting...");
+                string filePath = GetBindingFilePathForPlayer(inputPlayer.ID);
+                if (!FileReadWrite.TryWriteToFile(filePath, json))
+                {
+                    ISWDebug.LogWarning($"Couldn't write binding overrides for {inputPlayer.ID.ToString()} to path: {filePath}. Aborting...");
+                }
             }
+
+            if (mode.UsesEvent())
+            {
+                InputRuntime.Current.BroadcastBindingsSaveRequested(new BindingsSaveRequest(inputPlayer.ID, json));
+            }
+        }
+
+        private static bool TryReadFile(InputPlayer inputPlayer, out string fileContents)
+        {
+            string filePath = GetBindingFilePathForPlayer(inputPlayer.ID);
+            if (FileReadWrite.TryReadLinesFromFile(filePath, out fileContents))
+            {
+                return true;
+            }
+
+            ISWDebug.LogWarning($"Couldn't load binding overrides for {inputPlayer.ID.ToString()} at path: {filePath}. Aborting...");
+            return false;
         }
 
         /// <summary>
