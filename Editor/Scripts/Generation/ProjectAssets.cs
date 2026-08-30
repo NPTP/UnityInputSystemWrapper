@@ -174,16 +174,5 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             return string.Empty;
         }
-
-        [MenuItem("Tools/Input System Wrapper/Set Up Project Input Assets")]
-        private static void SetUpProjectAssetsMenuItem()
-        {
-            OfflineInputData offlineInputData = EnsureProjectAssets();
-            if (offlineInputData != null)
-            {
-                Selection.activeObject = offlineInputData;
-                EditorGUIUtility.PingObject(offlineInputData);
-            }
-        }
     }
 }
