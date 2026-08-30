@@ -2,19 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    internal static partial class BindingChanger
+    internal static class BindingChanger
     {
-        private static string[] ExcludedPaths => GetExcludedPathsGenerated();
-        private static string[] CancelPaths => GetCancelPathsGenerated();
-
-        internal static RebindingOperation StartInteractiveRebind(ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
+        internal static RebindingOperation StartInteractiveRebind(RuntimeInputData runtimeInputData, ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
         {
+            string[] excludedPaths = runtimeInputData.BindingExcludedPaths ?? Array.Empty<string>();
+            string[] cancelPaths = runtimeInputData.BindingCancelPaths ?? Array.Empty<string>();
+
             ActionWrapper actionWrapper = actionBindingInfo.ActionWrapper;
             InputAction action = actionWrapper.InputAction;
             bool actionWasEnabled = action.enabled;
@@ -24,8 +25,8 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             rebindingOperation
                 // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
-                .WithControlsExcludingMultiple(ExcludedPaths)
-                .WithCancelingThroughMultiple(CancelPaths)
+                .WithControlsExcludingMultiple(excludedPaths)
+                .WithCancelingThroughMultiple(cancelPaths)
                 .OnCancel(onCancel)
                 .OnComplete(onComplete);
             

@@ -299,7 +299,7 @@ namespace NPTP.InputSystemWrapper
 
             if (BindingGetter.TryGetFirstBindingIndex(actionBindingInfo, out int bindingIndex))
             {
-                rebindingOperation = BindingChanger.StartInteractiveRebind(actionBindingInfo, bindingIndex, callback);
+                rebindingOperation = BindingChanger.StartInteractiveRebind(runtimeInputData, actionBindingInfo, bindingIndex, callback);
             }
             else
             {

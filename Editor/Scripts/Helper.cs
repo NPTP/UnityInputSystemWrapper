@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,8 +30,6 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string InputPlayerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputPlayerPartialScriptFile);
         internal static string ControlSchemeFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ControlSchemeScriptFile);
         internal static string InputContextFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputContextScriptFile);
-        internal static string RuntimeInputDataFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.RuntimeInputData);
-        internal static string BindingChangerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.BindingChangerPartialScriptFile);
         
         // Template paths
         internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);

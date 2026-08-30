@@ -35,8 +35,10 @@ namespace NPTP.InputSystemWrapper.Editor
             ModifyExistingFile(Helper.InputContextFileSystemPath, new InputContextContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.InputPlayerFileSystemPath, new InputPlayerContentBuilder(offlineInputData));
             ModifyExistingFile(Helper.ISWPartialFileSystemPath, new ISWContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.RuntimeInputDataFileSystemPath, new RuntimeInputDataContentBuilder(offlineInputData));
-            ModifyExistingFile(Helper.BindingChangerFileSystemPath, new BindingChangerContentBuilder(offlineInputData));
+
+            // Control scheme binding data and rebinding paths are plain data, so they get written into the
+            // RuntimeInputData asset rather than generated as C# inside the package.
+            RuntimeInputDataSynchronizer.Synchronize(offlineInputData);
             
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }

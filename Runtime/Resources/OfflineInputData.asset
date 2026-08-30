@@ -19,7 +19,6 @@ MonoBehaviour:
   inputPlayerPartialScriptFile: {fileID: 11500000, guid: e81925db712f4314a964e72efbd1a3b2, type: 3}
   controlSchemeScriptFile: {fileID: 11500000, guid: af0b6eed9da99544b93d6a25a0255a20, type: 3}
   inputContextScriptFile: {fileID: 11500000, guid: 90e1eb4fb9f799e4fa39382da0c021d3, type: 3}
-  bindingChangerPartialScriptFile: {fileID: 11500000, guid: 6c02e2df86514a9293e8b7f3a0c6ad8a, type: 3}
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
   defaultContext: 0

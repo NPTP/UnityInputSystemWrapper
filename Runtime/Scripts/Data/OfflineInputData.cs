@@ -50,9 +50,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private TextAsset inputContextScriptFile;
         public TextAsset InputContextScriptFile => inputContextScriptFile;
 
-        [SerializeField] private TextAsset bindingChangerPartialScriptFile;
-        public TextAsset BindingChangerPartialScriptFile => bindingChangerPartialScriptFile;
-
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;
 
