@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
@@ -38,7 +37,8 @@ namespace NPTP.InputSystemWrapper.Bindings
             void onCancel(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Canceled, Array.Empty<BindingInfo>()));
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Canceled,
+                    InputRuntime.Current.GetBindingSlots(actionWrapper, actionBindingInfo.ControlSchemeId)));
                 CleanUpRebindingOperation(ref rebindingOperation);
             }
 
@@ -46,12 +46,8 @@ namespace NPTP.InputSystemWrapper.Bindings
             {
                 if (actionWasEnabled) action.Enable();
 
-                // TODO <optimization>: Temporary measure to return binding info with completed binding.
-                // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
-                IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
-                InputRuntime.Current.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
-
-                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
+                callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed,
+                    InputRuntime.Current.GetBindingSlots(actionWrapper, actionBindingInfo.ControlSchemeId)));
                 CleanUpRebindingOperation(ref rebindingOperation);
                 InputRuntime.Current.BroadcastBindingsChanged();
             }
@@ -101,6 +97,40 @@ namespace NPTP.InputSystemWrapper.Bindings
         {
             rebindingOperation?.Dispose();
             rebindingOperation = null;
+        }
+
+        /// <summary>
+        /// Put one slot back to its default: every part of a composite, narrowed to a single part when
+        /// the caller names one, or a single plain binding.
+        /// </summary>
+        internal static void ResetBindingToDefaultForSlot(InputData inputData, ActionBindingInfo actionBindingInfo)
+        {
+            InputAction action = actionBindingInfo.ActionWrapper.InputAction;
+            BindingSlots bindingSlots = BindingSlots.Resolve(inputData, action, actionBindingInfo.ControlSchemeId);
+
+            if (!bindingSlots.TryGetAtUIIndex(actionBindingInfo.UIIndex, out BindingSlot bindingSlot))
+            {
+                return;
+            }
+
+            bool changed = false;
+            for (int i = bindingSlot.BindingIndex; i < bindingSlot.BindingIndex + bindingSlot.BindingCount; i++)
+            {
+                InputBinding binding = action.bindings[i];
+                if (binding.isComposite || string.IsNullOrEmpty(binding.overridePath) ||
+                    (actionBindingInfo.UseCompositePart && binding.isPartOfComposite && !actionBindingInfo.CompositePart.Matches(binding)))
+                {
+                    continue;
+                }
+
+                changed = true;
+                action.RemoveBindingOverride(i);
+            }
+
+            if (changed)
+            {
+                InputRuntime.Current.BroadcastBindingsChanged();
+            }
         }
 
         internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId)

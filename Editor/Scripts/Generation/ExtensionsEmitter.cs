@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NPTP.UnitySourceGen.Editor;
 using NPTP.UnitySourceGen.Editor.Generatable;
 
@@ -8,8 +9,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     /// have to be extensions, because the enums are generated and the types they extend are not.
     /// <para>
     /// Each extension class goes in the namespace of the type it extends, so a using directive the user
-    /// already has brings the methods into scope. A player's own enum-typed surface is not here: it lives
-    /// on <see cref="InputPlayerRefEmitter">InputPlayerRef</see> instead.
+    /// already has brings the methods into scope. A player's own enum-typed surface lives on
+    /// <see cref="InputPlayerRefEmitter">InputPlayerRef</see> instead.
     /// </para>
     /// </summary>
     internal static class ExtensionsEmitter
@@ -18,13 +19,16 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string ACTION_WRAPPER = "ActionWrapper";
         private const string ACTION_REFERENCE = "ActionReference";
         private const string REBIND_CALLBACK = "Action<RebindInfo>";
-        private const string BINDING_INFOS = "IEnumerable<BindingInfo>";
+        private const string BINDING_SLOTS = "BindingSlots";
+        private const string UI_INDEX = "uiIndex";
 
         internal static GeneratableFile BuildFile()
         {
             return SourceGen.NewFile()
                 .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
-                .Containing(BuildUserChangeExtensions(), BuildActionExtensions());
+                .Containing(BuildUserChangeExtensions(),
+                    BuildActionExtensions("ActionWrapperExtensions", ACTION_WRAPPER, "actionWrapper", withCompositePart: true),
+                    BuildActionExtensions("ActionReferenceExtensions", ACTION_REFERENCE, "actionReference", withCompositePart: false));
         }
 
         private static GeneratableTypeDefinition BuildUserChangeExtensions()
@@ -40,58 +44,86 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// The enum-typed overloads of the rebinding and binding-info API. These are genuine overloads
-        /// sharing a name, told apart by their parameters.
+        /// The enum-typed binding API for one action type, in its own class so a call site sees only the
+        /// methods that apply to what it holds.
         /// </summary>
-        private static GeneratableTypeDefinition BuildActionExtensions()
+        private static GeneratableTypeDefinition BuildActionExtensions(string className, string extendedType, string parameterName, bool withCompositePart)
         {
-            return SourceGen.NewClass("ActionWrapperExtensions").Public().Static()
+            return SourceGen.NewClass(className).Public().Static()
                 .InNamespace(GeneratedNamespaces.ACTIONS)
-                .WithDirectives("System", "System.Collections.Generic", GeneratedNamespaces.BINDINGS, GeneratedNamespaces.ENUMS)
-                .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
+                .WithDirectives("System", GeneratedNamespaces.BINDINGS, GeneratedNamespaces.ENUMS)
+                .WithMethods(BuildRebindMethods(extendedType, parameterName, withCompositePart))
+                .WithMethod(BuildGetSlotsMethod(extendedType, parameterName))
+                .WithMethods(BuildResetMethods(extendedType, parameterName));
+        }
+
+        /// <summary>
+        /// The rebind overloads for one type. The UI index names the slot to rebind and defaults to the
+        /// first. Only a type that does not already know its composite part takes one: an ActionReference
+        /// carries its part as a serialized field.
+        /// </summary>
+        private static GeneratableMethod[] BuildRebindMethods(string extendedType, string parameterName, bool withCompositePart)
+        {
+            List<GeneratableMethod> rebindMethods = new()
+            {
+                SourceGen.NewMethod("StartInteractiveRebind")
                     .Public()
                     .ReturningVoid()
-                    .Extending(ACTION_WRAPPER, "actionWrapper")
+                    .Extending(extendedType, parameterName)
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of<int>(UI_INDEX, "0"),
                         GeneratableParameter.Of(REBIND_CALLBACK, "callback", "null"))
-                    .Expression("actionWrapper.StartInteractiveRebind(controlScheme.ToId(), callback)"))
-                .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
+                    .Expression($"{parameterName}.StartInteractiveRebind(controlScheme.ToId(), {UI_INDEX}, callback)")
+            };
+
+            if (withCompositePart)
+            {
+                rebindMethods.Add(SourceGen.NewMethod("StartInteractiveRebind")
                     .Public()
                     .ReturningVoid()
-                    .Extending(ACTION_WRAPPER, "actionWrapper")
+                    .Extending(extendedType, parameterName)
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of("CompositePart", "compositePart"),
+                        GeneratableParameter.Of<int>(UI_INDEX, "0"),
                         GeneratableParameter.Of(REBIND_CALLBACK, "callback", "null"))
-                    .Expression("actionWrapper.StartInteractiveRebind(controlScheme.ToId(), compositePart, callback)"))
-                .WithMethod(SourceGen.NewMethod("TryGetBindingInfo")
-                    .Public()
-                    .Returning<bool>()
-                    .Extending(ACTION_WRAPPER, "actionWrapper")
-                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
-                        GeneratableParameter.Out(BINDING_INFOS, "bindingInfos"))
-                    .Expression("actionWrapper.TryGetBindingInfo(controlScheme.ToId(), out bindingInfos)"))
-                .WithMethod(SourceGen.NewMethod("TryGetBindingInfo")
-                    .Public()
-                    .Returning<bool>()
-                    .Extending(ACTION_WRAPPER, "actionWrapper")
-                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
-                        GeneratableParameter.Of("CompositePart", "compositePart"),
-                        GeneratableParameter.Out(BINDING_INFOS, "bindingInfos"))
-                    .Expression("actionWrapper.TryGetBindingInfo(controlScheme.ToId(), compositePart, out bindingInfos)"))
-                .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
+                    .Expression($"{parameterName}.StartInteractiveRebind(controlScheme.ToId(), compositePart, {UI_INDEX}, callback)"));
+            }
+
+            return rebindMethods.ToArray();
+        }
+
+        /// <summary>
+        /// Reset one slot, or every binding the action has on a control scheme. Called conditionally on
+        /// the receiver, so an unassigned reference does nothing rather than throwing.
+        /// </summary>
+        private static GeneratableMethod[] BuildResetMethods(string extendedType, string parameterName)
+        {
+            return new[]
+            {
+                SourceGen.NewMethod("ResetBinding")
                     .Public()
                     .ReturningVoid()
-                    .Extending(ACTION_REFERENCE, "actionReference")
+                    .Extending(extendedType, parameterName)
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
-                        GeneratableParameter.Of(REBIND_CALLBACK, "callback", "null"))
-                    .Expression("actionReference.StartInteractiveRebind(controlScheme.ToId(), callback)"))
-                .WithMethod(SourceGen.NewMethod("TryGetBindingInfo")
+                        GeneratableParameter.Of<int>(UI_INDEX))
+                    .Expression($"{parameterName}?.ResetBinding(controlScheme.ToId(), {UI_INDEX})"),
+                SourceGen.NewMethod("ResetAllBindings")
                     .Public()
-                    .Returning<bool>()
-                    .Extending(ACTION_REFERENCE, "actionReference")
-                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
-                        GeneratableParameter.Out(BINDING_INFOS, "bindingInfos"))
-                    .Expression("actionReference.TryGetBindingInfo(controlScheme.ToId(), out bindingInfos)"));
+                    .ReturningVoid()
+                    .Extending(extendedType, parameterName)
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
+                    .Expression($"{parameterName}?.ResetAllBindings(controlScheme.ToId())")
+            };
+        }
+
+        private static GeneratableMethod BuildGetSlotsMethod(string extendedType, string parameterName)
+        {
+            return SourceGen.NewMethod("GetBindingSlots")
+                .Public()
+                .Returning(BINDING_SLOTS)
+                .Extending(extendedType, parameterName)
+                .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
+                .Expression($"{parameterName}.GetBindingSlots(controlScheme.ToId())");
         }
     }
 }

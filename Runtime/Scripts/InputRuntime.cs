@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
@@ -210,16 +209,42 @@ namespace NPTP.InputSystemWrapper
             return TryConvert(inputActionReference, 0, out actionWrapper);
         }
 
-        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
+        /// <summary>Put one of an action's slots back to its default, leaving its others alone.</summary>
+        internal void ResetBindingForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId, int uiIndex)
         {
-            if (actionReference == null || actionReference.ActionWrapper == null)
+            if (actionWrapper == null)
             {
                 return;
             }
 
-            // Note that player ID is contained in the ActionReference.
-            ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId);
-            BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
+            BindingChanger.ResetBindingToDefaultForSlot(inputData, new ActionBindingInfo(actionWrapper, compositePart, controlSchemeId, uiIndex));
+        }
+
+        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex)
+        {
+            ResetBindingForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId, uiIndex);
+        }
+
+        /// <summary>Put every one of an action's bindings on this control scheme back to its default.</summary>
+        internal void ResetAllBindingsForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId)
+        {
+            if (actionWrapper == null)
+            {
+                return;
+            }
+
+            BindingChanger.ResetBindingToDefaultForControlScheme(new ActionBindingInfo(actionWrapper, compositePart, controlSchemeId), controlSchemeId);
+        }
+
+        internal void ResetAllBindingsForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
+        {
+            ResetAllBindingsForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId);
+        }
+
+        // An ActionReference carries its own composite part and player ID.
+        private static CompositePart GetCompositePart(ActionReference actionReference)
+        {
+            return actionReference == null ? CompositePart.DontIsolatePart : actionReference.CompositePart;
         }
 
         internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)
@@ -292,34 +317,61 @@ namespace NPTP.InputSystemWrapper
                 rebindingOperation.Dispose();
             }
 
-            if (BindingGetter.TryGetFirstBindingIndex(actionBindingInfo, out int bindingIndex))
+            if (TryGetBindingIndexToRebind(actionBindingInfo, out int bindingIndex))
             {
                 rebindingOperation = BindingChanger.StartInteractiveRebind(inputData, actionBindingInfo, bindingIndex, callback);
             }
             else
             {
-                ISWDebug.LogError("Rebinding failed: Action or binding index could not be found.");
                 rebindingOperation?.Dispose();
                 rebindingOperation = null;
-                callback?.Invoke(new RebindInfo(actionBindingInfo.ActionWrapper, RebindInfo.Status.Failed, Array.Empty<BindingInfo>()));
+                callback?.Invoke(new RebindInfo(actionBindingInfo.ActionWrapper, RebindInfo.Status.Failed, BindingSlots.Empty));
             }
         }
 
-        internal bool TryGetCurrentBindingInfo(ActionWrapper actionWrapper, CompositePart compositePart, out IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>
+        /// The binding a rebind writes to: the slot at the requested UI index, narrowed to one part if
+        /// that slot is a composite.
+        /// </summary>
+        private bool TryGetBindingIndexToRebind(ActionBindingInfo actionBindingInfo, out int bindingIndex)
         {
-            if (!playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player))
+            bindingIndex = -1;
+            InputAction action = actionBindingInfo.ActionWrapper.InputAction;
+            BindingSlots bindingSlots = BindingSlots.Resolve(inputData, action, actionBindingInfo.ControlSchemeId);
+
+            if (!bindingSlots.TryGetAtUIIndex(actionBindingInfo.UIIndex, out BindingSlot bindingSlot))
             {
-                bindingInfos = default;
                 return false;
             }
 
-            ActionBindingInfo actionBindingInfo = new(actionWrapper, compositePart, player.CurrentControlSchemeId);
-            return BindingGetter.TryGetBindingInfo(inputData, actionBindingInfo, out bindingInfos);
+            if (bindingSlot.IsComposite && actionBindingInfo.DontUseCompositePart)
+            {
+                ISWDebug.LogError($"Binding at UI index {actionBindingInfo.UIIndex} of action {action.name} is a composite, " +
+                                  "which has to be rebound one part at a time. Specify a composite part.");
+                return false;
+            }
+
+            if (!bindingSlot.TryGetBindingIndexForPart(action, actionBindingInfo.CompositePart, out bindingIndex))
+            {
+                ISWDebug.LogError($"Binding at UI index {actionBindingInfo.UIIndex} of action {action.name} has no " +
+                                  $"{actionBindingInfo.CompositePart} part.");
+                return false;
+            }
+
+            return true;
         }
 
-        internal bool TryGetBindingInfo(ActionBindingInfo actionBindingInfo, out IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>The slots of an action on whichever control scheme the player is currently using.</summary>
+        internal BindingSlots GetCurrentBindingSlots(ActionWrapper actionWrapper)
         {
-            return BindingGetter.TryGetBindingInfo(inputData, actionBindingInfo, out bindingInfos);
+            return !playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player)
+                ? BindingSlots.Empty
+                : GetBindingSlots(actionWrapper, player.CurrentControlSchemeId);
+        }
+
+        internal BindingSlots GetBindingSlots(ActionWrapper actionWrapper, ControlSchemeId controlSchemeId)
+        {
+            return BindingSlots.Resolve(inputData, actionWrapper.InputAction, controlSchemeId);
         }
 
         internal bool TryGetActionWrapper(int playerID, InputAction inputAction, out ActionWrapper actionWrapper)

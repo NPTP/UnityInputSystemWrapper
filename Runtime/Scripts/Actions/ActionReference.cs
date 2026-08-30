@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
@@ -22,24 +21,24 @@ namespace NPTP.InputSystemWrapper.Actions
             add => ActionWrapper.OnEvent += value;
             remove => ActionWrapper.OnEvent -= value;
         }
-        
+
         public bool DownThisFrame => ActionWrapper.DownThisFrame;
         public bool IsDown => ActionWrapper.IsDown;
-        
+
         [SerializeField] private InputActionReference reference;
-        
-        [SerializeField] private bool useCompositePart; 
+
+        [SerializeField] private bool useCompositePart;
         public bool UseCompositePart => useCompositePart;
-        
+
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
 
         [SerializeField] private bool applyToAllPlayers;
         internal bool ApplyToAllPlayers => applyToAllPlayers;
-        
+
         [SerializeField] private int playerID;
         internal int PlayerID => playerID;
-        
+
         private ActionWrapper actionWrapper;
         internal ActionWrapper ActionWrapper
         {
@@ -54,14 +53,14 @@ namespace NPTP.InputSystemWrapper.Actions
                 {
                     return null;
                 }
-                
+
                 InputRuntime.Current.TryGetActionWrapper(PlayerID, reference.action, out actionWrapper);
                 return actionWrapper;
             }
         }
 
         public string ActionName => ActionWrapper != null ? ActionWrapper.InputAction.name : "Not found";
-        
+
         public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
         {
             if (inputActionReference != null && inputActionReference.action != null &&
@@ -74,7 +73,7 @@ namespace NPTP.InputSystemWrapper.Actions
             actionReference = null;
             return false;
         }
-        
+
         public static bool TryConvert(InputAction inputAction, int playerID, out ActionReference actionReference)
         {
             if (inputAction != null && InputRuntime.Current.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
@@ -86,46 +85,37 @@ namespace NPTP.InputSystemWrapper.Actions
             actionReference = null;
             return false;
         }
-        
-        public bool TryGetCurrentBindingInfo(out IEnumerable<BindingInfo> bindingInfos)
-        {
-            if (ActionWrapper == null)
-            {
-                bindingInfos = null;
-                return false;
-            }
 
-            return useCompositePart
-                ? ActionWrapper.TryGetCurrentBindingInfo(compositePart, out bindingInfos)
-                : ActionWrapper.TryGetCurrentBindingInfo(out bindingInfos);
-        }
-        
-        internal bool TryGetBindingInfo(ControlSchemeId controlSchemeId, out IEnumerable<BindingInfo> bindingInfos)
+        /// <summary>Every slot of the referenced action on the control scheme the player is currently using.</summary>
+        public BindingSlots GetCurrentBindingSlots()
         {
-            if (ActionWrapper == null)
-            {
-                bindingInfos = null;
-                return false;
-            }
-
-            return useCompositePart
-                ? ActionWrapper.TryGetBindingInfo(controlSchemeId, compositePart, out bindingInfos)
-                : ActionWrapper.TryGetBindingInfo(controlSchemeId, out bindingInfos);
+            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetCurrentBindingSlots();
         }
 
-        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, Action<RebindInfo> callback = null)
+        internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId)
+        {
+            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetBindingSlots(controlSchemeId);
+        }
+
+        internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, int uiIndex, Action<RebindInfo> callback = null)
         {
             if (ActionWrapper == null)
             {
                 return;
             }
-            
+
             if (useCompositePart)
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, callback);
+                ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, uiIndex, callback);
             else
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, callback);
+                ActionWrapper.StartInteractiveRebind(controlSchemeId, uiIndex, callback);
         }
-        
+
+        internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
+            InputRuntime.Current.ResetBindingForAction(this, controlSchemeId, uiIndex);
+
+        internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
+            InputRuntime.Current.ResetAllBindingsForAction(this, controlSchemeId);
+
         private ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);
