@@ -102,7 +102,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             controlSchemeBases.ClearArray();
 
-            InputActionAsset asset = ((InputData)target).InputData == null ? null : ((InputData)target).InputData.InputActionAsset;
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
             string[] enumValues = asset == null ? Array.Empty<string>() : asset.controlSchemes.Select(controlScheme => controlScheme.name).ToArray();
             int index = 0;
             foreach (string scheme in enumValues)
