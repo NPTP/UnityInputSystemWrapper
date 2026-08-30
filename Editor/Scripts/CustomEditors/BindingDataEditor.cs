@@ -1,6 +1,7 @@
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
@@ -22,12 +23,21 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private const float ROW_SPACING = 2f;
 
         private SerializedProperty keyValueCombos;
+
+        /// <summary>
+        /// Unity's own search field, so this reads as the search boxes everywhere else in the editor do -
+        /// magnifying glass, clear button and all - rather than a plain text field.
+        /// </summary>
+        private SearchField searchField;
+
         private string searchFilter = string.Empty;
 
         private GUIStyle ControlPathStyle => new(EditorStyles.boldLabel) { wordWrap = true };
 
         private void OnEnable()
         {
+            searchField = new SearchField();
+
             SerializedProperty dictionary = serializedObject.FindProperty(BindingData.EDITOR_DictionaryField);
             keyValueCombos = dictionary?.FindPropertyRelative(SerializableDictionary<string, BindingInfo>.EDITOR_KeyValueCombosField);
         }
@@ -70,9 +80,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void DrawHeader(out int shownCount)
         {
-            EditorGUILayout.Space();
-            searchFilter = EditorGUILayout.TextField("Search", searchFilter);
-
             shownCount = 0;
             for (int i = 0; i < keyValueCombos.arraySize; i++)
             {
@@ -81,7 +88,15 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 if (MatchesFilter(key.stringValue)) shownCount++;
             }
 
-            EditorGUILayout.LabelField($"{shownCount} of {keyValueCombos.arraySize} bindings", EditorStyles.miniLabel);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            {
+                searchFilter = searchField.OnToolbarGUI(searchFilter);
+                GUILayout.Label($"{shownCount} / {keyValueCombos.arraySize}", EditorStyles.miniLabel, GUILayout.ExpandWidth(false));
+            }
+            EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.Space();
         }
 
