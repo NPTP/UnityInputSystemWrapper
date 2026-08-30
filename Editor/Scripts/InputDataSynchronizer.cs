@@ -67,8 +67,8 @@ namespace NPTP.InputSystemWrapper.Editor
             options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatDelayField).floatValue = inputData.MoveRepeatDelay;
             options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatRateField).floatValue = inputData.MoveRepeatRate;
             options.FindPropertyRelative(EventSystemOptions.EDITOR_DeselectOnBackgroundClickField).boolValue = inputData.DeselectOnBackgroundClick;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_PointerBehaviorField).enumValueIndex = (int)inputData.PointerBehavior;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_CursorLockBehaviorField).enumValueIndex = (int)inputData.CursorLockBehavior;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_PointerBehaviorField).intValue = (int)inputData.PointerBehavior;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_CursorLockBehaviorField).intValue = (int)inputData.CursorLockBehavior;
 
             List<(EventSystemActionType, InputActionReference)> defaults = new()
             {
@@ -159,7 +159,7 @@ namespace NPTP.InputSystemWrapper.Editor
             for (int i = 0; i < source.Count; i++)
             {
                 SerializedProperty binding = bindings.GetArrayElementAtIndex(i);
-                binding.FindPropertyRelative(EventSystemActionBinding.EDITOR_ActionTypeField).enumValueIndex = (int)source[i].ActionType;
+                binding.FindPropertyRelative(EventSystemActionBinding.EDITOR_ActionTypeField).intValue = (int)source[i].ActionType;
                 binding.FindPropertyRelative(EventSystemActionBinding.EDITOR_ActionIDField).stringValue =
                     source[i].Reference == null || source[i].Reference.action == null ? string.Empty : source[i].Reference.action.id.ToString();
             }
@@ -184,8 +184,6 @@ namespace NPTP.InputSystemWrapper.Editor
                 InputControlScheme controlScheme = asset.controlSchemes[i];
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlScheme.name;
-                // intValue, not enumValueIndex: this is a flags enum, so the value is a bit mask rather
-                // than a position in the enum's declaration.
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_DeviceFamiliesField).intValue = (int)GetDeviceFamilies(controlScheme);
             }
         }
