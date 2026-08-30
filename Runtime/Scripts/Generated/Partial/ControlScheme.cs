@@ -12,6 +12,11 @@ namespace NPTP.InputSystemWrapper.Enums
         None,
         
         // MARKER.Members.Start
+        KeyboardMouse,
+        Gamepad,
+        Touch,
+        Joystick,
+        XR,
         // MARKER.Members.End
     }
 
@@ -22,6 +27,11 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlScheme switch
             {
                 // MARKER.IsMouseBased.Start
+                ControlScheme.KeyboardMouse => false,
+                ControlScheme.Gamepad => false,
+                ControlScheme.Touch => false,
+                ControlScheme.Joystick => false,
+                ControlScheme.XR => false,
                 // MARKER.IsMouseBased.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
             };
@@ -32,6 +42,11 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlScheme switch
             {
                 // MARKER.IsGamepadBased.Start
+                ControlScheme.KeyboardMouse => false,
+                ControlScheme.Gamepad => false,
+                ControlScheme.Touch => false,
+                ControlScheme.Joystick => false,
+                ControlScheme.XR => false,
                 // MARKER.IsGamepadBased.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlScheme), controlScheme, null)
             };
@@ -54,6 +69,11 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlSchemeEnum switch
             {
                 // MARKER.EnumToStringSwitch.Start
+                ControlScheme.KeyboardMouse => "Keyboard&Mouse",
+                ControlScheme.Gamepad => "Gamepad",
+                ControlScheme.Touch => "Touch",
+                ControlScheme.Joystick => "Joystick",
+                ControlScheme.XR => "XR",
                 // MARKER.EnumToStringSwitch.End
                 _ => throw new ArgumentOutOfRangeException(nameof(controlSchemeEnum), controlSchemeEnum, null)
             };
@@ -68,6 +88,11 @@ namespace NPTP.InputSystemWrapper.Enums
             return controlSchemeName switch
             {
                 // MARKER.StringToEnumSwitch.Start
+                "Keyboard&Mouse" => ControlScheme.KeyboardMouse,
+                "Gamepad" => ControlScheme.Gamepad,
+                "Touch" => ControlScheme.Touch,
+                "Joystick" => ControlScheme.Joystick,
+                "XR" => ControlScheme.XR,
                 // MARKER.StringToEnumSwitch.End
                 _ => ControlScheme.None
             };

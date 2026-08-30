@@ -23,7 +23,9 @@ MonoBehaviour:
   initializationMode: 0
   defaultContext: 0
   inputContexts: []
-  controlSchemeBases: []
+  controlSchemeBases:
+  - controlScheme: 0
+    basis: 0
   loadAllBindingOverridesOnInitialize: 1
   bindingExcludedPaths: []
   bindingCancelPaths:

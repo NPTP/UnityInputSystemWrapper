@@ -12,6 +12,8 @@ namespace NPTP.InputSystemWrapper.Player
     public sealed partial class InputPlayer
     {
         // MARKER.ActionsProperties.Start
+        public PlayerActions Player { get; }
+        public UIActions UI { get; }
         // MARKER.ActionsProperties.End
         
         internal InputPlayer(InputActionAsset asset, int id, bool isMultiplayer, Transform parent)
@@ -20,6 +22,8 @@ namespace NPTP.InputSystemWrapper.Player
             ID = id;
             
             // MARKER.ActionsInstantiation.Start
+            Player = new PlayerActions(ID, Asset, actionWrapperTable);
+            UI = new UIActions(ID, Asset, actionWrapperTable);
             // MARKER.ActionsInstantiation.End
             
             SetUpInputPlayerGameObject(isMultiplayer, parent);
@@ -31,6 +35,11 @@ namespace NPTP.InputSystemWrapper.Player
         private void SetEventSystemOptions()
         {
             // MARKER.EventSystemOptions.Start
+            uiInputModule.moveRepeatDelay = 0.5f;
+            uiInputModule.moveRepeatRate = 0.1f;
+            uiInputModule.deselectOnBackgroundClick = false;
+            uiInputModule.pointerBehavior = UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
+            uiInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
             // MARKER.EventSystemOptions.End
         }
         
@@ -47,6 +56,8 @@ namespace NPTP.InputSystemWrapper.Player
         private void DisableAllMapsAndRemoveCallbacks()
         {
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.Start
+            Player.DisableAndUnregisterCallbacks();
+            UI.DisableAndUnregisterCallbacks();
             // MARKER.DisableAllMapsAndRemoveCallbacksBody.End
         }
         
