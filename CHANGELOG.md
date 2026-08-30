@@ -1,6 +1,13 @@
 # Input System Wrapper
 ## Changelog
 
+7.0.0
+- `ISW.GetPlayer` returns the generated `InputPlayerRef`, whose actions are properties, so a player's actions read as `ISW.GetPlayer(4).Gameplay.Fire.OnEvent += HandleEvent`
+- `InputPlayerRef` also carries the player's id, enabled state, current control scheme, input context and events, and converts implicitly to and from `InputPlayer`
+- The generated extension methods on `InputPlayer` are gone, replaced by those properties. The generated `InputPlayerExtensions.cs` becomes `Extensions.cs`, keeping the `ActionWrapper`, `ActionReference` and `InputUserChangeInfo` extensions
+- The default player's actions stay available without an id, as `ISW.Gameplay`
+- Upgrading: replace `player.Gameplay()` with `player.Gameplay`, and likewise for `UI()`, `CurrentControlScheme()`, `GetInputContext()` and `SetInputContext()`, which is now the `InputContext` property
+
 6.0.0
 - `OfflineInputData` and `RuntimeInputData` are merged into a single `InputData` asset, loaded from Resources under that name. Authored and generated fields live together, with the editor-only ones excluded from builds as before
 - Values the runtime can use as authored are no longer copied between assets, so the value a designer edits is the one the game reads. Only InputActionReferences are still baked, into the action IDs a player's cloned asset can resolve
