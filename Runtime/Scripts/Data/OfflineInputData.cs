@@ -1,4 +1,3 @@
-using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -22,36 +21,12 @@ namespace NPTP.InputSystemWrapper.Data
 
         #region Fields Hidden From User
         
-        [SerializeField] private TextAsset rootPathIdentifier;
-        internal string AssetsPathToPackage
-        {
-            get
-            {
-                string assetFilePath = AssetDatabase.GetAssetPath(rootPathIdentifier);
-                return assetFilePath[..assetFilePath.LastIndexOf('/')];
-            }
-        }
-        
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
 
-        [SerializeField] private TextAsset iswScriptFile;
-        internal TextAsset ISWScriptFile => iswScriptFile;
-        
-        [SerializeField] private TextAsset iswPartialScriptFile;
-        internal TextAsset ISWPartialScriptFile => iswPartialScriptFile;
-        
-        [SerializeField] private TextAsset inputPlayerPartialScriptFile;
-        internal TextAsset InputPlayerPartialScriptFile => inputPlayerPartialScriptFile;
-
-        [SerializeField] private TextAsset controlSchemeScriptFile;
-        public TextAsset ControlSchemeScriptFile => controlSchemeScriptFile;
-
-        [SerializeField] private TextAsset inputContextScriptFile;
-        public TextAsset InputContextScriptFile => inputContextScriptFile;
-
-        [SerializeField] private TextAsset bindingChangerPartialScriptFile;
-        public TextAsset BindingChangerPartialScriptFile => bindingChangerPartialScriptFile;
+#if UNITY_EDITOR
+        internal const string EDITOR_RuntimeInputDataField = nameof(runtimeInputData);
+#endif
 
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;
@@ -61,8 +36,8 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InitializationMode initializationMode = InitializationMode.BeforeSceneLoad;
         internal InitializationMode InitializationMode => initializationMode;
 
-        [SerializeField] private InputContext defaultContext = 0;
-        internal InputContext DefaultContext => defaultContext;
+        [SerializeField] private int defaultContextIndex;
+        internal int DefaultContextIndex => defaultContextIndex;
         
         [SerializeField] private InputContextInfo[] inputContexts;
         internal InputContextInfo[] InputContexts => inputContexts;
@@ -122,13 +97,6 @@ namespace NPTP.InputSystemWrapper.Data
         internal InputActionReference TrackedDevicePosition => trackedDevicePosition;
         [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
-
-        internal int GetEventSystemActionNonNullOverrideCount()
-        {
-            return InputContexts
-                .SelectMany(inputContextInfo => inputContextInfo.EventSystemActionOverrides)
-                .Count(spec => spec.ActionReference != null && spec.ActionReference.action != null);
-        }
 
         private void OnValidate()
         {

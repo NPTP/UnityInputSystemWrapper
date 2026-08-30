@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using UnityEngine;
@@ -19,7 +19,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
 // MARKER.Namespace.End
 {
     // MARKER.ClassSignature.Start
-    public class ActionsTemplate
+    public class ActionsTemplate : IActionMapWrapper
     // MARKER.ClassSignature.End
     {
         internal InputActionMap ActionMap { get; }
@@ -48,7 +48,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             // MARKER.Ignore.End
         }
         
-        internal void EnableAndRegisterCallbacks()
+        void IActionMapWrapper.EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -64,7 +64,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             // MARKER.RegisterCallbacks.End
         }
         
-        internal void DisableAndUnregisterCallbacks()
+        void IActionMapWrapper.DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

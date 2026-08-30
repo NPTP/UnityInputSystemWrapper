@@ -2,19 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine.InputSystem;
 using RebindingOperation = UnityEngine.InputSystem.InputActionRebindingExtensions.RebindingOperation;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    internal static partial class BindingChanger
+    internal static class BindingChanger
     {
-        private static string[] ExcludedPaths => GetExcludedPathsGenerated();
-        private static string[] CancelPaths => GetCancelPathsGenerated();
-
-        internal static RebindingOperation StartInteractiveRebind(ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
+        internal static RebindingOperation StartInteractiveRebind(RuntimeInputData runtimeInputData, ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
         {
+            string[] excludedPaths = runtimeInputData.BindingExcludedPaths ?? Array.Empty<string>();
+            string[] cancelPaths = runtimeInputData.BindingCancelPaths ?? Array.Empty<string>();
+
             ActionWrapper actionWrapper = actionBindingInfo.ActionWrapper;
             InputAction action = actionWrapper.InputAction;
             bool actionWasEnabled = action.enabled;
@@ -24,8 +27,8 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             rebindingOperation
                 // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
-                .WithControlsExcludingMultiple(ExcludedPaths)
-                .WithCancelingThroughMultiple(CancelPaths)
+                .WithControlsExcludingMultiple(excludedPaths)
+                .WithCancelingThroughMultiple(cancelPaths)
                 .OnCancel(onCancel)
                 .OnComplete(onComplete);
             
@@ -46,11 +49,11 @@ namespace NPTP.InputSystemWrapper.Bindings
                 // TODO <optimization>: Temporary measure to return binding info with completed binding.
                 // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
                 IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
-                actionWrapper.TryGetBindingInfo(actionBindingInfo.ControlScheme, actionBindingInfo.CompositePart, out bindingInfos);
+                InputRuntime.Current.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
                 
                 callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
@@ -100,26 +103,26 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlScheme controlScheme)
+        internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId)
         {
             bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
-            if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
+            if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlSchemeId.ToBindingMask(), compositeCondition))
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
-        internal static void ResetBindingsToDefaultForControlScheme(InputActionAsset asset, ControlScheme controlScheme)
+        internal static void ResetBindingsToDefaultForControlScheme(InputActionAsset asset, ControlSchemeId controlSchemeId)
         {
             bool changed = false;
             foreach (InputAction action in asset)
             {
-                changed |= RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask());
+                changed |= RemoveDeviceOverridesFromAction(action, controlSchemeId.ToBindingMask());
             }
 
             if (changed)
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 
@@ -130,7 +133,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             if (changed)
             {
-                ISW.BroadcastBindingsChanged();
+                InputRuntime.Current.BroadcastBindingsChanged();
             }
         }
 

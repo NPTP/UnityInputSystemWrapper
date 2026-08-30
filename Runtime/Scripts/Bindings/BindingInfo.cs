@@ -3,6 +3,8 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+using NPTP.InputSystemWrapper;
+
 namespace NPTP.InputSystemWrapper.Bindings
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             get
             {
                 LocalizedStringRequest localizedStringRequest = new(localizationKey);
-                ISW.BroadcastLocalizedStringRequested(localizedStringRequest);
+                InputRuntime.Current.BroadcastLocalizedStringRequested(localizedStringRequest);
                 return string.IsNullOrEmpty(localizedStringRequest.localizedString)
                     ? localizationKey
                     : localizedStringRequest.localizedString;

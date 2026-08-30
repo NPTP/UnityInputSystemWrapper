@@ -1,4 +1,4 @@
-﻿using NPTP.InputSystemWrapper.Attributes;
+using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
@@ -11,7 +11,12 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
     {
         protected override string[] GetNames()
         {
-            InputActionAsset asset = EditorAssetGetter.GetFirst<RuntimeInputData>().InputActionAsset;
+            InputActionAsset asset = Generation.ProjectAssets.TryFindProjectAsset("RuntimeInputData", out RuntimeInputData runtimeInputData) ? runtimeInputData.InputActionAsset : null;
+            if (asset == null)
+            {
+                return System.Array.Empty<string>();
+            }
+
             InputActionMap[] maps = asset.actionMaps.ToArray();
             string[] names = new string[maps.Length];
             for (int i = 0; i < maps.Length; i++)

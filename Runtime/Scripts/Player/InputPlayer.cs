@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
@@ -14,7 +15,7 @@ using Object = UnityEngine.Object;
 
 namespace NPTP.InputSystemWrapper.Player
 {
-    public sealed partial class InputPlayer
+    public sealed class InputPlayer
     {
         #region Field & Properties
 
@@ -60,7 +61,7 @@ namespace NPTP.InputSystemWrapper.Player
                 enabled = value;
                 playerInputGameObject.SetActive(value);
                 if (value)
-                    InputContext = inputContext;
+                    InputContextId = inputContextId;
                 else
                     Asset.Disable();
                 // UpdateLastUsedDevice();
@@ -68,13 +69,13 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
         
-        private InputContext inputContext;
-        public InputContext InputContext
+        private InputContextId inputContextId;
+        internal InputContextId InputContextId
         {
-            get => inputContext;
+            get => inputContextId;
             set
             {
-                inputContext = value;
+                inputContextId = value;
                 EnableMapsForContext(value);
 #if UNITY_EDITOR
                 EDITOR_OnInputContextChanged?.Invoke(this);
@@ -84,19 +85,20 @@ namespace NPTP.InputSystemWrapper.Player
 
         public int ID { get; }
 
-        private ControlScheme currentControlScheme;
-        public ControlScheme CurrentControlScheme
+        private ControlSchemeId currentControlSchemeId = ControlSchemeId.None;
+        internal ControlSchemeId CurrentControlSchemeId
         {
-            get => currentControlScheme;
+            get => currentControlSchemeId;
             private set
             {
-                if (CurrentControlScheme == value)
+                if (currentControlSchemeId == value)
                     return;
                 
-                currentControlScheme = value;
+                currentControlSchemeId = value;
                 OnControlSchemeChanged?.Invoke(this);
             }
         }
+
 
         private InputDevice lastUsedDevice;
         internal InputDevice LastUsedDevice
@@ -120,6 +122,8 @@ namespace NPTP.InputSystemWrapper.Player
         }
         
         internal InputActionAsset Asset { get; }
+
+        internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
         
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
         
@@ -134,16 +138,15 @@ namespace NPTP.InputSystemWrapper.Player
 
         // Event System actions
         private readonly Dictionary<string, InputActionReference> eventSystemActionsPool = new();
-        private InputActionReference defaultPoint;
-        private InputActionReference defaultLeftClick;
-        private InputActionReference defaultMiddleClick;
-        private InputActionReference defaultRightClick;
-        private InputActionReference defaultScrollWheel;
-        private InputActionReference defaultMove;
-        private InputActionReference defaultSubmit;
-        private InputActionReference defaultCancel;
-        private InputActionReference defaultTrackedDevicePosition;
-        private InputActionReference defaultTrackedDeviceOrientation;
+
+        private readonly Dictionary<string, IActionMapWrapper> actionMapWrappers = new();
+
+        /// <summary>
+        /// Set once by the generated code, which is the only place that knows the concrete actions types.
+        /// Invoked for each new player to fill its action map wrapper table, keyed by action map name.
+        /// </summary>
+        internal static Action<InputPlayer, Dictionary<string, IActionMapWrapper>> ActionMapWrapperFactory;
+        private RuntimeInputData runtimeInputData;
         
         #endregion
         
@@ -155,6 +158,21 @@ namespace NPTP.InputSystemWrapper.Player
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
             DisableAllMapsAndRemoveCallbacks();
+        }
+
+        internal InputPlayer(RuntimeInputData runtimeInputData, int id, bool isMultiplayer, Transform parent)
+        {
+            this.runtimeInputData = runtimeInputData;
+            Asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
+            ID = id;
+
+            ActionMapWrapperFactory?.Invoke(this, actionMapWrappers);
+
+            SetUpInputPlayerGameObject(isMultiplayer, parent);
+            PopulateEventSystemActionsPool();
+
+            // Input context gets set by the runtime after this instantiation, which sets up maps & event
+            // system actions/overrides, so we don't have to handle that here.
         }
 
         private InputActionAsset InstantiateNewActions(InputActionAsset actions)
@@ -202,22 +220,128 @@ namespace NPTP.InputSystemWrapper.Player
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+            CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
+        }
+
+        private void SetEventSystemOptions()
+        {
+            EventSystemOptions options = runtimeInputData.EventSystemOptions;
+            if (options == null)
+            {
+                return;
+            }
+
+            uiInputModule.moveRepeatDelay = options.MoveRepeatDelay;
+            uiInputModule.moveRepeatRate = options.MoveRepeatRate;
+            uiInputModule.deselectOnBackgroundClick = options.DeselectOnBackgroundClick;
+            uiInputModule.pointerBehavior = options.PointerBehavior;
+            uiInputModule.cursorLockBehavior = options.CursorLockBehavior;
+        }
+
+        /// <summary>
+        /// Adds all default and override event system InputActionReferences to a shared pool to
+        /// reduce duplication and lookup time.
+        /// </summary>
+        private void PopulateEventSystemActionsPool()
+        {
+            if (runtimeInputData.EventSystemOptions != null)
+            {
+                foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+                    AddToEventSystemActionsPool(binding.ActionID);
+            }
+
+            if (runtimeInputData.InputContexts == null)
+            {
+                return;
+            }
+
+            foreach (InputContextDefinition contextDefinition in runtimeInputData.InputContexts)
+                foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+                    AddToEventSystemActionsPool(binding.ActionID);
+        }
+
+        private void AddToEventSystemActionsPool(string actionID)
+        {
+            if (string.IsNullOrEmpty(actionID) || eventSystemActionsPool.ContainsKey(actionID))
+            {
+                return;
+            }
+
+            eventSystemActionsPool.Add(actionID, CreateInputActionReferenceToPlayerAsset(actionID));
+        }
+
+        private InputActionReference GetPooledEventSystemAction(string actionID)
+        {
+            return string.IsNullOrEmpty(actionID) || !eventSystemActionsPool.TryGetValue(actionID, out InputActionReference reference)
+                ? null
+                : reference;
         }
 
         private void SetDefaultEventSystemActions()
         {
-            uiInputModule.point = defaultPoint;
-            uiInputModule.leftClick = defaultLeftClick;
-            uiInputModule.middleClick = defaultMiddleClick;
-            uiInputModule.rightClick = defaultRightClick;
-            uiInputModule.scrollWheel = defaultScrollWheel;
-            uiInputModule.move = defaultMove;
-            uiInputModule.submit = defaultSubmit;
-            uiInputModule.cancel = defaultCancel;
-            uiInputModule.trackedDevicePosition = defaultTrackedDevicePosition;
-            uiInputModule.trackedDeviceOrientation = defaultTrackedDeviceOrientation;
+            if (runtimeInputData.EventSystemOptions == null)
+            {
+                return;
+            }
+
+            foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
         }
+
+        private void ApplyEventSystemAction(EventSystemActionType actionType, InputActionReference reference)
+        {
+            switch (actionType)
+            {
+                case EventSystemActionType.Point: uiInputModule.point = reference; break;
+                case EventSystemActionType.LeftClick: uiInputModule.leftClick = reference; break;
+                case EventSystemActionType.MiddleClick: uiInputModule.middleClick = reference; break;
+                case EventSystemActionType.RightClick: uiInputModule.rightClick = reference; break;
+                case EventSystemActionType.ScrollWheel: uiInputModule.scrollWheel = reference; break;
+                case EventSystemActionType.Move: uiInputModule.move = reference; break;
+                case EventSystemActionType.Submit: uiInputModule.submit = reference; break;
+                case EventSystemActionType.Cancel: uiInputModule.cancel = reference; break;
+                case EventSystemActionType.TrackedDevicePosition: uiInputModule.trackedDevicePosition = reference; break;
+                case EventSystemActionType.TrackedDeviceOrientation: uiInputModule.trackedDeviceOrientation = reference; break;
+                default: throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
+            }
+        }
+
+        private void DisableAllMapsAndRemoveCallbacks()
+        {
+            foreach (IActionMapWrapper actionMapWrapper in actionMapWrappers.Values)
+                actionMapWrapper.DisableAndUnregisterCallbacks();
+        }
+
+        private void EnableMapsForContext(InputContextId context)
+        {
+            if (!Enabled)
+            {
+                return;
+            }
+
+            SetDefaultEventSystemActions();
+
+            InputContextDefinition contextDefinition = runtimeInputData.GetContextDefinition(context);
+            if (contextDefinition == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(context), context, $"No {nameof(InputContextDefinition)} exists for this context. Re-run input code generation.");
+            }
+
+            if (contextDefinition.EnableKeyboardTextInput) EnableKeyboardTextInput();
+            else DisableKeyboardTextInput();
+
+            foreach (KeyValuePair<string, IActionMapWrapper> pair in actionMapWrappers)
+            {
+                if (Array.IndexOf(contextDefinition.ActiveMapNames, pair.Key) >= 0)
+                    pair.Value.EnableAndRegisterCallbacks();
+                else
+                    pair.Value.DisableAndUnregisterCallbacks();
+            }
+
+            foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
+        }
+
         
         private InputActionReference CreateInputActionReferenceToPlayerAsset(string actionID)
         {
@@ -230,12 +354,21 @@ namespace NPTP.InputSystemWrapper.Player
 
         #region Internal
         
-        internal bool ControlSchemeHas<TDevice>(ControlScheme controlScheme) where TDevice : InputDevice
+        /// <summary>
+        /// Get the actions object for one action map by its name in the input action asset.
+        /// The generated extension methods on this type are the type-safe way in.
+        /// </summary>
+        internal IActionMapWrapper GetActionMapWrapper(string mapName)
+        {
+            return actionMapWrappers.TryGetValue(mapName, out IActionMapWrapper wrapper) ? wrapper : null;
+        }
+
+        internal bool ControlSchemeHas<TDevice>(ControlSchemeId controlSchemeId) where TDevice : InputDevice
         {
             for (int i = 0; i < Asset.controlSchemes.Count; i++)
             {
                 InputControlScheme inputControlScheme = Asset.controlSchemes[i];
-                if (inputControlScheme.name != controlScheme.ToInputAssetName())
+                if (inputControlScheme.name != controlSchemeId.Name)
                 {
                     continue;
                 }
@@ -318,7 +451,7 @@ namespace NPTP.InputSystemWrapper.Player
                     UpdateDevices(inputDevice);
                     break;
                 case InputUserChange.ControlSchemeChanged:
-                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+                    CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
                     break;
             }
             
