@@ -1,80 +1,42 @@
 using NPTP.UnitySourceGen.Editor;
 using NPTP.UnitySourceGen.Editor.Generatable;
-using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
 {
     /// <summary>
-    /// Emits the extension methods that give type-safe access to a player's generated actions and to the
-    /// enum-typed views of its state. These cannot be members on InputPlayer itself, because InputPlayer
-    /// lives in the package and the generated types do not.
+    /// Emits the enum-typed overloads of package APIs that would otherwise deal in the id structs. These
+    /// have to be extensions, because the enums are generated and the types they extend are not.
     /// <para>
     /// Each extension class goes in the namespace of the type it extends, so a using directive the user
-    /// already has brings the methods into scope.
+    /// already has brings the methods into scope. A player's own enum-typed surface is not here: it lives
+    /// on <see cref="InputPlayerRefEmitter">InputPlayerRef</see> instead.
     /// </para>
     /// </summary>
-    internal static class InputPlayerExtensionsEmitter
+    internal static class ExtensionsEmitter
     {
         private const string CONTROL_SCHEME = "ControlScheme";
-        private const string INPUT_CONTEXT = "InputContext";
-        private const string INPUT_PLAYER = "InputPlayer";
         private const string ACTION_WRAPPER = "ActionWrapper";
         private const string ACTION_REFERENCE = "ActionReference";
         private const string REBIND_CALLBACK = "Action<RebindInfo>";
         private const string BINDING_INFOS = "IEnumerable<BindingInfo>";
 
-        internal static GeneratableFile BuildFile(InputActionAsset asset)
+        internal static GeneratableFile BuildFile()
         {
             return SourceGen.NewFile()
                 .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
-                .Containing(BuildPlayerExtensions(asset), BuildActionExtensions());
+                .Containing(BuildUserChangeExtensions(), BuildActionExtensions());
         }
 
-        private static GeneratableTypeDefinition BuildPlayerExtensions(InputActionAsset asset)
+        private static GeneratableTypeDefinition BuildUserChangeExtensions()
         {
-            GeneratableTypeDefinition playerExtensions = SourceGen.NewClass("InputPlayerExtensions").Public().Static()
+            return SourceGen.NewClass("InputUserChangeInfoExtensions").Public().Static()
                 .InNamespace(GeneratedNamespaces.PLAYER)
-                .WithDirectives(GeneratedNamespaces.ROOT, GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ENUMS, "UnityEngine.InputSystem");
-
-            foreach (string mapName in Helper.GetMapNames(asset))
-            {
-                string actionsType = $"{mapName.AsType()}Actions";
-                playerExtensions.WithMethod(SourceGen.NewMethod(mapName.AsType())
-                    .Public()
-                    .Returning(actionsType)
-                    .Extending(INPUT_PLAYER, "inputPlayer")
-                    .Expression($"({actionsType})inputPlayer.GetActionMapWrapper(\"{mapName}\")"));
-            }
-
-            return playerExtensions
-                .WithMethod(SourceGen.NewMethod("CurrentControlScheme")
-                    .Public()
-                    .Returning(CONTROL_SCHEME)
-                    .Extending(INPUT_PLAYER, "inputPlayer")
-                    .Expression($"({CONTROL_SCHEME})inputPlayer.CurrentControlSchemeId.Index"))
+                .WithDirectives(GeneratedNamespaces.ENUMS)
                 .WithMethod(SourceGen.NewMethod(CONTROL_SCHEME)
                     .Public()
                     .Returning(CONTROL_SCHEME)
                     .Extending("InputUserChangeInfo", "info")
-                    .Expression($"({CONTROL_SCHEME})info.ControlSchemeId.Index"))
-                .WithMethod(SourceGen.NewMethod("GetInputContext")
-                    .Public()
-                    .Returning(INPUT_CONTEXT)
-                    .Extending(INPUT_PLAYER, "inputPlayer")
-                    .Expression($"({INPUT_CONTEXT})inputPlayer.InputContextId.Index"))
-                .WithMethod(SourceGen.NewMethod("SetInputContext")
-                    .Public()
-                    .ReturningVoid()
-                    .Extending(INPUT_PLAYER, "inputPlayer")
-                    .Taking(GeneratableParameter.Of(INPUT_CONTEXT, "inputContext"))
-                    .Expression("inputPlayer.InputContextId = inputContext.ToId()"))
-                .WithMethod(SourceGen.NewMethod("ControlSchemeHas")
-                    .Public()
-                    .Returning<bool>()
-                    .Generic(GeneratableTypeParameter.Of("TDevice", "InputDevice"))
-                    .Extending(INPUT_PLAYER, "inputPlayer")
-                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
-                    .Expression("inputPlayer.ControlSchemeHas<TDevice>(controlScheme.ToId())"));
+                    .Expression($"({CONTROL_SCHEME})info.ControlSchemeId.Index"));
         }
 
         /// <summary>
