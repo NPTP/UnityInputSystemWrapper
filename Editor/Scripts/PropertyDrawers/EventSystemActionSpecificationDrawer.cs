@@ -1,4 +1,5 @@
-﻿using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Editor.CustomEditors;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +23,17 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
             SerializedProperty actionReferenceProperty = property.FindPropertyRelative(ACTION_REFERENCE);
 
             EditorGUI.PropertyField(actionTypeRect, actionTypeProperty, GUIContent.none);
-            EditorGUI.PropertyField(actionReferenceRect, actionReferenceProperty, GUIContent.none);
+
+            // Overrides belong to an input context on the input data asset, so the actions to choose from
+            // are the ones in the input action asset assigned there.
+            if (property.serializedObject.targetObject is InputData inputData)
+            {
+                InputActionReferenceDropdown.DrawWithoutLabel(actionReferenceRect, actionReferenceProperty, inputData.InputActionAsset);
+            }
+            else
+            {
+                EditorGUI.PropertyField(actionReferenceRect, actionReferenceProperty, GUIContent.none);
+            }
 
             EditorGUI.EndProperty();
         }

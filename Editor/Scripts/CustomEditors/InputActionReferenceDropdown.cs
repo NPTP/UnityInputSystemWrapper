@@ -19,9 +19,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         internal static void Draw(SerializedProperty property, InputActionAsset asset, GUIContent label = null)
         {
-            label ??= new GUIContent(ObjectNames.NicifyVariableName(property.name));
+            Draw(EditorGUILayout.GetControlRect(), property, asset, label);
+        }
 
-            Rect position = EditorGUILayout.GetControlRect();
+        internal static void Draw(Rect position, SerializedProperty property, InputActionAsset asset, GUIContent label = null)
+        {
+            label ??= new GUIContent(ObjectNames.NicifyVariableName(property.name));
             Rect dropdownRect = EditorGUI.PrefixLabel(position, label);
 
             using (new EditorGUI.DisabledScope(asset == null))
@@ -29,6 +32,18 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 if (EditorGUI.DropdownButton(dropdownRect, new GUIContent(GetLabel(property, asset)), FocusType.Keyboard) && asset != null)
                 {
                     ShowDropdown(dropdownRect, property, asset);
+                }
+            }
+        }
+
+        /// <summary>Draws with no prefix label, for a field already labelled by whatever contains it.</summary>
+        internal static void DrawWithoutLabel(Rect position, SerializedProperty property, InputActionAsset asset)
+        {
+            using (new EditorGUI.DisabledScope(asset == null))
+            {
+                if (EditorGUI.DropdownButton(position, new GUIContent(GetLabel(property, asset)), FocusType.Keyboard) && asset != null)
+                {
+                    ShowDropdown(position, property, asset);
                 }
             }
         }
