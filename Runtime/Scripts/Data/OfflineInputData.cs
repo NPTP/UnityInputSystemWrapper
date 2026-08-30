@@ -34,21 +34,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private RuntimeInputData runtimeInputData;
         internal RuntimeInputData RuntimeInputData => runtimeInputData;
 
-        [SerializeField] private TextAsset iswScriptFile;
-        internal TextAsset ISWScriptFile => iswScriptFile;
-        
-        [SerializeField] private TextAsset iswPartialScriptFile;
-        internal TextAsset ISWPartialScriptFile => iswPartialScriptFile;
-        
-        [SerializeField] private TextAsset inputPlayerPartialScriptFile;
-        internal TextAsset InputPlayerPartialScriptFile => inputPlayerPartialScriptFile;
-
-        [SerializeField] private TextAsset controlSchemeScriptFile;
-        public TextAsset ControlSchemeScriptFile => controlSchemeScriptFile;
-
-        [SerializeField] private TextAsset inputContextScriptFile;
-        public TextAsset InputContextScriptFile => inputContextScriptFile;
-
         [SerializeField] private TextAsset actionsTemplateFile;
         internal TextAsset ActionsTemplateFile => actionsTemplateFile;
 

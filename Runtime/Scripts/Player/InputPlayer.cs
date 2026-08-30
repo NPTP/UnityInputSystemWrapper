@@ -15,7 +15,7 @@ using Object = UnityEngine.Object;
 
 namespace NPTP.InputSystemWrapper.Player
 {
-    public sealed partial class InputPlayer
+    public sealed class InputPlayer
     {
         #region Field & Properties
 
@@ -83,12 +83,6 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
-        public InputContext InputContext
-        {
-            get => (InputContext)inputContextId.Index;
-            set => InputContextId = new InputContextId((int)value);
-        }
-
         public int ID { get; }
 
         private ControlSchemeId currentControlSchemeId = ControlSchemeId.None;
@@ -105,7 +99,6 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
-        public ControlScheme CurrentControlScheme => (ControlScheme)currentControlSchemeId.Index;
 
         private InputDevice lastUsedDevice;
         internal InputDevice LastUsedDevice
@@ -129,6 +122,8 @@ namespace NPTP.InputSystemWrapper.Player
         }
         
         internal InputActionAsset Asset { get; }
+
+        internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
         
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
         
@@ -145,6 +140,12 @@ namespace NPTP.InputSystemWrapper.Player
         private readonly Dictionary<string, InputActionReference> eventSystemActionsPool = new();
 
         private readonly Dictionary<string, IActionMapWrapper> actionMapWrappers = new();
+
+        /// <summary>
+        /// Set once by the generated code, which is the only place that knows the concrete actions types.
+        /// Invoked for each new player to fill its action map wrapper table, keyed by action map name.
+        /// </summary>
+        internal static Action<InputPlayer, Dictionary<string, IActionMapWrapper>> ActionMapWrapperFactory;
         private RuntimeInputData runtimeInputData;
         
         #endregion
@@ -165,7 +166,7 @@ namespace NPTP.InputSystemWrapper.Player
             Asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
             ID = id;
 
-            CreateActionMapWrappers();
+            ActionMapWrapperFactory?.Invoke(this, actionMapWrappers);
 
             SetUpInputPlayerGameObject(isMultiplayer, parent);
             PopulateEventSystemActionsPool();

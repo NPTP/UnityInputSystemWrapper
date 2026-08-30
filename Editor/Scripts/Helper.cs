@@ -12,33 +12,16 @@ namespace NPTP.InputSystemWrapper.Editor
 {
     internal static class Helper
     {
-        private const string GENERATED = "Generated";
         private const string MARKER = "// MARKER";
         private const string START = "Start";
         private const string END = "End";
-        private const string PARTIAL = "Partial";
-        private const string COMPLETE = "Complete";
 
         // Assets
         internal static OfflineInputData OfflineInputData => EditorAssetGetter.GetFirst<OfflineInputData>();
-        internal static string InputNamespace => GetNamespace(ISWFileSystemPath);
-        internal static string GeneratedActionsNamespace => InputNamespace + ".Actions";
-        
-        // Existing script paths
-        private static string ISWFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ISWScriptFile);
-        private static string ISWFolderSystemPath => EditorAssetGetter.GetSystemFolderPath(OfflineInputData.ISWScriptFile);
-        internal static string ISWPartialFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ISWPartialScriptFile);
-        internal static string InputPlayerFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputPlayerPartialScriptFile);
-        internal static string ControlSchemeFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ControlSchemeScriptFile);
-        internal static string InputContextFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.InputContextScriptFile);
         
         // Template paths
         internal static string ActionsTemplateFileSystemPath => EditorAssetGetter.GetSystemFilePath(OfflineInputData.ActionsTemplateFile);
         
-        // Generated script paths
-        private static string GeneratedFolderSystemPath => ISWFolderSystemPath + Sep + GENERATED + Sep;
-        internal static string GeneratedPartialFolderSystemPath => GeneratedFolderSystemPath + PARTIAL + Sep;
-        internal static string GeneratedCompleteFolderSystemPath => GeneratedFolderSystemPath + COMPLETE + Sep;
         private static char Sep => Path.DirectorySeparatorChar;
         
         // String extensions for code generation
@@ -48,27 +31,22 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber();
         internal static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
         
-        internal static void ClearFolderRecursive(string folderSystemPath)
+        /// <summary>
+        /// Delete previously generated scripts without touching the assembly definition or anything else
+        /// the user may have placed in the generated folder.
+        /// </summary>
+        internal static void ClearGeneratedScripts(string folderSystemPath)
         {
             if (!Directory.Exists(folderSystemPath))
             {
                 Directory.CreateDirectory(folderSystemPath);
+                return;
             }
-            else
+
+            foreach (string filePath in Directory.GetFiles(folderSystemPath, "*.cs"))
             {
-                string[] filePaths = Directory.GetFiles(folderSystemPath);
-
-                foreach (string filePath in filePaths)
-                {
-                    File.Delete(filePath);
-                }
-
-                string[] directoryPaths = Directory.GetDirectories(folderSystemPath);
-
-                foreach (string directoryPath in directoryPaths)
-                {
-                    Directory.Delete(directoryPath, recursive: true);
-                }
+                File.Delete(filePath);
+                if (File.Exists(filePath + ".meta")) File.Delete(filePath + ".meta");
             }
         }
 
@@ -158,27 +136,5 @@ namespace NPTP.InputSystemWrapper.Editor
             return trimmedLine.StartsWith(MARKER) && trimmedLine.EndsWith(END);
         }
         
-        private static string GetNamespace(string filePath)
-        {
-            const string namespaceString = "namespace";
-            
-            try
-            {
-                using StreamReader sr = new(filePath);
-                while (sr.ReadLine() is { } line)
-                {
-                    if (line.StartsWith(namespaceString))
-                    {
-                        return line.Replace(namespaceString, string.Empty).Trim();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ISWDebug.LogError($"The file could not be read: {e.Message}");
-            }
-
-            return string.Empty;
-        }
     }
 }

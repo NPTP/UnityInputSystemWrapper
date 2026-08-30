@@ -180,14 +180,14 @@ namespace NPTP.InputSystemWrapper
             playerCollection.Remove(playerID);
         }
 
-        public bool ControlSchemeHas<TDevice>(ControlScheme controlScheme, int playerID = 0) where TDevice : InputDevice
+        internal bool ControlSchemeHas<TDevice>(ControlSchemeId controlSchemeId, int playerID = 0) where TDevice : InputDevice
         {
-            return GetPlayer(playerID).ControlSchemeHas<TDevice>(ToControlSchemeId(controlScheme));
+            return GetPlayer(playerID).ControlSchemeHas<TDevice>(controlSchemeId);
         }
 
-        public void SetContextForAllPlayers(InputContext inputContext)
+        internal void SetContextForAllPlayers(InputContextId inputContextId)
         {
-            playerCollection.SetContextForAll(new InputContextId((int)inputContext));
+            playerCollection.SetContextForAll(inputContextId);
         }
         
         /// <summary>
@@ -215,7 +215,7 @@ namespace NPTP.InputSystemWrapper
             return TryConvert(inputActionReference, 0, out actionWrapper);
         }
 
-        public void ResetBindingForAction(ActionReference actionReference, ControlScheme controlScheme)
+        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
         {
             if (actionReference == null || actionReference.ActionWrapper == null)
             {
@@ -223,14 +223,12 @@ namespace NPTP.InputSystemWrapper
             }
             
             // Note that player ID is contained in the ActionReference.
-            ControlSchemeId controlSchemeId = ToControlSchemeId(controlScheme);
             ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId);
             BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
         }
 
-        public void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int? playerID = null)
+        internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)
         {
-            ControlSchemeId controlSchemeId = ToControlSchemeId(controlScheme);
             if (playerID.HasValue)
                 BindingChanger.ResetBindingsToDefaultForControlScheme(GetPlayer(playerID.Value).Asset, controlSchemeId);
             else foreach (InputPlayer player in playerCollection)
@@ -265,14 +263,7 @@ namespace NPTP.InputSystemWrapper
         
         #region Internal Interface
 
-        /// <summary>
-        /// Convert a value of the generated ControlScheme enum into the id the runtime works in.
-        /// The enum's values are generated to match the control scheme indices on the input action asset.
-        /// </summary>
-        internal ControlSchemeId ToControlSchemeId(ControlScheme controlScheme)
-        {
-            return runtimeInputData == null ? ControlSchemeId.None : runtimeInputData.GetControlSchemeId((int)controlScheme);
-        }
+        internal ControlSchemeId GetControlSchemeId(int index) => runtimeInputData.GetControlSchemeId(index);
 
         internal void BroadcastLocalizedStringRequested(LocalizedStringRequest localizedStringRequest)
         {
@@ -444,10 +435,11 @@ namespace NPTP.InputSystemWrapper
 
         #region Editor-Only Debug
 #if UNITY_EDITOR
-        internal static event Action<int, InputContext> EDITOR_OnPlayerInputContextChanged;
+        internal static event Action<int, InputContextId> EDITOR_OnPlayerInputContextChanged;
 
         internal bool EDITOR_IsInitialized => initialized;
-        internal InputContext EDITOR_GetDefaultContext() => (InputContext)runtimeInputData.DefaultContextId.Index;
+        internal InputContextId EDITOR_GetDefaultContext() => runtimeInputData.DefaultContextId;
+        internal string EDITOR_GetContextName(InputContextId id) => runtimeInputData.GetContextDefinition(id)?.Name ?? id.Index.ToString();
 
         internal bool EDITOR_TryGetPlayer(int playerID, out InputPlayer inputPlayer)
         {
@@ -463,7 +455,7 @@ namespace NPTP.InputSystemWrapper
 
         private void EDITOR_HandlePlayerInputContextChanged(InputPlayer inputPlayer)
         {
-            EDITOR_OnPlayerInputContextChanged?.Invoke(inputPlayer.ID, inputPlayer.InputContext);
+            EDITOR_OnPlayerInputContextChanged?.Invoke(inputPlayer.ID, inputPlayer.InputContextId);
         }
 #endif
         #endregion

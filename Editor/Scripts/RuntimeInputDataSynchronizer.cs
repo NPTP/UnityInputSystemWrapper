@@ -156,7 +156,7 @@ namespace NPTP.InputSystemWrapper.Editor
 
             foreach (ControlSchemeBasis controlSchemeBasis in offlineInputData.ControlSchemeBases)
             {
-                if (controlSchemeBasis.ControlScheme.ToInputAssetName() == controlSchemeName)
+                if (controlSchemeBasis.ControlSchemeName == controlSchemeName)
                 {
                     return controlSchemeBasis.Basis;
                 }

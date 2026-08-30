@@ -6,13 +6,14 @@ namespace NPTP.InputSystemWrapper.Player
     public struct InputUserChangeInfo
     {
         public InputPlayer Player { get; }
-        public ControlScheme ControlScheme { get; }
         public InputUserChange InputUserChange { get; }
-        
+
+        internal ControlSchemeId ControlSchemeId { get; }
+
         internal InputUserChangeInfo(InputPlayer inputPlayer, InputUserChange inputUserChange)
         {
             Player = inputPlayer;
-            ControlScheme = inputPlayer.CurrentControlScheme;
+            ControlSchemeId = inputPlayer.CurrentControlSchemeId;
             InputUserChange = inputUserChange;
         }
     }
