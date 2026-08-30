@@ -15,6 +15,9 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal static class InputDataSynchronizer
     {
+        private const string MOUSE_LAYOUT = "Mouse";
+        private const string GAMEPAD_LAYOUT = "Gamepad";
+
         internal static void Synchronize(InputData inputData)
         {
             if (inputData == null)
@@ -166,10 +169,10 @@ namespace NPTP.InputSystemWrapper.Editor
 
             for (int i = 0; i < asset.controlSchemes.Count; i++)
             {
-                string controlSchemeName = asset.controlSchemes[i].name;
+                InputControlScheme controlScheme = asset.controlSchemes[i];
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(inputData, controlSchemeName);
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlScheme.name;
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(controlScheme);
             }
         }
 
@@ -256,21 +259,25 @@ namespace NPTP.InputSystemWrapper.Editor
             return created;
         }
 
-        private static ControlSchemeBasisSpec GetBasis(InputData inputData, string controlSchemeName)
+        /// <summary>
+        /// Which device family a control scheme is built on, taken from the devices it requires. A
+        /// scheme with a mouse is mouse based, one with a gamepad is gamepad based, and one with
+        /// neither is undefined. Layouts are matched by inheritance, so a DualShockGamepad counts as a
+        /// gamepad and any pointer derived from Mouse counts as a mouse.
+        /// </summary>
+        private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
         {
-            if (inputData.ControlSchemeBases == null)
+            bool isMouseBased = false;
+            bool isGamepadBased = false;
+
+            foreach (string layout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
             {
-                return ControlSchemeBasisSpec.Undefined;
+                isMouseBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, MOUSE_LAYOUT);
+                isGamepadBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, GAMEPAD_LAYOUT);
             }
 
-            foreach (ControlSchemeBasis controlSchemeBasis in inputData.ControlSchemeBases)
-            {
-                if (controlSchemeBasis.ControlSchemeName == controlSchemeName)
-                {
-                    return controlSchemeBasis.Basis;
-                }
-            }
-
+            if (isMouseBased) return ControlSchemeBasisSpec.IsMouseBased;
+            if (isGamepadBased) return ControlSchemeBasisSpec.IsGamepadBased;
             return ControlSchemeBasisSpec.Undefined;
         }
     }

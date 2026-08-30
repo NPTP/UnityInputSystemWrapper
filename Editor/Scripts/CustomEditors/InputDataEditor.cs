@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Editor.Utilities;
@@ -27,7 +25,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
-        private SerializedProperty controlSchemeBases;
 
         private SerializedProperty loadAllBindingOverridesOnInitialize;
         private SerializedProperty bindingSerializationMode;
@@ -62,7 +59,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
-            controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
             loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(InputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
             bindingSerializationMode = serializedObject.FindProperty(InputData.EDITOR_BindingSerializationModeField);
@@ -85,8 +81,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             cancel = serializedObject.FindProperty(nameof(cancel));
             trackedDevicePosition = serializedObject.FindProperty(nameof(trackedDevicePosition));
             trackedDeviceOrientation = serializedObject.FindProperty(nameof(trackedDeviceOrientation));
-
-            PopulateControlSchemeBases();
         }
 
         private void DrawDefaultContextPopup()
@@ -101,56 +95,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             string[] names = contexts.Select(context => context.Name).ToArray();
             int index = Mathf.Clamp(defaultContextIndex.intValue, 0, names.Length - 1);
             defaultContextIndex.intValue = EditorGUILayout.Popup("Default Context", index, names);
-        }
-
-        private void PopulateControlSchemeBases()
-        {
-            Dictionary<string, ControlSchemeBasisSpec> schemeToSpec = new();
-            for (int i = 0; i < controlSchemeBases.arraySize; i++)
-            {
-                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is ControlSchemeBasis basis)
-                    schemeToSpec[basis.ControlSchemeName] = basis.Basis;
-            }
-
-            controlSchemeBases.ClearArray();
-
-            InputActionAsset asset = ((InputData)target).InputActionAsset;
-            string[] enumValues = asset == null ? Array.Empty<string>() : asset.controlSchemes.Select(controlScheme => controlScheme.name).ToArray();
-            int index = 0;
-            foreach (string scheme in enumValues)
-            {
-                schemeToSpec.TryGetValue(scheme, out ControlSchemeBasisSpec basisSpec);
-                controlSchemeBases.InsertArrayElementAtIndex(index);
-                controlSchemeBases.GetArrayElementAtIndex(index).boxedValue = new ControlSchemeBasis(scheme, basisSpec);
-                index++;
-            }
-
-            // Applied immediately, since the next Update() would discard it. Without undo, because this
-            // list mirrors the action asset rather than being a user edit.
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        /// <summary>Whether the mirrored list no longer matches the input action asset's control schemes.</summary>
-        private bool ControlSchemeBasesAreStale()
-        {
-            InputActionAsset asset = ((InputData)target).InputActionAsset;
-            int schemeCount = asset == null ? 0 : asset.controlSchemes.Count;
-
-            if (controlSchemeBases.arraySize != schemeCount)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < schemeCount; i++)
-            {
-                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is not ControlSchemeBasis basis ||
-                    basis.ControlSchemeName != asset.controlSchemes[i].name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private void DrawHeader(string text)
@@ -201,11 +145,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         {
             serializedObject.Update();
 
-            if (ControlSchemeBasesAreStale())
-            {
-                PopulateControlSchemeBases();
-            }
-
             DrawHeader("Input Action Asset");
             EditorGUILayout.PropertyField(inputActionAsset);
             if (inputActionAsset.objectReferenceValue == null)
@@ -232,30 +171,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             DrawDefaultContextPopup();
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(authoredContexts);
-
-            EditorInspectorUtility.DrawHorizontalLine();
-
-            DrawHeader("Control Scheme Device Families");
-            int length = controlSchemeBases.arraySize;
-            if (length == 0)
-            {
-                DrawSpecialNote("No Control Schemes are defined in your Input Action Asset.");
-            }
-            else
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    SerializedProperty basisProperty = controlSchemeBases.GetArrayElementAtIndex(i);
-                    if (basisProperty.boxedValue is not ControlSchemeBasis basis)
-                        continue;
-
-                    if (string.IsNullOrEmpty(basis.ControlSchemeName))
-                        continue;
-
-                    SerializedProperty specProperty = basisProperty.FindPropertyRelative(nameof(basis.Basis).ToLower());
-                    specProperty.enumValueIndex = (int)(ControlSchemeBasisSpec)EditorGUILayout.EnumPopup(basis.ControlSchemeName, (ControlSchemeBasisSpec)specProperty.enumValueIndex);
-                }
-            }
 
             EditorInspectorUtility.DrawHorizontalLine();
 

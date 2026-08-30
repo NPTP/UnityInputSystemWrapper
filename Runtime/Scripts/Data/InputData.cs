@@ -66,9 +66,6 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private InputContextInfo[] authoredContexts;
         internal InputContextInfo[] AuthoredContexts => authoredContexts;
 
-        [SerializeField] private ControlSchemeBasis[] controlSchemeBases;
-        internal ControlSchemeBasis[] ControlSchemeBases => controlSchemeBases;
-
         [Header("Global Event System Options")]
         [SerializeField] private float moveRepeatDelay = 0.5f;
         internal float MoveRepeatDelay => moveRepeatDelay;
