@@ -6,6 +6,7 @@
 - `InputPlayerRef` also carries the player's id, enabled state, current control scheme, input context and events, and converts implicitly to and from `InputPlayer`
 - The generated extension methods on `InputPlayer` are gone, replaced by those properties. The generated `InputPlayerExtensions.cs` becomes `Extensions.cs`, keeping the `ActionWrapper`, `ActionReference` and `InputUserChangeInfo` extensions
 - The default player's actions stay available without an id, as `ISW.Gameplay`
+- `ISW.AddPlayer` is gone, along with `InputRuntime.AddPlayer`. `GetPlayer` already adds a player that does not exist yet
 - Upgrading: replace `player.Gameplay()` with `player.Gameplay`, and likewise for `UI()`, `CurrentControlScheme()`, `GetInputContext()` and `SetInputContext()`, which is now the `InputContext` property
 
 6.0.0
