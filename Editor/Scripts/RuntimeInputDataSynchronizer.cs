@@ -26,7 +26,7 @@ namespace NPTP.InputSystemWrapper.Editor
 
             CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingExcludedPathsField), offlineInputData.BindingExcludedPaths);
             CopyStringArray(serializedObject.FindProperty(RuntimeInputData.EDITOR_BindingCancelPathsField), offlineInputData.BindingCancelPaths);
-            SyncControlSchemeBindingData(serializedObject, runtimeInputData.InputActionAsset);
+            SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, offlineInputData);
             SyncInputContexts(serializedObject, offlineInputData);
 
@@ -106,21 +106,22 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Rebuild the control scheme entry list from the asset's control schemes, preserving any BindingData
-        /// the user has already assigned to a control scheme of the same name.
+        /// Rebuild the control scheme list from the asset's control schemes, preserving any BindingData
+        /// the user has already assigned to a control scheme of the same name, and baking in each scheme's
+        /// device basis from the offline data.
         /// </summary>
-        private static void SyncControlSchemeBindingData(SerializedObject serializedObject, InputActionAsset asset)
+        private static void SyncControlSchemes(SerializedObject serializedObject, OfflineInputData offlineInputData, InputActionAsset asset)
         {
-            SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_ControlSchemeBindingDataField);
+            SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_ControlSchemesField);
 
             Dictionary<string, BindingData> existingByName = new();
             for (int i = 0; i < entries.arraySize; i++)
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                string name = entry.FindPropertyRelative(ControlSchemeBindingDataEntry.EDITOR_ControlSchemeNameField).stringValue;
+                string name = entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue;
                 if (!string.IsNullOrEmpty(name))
                 {
-                    existingByName[name] = entry.FindPropertyRelative(ControlSchemeBindingDataEntry.EDITOR_BindingDataField).objectReferenceValue as BindingData;
+                    existingByName[name] = entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue as BindingData;
                 }
             }
 
@@ -134,10 +135,32 @@ namespace NPTP.InputSystemWrapper.Editor
             {
                 string controlSchemeName = asset.controlSchemes[i].name;
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                entry.FindPropertyRelative(ControlSchemeBindingDataEntry.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
-                entry.FindPropertyRelative(ControlSchemeBindingDataEntry.EDITOR_BindingDataField).objectReferenceValue =
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BindingDataField).objectReferenceValue =
                     existingByName.TryGetValue(controlSchemeName, out BindingData bindingData) ? bindingData : null;
+
+                ControlSchemeBasis.BasisSpec basis = GetBasis(offlineInputData, controlSchemeName);
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsMouseBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsMouseBased;
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_IsGamepadBasedField).boolValue = basis is ControlSchemeBasis.BasisSpec.IsGamepadBased;
             }
+        }
+
+        private static ControlSchemeBasis.BasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
+        {
+            if (offlineInputData.ControlSchemeBases == null)
+            {
+                return ControlSchemeBasis.BasisSpec.Undefined;
+            }
+
+            foreach (ControlSchemeBasis controlSchemeBasis in offlineInputData.ControlSchemeBases)
+            {
+                if (controlSchemeBasis.ControlScheme.ToInputAssetName() == controlSchemeName)
+                {
+                    return controlSchemeBasis.Basis;
+                }
+            }
+
+            return ControlSchemeBasis.BasisSpec.Undefined;
         }
     }
 }

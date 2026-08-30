@@ -21,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private CustomInteraction[] customInteractions;
 
         [Header("Input Device Binding Data (Auto-Generated List)")]
-        [SerializeField] private ControlSchemeBindingDataEntry[] controlSchemeBindingData;
+        [SerializeField] private ControlSchemeDefinition[] controlSchemes;
 
         [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
                  "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
@@ -51,23 +51,42 @@ namespace NPTP.InputSystemWrapper.Data
             }
         }
 
-        internal BindingData GetControlSchemeBindingData(ControlScheme controlScheme)
+        /// <summary>
+        /// Resolve a control scheme by its index, which the generated ControlScheme enum's values match.
+        /// </summary>
+        internal ControlSchemeId GetControlSchemeId(int index)
         {
-            if (controlScheme is ControlScheme.None || controlSchemeBindingData == null)
+            return controlSchemes == null || index < 0 || index >= controlSchemes.Length
+                ? ControlSchemeId.None
+                : controlSchemes[index].ToId(index);
+        }
+
+        /// <summary>
+        /// Resolve a control scheme by the name it has in the input action asset.
+        /// </summary>
+        internal ControlSchemeId GetControlSchemeId(string controlSchemeName)
+        {
+            if (controlSchemes == null || string.IsNullOrEmpty(controlSchemeName))
             {
-                return null;
+                return ControlSchemeId.None;
             }
 
-            string controlSchemeName = controlScheme.ToInputAssetName();
-            foreach (ControlSchemeBindingDataEntry entry in controlSchemeBindingData)
+            for (int i = 0; i < controlSchemes.Length; i++)
             {
-                if (entry.ControlSchemeName == controlSchemeName)
+                if (controlSchemes[i].ControlSchemeName == controlSchemeName)
                 {
-                    return entry.BindingData;
+                    return controlSchemes[i].ToId(i);
                 }
             }
 
-            return null;
+            return ControlSchemeId.None;
+        }
+
+        internal BindingData GetBindingData(ControlSchemeId controlSchemeId)
+        {
+            return controlSchemeId.IsNone || controlSchemes == null || controlSchemeId.Index >= controlSchemes.Length
+                ? null
+                : controlSchemes[controlSchemeId.Index].BindingData;
         }
 
         internal InputContextDefinition GetContextDefinition(InputContext inputContext)
@@ -79,7 +98,7 @@ namespace NPTP.InputSystemWrapper.Data
 #if UNITY_EDITOR
         internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
         internal const string EDITOR_InputContextsField = nameof(inputContexts);
-        internal const string EDITOR_ControlSchemeBindingDataField = nameof(controlSchemeBindingData);
+        internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);
         internal const string EDITOR_BindingCancelPathsField = nameof(bindingCancelPaths);
 #endif
