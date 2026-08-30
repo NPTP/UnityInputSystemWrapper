@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7040b43e86090f64ab12b4354d024341, type: 3}
-  m_Name: RuntimeInputData
+  m_Script: {fileID: 11500000, guid: 138b0747e9be5b244b7fa71231f9bfc3, type: 3}
+  m_Name: InputData
   m_EditorClassIdentifier: 
   inputActionAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   customLayouts:
@@ -74,7 +74,7 @@ MonoBehaviour:
       actionID: 
     - actionType: 9
       actionID: 
-  inputContexts:
+  contextDefinitions:
   - name: Default
     enableKeyboardTextInput: 0
     activeMapNames:

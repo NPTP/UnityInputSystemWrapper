@@ -13,10 +13,10 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingChanger
     {
-        internal static RebindingOperation StartInteractiveRebind(RuntimeInputData runtimeInputData, ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
+        internal static RebindingOperation StartInteractiveRebind(InputData inputData, ActionBindingInfo actionBindingInfo, int bindingIndex, Action<RebindInfo> callback)
         {
-            string[] excludedPaths = runtimeInputData.BindingExcludedPaths ?? Array.Empty<string>();
-            string[] cancelPaths = runtimeInputData.BindingCancelPaths ?? Array.Empty<string>();
+            string[] excludedPaths = inputData.BindingExcludedPaths ?? Array.Empty<string>();
+            string[] cancelPaths = inputData.BindingCancelPaths ?? Array.Empty<string>();
 
             ActionWrapper actionWrapper = actionBindingInfo.ActionWrapper;
             InputAction action = actionWrapper.InputAction;
@@ -26,15 +26,15 @@ namespace NPTP.InputSystemWrapper.Bindings
             RebindingOperation rebindingOperation = action.PerformInteractiveRebinding(bindingIndex);
 
             rebindingOperation
-                // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding. 
+                // Note that pointer movement (including touch) is already excluded in the above call to PerformInteractiveRebinding.
                 .WithControlsExcludingMultiple(excludedPaths)
                 .WithCancelingThroughMultiple(cancelPaths)
                 .OnCancel(onCancel)
                 .OnComplete(onComplete);
-            
+
             rebindingOperation.Start();
             return rebindingOperation;
-            
+
             void onCancel(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
@@ -45,12 +45,12 @@ namespace NPTP.InputSystemWrapper.Bindings
             void onComplete(RebindingOperation op)
             {
                 if (actionWasEnabled) action.Enable();
-                
+
                 // TODO <optimization>: Temporary measure to return binding info with completed binding.
                 // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
                 IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
                 InputRuntime.Current.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
-                
+
                 callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
                 InputRuntime.Current.BroadcastBindingsChanged();
@@ -60,13 +60,13 @@ namespace NPTP.InputSystemWrapper.Bindings
         private static RebindingOperation WithControlsExcludingMultiple(this RebindingOperation rebindingOperation, string[] paths)
         {
             foreach (string excludedPath in paths) rebindingOperation.WithControlsExcluding(excludedPath);
-            
+
             // Handles excluded keyboard keys coming in as "anyKey" and still completing the binding operation.
             rebindingOperation.WithControlsExcluding("<Keyboard>/anyKey");
-            
+
             return rebindingOperation;
         }
-        
+
         private static RebindingOperation WithCancelingThroughMultiple(this RebindingOperation rebindingOperation, string[] paths)
         {
             if (paths.Length == 0)

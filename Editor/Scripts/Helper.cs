@@ -8,8 +8,8 @@ namespace NPTP.InputSystemWrapper.Editor
 {
     internal static class Helper
     {
-        internal static OfflineInputData OfflineInputData =>
-            Generation.ProjectAssets.TryFindProjectAsset(nameof(OfflineInputData), out OfflineInputData offlineInputData) ? offlineInputData : null;
+        internal static InputData InputData =>
+            Generation.ProjectAssets.TryFindProjectAsset(nameof(InputData), out InputData inputData) ? inputData : null;
 
         /// <summary>A PascalCase identifier, for a generated type or property.</summary>
         internal static string AsType(this string s) => GeneratedIdentifier.SanitizeAsPascalCase(s);

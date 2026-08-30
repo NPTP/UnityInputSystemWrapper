@@ -23,14 +23,14 @@ namespace NPTP.InputSystemWrapper.Player
         /// Corresponds to InputUser.onChange, for this player specifically.
         /// </summary>
         public event Action<InputUserChangeInfo> OnInputUserChange;
-        
+
         public event Action<InputPlayer> OnControlSchemeChanged;
 
         /// <summary>
         /// The input player can be used when enabled, and is ignored when disabled.
         /// </summary>
         public event Action<InputPlayer> OnEnabledOrDisabled;
-        
+
         /// <summary>
         /// Sends the keyboard text character that was just input by this player,
         /// but only if the current InputContext that allows keyboard text input is active.
@@ -57,7 +57,7 @@ namespace NPTP.InputSystemWrapper.Player
                 {
                     return;
                 }
-            
+
                 enabled = value;
                 playerInputGameObject.SetActive(value);
                 if (value)
@@ -68,7 +68,7 @@ namespace NPTP.InputSystemWrapper.Player
                 OnEnabledOrDisabled?.Invoke(this);
             }
         }
-        
+
         private InputContextId inputContextId;
         internal InputContextId InputContextId
         {
@@ -93,7 +93,7 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 if (currentControlSchemeId == value)
                     return;
-                
+
                 currentControlSchemeId = value;
                 OnControlSchemeChanged?.Invoke(this);
             }
@@ -120,16 +120,16 @@ namespace NPTP.InputSystemWrapper.Player
                 }
             }
         }
-        
+
         internal InputActionAsset Asset { get; }
 
         internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
-        
+
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
-        
+
         private readonly List<Keyboard> lastPairedKeyboards = new();
         private readonly Dictionary<Guid, ActionWrapper> actionWrapperTable = new();
-        
+
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
@@ -146,10 +146,10 @@ namespace NPTP.InputSystemWrapper.Player
         /// Invoked for each new player to fill its action map wrapper table, keyed by action map name.
         /// </summary>
         internal static Action<InputPlayer, Dictionary<string, IActionMapWrapper>> ActionMapWrapperFactory;
-        private RuntimeInputData runtimeInputData;
-        
+        private InputData inputData;
+
         #endregion
-        
+
         #region Setup & Teardown
 
         internal void Terminate()
@@ -160,10 +160,10 @@ namespace NPTP.InputSystemWrapper.Player
             DisableAllMapsAndRemoveCallbacks();
         }
 
-        internal InputPlayer(RuntimeInputData runtimeInputData, int id, bool isMultiplayer, Transform parent)
+        internal InputPlayer(InputData inputData, int id, bool isMultiplayer, Transform parent)
         {
-            this.runtimeInputData = runtimeInputData;
-            Asset = InstantiateNewActions(runtimeInputData.InputActionAsset);
+            this.inputData = inputData;
+            Asset = InstantiateNewActions(inputData.InputActionAsset);
             ID = id;
 
             ActionMapWrapperFactory?.Invoke(this, actionMapWrappers);
@@ -189,14 +189,14 @@ namespace NPTP.InputSystemWrapper.Player
 
             return newActions;
         }
-        
+
         private void SetUpInputPlayerGameObject(bool isMultiplayer, Transform parent)
         {
             if (playerInputGameObject != null)
             {
                 return;
             }
-            
+
             playerInputGameObject = new GameObject
             {
                 name = $"Player[{ID}]Input",
@@ -205,12 +205,12 @@ namespace NPTP.InputSystemWrapper.Player
 
             playerInput = playerInputGameObject.AddComponent<PlayerInput>();
             playerInput.neverAutoSwitchControlSchemes = isMultiplayer;
-            
+
             playerInputGameObject.AddComponent<MultiplayerEventSystem>();
             uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
             uiInputModule.actionsAsset = Asset;
             SetEventSystemOptions();
-            
+
             playerInput.actions = Asset;
             playerInput.uiInputModule = uiInputModule;
 
@@ -218,14 +218,14 @@ namespace NPTP.InputSystemWrapper.Player
             // This is because any events here are unnecessary overhead that we don't use.
             // C# events are just the lowest overhead in the meantime.
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
-            
+
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
+            CurrentControlSchemeId = inputData.GetControlSchemeId(playerInput.currentControlScheme);
         }
 
         private void SetEventSystemOptions()
         {
-            EventSystemOptions options = runtimeInputData.EventSystemOptions;
+            EventSystemOptions options = inputData.EventSystemOptions;
             if (options == null)
             {
                 return;
@@ -244,18 +244,18 @@ namespace NPTP.InputSystemWrapper.Player
         /// </summary>
         private void PopulateEventSystemActionsPool()
         {
-            if (runtimeInputData.EventSystemOptions != null)
+            if (inputData.EventSystemOptions != null)
             {
-                foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+                foreach (EventSystemActionBinding binding in inputData.EventSystemOptions.DefaultActions)
                     AddToEventSystemActionsPool(binding.ActionID);
             }
 
-            if (runtimeInputData.InputContexts == null)
+            if (inputData.ContextDefinitions == null)
             {
                 return;
             }
 
-            foreach (InputContextDefinition contextDefinition in runtimeInputData.InputContexts)
+            foreach (InputContextDefinition contextDefinition in inputData.ContextDefinitions)
                 foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
                     AddToEventSystemActionsPool(binding.ActionID);
         }
@@ -279,12 +279,12 @@ namespace NPTP.InputSystemWrapper.Player
 
         private void SetDefaultEventSystemActions()
         {
-            if (runtimeInputData.EventSystemOptions == null)
+            if (inputData.EventSystemOptions == null)
             {
                 return;
             }
 
-            foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+            foreach (EventSystemActionBinding binding in inputData.EventSystemOptions.DefaultActions)
                 ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
         }
 
@@ -321,7 +321,7 @@ namespace NPTP.InputSystemWrapper.Player
 
             SetDefaultEventSystemActions();
 
-            InputContextDefinition contextDefinition = runtimeInputData.GetContextDefinition(context);
+            InputContextDefinition contextDefinition = inputData.GetContextDefinition(context);
             if (contextDefinition == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(context), context, $"No {nameof(InputContextDefinition)} exists for this context. Re-run input code generation.");
@@ -342,7 +342,7 @@ namespace NPTP.InputSystemWrapper.Player
                 ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
         }
 
-        
+
         private InputActionReference CreateInputActionReferenceToPlayerAsset(string actionID)
         {
             return string.IsNullOrEmpty(actionID)
@@ -353,7 +353,7 @@ namespace NPTP.InputSystemWrapper.Player
         #endregion
 
         #region Internal
-        
+
         /// <summary>
         /// Get the actions object for one action map by its name in the input action asset.
         /// The generated extension methods on this type are the type-safe way in.
@@ -374,7 +374,7 @@ namespace NPTP.InputSystemWrapper.Player
                 }
 
                 string deviceControlPath = BindingPathHelper.GetDeviceControlPath<TDevice>();
-                
+
                 for (int j = 0; j < inputControlScheme.deviceRequirements.Count; j++)
                 {
                     InputControlScheme.DeviceRequirement deviceRequirement = inputControlScheme.deviceRequirements[j];
@@ -387,12 +387,12 @@ namespace NPTP.InputSystemWrapper.Player
 
             return false;
         }
-        
+
         internal bool IsDevicePaired(InputDevice device)
         {
             return PairedDevices.ContainsReference(device);
         }
-        
+
         internal bool IsUser(InputUser user)
         {
             return playerInput != null && playerInput.user.id == user.id;
@@ -404,7 +404,7 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 return;
             }
-         
+
             InputUser.PerformPairingWithDevice(device, playerInput.user);
             // UpdateLastUsedDevice();
         }
@@ -415,7 +415,7 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 return;
             }
-            
+
             playerInput.user.UnpairDevice(device);
             // UpdateLastUsedDevice();
         }
@@ -426,7 +426,7 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 return;
             }
-            
+
             playerInput.user.UnpairDevices();
             // UpdateLastUsedDevice();
         }
@@ -451,10 +451,10 @@ namespace NPTP.InputSystemWrapper.Player
                     UpdateDevices(inputDevice);
                     break;
                 case InputUserChange.ControlSchemeChanged:
-                    CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
+                    CurrentControlSchemeId = inputData.GetControlSchemeId(playerInput.currentControlScheme);
                     break;
             }
-            
+
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
@@ -491,14 +491,14 @@ namespace NPTP.InputSystemWrapper.Player
         {
             if (changedDevice is Keyboard && keyboardTextInputEnabled)
                 EnableKeyboardTextInput();
-            
+
             UpdateLastUsedDevice(changedDevice);
         }
-        
+
         private void EnableKeyboardTextInput()
         {
             keyboardTextInputEnabled = true;
-            lastPairedKeyboards.ForEach(kb => kb.onTextInput -= HandleTextInput); 
+            lastPairedKeyboards.ForEach(kb => kb.onTextInput -= HandleTextInput);
             UpdateLastPairedKeyboards();
             lastPairedKeyboards.ForEach(kb => kb.onTextInput += HandleTextInput);
         }
@@ -509,7 +509,7 @@ namespace NPTP.InputSystemWrapper.Player
             lastPairedKeyboards.ForEach(kb => kb.onTextInput -= HandleTextInput);
             lastPairedKeyboards.Clear();
         }
-        
+
         private void UpdateLastPairedKeyboards()
         {
             lastPairedKeyboards.Clear();
@@ -517,7 +517,7 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 return;
             }
-            
+
             foreach (InputDevice inputDevice in playerInput.devices)
             {
                 if (inputDevice is Keyboard keyboard)
@@ -526,14 +526,14 @@ namespace NPTP.InputSystemWrapper.Player
                 }
             }
         }
-        
+
         // TODO (optimization): Currently commented out in this class in a few places, since enabling/disabling PlayerInput,
         // pairing/unpairing devices, etc. should all call HandleInputUserChange. Uncomment those calls if HandleInputUserChange
         // isn't cutting it, and delete the commented calls outright if it is!
         private void UpdateLastUsedDevice(InputDevice fallbackDevice = null)
         {
             ReadOnlyArray<InputDevice> pairedDevices = PairedDevices;
-            
+
             if (pairedDevices.Count == 0)
             {
                 lastUsedDevice = null;
@@ -555,7 +555,7 @@ namespace NPTP.InputSystemWrapper.Player
         }
 
         #endregion
-        
+
         #region Editor-Only Debug
 #if UNITY_EDITOR
         // ReSharper disable once InconsistentNaming

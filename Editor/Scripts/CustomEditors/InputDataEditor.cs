@@ -10,8 +10,8 @@ using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
-    [CustomEditor(typeof(OfflineInputData))]
-    internal class OfflineInputDataEditor : UnityEditor.Editor
+    [CustomEditor(typeof(InputData))]
+    internal class InputDataEditor : UnityEditor.Editor
     {
         private GUIStyle HeaderStyle => new(EditorStyles.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
         private GUIStyle WarningStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 12, normal = new GUIStyleState {textColor = Color.yellow}};
@@ -19,15 +19,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private SerializedProperty initializationMode;
 
-        /// <summary>
-        /// These four are authored here but stored on the runtime asset, which is the only thing that
-        /// reads them. Editing them through its SerializedObject means there is one copy of each value
-        /// rather than an authored copy and a generated one that can drift apart.
-        /// </summary>
-        private SerializedObject runtimeInputDataObject;
-
         private SerializedProperty defaultContextIndex;
-        private SerializedProperty inputContexts;
+        private SerializedProperty authoredContexts;
 
         private SerializedProperty controlSchemeBases;
 
@@ -55,17 +48,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void OnEnable()
         {
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
-            RuntimeInputData runtimeInputData = ((OfflineInputData)target).RuntimeInputData;
-            runtimeInputDataObject = runtimeInputData == null ? null : new SerializedObject(runtimeInputData);
-
-            defaultContextIndex = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_DefaultContextIndexField);
-            inputContexts = serializedObject.FindProperty(nameof(inputContexts));
+            defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
+            authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
             controlSchemeBases = serializedObject.FindProperty(nameof(controlSchemeBases));
 
-            loadAllBindingOverridesOnInitialize = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
-            bindingExcludedPaths = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_BindingExcludedPathsField);
-            bindingCancelPaths = runtimeInputDataObject?.FindProperty(RuntimeInputData.EDITOR_BindingCancelPathsField);
+            loadAllBindingOverridesOnInitialize = serializedObject.FindProperty(InputData.EDITOR_LoadAllBindingOverridesOnInitializeField);
+            bindingExcludedPaths = serializedObject.FindProperty(InputData.EDITOR_BindingExcludedPathsField);
+            bindingCancelPaths = serializedObject.FindProperty(InputData.EDITOR_BindingCancelPathsField);
 
             moveRepeatDelay = serializedObject.FindProperty(nameof(moveRepeatDelay));
             moveRepeatRate = serializedObject.FindProperty(nameof(moveRepeatRate));
@@ -89,16 +79,10 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void DrawDefaultContextPopup()
         {
-            InputContextInfo[] contexts = ((OfflineInputData)target).InputContexts;
+            InputContextInfo[] contexts = ((InputData)target).AuthoredContexts;
             if (contexts == null || contexts.Length == 0)
             {
                 EditorGUILayout.LabelField("Default Context", "No input contexts defined");
-                return;
-            }
-
-            if (defaultContextIndex == null)
-            {
-                EditorGUILayout.LabelField("Default Context", "No Runtime Input Data assigned");
                 return;
             }
 
@@ -118,7 +102,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             controlSchemeBases.ClearArray();
 
-            InputActionAsset asset = ((OfflineInputData)target).RuntimeInputData == null ? null : ((OfflineInputData)target).RuntimeInputData.InputActionAsset;
+            InputActionAsset asset = ((InputData)target).InputData == null ? null : ((InputData)target).InputData.InputActionAsset;
             string[] enumValues = asset == null ? Array.Empty<string>() : asset.controlSchemes.Select(controlScheme => controlScheme.name).ToArray();
             int index = 0;
             foreach (string scheme in enumValues)
@@ -148,8 +132,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            // The runtime asset is a second serialized object, so it needs its own update and apply.
-            runtimeInputDataObject?.Update();
+            serializedObject.Update();
 
             DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
@@ -159,7 +142,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             DrawHeader("Input Contexts");
             DrawDefaultContextPopup();
             EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(inputContexts);
+            EditorGUILayout.PropertyField(authoredContexts);
 
             EditorInspectorUtility.DrawHorizontalLine();
 
@@ -188,17 +171,10 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Bindings");
-            if (runtimeInputDataObject == null)
-            {
-                DrawWarning("Assign a Runtime Input Data asset to edit binding settings.");
-            }
-            else
-            {
-                EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(bindingExcludedPaths);
-                EditorGUILayout.PropertyField(bindingCancelPaths);
-            }
+            EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(bindingExcludedPaths);
+            EditorGUILayout.PropertyField(bindingCancelPaths);
 
             EditorInspectorUtility.DrawHorizontalLine();
 
@@ -221,7 +197,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(trackedDeviceOrientation);
 
             serializedObject.ApplyModifiedProperties();
-            runtimeInputDataObject?.ApplyModifiedProperties();
         }
     }
 }

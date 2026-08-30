@@ -19,7 +19,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string PLAYER_ID = "playerID";
         private const string NULLABLE_PLAYER_ID = "int?";
 
-        internal static GeneratableTypeDefinition Build(InputActionAsset asset, OfflineInputData offlineInputData)
+        internal static GeneratableTypeDefinition Build(InputActionAsset asset, InputData inputData)
         {
             GeneratableTypeDefinition isw = SourceGen.NewClass("ISW").Public().Static()
                 .InNamespace(GeneratedNamespaces.ROOT)
@@ -30,7 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER).Private().Static().Expression("Runtime.DefaultPlayer"));
 
             AddSinglePlayerAccess(isw, asset);
-            AddInitialization(isw, asset, offlineInputData);
+            AddInitialization(isw, asset, inputData);
             AddEvents(isw);
             AddPublicInterface(isw);
 
@@ -57,7 +57,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Expression("DefaultPlayer.CurrentControlScheme()"));
         }
 
-        private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, OfflineInputData offlineInputData)
+        private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
         {
             GeneratableMethod initialize = SourceGen.NewMethod("Initialize")
                 .Static()
@@ -65,13 +65,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Body("InputPlayer.ActionMapWrapperFactory = CreateActionMapWrappers;",
                     "InputRuntime.Initialize();");
 
-            if (offlineInputData.InitializationMode == InitializationMode.BeforeSceneLoad)
+            if (inputData.InitializationMode == InitializationMode.BeforeSceneLoad)
             {
                 initialize.WithAttribute("RuntimeInitializeOnLoadMethod", "RuntimeInitializeLoadType.BeforeSceneLoad");
             }
 
             // Manual initialization is the user's to call, so it has to be reachable.
-            if (offlineInputData.InitializationMode == InitializationMode.Manual) initialize.Public();
+            if (inputData.InitializationMode == InitializationMode.Manual) initialize.Public();
             else initialize.Private();
 
             isw.WithMethod(initialize);

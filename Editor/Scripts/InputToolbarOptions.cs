@@ -8,8 +8,7 @@ namespace NPTP.InputSystemWrapper.Editor
     {
         private const string TOOLBAR_NAME = "Input";
         private const string REGENERATE_INPUT_CODE_ASSETS = TOOLBAR_NAME + "/Regenerate Input Wrapper Code and Assets";
-        private const string OFFLINE_INPUT_DATA = TOOLBAR_NAME + "/Offline Input Data";
-        private const string RUNTIME_INPUT_DATA = TOOLBAR_NAME + "/Runtime Input Data";
+        private const string INPUT_DATA = TOOLBAR_NAME + "/Input Data";
         private const string OPEN_DEBUGGER_WINDOW = TOOLBAR_NAME + "/Input Wrapper Debugger Window";
 
         [MenuItem(REGENERATE_INPUT_CODE_ASSETS, isValidateFunction: false, 0)]
@@ -18,16 +17,10 @@ namespace NPTP.InputSystemWrapper.Editor
             InputScriptGenerator.GenerateInputScriptCode();
         }
 
-        [MenuItem(OFFLINE_INPUT_DATA, isValidateFunction: false, 100)]
-        private static void OfflineInputData()
+        [MenuItem(INPUT_DATA, isValidateFunction: false, 100)]
+        private static void InputData()
         {
-            SelectAsset(Helper.OfflineInputData);
-        }
-
-        [MenuItem(RUNTIME_INPUT_DATA, isValidateFunction: false, 100)]
-        private static void RuntimeInputData()
-        {
-            SelectAsset(Helper.OfflineInputData == null ? null : Helper.OfflineInputData.RuntimeInputData);
+            SelectAsset(Helper.InputData);
         }
 
         [MenuItem(OPEN_DEBUGGER_WINDOW, isValidateFunction: false, 200)]

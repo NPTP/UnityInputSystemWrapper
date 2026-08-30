@@ -10,7 +10,7 @@ namespace NPTP.InputSystemWrapper.CustomSetups
 {
     /// <summary>
     /// Register additional interactions, bindings, and input device layouts with the ability for the developer
-    /// to define more and hook them in via new CustomSetup assets added to RuntimeInputData.
+    /// to define more and hook them in via new CustomSetup assets added to InputData.
     /// </summary>
 #if UNITY_EDITOR
     [InitializeOnLoad]
@@ -26,14 +26,14 @@ namespace NPTP.InputSystemWrapper.CustomSetups
                 return;
             }
 
-            if (RuntimeSafeEditorUtility.TryLoadViaAssetDatabase(out RuntimeInputData runtimeInputData))
-                PerformRegistrations(runtimeInputData);
+            if (RuntimeSafeEditorUtility.TryLoadViaAssetDatabase(out InputData inputData))
+                PerformRegistrations(inputData);
         }
 #endif
 
-        internal static void PerformRegistrations(RuntimeInputData runtimeInputData)
+        internal static void PerformRegistrations(InputData inputData)
         {
-            foreach (CustomSetup customSetup in runtimeInputData.AllCustomSetups)
+            foreach (CustomSetup customSetup in inputData.AllCustomSetups)
             {
                 customSetup.Register();
             }

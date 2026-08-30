@@ -10,32 +10,32 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Editor
 {
     /// <summary>
-    /// Keeps the serialized data on <see cref="RuntimeInputData"/> in sync with the input action asset and the
-    /// offline (editor-only) input data. This replaces what used to be generated as C# into the RuntimeInputData
-    /// and BindingChanger partial classes - it is plain data, so it lives in the asset rather than in code.
+    /// Keeps the serialized data on <see cref="InputData"/> in sync with the input action asset and the
+    /// authored, editor-only fields on the same asset. Only values the runtime cannot use in their authored
+    /// form are baked - chiefly InputActionReferences, which become the action IDs a player's cloned asset
+    /// can resolve.
     /// </summary>
-    internal static class RuntimeInputDataSynchronizer
+    internal static class InputDataSynchronizer
     {
-        internal static void Synchronize(OfflineInputData offlineInputData)
+        internal static void Synchronize(InputData inputData)
         {
-            RuntimeInputData runtimeInputData = offlineInputData.RuntimeInputData;
-            if (runtimeInputData == null)
+            if (inputData == null)
             {
                 return;
             }
 
-            SerializedObject serializedObject = new(runtimeInputData);
+            SerializedObject serializedObject = new(inputData);
 
-            SyncControlSchemes(serializedObject, offlineInputData, runtimeInputData.InputActionAsset);
-            SyncDeviceBindingData(serializedObject, runtimeInputData.InputActionAsset);
-            SyncEventSystemOptions(serializedObject, offlineInputData);
-            SyncInputContexts(serializedObject, offlineInputData);
-            WarnAboutUnknownMapNames(offlineInputData, runtimeInputData.InputActionAsset);
+            SyncControlSchemes(serializedObject, inputData, inputData.InputActionAsset);
+            SyncDeviceBindingData(serializedObject, inputData.InputActionAsset);
+            SyncEventSystemOptions(serializedObject, inputData);
+            SyncInputContexts(serializedObject, inputData);
+            WarnAboutUnknownMapNames(inputData, inputData.InputActionAsset);
 
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(runtimeInputData);
-            AssetDatabase.SaveAssetIfDirty(runtimeInputData);
-            Generation.GenerationReport.Record($"{AssetDatabase.GetAssetPath(runtimeInputData)} (synchronized)");
+            EditorUtility.SetDirty(inputData);
+            AssetDatabase.SaveAssetIfDirty(inputData);
+            Generation.GenerationReport.Record($"{AssetDatabase.GetAssetPath(inputData)} (synchronized)");
         }
 
         private static void CopyStringArray(SerializedProperty arrayProperty, string[] source)
@@ -48,36 +48,36 @@ namespace NPTP.InputSystemWrapper.Editor
             }
         }
 
-        private static void SyncEventSystemOptions(SerializedObject serializedObject, OfflineInputData offlineInputData)
+        private static void SyncEventSystemOptions(SerializedObject serializedObject, InputData inputData)
         {
-            SerializedProperty options = serializedObject.FindProperty(RuntimeInputData.EDITOR_EventSystemOptionsField);
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatDelayField).floatValue = offlineInputData.MoveRepeatDelay;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatRateField).floatValue = offlineInputData.MoveRepeatRate;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_DeselectOnBackgroundClickField).boolValue = offlineInputData.DeselectOnBackgroundClick;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_PointerBehaviorField).enumValueIndex = (int)offlineInputData.PointerBehavior;
-            options.FindPropertyRelative(EventSystemOptions.EDITOR_CursorLockBehaviorField).enumValueIndex = (int)offlineInputData.CursorLockBehavior;
+            SerializedProperty options = serializedObject.FindProperty(InputData.EDITOR_EventSystemOptionsField);
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatDelayField).floatValue = inputData.MoveRepeatDelay;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_MoveRepeatRateField).floatValue = inputData.MoveRepeatRate;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_DeselectOnBackgroundClickField).boolValue = inputData.DeselectOnBackgroundClick;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_PointerBehaviorField).enumValueIndex = (int)inputData.PointerBehavior;
+            options.FindPropertyRelative(EventSystemOptions.EDITOR_CursorLockBehaviorField).enumValueIndex = (int)inputData.CursorLockBehavior;
 
             List<(EventSystemActionType, InputActionReference)> defaults = new()
             {
-                (EventSystemActionType.Point, offlineInputData.Point),
-                (EventSystemActionType.LeftClick, offlineInputData.LeftClick),
-                (EventSystemActionType.MiddleClick, offlineInputData.MiddleClick),
-                (EventSystemActionType.RightClick, offlineInputData.RightClick),
-                (EventSystemActionType.ScrollWheel, offlineInputData.ScrollWheel),
-                (EventSystemActionType.Move, offlineInputData.Move),
-                (EventSystemActionType.Submit, offlineInputData.Submit),
-                (EventSystemActionType.Cancel, offlineInputData.Cancel),
-                (EventSystemActionType.TrackedDevicePosition, offlineInputData.TrackedDevicePosition),
-                (EventSystemActionType.TrackedDeviceOrientation, offlineInputData.TrackedDeviceOrientation)
+                (EventSystemActionType.Point, inputData.Point),
+                (EventSystemActionType.LeftClick, inputData.LeftClick),
+                (EventSystemActionType.MiddleClick, inputData.MiddleClick),
+                (EventSystemActionType.RightClick, inputData.RightClick),
+                (EventSystemActionType.ScrollWheel, inputData.ScrollWheel),
+                (EventSystemActionType.Move, inputData.Move),
+                (EventSystemActionType.Submit, inputData.Submit),
+                (EventSystemActionType.Cancel, inputData.Cancel),
+                (EventSystemActionType.TrackedDevicePosition, inputData.TrackedDevicePosition),
+                (EventSystemActionType.TrackedDeviceOrientation, inputData.TrackedDeviceOrientation)
             };
 
             WriteActionBindings(options.FindPropertyRelative(EventSystemOptions.EDITOR_DefaultActionsField), defaults);
         }
 
-        private static void SyncInputContexts(SerializedObject serializedObject, OfflineInputData offlineInputData)
+        private static void SyncInputContexts(SerializedObject serializedObject, InputData inputData)
         {
-            InputContextInfo[] contextInfos = offlineInputData.InputContexts ?? new InputContextInfo[0];
-            SerializedProperty contexts = serializedObject.FindProperty(RuntimeInputData.EDITOR_InputContextsField);
+            InputContextInfo[] contextInfos = inputData.AuthoredContexts ?? new InputContextInfo[0];
+            SerializedProperty contexts = serializedObject.FindProperty(InputData.EDITOR_ContextDefinitionsField);
             contexts.arraySize = contextInfos.Length;
 
             for (int i = 0; i < contextInfos.Length; i++)
@@ -101,9 +101,9 @@ namespace NPTP.InputSystemWrapper.Editor
         /// looks exactly like input being broken. Usually it means a map was renamed in the asset without
         /// updating the contexts that referenced it.
         /// </summary>
-        private static void WarnAboutUnknownMapNames(OfflineInputData offlineInputData, InputActionAsset asset)
+        private static void WarnAboutUnknownMapNames(InputData inputData, InputActionAsset asset)
         {
-            if (offlineInputData.InputContexts == null || asset == null)
+            if (inputData.AuthoredContexts == null || asset == null)
             {
                 return;
             }
@@ -114,7 +114,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 mapNames.Add(map.name);
             }
 
-            foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
+            foreach (InputContextInfo contextInfo in inputData.AuthoredContexts)
             {
                 if (contextInfo.ActiveMaps == null)
                 {
@@ -131,7 +131,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 }
             }
 
-            foreach (InputContextInfo contextInfo in offlineInputData.InputContexts)
+            foreach (InputContextInfo contextInfo in inputData.AuthoredContexts)
             {
                 if (contextInfo.ActiveMaps == null || contextInfo.ActiveMaps.Length == 0)
                 {
@@ -156,9 +156,9 @@ namespace NPTP.InputSystemWrapper.Editor
         /// Rebuild the control scheme list from the asset's control schemes, baking in each scheme's device
         /// basis from the offline data.
         /// </summary>
-        private static void SyncControlSchemes(SerializedObject serializedObject, OfflineInputData offlineInputData, InputActionAsset asset)
+        private static void SyncControlSchemes(SerializedObject serializedObject, InputData inputData, InputActionAsset asset)
         {
-            SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_ControlSchemesField);
+            SerializedProperty entries = serializedObject.FindProperty(InputData.EDITOR_ControlSchemesField);
 
             entries.arraySize = asset == null ? 0 : asset.controlSchemes.Count;
             if (asset == null)
@@ -171,7 +171,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 string controlSchemeName = asset.controlSchemes[i].name;
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_ControlSchemeNameField).stringValue = controlSchemeName;
-                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(offlineInputData, controlSchemeName);
+                entry.FindPropertyRelative(ControlSchemeDefinition.EDITOR_BasisField).enumValueIndex = (int)GetBasis(inputData, controlSchemeName);
             }
         }
 
@@ -182,7 +182,7 @@ namespace NPTP.InputSystemWrapper.Editor
         /// </summary>
         private static void SyncDeviceBindingData(SerializedObject serializedObject, InputActionAsset asset)
         {
-            SerializedProperty entries = serializedObject.FindProperty(RuntimeInputData.EDITOR_DeviceBindingDataField);
+            SerializedProperty entries = serializedObject.FindProperty(InputData.EDITOR_DeviceBindingDataField);
 
             Dictionary<string, BindingData> existingByDevice = new();
             for (int i = 0; i < entries.arraySize; i++)
@@ -258,14 +258,14 @@ namespace NPTP.InputSystemWrapper.Editor
             return created;
         }
 
-        private static ControlSchemeBasisSpec GetBasis(OfflineInputData offlineInputData, string controlSchemeName)
+        private static ControlSchemeBasisSpec GetBasis(InputData inputData, string controlSchemeName)
         {
-            if (offlineInputData.ControlSchemeBases == null)
+            if (inputData.ControlSchemeBases == null)
             {
                 return ControlSchemeBasisSpec.Undefined;
             }
 
-            foreach (ControlSchemeBasis controlSchemeBasis in offlineInputData.ControlSchemeBases)
+            foreach (ControlSchemeBasis controlSchemeBasis in inputData.ControlSchemeBases)
             {
                 if (controlSchemeBasis.ControlSchemeName == controlSchemeName)
                 {
