@@ -43,6 +43,12 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// Copy the package's default assets into the project if they are not there yet, and return the
         /// project's InputData. Existing project assets are never overwritten.
         /// </summary>
+        /// <summary>The project's input data asset, or null if it has not been set up yet.</summary>
+        internal static InputData FindProjectInputData()
+        {
+            return TryFindProjectAsset(INPUT_DATA_NAME, out InputData inputData) ? inputData : null;
+        }
+
         internal static InputData EnsureProjectAssets()
         {
             if (TryFindProjectAsset(INPUT_DATA_NAME, out InputData existing))

@@ -22,6 +22,22 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             Draw(EditorGUILayout.GetControlRect(), property, asset, label);
         }
 
+        /// <summary>
+        /// Draws with no prefix label, for a field already labelled by whatever contains it. An optional
+        /// filter narrows the actions offered.
+        /// </summary>
+        internal static void DrawWithoutLabel(Rect position, SerializedProperty property, InputActionAsset asset,
+            Func<InputAction, bool> filter = null)
+        {
+            using (new EditorGUI.DisabledScope(asset == null))
+            {
+                if (EditorGUI.DropdownButton(position, new GUIContent(GetLabel(property, asset)), FocusType.Keyboard) && asset != null)
+                {
+                    ShowDropdown(position, property, asset, filter);
+                }
+            }
+        }
+
         internal static void Draw(Rect position, SerializedProperty property, InputActionAsset asset, GUIContent label = null)
         {
             label ??= new GUIContent(ObjectNames.NicifyVariableName(property.name));
@@ -31,19 +47,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             {
                 if (EditorGUI.DropdownButton(dropdownRect, new GUIContent(GetLabel(property, asset)), FocusType.Keyboard) && asset != null)
                 {
-                    ShowDropdown(dropdownRect, property, asset);
-                }
-            }
-        }
-
-        /// <summary>Draws with no prefix label, for a field already labelled by whatever contains it.</summary>
-        internal static void DrawWithoutLabel(Rect position, SerializedProperty property, InputActionAsset asset)
-        {
-            using (new EditorGUI.DisabledScope(asset == null))
-            {
-                if (EditorGUI.DropdownButton(position, new GUIContent(GetLabel(property, asset)), FocusType.Keyboard) && asset != null)
-                {
-                    ShowDropdown(position, property, asset);
+                    ShowDropdown(dropdownRect, property, asset, filter: null);
                 }
             }
         }
@@ -66,11 +70,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             return action.actionMap == null ? action.name : $"{action.actionMap.name}/{action.name}";
         }
 
-        private static void ShowDropdown(Rect dropdownRect, SerializedProperty property, InputActionAsset asset)
+        private static void ShowDropdown(Rect dropdownRect, SerializedProperty property, InputActionAsset asset,
+            Func<InputAction, bool> filter)
         {
             SerializedProperty target = property.Copy();
 
-            ActionReferenceDropdown dropdown = new(new AdvancedDropdownState(), GetSelectableReferences(asset), selected =>
+            ActionReferenceDropdown dropdown = new(new AdvancedDropdownState(), GetSelectableReferences(asset, filter), selected =>
             {
                 target.objectReferenceValue = selected;
                 target.serializedObject.ApplyModifiedProperties();
@@ -80,10 +85,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         }
 
         /// <summary>
-        /// The asset's action references, in map order. A reference whose action has since been deleted
-        /// stays out of the list, so nothing unselectable is offered.
+        /// The asset's action references, in map order, narrowed by an optional filter. A reference whose
+        /// action has since been deleted stays out of the list, so nothing unselectable is offered.
         /// </summary>
-        private static List<(string Map, InputActionReference Reference)> GetSelectableReferences(InputActionAsset asset)
+        private static List<(string Map, InputActionReference Reference)> GetSelectableReferences(InputActionAsset asset,
+            Func<InputAction, bool> filter)
         {
             List<(string, InputActionReference)> selectable = new();
             string assetPath = AssetDatabase.GetAssetPath(asset);
@@ -121,6 +127,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
                 foreach (InputAction action in map.actions)
                 {
+                    if (filter != null && !filter(action))
+                    {
+                        continue;
+                    }
+
                     InputActionReference match = mapReferences.Find(reference => reference.action.id == action.id);
                     if (match != null)
                     {

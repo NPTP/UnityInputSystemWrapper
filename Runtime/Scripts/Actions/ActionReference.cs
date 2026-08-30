@@ -120,5 +120,9 @@ namespace NPTP.InputSystemWrapper.Actions
         {
             reference = InputActionReference.Create(action);
         }
+
+        protected ActionReference()
+        {
+        }
     }
 }

@@ -138,36 +138,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             string expectedControlType = action.expectedControlType;
             return string.IsNullOrEmpty(expectedControlType)
                 ? nameof(AnyValueActionWrapper)
-                : TypeRef.Generic(nameof(ValueActionWrapper), ControlTypeToTypeName(expectedControlType));
-        }
-
-        /// <summary>
-        /// Converts Unity's InputAction.expectedControlType string into the C# type keyword for that value
-        /// (e.g. "Integer" becomes "int").
-        /// </summary>
-        private static string ControlTypeToTypeName(string controlType)
-        {
-            return controlType switch
-            {
-                "Analog" => "float",
-                "Axis" => "float",
-                "Bone" => "Bone",
-                "Button" => "float",
-                "Delta" => "Vector2",
-                "Digital" => "int",
-                "DiscreteButton" => "int",
-                "Double" => "double",
-                "Dpad" => "Vector2",
-                "Eyes" => "Eyes",
-                "Integer" => "int",
-                "Pose" => "Pose",
-                "Quaternion" => "Quaternion",
-                "Stick" => "Vector2",
-                "Touch" => "float", // TODO (control types): Unknown
-                "Vector2" => "Vector2",
-                "Vector3" => "Vector3",
-                _ => controlType
-            };
+                : TypeRef.Generic(nameof(ValueActionWrapper), ControlValueTypeNames.FromControlType(expectedControlType));
         }
     }
 }
