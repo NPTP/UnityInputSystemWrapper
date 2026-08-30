@@ -24,6 +24,12 @@ namespace NPTP.InputSystemWrapper.Data
         [Header("Input Device Binding Data (Auto-Generated List)")]
         [SerializeField] private ControlSchemeDefinition[] controlSchemes;
 
+        /// <summary>
+        /// One entry per device used by any control scheme. A device that several schemes share has a
+        /// single set of binding data, rather than one copy per scheme.
+        /// </summary>
+        [SerializeField] private DeviceBindingData[] deviceBindingData;
+
         [Tooltip("These control paths will not be registered when performing an interactive rebinding. " +
                  "Use for control paths that you don't want to allow the player to use in their own custom bindings.")]
         [ControlPathSelector][SerializeField] private string[] bindingExcludedPaths;
@@ -90,11 +96,26 @@ namespace NPTP.InputSystemWrapper.Data
             return ControlSchemeId.None;
         }
 
-        internal BindingData GetBindingData(ControlSchemeId controlSchemeId)
+        /// <summary>
+        /// The binding data for a device layout, e.g. "Keyboard". Null when that device has none, which
+        /// means its controls cannot produce display names or sprites.
+        /// </summary>
+        internal BindingData GetBindingData(string deviceLayoutName)
         {
-            return controlSchemeId.IsNone || controlSchemes == null || controlSchemeId.Index >= controlSchemes.Length
-                ? null
-                : controlSchemes[controlSchemeId.Index].BindingData;
+            if (deviceBindingData == null || string.IsNullOrEmpty(deviceLayoutName))
+            {
+                return null;
+            }
+
+            foreach (DeviceBindingData entry in deviceBindingData)
+            {
+                if (entry.DeviceLayoutName == deviceLayoutName)
+                {
+                    return entry.BindingData;
+                }
+            }
+
+            return null;
         }
 
         internal InputContextDefinition GetContextDefinition(InputContextId inputContextId)
@@ -109,6 +130,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
+        internal const string EDITOR_DeviceBindingDataField = nameof(deviceBindingData);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);
         internal const string EDITOR_BindingCancelPathsField = nameof(bindingCancelPaths);
 #endif

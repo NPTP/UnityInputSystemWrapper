@@ -22,25 +22,15 @@ MonoBehaviour:
   customInteractions: []
   controlSchemes:
   - controlSchemeName: Keyboard&Mouse
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Gamepad
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Touch
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: Joystick
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   - controlSchemeName: XR
-    bindingData: {fileID: 0}
-    isMouseBased: 0
-    isGamepadBased: 0
+    basis: 0
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape
