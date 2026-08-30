@@ -17,6 +17,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private GUIStyle WarningStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 12, normal = new GUIStyleState {textColor = Color.yellow}};
         private GUIStyle SpecialNoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
 
+        private SerializedProperty inputActionAsset;
+        private SerializedProperty customLayouts;
+        private SerializedProperty customBindings;
+        private SerializedProperty customInteractions;
+
         private SerializedProperty initializationMode;
 
         private SerializedProperty defaultContextIndex;
@@ -47,6 +52,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void OnEnable()
         {
+            inputActionAsset = serializedObject.FindProperty(nameof(inputActionAsset));
+            customLayouts = serializedObject.FindProperty(nameof(customLayouts));
+            customBindings = serializedObject.FindProperty(nameof(customBindings));
+            customInteractions = serializedObject.FindProperty(nameof(customInteractions));
+
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
@@ -133,6 +143,23 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
+            DrawHeader("Input Action Asset");
+            EditorGUILayout.PropertyField(inputActionAsset);
+            if (inputActionAsset.objectReferenceValue == null)
+            {
+                DrawWarning("An Input Action Asset is required. Nothing can be generated without one.");
+            }
+
+            EditorInspectorUtility.DrawHorizontalLine();
+
+            DrawHeader("Custom Setups");
+            DrawSpecialNote("Layouts, bindings and interactions registered with the input system before any player is set up.");
+            EditorGUILayout.PropertyField(customLayouts);
+            EditorGUILayout.PropertyField(customBindings);
+            EditorGUILayout.PropertyField(customInteractions);
+
+            EditorInspectorUtility.DrawHorizontalLine();
 
             DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
