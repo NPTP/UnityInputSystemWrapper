@@ -1,3 +1,4 @@
+using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Generated.Actions;
 using UnityEngine;

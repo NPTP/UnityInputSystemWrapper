@@ -128,7 +128,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 		{
 			foreach (InputContextInfo inputContextInfo in OfflineInputData.InputContexts)
 			{
-				if (inputContextInfo.Name.AsEnumMember() != ISW.Player(selectedPlayerID).InputContext.ToString())
+				if (inputContextInfo.Name.AsEnumMember() != ISW.GetPlayer(selectedPlayerID).InputContext.ToString())
 				{
 					continue;
 				}

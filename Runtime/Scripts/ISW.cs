@@ -167,14 +167,14 @@ namespace NPTP.InputSystemWrapper
         
         #region Public Interface
 
-        public static InputPlayer Player(int playerID)
+        public static InputPlayer GetPlayer(int playerID)
         {
             return playerCollection.GetOrAdd(playerID);
         }
         
         public static void AddPlayer(int playerID)
         {
-            Player(playerID);
+            GetPlayer(playerID);
         }
 
         public static void RemovePlayer(int playerID)
@@ -184,7 +184,7 @@ namespace NPTP.InputSystemWrapper
 
         public static bool ControlSchemeHas<TDevice>(ControlScheme controlScheme, int playerID = 0) where TDevice : InputDevice
         {
-            return Player(playerID).ControlSchemeHas<TDevice>(controlScheme);
+            return GetPlayer(playerID).ControlSchemeHas<TDevice>(controlScheme);
         }
 
         public static void SetContextForAllPlayers(InputContext inputContext)
@@ -232,7 +232,7 @@ namespace NPTP.InputSystemWrapper
         public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int? playerID = null)
         {
             if (playerID.HasValue)
-                BindingChanger.ResetBindingsToDefaultForControlScheme(Player(playerID.Value).Asset, controlScheme);
+                BindingChanger.ResetBindingsToDefaultForControlScheme(GetPlayer(playerID.Value).Asset, controlScheme);
             else foreach (InputPlayer player in playerCollection)
                     BindingChanger.ResetBindingsToDefaultForControlScheme(player.Asset, controlScheme);
         }
@@ -240,7 +240,7 @@ namespace NPTP.InputSystemWrapper
         public static void LoadAllBindings(int? playerID = null)
         {
             if (playerID.HasValue)
-                BindingSaveLoad.LoadBindingsFromDiskForPlayer(Player(playerID.Value));
+                BindingSaveLoad.LoadBindingsFromDiskForPlayer(GetPlayer(playerID.Value));
             else foreach (InputPlayer player in playerCollection)
                     BindingSaveLoad.LoadBindingsFromDiskForPlayer(player);
         }
@@ -248,7 +248,7 @@ namespace NPTP.InputSystemWrapper
         public static void SaveAllBindings(int? playerID = null)
         {
             if (playerID.HasValue)
-                BindingSaveLoad.SaveBindingsToDiskForPlayer(Player(playerID.Value));
+                BindingSaveLoad.SaveBindingsToDiskForPlayer(GetPlayer(playerID.Value));
             else foreach (InputPlayer player in playerCollection)
                     BindingSaveLoad.SaveBindingsToDiskForPlayer(player);
         }
@@ -256,7 +256,7 @@ namespace NPTP.InputSystemWrapper
         public static void ResetAllBindings(int? playerID = 0)
         {
             if (playerID.HasValue)
-                BindingChanger.ResetBindingsToDefault(Player(playerID.Value).Asset);
+                BindingChanger.ResetBindingsToDefault(GetPlayer(playerID.Value).Asset);
             else foreach (InputPlayer player in playerCollection)
                     BindingChanger.ResetBindingsToDefault(player.Asset);
         }
@@ -329,7 +329,7 @@ namespace NPTP.InputSystemWrapper
 
         internal static bool TryGetActionWrapper(int playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
-            return Player(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
+            return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
         
         internal static bool DoesPlayerExist(int playerID)

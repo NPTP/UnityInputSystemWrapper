@@ -39,8 +39,8 @@ namespace NPTP.InputSystemWrapper.AnyButtonPress
 
                 if (ISW.DoesPlayerExist(playerID))
                 {
-                    if (value) ISW.Player(playerID).OnAnyButtonPress += HandleAnyButtonPress;
-                    else ISW.Player(playerID).OnAnyButtonPress -= HandleAnyButtonPress;
+                    if (value) ISW.GetPlayer(playerID).OnAnyButtonPress += HandleAnyButtonPress;
+                    else ISW.GetPlayer(playerID).OnAnyButtonPress -= HandleAnyButtonPress;
                 }
                 else
                 {

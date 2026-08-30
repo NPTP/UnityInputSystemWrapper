@@ -44,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Actions
             TrackedDeviceOrientation = new (playerID, ActionMap.FindAction("TrackedDeviceOrientation", throwIfNotFound: true), table);
         }
         
-        public void EnableAndRegisterCallbacks()
+        void IActionMapWrapper.EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -66,7 +66,7 @@ namespace NPTP.InputSystemWrapper.Actions
             TrackedDeviceOrientation.RegisterCallbacks();
         }
         
-        public void DisableAndUnregisterCallbacks()
+        void IActionMapWrapper.DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

@@ -34,3 +34,36 @@ MonoBehaviour:
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape
+  eventSystemOptions:
+    moveRepeatDelay: 0.5
+    moveRepeatRate: 0.1
+    deselectOnBackgroundClick: 0
+    pointerBehavior: 0
+    cursorLockBehavior: 0
+    defaultActions:
+    - actionType: 0
+      actionID: 
+    - actionType: 1
+      actionID: 
+    - actionType: 2
+      actionID: 
+    - actionType: 3
+      actionID: 
+    - actionType: 4
+      actionID: 
+    - actionType: 5
+      actionID: 
+    - actionType: 6
+      actionID: 
+    - actionType: 7
+      actionID: 
+    - actionType: 8
+      actionID: 
+    - actionType: 9
+      actionID: 
+  inputContexts:
+  - name: Default
+    enableKeyboardTextInput: 0
+    activeMapNames:
+    - Player
+    eventSystemActionOverrides: []

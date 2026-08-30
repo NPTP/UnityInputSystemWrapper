@@ -30,7 +30,7 @@ namespace NPTP.InputSystemWrapper.Actions
             Fire = new (playerID, ActionMap.FindAction("Fire", throwIfNotFound: true), table);
         }
         
-        public void EnableAndRegisterCallbacks()
+        void IActionMapWrapper.EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -45,7 +45,7 @@ namespace NPTP.InputSystemWrapper.Actions
             Fire.RegisterCallbacks();
         }
         
-        public void DisableAndUnregisterCallbacks()
+        void IActionMapWrapper.DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

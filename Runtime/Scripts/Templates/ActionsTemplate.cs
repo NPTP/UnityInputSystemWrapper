@@ -48,7 +48,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             // MARKER.Ignore.End
         }
         
-        public void EnableAndRegisterCallbacks()
+        void IActionMapWrapper.EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -64,7 +64,7 @@ namespace NPTP.InputSystemWrapper.Generated.Actions
             // MARKER.RegisterCallbacks.End
         }
         
-        public void DisableAndUnregisterCallbacks()
+        void IActionMapWrapper.DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

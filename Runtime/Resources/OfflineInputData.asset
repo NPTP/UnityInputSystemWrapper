@@ -22,9 +22,24 @@ MonoBehaviour:
   actionsTemplateFile: {fileID: 11500000, guid: 295049b3d9040d947b3adc148595ae0a, type: 3}
   initializationMode: 0
   defaultContext: 0
-  inputContexts: []
+  inputContexts:
+  - name: Default
+    enableKeyboardTextInput: 0
+    activeMaps:
+    - Player
+    eventSystemActionOverrides: []
   controlSchemeBases:
   - controlScheme: 0
+    basis: 0
+  - controlScheme: 1
+    basis: 0
+  - controlScheme: 2
+    basis: 0
+  - controlScheme: 3
+    basis: 0
+  - controlScheme: 4
+    basis: 0
+  - controlScheme: 5
     basis: 0
   loadAllBindingOverridesOnInitialize: 1
   bindingExcludedPaths: []
