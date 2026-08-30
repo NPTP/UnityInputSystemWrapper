@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.UnitySourceGen.Editor;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Generatable.Attributes;
 using UnityEditor;
@@ -20,7 +19,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         internal static GeneratableFile BuildFile()
         {
-            GeneratableTypeDefinition menuItems = SourceGen.NewStaticClass("BindingDataMenuItems", AccessModifier.Internal)
+            GeneratableTypeDefinition menuItems = SourceGen.NewClass("BindingDataMenuItems").Internal().Static()
                 .InNamespace(GeneratedNamespaces.ROOT)
                 .WithDirective("UnityEditor");
 

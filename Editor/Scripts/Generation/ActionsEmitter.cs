@@ -1,6 +1,5 @@
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.UnitySourceGen.Editor;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine.InputSystem;
@@ -25,14 +24,14 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             string className = $"{map.name.AsType()}Actions";
 
-            GeneratableTypeDefinition actions = SourceGen.NewClass(className, AccessModifier.Public)
+            GeneratableTypeDefinition actions = SourceGen.NewClass(className).Public()
                 .WithInheritanceModifier(InheritanceModifier.Sealed)
                 .ImplementsInterface("IActionMapWrapper")
                 .InNamespace(GeneratedNamespaces.ACTIONS)
                 .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.InputSystem",
                     "UnityEngine.InputSystem.XR", GeneratedNamespaces.ACTIONS)
-                .WithProperty(SourceGen.NewProperty(ACTION_MAP, "InputActionMap").Internal().GetOnly())
-                .WithField(SourceGen.NewField(ENABLED, "bool").Private());
+                .WithProperty(SourceGen.NewProperty(ACTION_MAP).OfType("InputActionMap").Internal().GetOnly())
+                .WithField(SourceGen.NewField(ENABLED).OfType("bool").Private());
 
             foreach (InputAction action in map)
             {
@@ -42,7 +41,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     continue;
                 }
 
-                actions.WithProperty(SourceGen.NewProperty(action.name.AsProperty(), wrapperType).Public().GetOnly());
+                actions.WithProperty(SourceGen.NewProperty(action.name.AsProperty()).OfType(wrapperType).Public().GetOnly());
             }
 
             actions.WithMethod(BuildConstructor(map, className));

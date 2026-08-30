@@ -1,5 +1,4 @@
 using NPTP.UnitySourceGen.Editor;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
 
@@ -33,7 +32,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         private static GeneratableTypeDefinition BuildPlayerExtensions(InputActionAsset asset)
         {
-            GeneratableTypeDefinition playerExtensions = SourceGen.NewStaticClass("InputPlayerExtensions", AccessModifier.Public)
+            GeneratableTypeDefinition playerExtensions = SourceGen.NewClass("InputPlayerExtensions").Public().Static()
                 .InNamespace(GeneratedNamespaces.PLAYER)
                 .WithDirectives(GeneratedNamespaces.ROOT, GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ENUMS, "UnityEngine.InputSystem");
 
@@ -84,7 +83,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static GeneratableTypeDefinition BuildActionExtensions()
         {
-            return SourceGen.NewStaticClass("ActionWrapperExtensions", AccessModifier.Public)
+            return SourceGen.NewClass("ActionWrapperExtensions").Public().Static()
                 .InNamespace(GeneratedNamespaces.ACTIONS)
                 .WithDirectives("System", "System.Collections.Generic", GeneratedNamespaces.BINDINGS, GeneratedNamespaces.ENUMS)
                 .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")

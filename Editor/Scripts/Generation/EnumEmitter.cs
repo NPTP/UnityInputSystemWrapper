@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.UnitySourceGen.Editor;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
 
@@ -16,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     {
         internal static GeneratableFile BuildControlSchemeFile(InputActionAsset asset)
         {
-            GeneratableEnum controlScheme = SourceGen.NewEnum("ControlScheme", AccessModifier.Public)
+            GeneratableEnum controlScheme = SourceGen.NewEnum("ControlScheme").Public()
                 .InNamespace(GeneratedNamespaces.ENUMS)
                 .WithMember("None", -1);
 
@@ -25,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 controlScheme.WithMember(asset.controlSchemes[i].name.AsEnumMember(), i);
             }
 
-            GeneratableTypeDefinition extensions = SourceGen.NewStaticClass("ControlSchemeExtensions", AccessModifier.Public)
+            GeneratableTypeDefinition extensions = SourceGen.NewClass("ControlSchemeExtensions").Public().Static()
                 .InNamespace(GeneratedNamespaces.ENUMS)
                 .WithDirective(GeneratedNamespaces.ROOT)
                 .WithMethod(SourceGen.NewMethod("ToId")
@@ -51,7 +50,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         internal static GeneratableFile BuildInputContextFile(InputContextInfo[] inputContexts)
         {
-            GeneratableEnum inputContext = SourceGen.NewEnum("InputContext", AccessModifier.Public)
+            GeneratableEnum inputContext = SourceGen.NewEnum("InputContext").Public()
                 .InNamespace(GeneratedNamespaces.ENUMS);
 
             List<string> headerComment = new(Helper.GetGeneratorNoticeLines());
@@ -69,7 +68,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 }
             }
 
-            GeneratableTypeDefinition extensions = SourceGen.NewStaticClass("InputContextExtensions", AccessModifier.Public)
+            GeneratableTypeDefinition extensions = SourceGen.NewClass("InputContextExtensions").Public().Static()
                 .InNamespace(GeneratedNamespaces.ENUMS)
                 .WithMethod(SourceGen.NewMethod("ToId")
                     .Internal()

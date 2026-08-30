@@ -1,7 +1,6 @@
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
 using NPTP.UnitySourceGen.Editor;
-using NPTP.UnitySourceGen.Editor.Enums;
 using NPTP.UnitySourceGen.Editor.Generatable;
 using UnityEngine.InputSystem;
 
@@ -22,13 +21,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         internal static GeneratableTypeDefinition Build(InputActionAsset asset, OfflineInputData offlineInputData)
         {
-            GeneratableTypeDefinition isw = SourceGen.NewStaticClass("ISW", AccessModifier.Public)
+            GeneratableTypeDefinition isw = SourceGen.NewClass("ISW").Public().Static()
                 .InNamespace(GeneratedNamespaces.ROOT)
                 .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.InputSystem",
                     GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS, GeneratedNamespaces.BINDINGS,
                     GeneratedNamespaces.ENUMS, GeneratedNamespaces.PLAYER, GeneratedNamespaces.UTILITIES)
-                .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
-                .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER).Private().Static().Expression("Runtime.DefaultPlayer"));
+                .WithProperty(SourceGen.NewProperty("Runtime").OfType("InputRuntime").Private().Static().Expression("InputRuntime.Current"))
+                .WithProperty(SourceGen.NewProperty("DefaultPlayer").OfType(INPUT_PLAYER).Private().Static().Expression("Runtime.DefaultPlayer"));
 
             AddSinglePlayerAccess(isw, asset);
             AddInitialization(isw, asset, offlineInputData);
@@ -46,13 +45,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             foreach (string mapName in Helper.GetMapNames(asset))
             {
-                isw.WithProperty(SourceGen.NewProperty(mapName.AsType(), $"{mapName.AsType()}Actions")
+                isw.WithProperty(SourceGen.NewProperty(mapName.AsType()).OfType($"{mapName.AsType()}Actions")
                     .Public()
                     .Static()
                     .Expression($"DefaultPlayer.{mapName.AsType()}()"));
             }
 
-            isw.WithProperty(SourceGen.NewProperty("CurrentControlScheme", CONTROL_SCHEME)
+            isw.WithProperty(SourceGen.NewProperty("CurrentControlScheme").OfType(CONTROL_SCHEME)
                 .Public()
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme()"));
@@ -121,7 +120,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private static void AddPublicInterface(GeneratableTypeDefinition isw)
         {
             isw
-                .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
+                .WithProperty(SourceGen.NewProperty("MousePosition").OfType("Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
                 .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
@@ -166,7 +165,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "0"))
                     .Expression($"Runtime.ResetAllBindings({PLAYER_ID})"));
 
-            isw.WithProperty(SourceGen.NewProperty("AllowPlayerJoining", "bool")
+            isw.WithProperty(SourceGen.NewProperty("AllowPlayerJoining").OfType<bool>()
                 .Public()
                 .Static()
                 .WithAccessors("Runtime.AllowPlayerJoining", "Runtime.AllowPlayerJoining = value"));
