@@ -213,7 +213,7 @@ namespace NPTP.InputSystemWrapper
         /// Put one of an action's slots back to its default, leaving its other bindings on this control
         /// scheme alone.
         /// </summary>
-        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex = 0)
+        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex)
         {
             if (!TryGetActionBindingInfo(actionReference, controlSchemeId, uiIndex, out ActionBindingInfo actionBindingInfo))
             {

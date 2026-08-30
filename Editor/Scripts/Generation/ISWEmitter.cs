@@ -148,7 +148,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithMethod(SourceGen.NewMethod("ResetBindingForAction").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
                         GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
-                        GeneratableParameter.Of<int>("uiIndex", "0"))
+                        GeneratableParameter.Of<int>("uiIndex"))
                     .Expression("Runtime.ResetBindingForAction(actionReference, controlScheme.ToId(), uiIndex)"))
                 .WithMethod(SourceGen.NewMethod("ResetAllBindingsForAction").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
