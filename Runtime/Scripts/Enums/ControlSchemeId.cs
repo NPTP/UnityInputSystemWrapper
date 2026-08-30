@@ -23,16 +23,16 @@ namespace NPTP.InputSystemWrapper.Enums
         internal string Name { get; }
 
         /// <summary>
-        /// Which device family the scheme is based on.
+        /// Which device families the scheme uses.
         /// </summary>
         internal ControlSchemeBasisSpec Basis { get; }
 
-        internal bool IsPointerBased => Has(ControlSchemeBasisSpec.IsPointerBased);
-        internal bool IsGamepadBased => Has(ControlSchemeBasisSpec.IsGamepadBased);
-        internal bool IsKeyboardBased => Has(ControlSchemeBasisSpec.IsKeyboardBased);
-        internal bool IsJoystickBased => Has(ControlSchemeBasisSpec.IsJoystickBased);
-        internal bool IsSensorBased => Has(ControlSchemeBasisSpec.IsSensorBased);
-        internal bool IsTrackedDeviceBased => Has(ControlSchemeBasisSpec.IsTrackedDeviceBased);
+        internal bool UsesPointer => Has(ControlSchemeBasisSpec.UsesPointer);
+        internal bool UsesGamepad => Has(ControlSchemeBasisSpec.UsesGamepad);
+        internal bool UsesKeyboard => Has(ControlSchemeBasisSpec.UsesKeyboard);
+        internal bool UsesJoystick => Has(ControlSchemeBasisSpec.UsesJoystick);
+        internal bool UsesSensor => Has(ControlSchemeBasisSpec.UsesSensor);
+        internal bool UsesTrackedDevice => Has(ControlSchemeBasisSpec.UsesTrackedDevice);
 
         private bool Has(ControlSchemeBasisSpec family) => (Basis & family) != 0;
 

@@ -73,15 +73,15 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// One test per device family, so a call site can ask what a control scheme is built on without
-        /// naming the id struct behind it.
+        /// One test per device family, so a call site can ask what a control scheme uses without naming
+        /// the id struct behind it.
         /// </summary>
         private static GeneratableMethod[] BuildDeviceFamilyMethods()
         {
             string[] families =
             {
-                "IsPointerBased", "IsGamepadBased", "IsKeyboardBased",
-                "IsJoystickBased", "IsSensorBased", "IsTrackedDeviceBased"
+                "UsesPointer", "UsesGamepad", "UsesKeyboard",
+                "UsesJoystick", "UsesSensor", "UsesTrackedDevice"
             };
 
             GeneratableMethod[] methods = new GeneratableMethod[families.Length];

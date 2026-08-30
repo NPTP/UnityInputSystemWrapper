@@ -22,12 +22,12 @@ namespace NPTP.InputSystemWrapper.Editor
         /// </summary>
         private static readonly (string Layout, ControlSchemeBasisSpec Family)[] deviceFamilies =
         {
-            ("Pointer", ControlSchemeBasisSpec.IsPointerBased),
-            ("Gamepad", ControlSchemeBasisSpec.IsGamepadBased),
-            ("Keyboard", ControlSchemeBasisSpec.IsKeyboardBased),
-            ("Joystick", ControlSchemeBasisSpec.IsJoystickBased),
-            ("Sensor", ControlSchemeBasisSpec.IsSensorBased),
-            ("TrackedDevice", ControlSchemeBasisSpec.IsTrackedDeviceBased)
+            ("Pointer", ControlSchemeBasisSpec.UsesPointer),
+            ("Gamepad", ControlSchemeBasisSpec.UsesGamepad),
+            ("Keyboard", ControlSchemeBasisSpec.UsesKeyboard),
+            ("Joystick", ControlSchemeBasisSpec.UsesJoystick),
+            ("Sensor", ControlSchemeBasisSpec.UsesSensor),
+            ("TrackedDevice", ControlSchemeBasisSpec.UsesTrackedDevice)
         };
 
         internal static void Synchronize(InputData inputData)
@@ -272,8 +272,8 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Which device families a control scheme is built on, taken from the devices it requires. A
-        /// scheme can be several at once, e.g. one requiring a keyboard and a mouse.
+        /// Which device families a control scheme uses, taken from the devices it requires. A scheme can
+        /// use several at once, e.g. one requiring a keyboard and a mouse.
         /// </summary>
         private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
         {
