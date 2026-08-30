@@ -1,14 +1,14 @@
 # Input System Wrapper
 ## Changelog
 
-8.1.0
+9.0.0
 - `BindingSerializationMode` on the input data asset chooses where saved bindings live: a JSON file per player, the project's own storage through events, both, or neither
 - `ISW.OnBindingsSaveRequested` hands out a player's bindings as JSON to store; `ISW.OnBindingsLoadRequested` asks for them back
+- With both sources enabled, stored bindings supplied by the project take precedence over the file
 - A control scheme's device family is derived from the devices it requires instead of being authored: there is a family per device layout the input system registers directly under InputDevice (pointer, gamepad, keyboard, joystick, sensor, tracked device), and a scheme requiring several is all of them. Layouts match by inheritance, so a mouse, pen or touchscreen all count as pointers and a DualShockGamepad counts as a gamepad. The Control Scheme Device Families section is gone, and `ControlScheme.IsMouseBased()` becomes `ControlScheme.UsesPointer()`, alongside `UsesGamepad`, `UsesKeyboard`, `UsesJoystick`, `UsesSensor` and `UsesTrackedDevice`
 - `ActionReference<T>` reads values with the same `ReadValue()` syntax and type safety as the generated ISW properties, resolving to the `ValueActionWrapper<T>` the action already has
 - Every `ActionReference` picks its action from a dropdown of the project input data's input action asset. On an `ActionReference<T>` only actions read as T are offered, so an assigned reference always has a value to read
 - The default event system actions are picked from a dropdown of the assigned input action asset's actions, grouped by action map, rather than from any InputActionReference in the project. The event system action overrides on an input context use the same dropdown. The default actions section is replaced by a note when no asset is assigned
-- With both sources enabled, stored bindings supplied by the project take precedence over the file
 
 8.0.0
 - An action can have any number of bindings per control scheme, each addressed by a UI index. Previously only the first was reachable
