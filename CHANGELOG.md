@@ -1,6 +1,17 @@
 # Input System Wrapper
 ## Changelog
 
+8.0.0
+- An action can have any number of bindings per control scheme, each addressed by a UI index. Previously only the first was reachable
+- A UI index names one slot: a plain binding, or a whole composite counted as one. A d-pad taking four entries in the input action asset stays on the row the player last saw it on
+- `StartInteractiveRebind` takes a UI index, defaulting to the first slot. Rebinding a composite slot requires a composite part, and says so instead of rebinding the wrong control
+- Reading bindings returns `BindingSlots`: enumerable, indexable, with `TryGetAtUIIndex` that warns with the indices an action actually has rather than throwing
+- `ResetBindingForAction` resets one slot and requires a UI index; `ResetAllBindingsForAction` resets every binding the action has on a control scheme
+- `ResetBinding`, `ResetAllBindings` and `GetBindingSlots` are generated as extensions on `ActionWrapper` and `ActionReference`, each type in its own extension class
+- Generation reports bindings belonging to no control scheme, which fire their action but can appear on no rebinding screen
+- Saved binding overrides whose binding no longer exists in the input action asset are skipped and reported once on load, instead of one input system warning each
+- Upgrading: `TryGetBindingInfo` and `TryGetCurrentBindingInfo` are replaced by `GetBindingSlots` and `GetCurrentBindingSlots`. `RebindInfo.BindingInfos` becomes `RebindInfo.BindingSlots`, and `InputActionUpdater.OnBindingsUpdated` carries `BindingSlots`
+
 7.0.0
 - `ISW.GetPlayer` returns the generated `InputPlayerRef`, whose actions are properties, so a player's actions read as `ISW.GetPlayer(4).Gameplay.Fire.OnEvent += HandleEvent`
 - `InputPlayerRef` also carries the player's id, enabled state, current control scheme, input context and events, and converts implicitly to and from `InputPlayer`
