@@ -20,7 +20,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         internal const string NAMESPACE = "NPTP.InputSystemWrapper.Generated";
 
-        private const string DEFAULT_ASSETS_FOLDER = "Assets/" + ASSEMBLY_NAME;
+        /// <summary>
+        /// Only the default location. The folder is found by its assembly definition, so it can be moved
+        /// or renamed freely, and existing projects keep whatever folder they already have.
+        /// </summary>
+        private const string DEFAULT_FOLDER_NAME = "ISW.Generated";
+
+        private const string DEFAULT_ASSETS_FOLDER = "Assets/" + DEFAULT_FOLDER_NAME;
         private const string PACKAGE_RUNTIME_ASSEMBLY = "InputSystemWrapper";
 
         /// <summary>
@@ -37,7 +43,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             if (!AssetDatabase.IsValidFolder(DEFAULT_ASSETS_FOLDER))
             {
-                AssetDatabase.CreateFolder("Assets", ASSEMBLY_NAME);
+                AssetDatabase.CreateFolder("Assets", DEFAULT_FOLDER_NAME);
             }
 
             WriteAsmdef(DEFAULT_ASSETS_FOLDER);
