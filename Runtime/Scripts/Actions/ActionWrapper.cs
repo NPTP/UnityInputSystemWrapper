@@ -56,6 +56,12 @@ namespace NPTP.InputSystemWrapper.Actions
         internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, CompositePart compositePart, int uiIndex, Action<RebindInfo> callback = null) =>
             InputRuntime.Current.StartInteractiveRebind(new ActionBindingInfo(this, compositePart, controlSchemeId, uiIndex), callback);
 
+        internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
+            InputRuntime.Current.ResetBindingForAction(this, CompositePart.DontIsolatePart, controlSchemeId, uiIndex);
+
+        internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
+            InputRuntime.Current.ResetAllBindingsForAction(this, CompositePart.DontIsolatePart, controlSchemeId);
+
         /// <summary>
         /// Every slot of this action on the control scheme the player is currently using, indexed the way
         /// a rebinding screen lays them out.

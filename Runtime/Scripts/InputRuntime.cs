@@ -213,40 +213,43 @@ namespace NPTP.InputSystemWrapper
         /// Put one of an action's slots back to its default, leaving its other bindings on this control
         /// scheme alone.
         /// </summary>
-        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex)
+        internal void ResetBindingForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId, int uiIndex)
         {
-            if (!TryGetActionBindingInfo(actionReference, controlSchemeId, uiIndex, out ActionBindingInfo actionBindingInfo))
+            if (actionWrapper == null)
             {
                 return;
             }
 
-            BindingChanger.ResetBindingToDefaultForSlot(inputData, actionBindingInfo);
+            BindingChanger.ResetBindingToDefaultForSlot(inputData, new ActionBindingInfo(actionWrapper, compositePart, controlSchemeId, uiIndex));
+        }
+
+        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex)
+        {
+            ResetBindingForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId, uiIndex);
         }
 
         /// <summary>
         /// Put every one of an action's bindings on this control scheme back to its default.
         /// </summary>
-        internal void ResetAllBindingsForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
+        internal void ResetAllBindingsForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId)
         {
-            if (!TryGetActionBindingInfo(actionReference, controlSchemeId, uiIndex: 0, out ActionBindingInfo actionBindingInfo))
+            if (actionWrapper == null)
             {
                 return;
             }
 
-            BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
+            BindingChanger.ResetBindingToDefaultForControlScheme(new ActionBindingInfo(actionWrapper, compositePart, controlSchemeId), controlSchemeId);
         }
 
-        // Note that player ID is contained in the ActionReference.
-        private static bool TryGetActionBindingInfo(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex, out ActionBindingInfo actionBindingInfo)
+        internal void ResetAllBindingsForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
         {
-            if (actionReference == null || actionReference.ActionWrapper == null)
-            {
-                actionBindingInfo = default;
-                return false;
-            }
+            ResetAllBindingsForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId);
+        }
 
-            actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId, uiIndex);
-            return true;
+        // An ActionReference carries the composite part to isolate, and the player ID, with it.
+        private static CompositePart GetCompositePart(ActionReference actionReference)
+        {
+            return actionReference == null ? CompositePart.DontIsolatePart : actionReference.CompositePart;
         }
 
         internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)

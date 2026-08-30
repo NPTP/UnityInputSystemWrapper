@@ -112,6 +112,12 @@ namespace NPTP.InputSystemWrapper.Actions
                 ActionWrapper.StartInteractiveRebind(controlSchemeId, uiIndex, callback);
         }
 
+        internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
+            InputRuntime.Current.ResetBindingForAction(this, controlSchemeId, uiIndex);
+
+        internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
+            InputRuntime.Current.ResetAllBindingsForAction(this, controlSchemeId);
+
         private ActionReference(InputAction action)
         {
             reference = InputActionReference.Create(action);

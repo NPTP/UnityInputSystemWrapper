@@ -53,7 +53,9 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithMethods(BuildRebindMethods(ACTION_WRAPPER, "actionWrapper", withCompositePart: true))
                 .WithMethods(BuildRebindMethods(ACTION_REFERENCE, "actionReference", withCompositePart: false))
                 .WithMethod(BuildGetSlotsMethod(ACTION_WRAPPER, "actionWrapper"))
-                .WithMethod(BuildGetSlotsMethod(ACTION_REFERENCE, "actionReference"));
+                .WithMethod(BuildGetSlotsMethod(ACTION_REFERENCE, "actionReference"))
+                .WithMethods(BuildResetMethods(ACTION_WRAPPER, "actionWrapper"))
+                .WithMethods(BuildResetMethods(ACTION_REFERENCE, "actionReference"));
         }
 
         /// <summary>
@@ -94,6 +96,31 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             }
 
             return rebindMethods.ToArray();
+        }
+
+        /// <summary>
+        /// Reset one slot, or every binding the action has on a control scheme. These go through the
+        /// receiver conditionally, so calling one on a reference that was never assigned does nothing
+        /// rather than throwing in the middle of a rebinding screen.
+        /// </summary>
+        private static GeneratableMethod[] BuildResetMethods(string extendedType, string parameterName)
+        {
+            return new[]
+            {
+                SourceGen.NewMethod("ResetBinding")
+                    .Public()
+                    .ReturningVoid()
+                    .Extending(extendedType, parameterName)
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of<int>(UI_INDEX))
+                    .Expression($"{parameterName}?.ResetBinding(controlScheme.ToId(), {UI_INDEX})"),
+                SourceGen.NewMethod("ResetAllBindings")
+                    .Public()
+                    .ReturningVoid()
+                    .Extending(extendedType, parameterName)
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
+                    .Expression($"{parameterName}?.ResetAllBindings(controlScheme.ToId())")
+            };
         }
 
         private static GeneratableMethod BuildGetSlotsMethod(string extendedType, string parameterName)
