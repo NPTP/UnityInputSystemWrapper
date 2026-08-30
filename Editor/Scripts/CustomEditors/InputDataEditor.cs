@@ -122,6 +122,36 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 controlSchemeBases.GetArrayElementAtIndex(index).boxedValue = new ControlSchemeBasis(scheme, basisSpec);
                 index++;
             }
+
+            // Applied here rather than left in the buffer: the next Update() would discard it, and this
+            // list mirrors the input action asset rather than being something the user edited.
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>
+        /// Whether the mirrored list has fallen behind the input action asset, which happens when a
+        /// different asset is assigned while the inspector is already open.
+        /// </summary>
+        private bool ControlSchemeBasesAreStale()
+        {
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
+            int schemeCount = asset == null ? 0 : asset.controlSchemes.Count;
+
+            if (controlSchemeBases.arraySize != schemeCount)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < schemeCount; i++)
+            {
+                if (controlSchemeBases.GetArrayElementAtIndex(i).boxedValue is not ControlSchemeBasis basis ||
+                    basis.ControlSchemeName != asset.controlSchemes[i].name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void DrawHeader(string text)
@@ -143,6 +173,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
+            if (ControlSchemeBasesAreStale())
+            {
+                PopulateControlSchemeBases();
+            }
 
             DrawHeader("Input Action Asset");
             EditorGUILayout.PropertyField(inputActionAsset);
