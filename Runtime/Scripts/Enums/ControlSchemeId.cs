@@ -27,7 +27,7 @@ namespace NPTP.InputSystemWrapper.Enums
         /// </summary>
         internal ControlSchemeBasisSpec Basis { get; }
 
-        internal bool IsMouseBased => Basis is ControlSchemeBasisSpec.IsMouseBased;
+        internal bool IsPointerBased => Basis is ControlSchemeBasisSpec.IsPointerBased;
         internal bool IsGamepadBased => Basis is ControlSchemeBasisSpec.IsGamepadBased;
 
         internal bool IsNone => Index == NONE_INDEX;

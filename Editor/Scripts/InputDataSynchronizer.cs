@@ -15,7 +15,7 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal static class InputDataSynchronizer
     {
-        private const string MOUSE_LAYOUT = "Mouse";
+        private const string POINTER_LAYOUT = "Pointer";
         private const string GAMEPAD_LAYOUT = "Gamepad";
 
         internal static void Synchronize(InputData inputData)
@@ -261,22 +261,22 @@ namespace NPTP.InputSystemWrapper.Editor
 
         /// <summary>
         /// Which device family a control scheme is built on, taken from the devices it requires. A
-        /// scheme with a mouse is mouse based, one with a gamepad is gamepad based, and one with
-        /// neither is undefined. Layouts are matched by inheritance, so a DualShockGamepad counts as a
-        /// gamepad and any pointer derived from Mouse counts as a mouse.
+        /// scheme with a pointer is pointer based, one with a gamepad is gamepad based, and one with
+        /// neither is undefined. Layouts are matched by inheritance, so a mouse, pen or touchscreen all
+        /// count as pointers, and a DualShockGamepad counts as a gamepad.
         /// </summary>
         private static ControlSchemeBasisSpec GetBasis(InputControlScheme controlScheme)
         {
-            bool isMouseBased = false;
+            bool isPointerBased = false;
             bool isGamepadBased = false;
 
             foreach (string layout in Generation.DeviceControlPathCatalog.GetRequiredDeviceLayouts(controlScheme))
             {
-                isMouseBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, MOUSE_LAYOUT);
+                isPointerBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, POINTER_LAYOUT);
                 isGamepadBased |= InputSystem.IsFirstLayoutBasedOnSecond(layout, GAMEPAD_LAYOUT);
             }
 
-            if (isMouseBased) return ControlSchemeBasisSpec.IsMouseBased;
+            if (isPointerBased) return ControlSchemeBasisSpec.IsPointerBased;
             if (isGamepadBased) return ControlSchemeBasisSpec.IsGamepadBased;
             return ControlSchemeBasisSpec.Undefined;
         }
