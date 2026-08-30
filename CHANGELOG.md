@@ -4,6 +4,7 @@
 8.1.0
 - `BindingSerializationMode` on the input data asset chooses where saved bindings live: a JSON file per player, the project's own storage through events, both, or neither
 - `ISW.OnBindingsSaveRequested` hands out a player's bindings as JSON to store; `ISW.OnBindingsLoadRequested` asks for them back
+- The default event system actions are picked from a dropdown of the assigned input action asset's actions, grouped by action map, rather than from any InputActionReference in the project. The section is replaced by a note when no asset is assigned
 - With both sources enabled, stored bindings supplied by the project take precedence over the file
 
 8.0.0

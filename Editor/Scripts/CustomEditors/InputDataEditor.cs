@@ -169,6 +169,34 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.LabelField(text, SpecialNoteStyle);
         }
 
+        /// <summary>
+        /// The actions the event system drives, each picked from the assigned input action asset. With
+        /// no asset assigned there is nothing to pick from, so the fields are left out entirely.
+        /// </summary>
+        private void DrawDefaultEventSystemActions()
+        {
+            EditorGUILayout.Space();
+            DrawHeader("Default Event System Actions");
+
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
+            if (asset == null)
+            {
+                DrawSpecialNote("No input action asset is assigned.");
+                return;
+            }
+
+            InputActionReferenceDropdown.Draw(point, asset);
+            InputActionReferenceDropdown.Draw(leftClick, asset);
+            InputActionReferenceDropdown.Draw(middleClick, asset);
+            InputActionReferenceDropdown.Draw(rightClick, asset);
+            InputActionReferenceDropdown.Draw(scrollWheel, asset);
+            InputActionReferenceDropdown.Draw(move, asset);
+            InputActionReferenceDropdown.Draw(submit, asset);
+            InputActionReferenceDropdown.Draw(cancel, asset);
+            InputActionReferenceDropdown.Draw(trackedDevicePosition, asset);
+            InputActionReferenceDropdown.Draw(trackedDeviceOrientation, asset);
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -252,16 +280,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(pointerBehavior);
             EditorGUILayout.PropertyField(cursorLockBehavior);
 
-            EditorGUILayout.PropertyField(point);
-            EditorGUILayout.PropertyField(leftClick);
-            EditorGUILayout.PropertyField(middleClick);
-            EditorGUILayout.PropertyField(rightClick);
-            EditorGUILayout.PropertyField(scrollWheel);
-            EditorGUILayout.PropertyField(move);
-            EditorGUILayout.PropertyField(submit);
-            EditorGUILayout.PropertyField(cancel);
-            EditorGUILayout.PropertyField(trackedDevicePosition);
-            EditorGUILayout.PropertyField(trackedDeviceOrientation);
+            DrawDefaultEventSystemActions();
 
             serializedObject.ApplyModifiedProperties();
         }
