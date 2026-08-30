@@ -62,7 +62,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             GeneratableMethod initialize = SourceGen.NewMethod("Initialize")
                 .Static()
-                .Returning<void>()
+                .ReturningVoid()
                 .Body("InputPlayer.ActionMapWrapperFactory = CreateActionMapWrappers;",
                     "InputRuntime.Initialize();");
 
@@ -80,7 +80,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableMethod factory = SourceGen.NewMethod("CreateActionMapWrappers")
                 .Private()
                 .Static()
-                .Returning<void>()
+                .ReturningVoid()
                 .Taking(GeneratableParameter.Of(INPUT_PLAYER, "player"),
                     GeneratableParameter.Of("Dictionary<string, IActionMapWrapper>", "wrappers"));
 
@@ -125,10 +125,10 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("AddPlayer").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("AddPlayer").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.AddPlayer({PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("RemovePlayer").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("RemovePlayer").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.RemovePlayer({PLAYER_ID})"))
                 .WithMethod(SourceGen.NewMethod("ControlSchemeHas").Public().Static().Returning<bool>()
@@ -136,7 +136,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of<int>(PLAYER_ID, "0"))
                     .Expression($"Runtime.ControlSchemeHas<TDevice>(controlScheme.ToId(), {PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("SetContextForAllPlayers").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("SetContextForAllPlayers").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(INPUT_CONTEXT, "inputContext"))
                     .Expression("Runtime.SetContextForAllPlayers(inputContext.ToId())"))
                 .WithMethod(SourceGen.NewMethod("TryConvert").Public().Static().Returning<bool>()
@@ -148,21 +148,21 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Taking(GeneratableParameter.Of("InputActionReference", "inputActionReference"),
                         GeneratableParameter.Out(ACTION_WRAPPER, "actionWrapper"))
                     .Expression("Runtime.TryConvert(inputActionReference, out actionWrapper)"))
-                .WithMethod(SourceGen.NewMethod("ResetBindingForAction").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("ResetBindingForAction").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
                         GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
                     .Expression("Runtime.ResetBindingForAction(actionReference, controlScheme.ToId())"))
-                .WithMethod(SourceGen.NewMethod("ResetAllBindingsForControlScheme").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("ResetAllBindingsForControlScheme").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
                     .Expression($"Runtime.ResetAllBindingsForControlScheme(controlScheme.ToId(), {PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("LoadAllBindings").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("LoadAllBindings").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
                     .Expression($"Runtime.LoadAllBindings({PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("SaveAllBindings").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("SaveAllBindings").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))
                     .Expression($"Runtime.SaveAllBindings({PLAYER_ID})"))
-                .WithMethod(SourceGen.NewMethod("ResetAllBindings").Public().Static().Returning<void>()
+                .WithMethod(SourceGen.NewMethod("ResetAllBindings").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "0"))
                     .Expression($"Runtime.ResetAllBindings({PLAYER_ID})"));
 

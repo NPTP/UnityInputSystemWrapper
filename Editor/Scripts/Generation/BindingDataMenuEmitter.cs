@@ -32,7 +32,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 menuItems.WithMethod(SourceGen.NewMethod($"Select{UniqueMethodName(name, usedMethodNames)}")
                     .Private()
                     .Static()
-                    .Returning<void>()
+                    .ReturningVoid()
                     .WithAttribute("MenuItem",
                         AddableAttribute.StringArgument(MENU_PATH + name),
                         "isValidateFunction: false",

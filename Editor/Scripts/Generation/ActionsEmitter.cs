@@ -104,7 +104,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             return SourceGen.NewMethod(methodName)
                 .ExplicitlyImplementing("IActionMapWrapper")
-                .Returning<void>()
+                .ReturningVoid()
                 .Body(body);
         }
 

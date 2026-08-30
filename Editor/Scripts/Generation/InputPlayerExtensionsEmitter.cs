@@ -65,7 +65,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Expression($"({INPUT_CONTEXT})inputPlayer.InputContextId.Index"))
                 .WithMethod(SourceGen.NewMethod("SetInputContext")
                     .Public()
-                    .Returning<void>()
+                    .ReturningVoid()
                     .Extending(INPUT_PLAYER, "inputPlayer")
                     .Taking(GeneratableParameter.Of(INPUT_CONTEXT, "inputContext"))
                     .Expression("inputPlayer.InputContextId = inputContext.ToId()"))
@@ -89,14 +89,14 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithDirectives("System", "System.Collections.Generic", GeneratedNamespaces.BINDINGS, GeneratedNamespaces.ENUMS)
                 .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
                     .Public()
-                    .Returning<void>()
+                    .ReturningVoid()
                     .Extending(ACTION_WRAPPER, "actionWrapper")
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of(REBIND_CALLBACK, "callback", "null"))
                     .Expression("actionWrapper.StartInteractiveRebind(controlScheme.ToId(), callback)"))
                 .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
                     .Public()
-                    .Returning<void>()
+                    .ReturningVoid()
                     .Extending(ACTION_WRAPPER, "actionWrapper")
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of("CompositePart", "compositePart"),
@@ -119,7 +119,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Expression("actionWrapper.TryGetBindingInfo(controlScheme.ToId(), compositePart, out bindingInfos)"))
                 .WithMethod(SourceGen.NewMethod("StartInteractiveRebind")
                     .Public()
-                    .Returning<void>()
+                    .ReturningVoid()
                     .Extending(ACTION_REFERENCE, "actionReference")
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of(REBIND_CALLBACK, "callback", "null"))
