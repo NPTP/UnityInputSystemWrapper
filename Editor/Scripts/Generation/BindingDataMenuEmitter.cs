@@ -69,7 +69,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
         private static string UniqueMethodName(string assetName, HashSet<string> used)
         {
-            string baseName = assetName.AsEnumMember().AsType();
+            string baseName = assetName.AsType();
             if (string.IsNullOrEmpty(baseName))
             {
                 baseName = "BindingData";

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Utilities.Extensions;
+using NPTP.UnitySourceGen.Editor.Syntax;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor
@@ -11,12 +11,21 @@ namespace NPTP.InputSystemWrapper.Editor
         internal static OfflineInputData OfflineInputData =>
             Generation.ProjectAssets.TryFindProjectAsset(nameof(OfflineInputData), out OfflineInputData offlineInputData) ? offlineInputData : null;
 
-        // String extensions for code generation
-        internal static string AsField(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber().AllWhitespaceTrimmed().LowercaseFirst();
-        internal static string AsProperty(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
-        internal static string AsType(this string s) => s.AllWhitespaceTrimmed().CapitalizeFirst();
-        internal static string AsEnumMember(this string s) => s.AlphaNumericCharactersOnly().RemoveFirstCharacterIfNumber();
-        internal static string AsInspectorLabel(this string s) => s.SpaceBetweenWords().CapitalizeFirst();
+        /// <summary>
+        /// A PascalCase identifier, for a generated type or property. Sanitizing is left to the source gen
+        /// package, which does it for every name it is given anyway; only the casing is ours to decide.
+        /// </summary>
+        internal static string AsType(this string s) => Capitalized(GeneratedIdentifier.Sanitize(s));
+
+        /// <inheritdoc cref="AsType"/>
+        internal static string AsProperty(this string s) => AsType(s);
+
+        private static string Capitalized(string identifier)
+        {
+            return string.IsNullOrEmpty(identifier) || char.IsUpper(identifier[0])
+                ? identifier
+                : char.ToUpperInvariant(identifier[0]) + identifier.Substring(1);
+        }
 
         internal static List<string> GetGeneratorNoticeLines()
         {

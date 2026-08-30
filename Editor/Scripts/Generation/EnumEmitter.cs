@@ -21,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             for (int i = 0; i < asset.controlSchemes.Count; i++)
             {
-                controlScheme.WithMember(asset.controlSchemes[i].name.AsEnumMember(), i);
+                controlScheme.WithMember(asset.controlSchemes[i].name, i);
             }
 
             GeneratableTypeDefinition extensions = SourceGen.NewClass("ControlSchemeExtensions").Public().Static()
@@ -64,7 +64,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             {
                 for (int i = 0; i < inputContexts.Length; i++)
                 {
-                    inputContext.WithMember(inputContexts[i].Name.AsEnumMember(), i);
+                    inputContext.WithMember(inputContexts[i].Name, i);
                 }
             }
 
