@@ -170,11 +170,6 @@ namespace NPTP.InputSystemWrapper
             return playerCollection.GetOrAdd(playerID);
         }
 
-        public void AddPlayer(int playerID)
-        {
-            GetPlayer(playerID);
-        }
-
         public void RemovePlayer(int playerID)
         {
             playerCollection.Remove(playerID);
