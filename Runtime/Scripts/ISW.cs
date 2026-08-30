@@ -184,7 +184,7 @@ namespace NPTP.InputSystemWrapper
 
         public static bool ControlSchemeHas<TDevice>(ControlScheme controlScheme, int playerID = 0) where TDevice : InputDevice
         {
-            return GetPlayer(playerID).ControlSchemeHas<TDevice>(controlScheme);
+            return GetPlayer(playerID).ControlSchemeHas<TDevice>(ToControlSchemeId(controlScheme));
         }
 
         public static void SetContextForAllPlayers(InputContext inputContext)
@@ -225,16 +225,18 @@ namespace NPTP.InputSystemWrapper
             }
             
             // Note that player ID is contained in the ActionReference.
-            ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlScheme);
-            BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlScheme);
+            ControlSchemeId controlSchemeId = ToControlSchemeId(controlScheme);
+            ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId);
+            BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
         }
 
         public static void ResetAllBindingsForControlScheme(ControlScheme controlScheme, int? playerID = null)
         {
+            ControlSchemeId controlSchemeId = ToControlSchemeId(controlScheme);
             if (playerID.HasValue)
-                BindingChanger.ResetBindingsToDefaultForControlScheme(GetPlayer(playerID.Value).Asset, controlScheme);
+                BindingChanger.ResetBindingsToDefaultForControlScheme(GetPlayer(playerID.Value).Asset, controlSchemeId);
             else foreach (InputPlayer player in playerCollection)
-                    BindingChanger.ResetBindingsToDefaultForControlScheme(player.Asset, controlScheme);
+                    BindingChanger.ResetBindingsToDefaultForControlScheme(player.Asset, controlSchemeId);
         }
 
         public static void LoadAllBindings(int? playerID = null)
@@ -264,6 +266,15 @@ namespace NPTP.InputSystemWrapper
         #endregion
         
         #region Internal Interface
+
+        /// <summary>
+        /// Convert a value of the generated ControlScheme enum into the id the runtime works in.
+        /// The enum's values are generated to match the control scheme indices on the input action asset.
+        /// </summary>
+        internal static ControlSchemeId ToControlSchemeId(ControlScheme controlScheme)
+        {
+            return runtimeInputData == null ? ControlSchemeId.None : runtimeInputData.GetControlSchemeId((int)controlScheme);
+        }
 
         internal static void BroadcastLocalizedStringRequested(LocalizedStringRequest localizedStringRequest)
         {
@@ -318,7 +329,7 @@ namespace NPTP.InputSystemWrapper
                 return false;
             }
 
-            ActionBindingInfo actionBindingInfo = new(actionWrapper, compositePart, player.CurrentControlScheme);
+            ActionBindingInfo actionBindingInfo = new(actionWrapper, compositePart, player.CurrentControlSchemeId);
             return BindingGetter.TryGetBindingInfo(runtimeInputData, actionBindingInfo, out bindingInfos);
         }
 

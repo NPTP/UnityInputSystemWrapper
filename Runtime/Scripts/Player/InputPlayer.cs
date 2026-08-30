@@ -85,19 +85,21 @@ namespace NPTP.InputSystemWrapper.Player
 
         public int ID { get; }
 
-        private ControlScheme currentControlScheme;
-        public ControlScheme CurrentControlScheme
+        private ControlSchemeId currentControlSchemeId = ControlSchemeId.None;
+        internal ControlSchemeId CurrentControlSchemeId
         {
-            get => currentControlScheme;
+            get => currentControlSchemeId;
             private set
             {
-                if (CurrentControlScheme == value)
+                if (currentControlSchemeId == value)
                     return;
                 
-                currentControlScheme = value;
+                currentControlSchemeId = value;
                 OnControlSchemeChanged?.Invoke(this);
             }
         }
+
+        public ControlScheme CurrentControlScheme => (ControlScheme)currentControlSchemeId.Index;
 
         private InputDevice lastUsedDevice;
         internal InputDevice LastUsedDevice
@@ -196,7 +198,7 @@ namespace NPTP.InputSystemWrapper.Player
             playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
             
             // Set this manually because the initial control scheme gets set before we are able to respond to it with event handlers.
-            CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+            CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
         }
 
         private void SetEventSystemOptions()
@@ -330,12 +332,12 @@ namespace NPTP.InputSystemWrapper.Player
 
         #region Internal
         
-        internal bool ControlSchemeHas<TDevice>(ControlScheme controlScheme) where TDevice : InputDevice
+        internal bool ControlSchemeHas<TDevice>(ControlSchemeId controlSchemeId) where TDevice : InputDevice
         {
             for (int i = 0; i < Asset.controlSchemes.Count; i++)
             {
                 InputControlScheme inputControlScheme = Asset.controlSchemes[i];
-                if (inputControlScheme.name != controlScheme.ToInputAssetName())
+                if (inputControlScheme.name != controlSchemeId.Name)
                 {
                     continue;
                 }
@@ -418,7 +420,7 @@ namespace NPTP.InputSystemWrapper.Player
                     UpdateDevices(inputDevice);
                     break;
                 case InputUserChange.ControlSchemeChanged:
-                    CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
+                    CurrentControlSchemeId = runtimeInputData.GetControlSchemeId(playerInput.currentControlScheme);
                     break;
             }
             

@@ -47,7 +47,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 // TODO <optimization>: Temporary measure to return binding info with completed binding.
                 // This can be cleaned up with a more direct route to the bindings given all the information the rebind operation gets!
                 IEnumerable<BindingInfo> bindingInfos = Array.Empty<BindingInfo>();
-                actionWrapper.TryGetBindingInfo(actionBindingInfo.ControlScheme, actionBindingInfo.CompositePart, out bindingInfos);
+                ISW.TryGetBindingInfo(actionBindingInfo, out bindingInfos);
                 
                 callback?.Invoke(new RebindInfo(actionWrapper, RebindInfo.Status.Completed, bindingInfos));
                 CleanUpRebindingOperation(ref rebindingOperation);
@@ -101,21 +101,21 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
-        internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlScheme controlScheme)
+        internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId)
         {
             bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
-            if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlScheme.ToBindingMask(), compositeCondition))
+            if (RemoveDeviceOverridesFromAction(actionBindingInfo.ActionWrapper.InputAction, controlSchemeId.ToBindingMask(), compositeCondition))
             {
                 ISW.BroadcastBindingsChanged();
             }
         }
 
-        internal static void ResetBindingsToDefaultForControlScheme(InputActionAsset asset, ControlScheme controlScheme)
+        internal static void ResetBindingsToDefaultForControlScheme(InputActionAsset asset, ControlSchemeId controlSchemeId)
         {
             bool changed = false;
             foreach (InputAction action in asset)
             {
-                changed |= RemoveDeviceOverridesFromAction(action, controlScheme.ToBindingMask());
+                changed |= RemoveDeviceOverridesFromAction(action, controlSchemeId.ToBindingMask());
             }
 
             if (changed)

@@ -9,7 +9,7 @@ namespace NPTP.InputSystemWrapper.Enums
         /// <summary>
         /// Corresponds to "Null" string for newly created, unassigned players in Unity's PlayerInput.
         /// </summary>
-        None,
+        None = -1,
         
         // MARKER.Members.Start
         KeyboardMouse,
