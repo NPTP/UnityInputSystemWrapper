@@ -8,10 +8,7 @@ namespace NPTP.InputSystemWrapper.Actions
         internal CompositePart CompositePart { get; }
         internal ControlSchemeId ControlSchemeId { get; }
 
-        /// <summary>
-        /// Which of the action's slots on this control scheme to act on. Defaults to the first, so callers
-        /// with a single binding per action never have to think about it.
-        /// </summary>
+        /// <summary>Which of the action's slots on this control scheme to act on.</summary>
         internal int UIIndex { get; }
 
         internal bool DontUseCompositePart => CompositePart == CompositePart.DontIsolatePart;

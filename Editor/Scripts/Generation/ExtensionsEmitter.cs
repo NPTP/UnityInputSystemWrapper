@@ -9,8 +9,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     /// have to be extensions, because the enums are generated and the types they extend are not.
     /// <para>
     /// Each extension class goes in the namespace of the type it extends, so a using directive the user
-    /// already has brings the methods into scope. A player's own enum-typed surface is not here: it lives
-    /// on <see cref="InputPlayerRefEmitter">InputPlayerRef</see> instead.
+    /// already has brings the methods into scope. A player's own enum-typed surface lives on
+    /// <see cref="InputPlayerRefEmitter">InputPlayerRef</see> instead.
     /// </para>
     /// </summary>
     internal static class ExtensionsEmitter
@@ -26,7 +26,9 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             return SourceGen.NewFile()
                 .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
-                .Containing(BuildUserChangeExtensions(), BuildActionExtensions());
+                .Containing(BuildUserChangeExtensions(),
+                    BuildActionExtensions("ActionWrapperExtensions", ACTION_WRAPPER, "actionWrapper", withCompositePart: true),
+                    BuildActionExtensions("ActionReferenceExtensions", ACTION_REFERENCE, "actionReference", withCompositePart: false));
         }
 
         private static GeneratableTypeDefinition BuildUserChangeExtensions()
@@ -42,31 +44,23 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// The enum-typed overloads of the rebinding and binding-info API. These are genuine overloads
-        /// sharing a name, told apart by their parameters.
+        /// The enum-typed binding API for one action type, in its own class so a call site sees only the
+        /// methods that apply to what it holds.
         /// </summary>
-        private static GeneratableTypeDefinition BuildActionExtensions()
+        private static GeneratableTypeDefinition BuildActionExtensions(string className, string extendedType, string parameterName, bool withCompositePart)
         {
-            return SourceGen.NewClass("ActionWrapperExtensions").Public().Static()
+            return SourceGen.NewClass(className).Public().Static()
                 .InNamespace(GeneratedNamespaces.ACTIONS)
                 .WithDirectives("System", GeneratedNamespaces.BINDINGS, GeneratedNamespaces.ENUMS)
-                .WithMethods(BuildRebindMethods(ACTION_WRAPPER, "actionWrapper", withCompositePart: true))
-                .WithMethods(BuildRebindMethods(ACTION_REFERENCE, "actionReference", withCompositePart: false))
-                .WithMethod(BuildGetSlotsMethod(ACTION_WRAPPER, "actionWrapper"))
-                .WithMethod(BuildGetSlotsMethod(ACTION_REFERENCE, "actionReference"))
-                .WithMethods(BuildResetMethods(ACTION_WRAPPER, "actionWrapper"))
-                .WithMethods(BuildResetMethods(ACTION_REFERENCE, "actionReference"));
+                .WithMethods(BuildRebindMethods(extendedType, parameterName, withCompositePart))
+                .WithMethod(BuildGetSlotsMethod(extendedType, parameterName))
+                .WithMethods(BuildResetMethods(extendedType, parameterName));
         }
 
         /// <summary>
-        /// The rebind overloads for one type. The UI index says which of the action's slots on that control
-        /// scheme to rebind, and defaults to the first, so a screen with one binding per action can leave it
-        /// out entirely.
-        /// <para>
-        /// Only a type that does not already know its composite part gets the overload taking one. An
-        /// ActionReference carries its part as a serialized field, so passing another one would be a second
-        /// source of truth.
-        /// </para>
+        /// The rebind overloads for one type. The UI index names the slot to rebind and defaults to the
+        /// first. Only a type that does not already know its composite part takes one: an ActionReference
+        /// carries its part as a serialized field.
         /// </summary>
         private static GeneratableMethod[] BuildRebindMethods(string extendedType, string parameterName, bool withCompositePart)
         {
@@ -99,9 +93,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// Reset one slot, or every binding the action has on a control scheme. These go through the
-        /// receiver conditionally, so calling one on a reference that was never assigned does nothing
-        /// rather than throwing in the middle of a rebinding screen.
+        /// Reset one slot, or every binding the action has on a control scheme. Called conditionally on
+        /// the receiver, so an unassigned reference does nothing rather than throwing.
         /// </summary>
         private static GeneratableMethod[] BuildResetMethods(string extendedType, string parameterName)
         {

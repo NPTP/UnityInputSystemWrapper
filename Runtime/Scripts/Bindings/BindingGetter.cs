@@ -9,9 +9,8 @@ namespace NPTP.InputSystemWrapper.Bindings
     internal static class BindingGetter
     {
         /// <summary>
-        /// What to display for a run of bindings. Each binding names the device it is on, so binding data
-        /// is looked up per binding rather than once for the whole control scheme. A scheme spanning a
-        /// keyboard and a mouse therefore reads each control from the data for the device it belongs to.
+        /// What to display for a run of bindings. Each binding names its own device, so a scheme spanning
+        /// a keyboard and a mouse reads each control from the data for the device it belongs to.
         /// </summary>
         internal static IReadOnlyList<BindingInfo> GetBindingInfos(InputData inputData, ReadOnlyArray<InputBinding> bindings,
             InputBinding bindingMask, int startIndex, int count)

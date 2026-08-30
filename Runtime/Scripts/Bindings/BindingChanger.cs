@@ -100,9 +100,8 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
-        /// Put one slot back to its default: every part of a composite, or a single plain binding. A
-        /// composite narrows to one part when the caller named one, so this undoes exactly what the
-        /// matching rebind would have changed.
+        /// Put one slot back to its default: every part of a composite, narrowed to a single part when
+        /// the caller names one, or a single plain binding.
         /// </summary>
         internal static void ResetBindingToDefaultForSlot(InputData inputData, ActionBindingInfo actionBindingInfo)
         {

@@ -18,8 +18,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         public Status RebindStatus { get; }
 
         /// <summary>
-        /// Every slot of the action on the control scheme that was rebound, not just the one that changed,
-        /// so a screen can repaint all of its rows from one callback.
+        /// Every slot of the action on the control scheme that was rebound, not just the one that changed.
         /// </summary>
         public BindingSlots BindingSlots { get; }
 

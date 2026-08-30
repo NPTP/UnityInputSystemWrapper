@@ -62,10 +62,7 @@ namespace NPTP.InputSystemWrapper.Actions
         internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
             InputRuntime.Current.ResetAllBindingsForAction(this, CompositePart.DontIsolatePart, controlSchemeId);
 
-        /// <summary>
-        /// Every slot of this action on the control scheme the player is currently using, indexed the way
-        /// a rebinding screen lays them out.
-        /// </summary>
+        /// <summary>Every slot of this action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots() => InputRuntime.Current.GetCurrentBindingSlots(this);
 
         internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId) =>

@@ -4,9 +4,8 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Editor.Generation
 {
     /// <summary>
-    /// Reports bindings a rebinding screen can never show. A rebinding screen lists an action's bindings
-    /// for one control scheme at a time, so a binding belonging to no scheme never appears on any of them
-    /// while still firing its action - a player would be triggering something they cannot see or change.
+    /// Reports bindings belonging to no control scheme. A rebinding screen lists one scheme at a time,
+    /// so those never appear on any of them while still firing their action.
     /// </summary>
     internal static class BindingAudit
     {
@@ -20,8 +19,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 {
                     InputBinding binding = action.bindings[i];
 
-                    // A composite carries its groups on its parts, so the composite itself is never the
-                    // one to report.
+                    // A composite carries its groups on its parts, never on itself.
                     if (binding.isComposite || !string.IsNullOrEmpty(binding.groups))
                     {
                         continue;

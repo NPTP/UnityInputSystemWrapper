@@ -86,9 +86,7 @@ namespace NPTP.InputSystemWrapper.Actions
             return false;
         }
 
-        /// <summary>
-        /// Every slot of the referenced action on the control scheme the player is currently using.
-        /// </summary>
+        /// <summary>Every slot of the referenced action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots()
         {
             return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetCurrentBindingSlots();

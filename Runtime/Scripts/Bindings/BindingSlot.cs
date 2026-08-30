@@ -5,13 +5,9 @@ using UnityEngine.InputSystem;
 namespace NPTP.InputSystemWrapper.Bindings
 {
     /// <summary>
-    /// One rebindable slot of an action, as a rebinding screen sees it. A slot is a single top-level
-    /// binding: either a plain binding, or a whole composite with its parts.
-    /// <para>
-    /// The UI index is the slot's position among the action's slots on one control scheme, counting a
-    /// composite as one. A d-pad taking four entries in the input action asset is still one slot, so the
-    /// row a player saw it on last is the row it appears on next.
-    /// </para>
+    /// One rebindable slot of an action: a single top-level binding, either plain or a whole composite
+    /// with its parts. A composite counts as one slot, so a d-pad taking four entries in the input
+    /// action asset still occupies a single row of a rebinding screen.
     /// </summary>
     public readonly struct BindingSlot
     {
@@ -22,20 +18,16 @@ namespace NPTP.InputSystemWrapper.Bindings
         public bool IsComposite { get; }
 
         /// <summary>
-        /// What to display for this slot: one entry for a plain binding, one per part for a composite,
-        /// in the order the parts are declared.
+        /// What to display: one entry for a plain binding, one per part for a composite, in declared order.
         /// </summary>
         public IReadOnlyList<BindingInfo> BindingInfos { get; }
 
-        /// <summary>
-        /// The single entry to display, for the common case of a slot that is not a composite. Null for a
-        /// slot with nothing to display, so a screen can fall back rather than throw.
-        /// </summary>
+        /// <summary>The single entry to display, or null if there is none.</summary>
         public BindingInfo? BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
 
         /// <summary>
-        /// Index of the top-level binding in the action's own binding list. For a composite this is the
-        /// composite itself, whose parts follow it.
+        /// Index in the action's own binding list. For a composite this is the composite itself, whose
+        /// parts follow it.
         /// </summary>
         internal int BindingIndex { get; }
 
@@ -52,8 +44,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
-        /// The binding to rebind for a given part. A composite cannot be rebound as a whole, so a part is
-        /// picked out of it; a plain binding ignores the part and rebinds itself.
+        /// The binding to rebind for a part. A composite picks out that part; a plain binding ignores it.
         /// </summary>
         internal bool TryGetBindingIndexForPart(InputAction action, CompositePart compositePart, out int bindingIndex)
         {

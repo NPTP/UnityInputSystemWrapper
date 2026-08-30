@@ -209,10 +209,7 @@ namespace NPTP.InputSystemWrapper
             return TryConvert(inputActionReference, 0, out actionWrapper);
         }
 
-        /// <summary>
-        /// Put one of an action's slots back to its default, leaving its other bindings on this control
-        /// scheme alone.
-        /// </summary>
+        /// <summary>Put one of an action's slots back to its default, leaving its others alone.</summary>
         internal void ResetBindingForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId, int uiIndex)
         {
             if (actionWrapper == null)
@@ -228,9 +225,7 @@ namespace NPTP.InputSystemWrapper
             ResetBindingForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId, uiIndex);
         }
 
-        /// <summary>
-        /// Put every one of an action's bindings on this control scheme back to its default.
-        /// </summary>
+        /// <summary>Put every one of an action's bindings on this control scheme back to its default.</summary>
         internal void ResetAllBindingsForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId)
         {
             if (actionWrapper == null)
@@ -246,7 +241,7 @@ namespace NPTP.InputSystemWrapper
             ResetAllBindingsForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId);
         }
 
-        // An ActionReference carries the composite part to isolate, and the player ID, with it.
+        // An ActionReference carries its own composite part and player ID.
         private static CompositePart GetCompositePart(ActionReference actionReference)
         {
             return actionReference == null ? CompositePart.DontIsolatePart : actionReference.CompositePart;
@@ -335,9 +330,8 @@ namespace NPTP.InputSystemWrapper
         }
 
         /// <summary>
-        /// The binding a rebind should write to: the slot at the requested UI index, narrowed to one part
-        /// if the slot is a composite. Warns rather than throwing, since a rebinding screen may well ask
-        /// for a slot the action does not have.
+        /// The binding a rebind writes to: the slot at the requested UI index, narrowed to one part if
+        /// that slot is a composite.
         /// </summary>
         private bool TryGetBindingIndexToRebind(ActionBindingInfo actionBindingInfo, out int bindingIndex)
         {
@@ -367,9 +361,7 @@ namespace NPTP.InputSystemWrapper
             return true;
         }
 
-        /// <summary>
-        /// The slots of an action on whichever control scheme the player is currently using.
-        /// </summary>
+        /// <summary>The slots of an action on whichever control scheme the player is currently using.</summary>
         internal BindingSlots GetCurrentBindingSlots(ActionWrapper actionWrapper)
         {
             return !playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player)

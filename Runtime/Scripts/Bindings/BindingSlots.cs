@@ -8,18 +8,14 @@ using UnityEngine.InputSystem.Utilities;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
-    /// <summary>
-    /// The rebindable slots of one action on one control scheme, in the order a rebinding screen should
-    /// lay them out. Every binding the scheme can fire is in here, so nothing can act on the player
-    /// without appearing on the screen they rebind it from.
-    /// </summary>
+    /// <summary>Every rebindable slot of one action on one control scheme, in UI index order.</summary>
     public sealed class BindingSlots : IReadOnlyList<BindingSlot>
     {
         private readonly List<BindingSlot> slots;
         private readonly string actionName;
         private readonly string controlSchemeName;
 
-        /// <summary>No slots at all, for a lookup that could not resolve a player or an action.</summary>
+        /// <summary>No slots at all, for a lookup that resolved no player or action.</summary>
         internal static BindingSlots Empty { get; } = new(new List<BindingSlot>(), "None", "None");
 
         public int Count => slots.Count;
@@ -34,8 +30,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
-        /// The slot at a UI index, or false with a warning naming what is actually there. Use this to fill
-        /// a rebinding screen, so a row the action does not have leaves the row empty rather than throwing.
+        /// The slot at a UI index, or false with a warning naming the indices that do exist.
         /// </summary>
         public bool TryGetAtUIIndex(int uiIndex, out BindingSlot bindingSlot)
         {
@@ -63,7 +58,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         /// <summary>
         /// Group an action's bindings into slots for one control scheme. A composite is matched by its
-        /// parts, since the composite binding itself carries no control scheme group.
+        /// parts, since the composite binding itself carries no group.
         /// </summary>
         internal static BindingSlots Resolve(InputData inputData, InputAction action, ControlSchemeId controlSchemeId)
         {
