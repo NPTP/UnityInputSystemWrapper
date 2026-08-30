@@ -15,7 +15,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         public bool TryGetBindingInfo(string controlPath, out BindingInfo bindingInfo) => bindingDataDictionary.TryGetValue(controlPath, out bindingInfo);
 
 #if UNITY_EDITOR
-        internal bool EDITOR_Contains(string controlPath) => bindingDataDictionary.TryGetValue(controlPath, out _);
+        internal const string EDITOR_DictionaryField = nameof(bindingDataDictionary);
+
+        internal bool EDITOR_Contains(string controlPath) => bindingDataDictionary.EDITOR_ContainsKey(controlPath);
 
         /// <summary>
         /// Add a control path with a starting localization key. Existing entries are left alone, so

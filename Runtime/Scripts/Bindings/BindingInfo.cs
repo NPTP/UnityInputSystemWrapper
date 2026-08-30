@@ -39,6 +39,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         public Sprite Sprite => sprite;
 
 #if UNITY_EDITOR
+        internal const string EDITOR_LocalizationKeyField = nameof(localizationKey);
+        internal const string EDITOR_SpriteField = nameof(sprite);
+
         /// <summary>
         /// Starts a binding off with the display name the input system gives the control, so a generated
         /// asset is readable before anyone edits it.
