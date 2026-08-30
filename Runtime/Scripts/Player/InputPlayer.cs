@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
@@ -134,16 +135,9 @@ namespace NPTP.InputSystemWrapper.Player
 
         // Event System actions
         private readonly Dictionary<string, InputActionReference> eventSystemActionsPool = new();
-        private InputActionReference defaultPoint;
-        private InputActionReference defaultLeftClick;
-        private InputActionReference defaultMiddleClick;
-        private InputActionReference defaultRightClick;
-        private InputActionReference defaultScrollWheel;
-        private InputActionReference defaultMove;
-        private InputActionReference defaultSubmit;
-        private InputActionReference defaultCancel;
-        private InputActionReference defaultTrackedDevicePosition;
-        private InputActionReference defaultTrackedDeviceOrientation;
+
+        private readonly Dictionary<string, IActionMapWrapper> actionMapWrappers = new();
+        private RuntimeInputData runtimeInputData;
         
         #endregion
         
@@ -205,19 +199,125 @@ namespace NPTP.InputSystemWrapper.Player
             CurrentControlScheme = playerInput.currentControlScheme.ToControlSchemeEnum();
         }
 
+        private void SetEventSystemOptions()
+        {
+            EventSystemOptions options = runtimeInputData.EventSystemOptions;
+            if (options == null)
+            {
+                return;
+            }
+
+            uiInputModule.moveRepeatDelay = options.MoveRepeatDelay;
+            uiInputModule.moveRepeatRate = options.MoveRepeatRate;
+            uiInputModule.deselectOnBackgroundClick = options.DeselectOnBackgroundClick;
+            uiInputModule.pointerBehavior = options.PointerBehavior;
+            uiInputModule.cursorLockBehavior = options.CursorLockBehavior;
+        }
+
+        /// <summary>
+        /// Adds all default and override event system InputActionReferences to a shared pool to
+        /// reduce duplication and lookup time.
+        /// </summary>
+        private void PopulateEventSystemActionsPool()
+        {
+            if (runtimeInputData.EventSystemOptions != null)
+            {
+                foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+                    AddToEventSystemActionsPool(binding.ActionID);
+            }
+
+            if (runtimeInputData.InputContexts == null)
+            {
+                return;
+            }
+
+            foreach (InputContextDefinition contextDefinition in runtimeInputData.InputContexts)
+                foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+                    AddToEventSystemActionsPool(binding.ActionID);
+        }
+
+        private void AddToEventSystemActionsPool(string actionID)
+        {
+            if (string.IsNullOrEmpty(actionID) || eventSystemActionsPool.ContainsKey(actionID))
+            {
+                return;
+            }
+
+            eventSystemActionsPool.Add(actionID, CreateInputActionReferenceToPlayerAsset(actionID));
+        }
+
+        private InputActionReference GetPooledEventSystemAction(string actionID)
+        {
+            return string.IsNullOrEmpty(actionID) || !eventSystemActionsPool.TryGetValue(actionID, out InputActionReference reference)
+                ? null
+                : reference;
+        }
+
         private void SetDefaultEventSystemActions()
         {
-            uiInputModule.point = defaultPoint;
-            uiInputModule.leftClick = defaultLeftClick;
-            uiInputModule.middleClick = defaultMiddleClick;
-            uiInputModule.rightClick = defaultRightClick;
-            uiInputModule.scrollWheel = defaultScrollWheel;
-            uiInputModule.move = defaultMove;
-            uiInputModule.submit = defaultSubmit;
-            uiInputModule.cancel = defaultCancel;
-            uiInputModule.trackedDevicePosition = defaultTrackedDevicePosition;
-            uiInputModule.trackedDeviceOrientation = defaultTrackedDeviceOrientation;
+            if (runtimeInputData.EventSystemOptions == null)
+            {
+                return;
+            }
+
+            foreach (EventSystemActionBinding binding in runtimeInputData.EventSystemOptions.DefaultActions)
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
         }
+
+        private void ApplyEventSystemAction(EventSystemActionType actionType, InputActionReference reference)
+        {
+            switch (actionType)
+            {
+                case EventSystemActionType.Point: uiInputModule.point = reference; break;
+                case EventSystemActionType.LeftClick: uiInputModule.leftClick = reference; break;
+                case EventSystemActionType.MiddleClick: uiInputModule.middleClick = reference; break;
+                case EventSystemActionType.RightClick: uiInputModule.rightClick = reference; break;
+                case EventSystemActionType.ScrollWheel: uiInputModule.scrollWheel = reference; break;
+                case EventSystemActionType.Move: uiInputModule.move = reference; break;
+                case EventSystemActionType.Submit: uiInputModule.submit = reference; break;
+                case EventSystemActionType.Cancel: uiInputModule.cancel = reference; break;
+                case EventSystemActionType.TrackedDevicePosition: uiInputModule.trackedDevicePosition = reference; break;
+                case EventSystemActionType.TrackedDeviceOrientation: uiInputModule.trackedDeviceOrientation = reference; break;
+                default: throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
+            }
+        }
+
+        private void DisableAllMapsAndRemoveCallbacks()
+        {
+            foreach (IActionMapWrapper actionMapWrapper in actionMapWrappers.Values)
+                actionMapWrapper.DisableAndUnregisterCallbacks();
+        }
+
+        private void EnableMapsForContext(InputContext context)
+        {
+            if (!Enabled)
+            {
+                return;
+            }
+
+            SetDefaultEventSystemActions();
+
+            InputContextDefinition contextDefinition = runtimeInputData.GetContextDefinition(context);
+            if (contextDefinition == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(context), context, $"No {nameof(InputContextDefinition)} exists for this context. Re-run input code generation.");
+            }
+
+            if (contextDefinition.EnableKeyboardTextInput) EnableKeyboardTextInput();
+            else DisableKeyboardTextInput();
+
+            foreach (KeyValuePair<string, IActionMapWrapper> pair in actionMapWrappers)
+            {
+                if (Array.IndexOf(contextDefinition.ActiveMapNames, pair.Key) >= 0)
+                    pair.Value.EnableAndRegisterCallbacks();
+                else
+                    pair.Value.DisableAndUnregisterCallbacks();
+            }
+
+            foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
+        }
+
         
         private InputActionReference CreateInputActionReferenceToPlayerAsset(string actionID)
         {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
@@ -21,15 +22,15 @@ namespace NPTP.InputSystemWrapper.Player
 
         private IEnumerable<InputPlayer> Players => players.Where(player => player != null);
 
-        private readonly InputActionAsset inputActionAsset;
+        private readonly RuntimeInputData runtimeInputData;
         private readonly Transform inputParent;
         private Action<InputPlayer> onPlayerAdded;
         private Action<int> onPlayerRemoved;
         private InputPlayer[] players = Array.Empty<InputPlayer>();
 
-        internal InputPlayerCollection(InputActionAsset asset, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
+        internal InputPlayerCollection(RuntimeInputData runtimeInputData, Action<InputPlayer> playerAddedListener, Action<int> playerRemovedListener)
         {
-            inputActionAsset = asset;
+            this.runtimeInputData = runtimeInputData;
             inputParent = CreateInputParentInScene();
             
             // Add default player before setting player added listener,
@@ -58,7 +59,7 @@ namespace NPTP.InputSystemWrapper.Player
                 return players[playerID];
             }
 
-            InputPlayer newPlayer = new InputPlayer(inputActionAsset, playerID, true, inputParent);
+            InputPlayer newPlayer = new InputPlayer(runtimeInputData, playerID, true, inputParent);
             players[playerID] = newPlayer;
             newPlayer.OnEnabledOrDisabled += HandlePlayerEnabledOrDisabled;
             newPlayer.Enabled = true;

@@ -11,7 +11,7 @@ using Button = UnityEngine.InputSystem.HID.HID.Button;
 // ------------------------------------------------------------------------------------------
 namespace NPTP.InputSystemWrapper.Actions
 {
-    public sealed class PlayerActions
+    public sealed class PlayerActions : IActionMapWrapper
     {
         internal InputActionMap ActionMap { get; }
         
@@ -30,7 +30,7 @@ namespace NPTP.InputSystemWrapper.Actions
             Fire = new (playerID, ActionMap.FindAction("Fire", throwIfNotFound: true), table);
         }
         
-        internal void EnableAndRegisterCallbacks()
+        public void EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -45,7 +45,7 @@ namespace NPTP.InputSystemWrapper.Actions
             Fire.RegisterCallbacks();
         }
         
-        internal void DisableAndUnregisterCallbacks()
+        public void DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

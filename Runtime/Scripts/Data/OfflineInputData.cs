@@ -1,4 +1,3 @@
-using System.Linq;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Enums.NPTP.InputSystemWrapper;
@@ -119,13 +118,6 @@ namespace NPTP.InputSystemWrapper.Data
         internal InputActionReference TrackedDevicePosition => trackedDevicePosition;
         [SerializeField] private InputActionReference trackedDeviceOrientation;
         internal InputActionReference TrackedDeviceOrientation => trackedDeviceOrientation;
-
-        internal int GetEventSystemActionNonNullOverrideCount()
-        {
-            return InputContexts
-                .SelectMany(inputContextInfo => inputContextInfo.EventSystemActionOverrides)
-                .Count(spec => spec.ActionReference != null && spec.ActionReference.action != null);
-        }
 
         private void OnValidate()
         {

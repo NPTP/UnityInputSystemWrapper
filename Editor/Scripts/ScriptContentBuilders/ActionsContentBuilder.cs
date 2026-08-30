@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using NPTP.InputSystemWrapper.Actions;
 using UnityEngine.InputSystem;
@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Editor.ScriptContentBuilders
                     lines.Add($"namespace {Helper.InputNamespace}.Actions");
                     break;
                 case "ClassSignature":
-                    lines.Add($"    public sealed class {className()}");
+                    lines.Add($"    public sealed class {className()} : IActionMapWrapper");
                     break;
                 case "ActionWrapperPublicProperties":
                     foreach (InputAction action in map)

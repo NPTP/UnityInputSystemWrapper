@@ -11,7 +11,7 @@ using Button = UnityEngine.InputSystem.HID.HID.Button;
 // ------------------------------------------------------------------------------------------
 namespace NPTP.InputSystemWrapper.Actions
 {
-    public sealed class UIActions
+    public sealed class UIActions : IActionMapWrapper
     {
         internal InputActionMap ActionMap { get; }
         
@@ -44,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Actions
             TrackedDeviceOrientation = new (playerID, ActionMap.FindAction("TrackedDeviceOrientation", throwIfNotFound: true), table);
         }
         
-        internal void EnableAndRegisterCallbacks()
+        public void EnableAndRegisterCallbacks()
         {
             if (enabled)
             {
@@ -66,7 +66,7 @@ namespace NPTP.InputSystemWrapper.Actions
             TrackedDeviceOrientation.RegisterCallbacks();
         }
         
-        internal void DisableAndUnregisterCallbacks()
+        public void DisableAndUnregisterCallbacks()
         {
             if (!enabled)
             {

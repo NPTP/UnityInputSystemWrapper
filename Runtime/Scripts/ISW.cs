@@ -116,7 +116,7 @@ namespace NPTP.InputSystemWrapper
             // These registrations must occur before players get assigned InputActionAssets, or else issues resolving the bindings will arise.
             CustomSetupsRegisterer.PerformRegistrations(runtimeInputData);
             
-            playerCollection = new InputPlayerCollection(runtimeInputData.InputActionAsset, HandlePlayerAdded, HandlePlayerRemoved);
+            playerCollection = new InputPlayerCollection(runtimeInputData, HandlePlayerAdded, HandlePlayerRemoved);
 #if UNITY_EDITOR
             playerCollection.EDITOR_OnPlayerInputContextChanged += EDITOR_HandlePlayerInputContextChanged;
 #endif

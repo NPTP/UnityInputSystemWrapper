@@ -33,6 +33,12 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
 
+        [SerializeField] private EventSystemOptions eventSystemOptions;
+        internal EventSystemOptions EventSystemOptions => eventSystemOptions;
+
+        [SerializeField] private InputContextDefinition[] inputContexts;
+        internal InputContextDefinition[] InputContexts => inputContexts;
+
         public IEnumerable<CustomSetup> AllCustomSetups
         {
             get
@@ -64,7 +70,15 @@ namespace NPTP.InputSystemWrapper.Data
             return null;
         }
 
+        internal InputContextDefinition GetContextDefinition(InputContext inputContext)
+        {
+            int index = (int)inputContext;
+            return inputContexts == null || index < 0 || index >= inputContexts.Length ? null : inputContexts[index];
+        }
+
 #if UNITY_EDITOR
+        internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
+        internal const string EDITOR_InputContextsField = nameof(inputContexts);
         internal const string EDITOR_ControlSchemeBindingDataField = nameof(controlSchemeBindingData);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);
         internal const string EDITOR_BindingCancelPathsField = nameof(bindingCancelPaths);
