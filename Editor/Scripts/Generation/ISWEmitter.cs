@@ -147,8 +147,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Expression("Runtime.TryConvert(inputActionReference, out actionWrapper)"))
                 .WithMethod(SourceGen.NewMethod("ResetBindingForAction").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
+                        GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of<int>("uiIndex", "0"))
+                    .Expression("Runtime.ResetBindingForAction(actionReference, controlScheme.ToId(), uiIndex)"))
+                .WithMethod(SourceGen.NewMethod("ResetAllBindingsForAction").Public().Static().ReturningVoid()
+                    .Taking(GeneratableParameter.Of("ActionReference", "actionReference"),
                         GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
-                    .Expression("Runtime.ResetBindingForAction(actionReference, controlScheme.ToId())"))
+                    .Expression("Runtime.ResetAllBindingsForAction(actionReference, controlScheme.ToId())"))
                 .WithMethod(SourceGen.NewMethod("ResetAllBindingsForControlScheme").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "null"))

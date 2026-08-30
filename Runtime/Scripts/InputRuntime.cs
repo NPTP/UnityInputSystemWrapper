@@ -209,16 +209,44 @@ namespace NPTP.InputSystemWrapper
             return TryConvert(inputActionReference, 0, out actionWrapper);
         }
 
-        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
+        /// <summary>
+        /// Put one of an action's slots back to its default, leaving its other bindings on this control
+        /// scheme alone.
+        /// </summary>
+        internal void ResetBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex = 0)
         {
-            if (actionReference == null || actionReference.ActionWrapper == null)
+            if (!TryGetActionBindingInfo(actionReference, controlSchemeId, uiIndex, out ActionBindingInfo actionBindingInfo))
             {
                 return;
             }
 
-            // Note that player ID is contained in the ActionReference.
-            ActionBindingInfo actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId);
+            BindingChanger.ResetBindingToDefaultForSlot(inputData, actionBindingInfo);
+        }
+
+        /// <summary>
+        /// Put every one of an action's bindings on this control scheme back to its default.
+        /// </summary>
+        internal void ResetAllBindingsForAction(ActionReference actionReference, ControlSchemeId controlSchemeId)
+        {
+            if (!TryGetActionBindingInfo(actionReference, controlSchemeId, uiIndex: 0, out ActionBindingInfo actionBindingInfo))
+            {
+                return;
+            }
+
             BindingChanger.ResetBindingToDefaultForControlScheme(actionBindingInfo, controlSchemeId);
+        }
+
+        // Note that player ID is contained in the ActionReference.
+        private static bool TryGetActionBindingInfo(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex, out ActionBindingInfo actionBindingInfo)
+        {
+            if (actionReference == null || actionReference.ActionWrapper == null)
+            {
+                actionBindingInfo = default;
+                return false;
+            }
+
+            actionBindingInfo = new ActionBindingInfo(actionReference.ActionWrapper, actionReference.CompositePart, controlSchemeId, uiIndex);
+            return true;
         }
 
         internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)

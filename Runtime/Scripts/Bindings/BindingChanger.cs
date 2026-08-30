@@ -99,6 +99,41 @@ namespace NPTP.InputSystemWrapper.Bindings
             rebindingOperation = null;
         }
 
+        /// <summary>
+        /// Put one slot back to its default: every part of a composite, or a single plain binding. A
+        /// composite narrows to one part when the caller named one, so this undoes exactly what the
+        /// matching rebind would have changed.
+        /// </summary>
+        internal static void ResetBindingToDefaultForSlot(InputData inputData, ActionBindingInfo actionBindingInfo)
+        {
+            InputAction action = actionBindingInfo.ActionWrapper.InputAction;
+            BindingSlots bindingSlots = BindingSlots.Resolve(inputData, action, actionBindingInfo.ControlSchemeId);
+
+            if (!bindingSlots.TryGetAtUIIndex(actionBindingInfo.UIIndex, out BindingSlot bindingSlot))
+            {
+                return;
+            }
+
+            bool changed = false;
+            for (int i = bindingSlot.BindingIndex; i < bindingSlot.BindingIndex + bindingSlot.BindingCount; i++)
+            {
+                InputBinding binding = action.bindings[i];
+                if (binding.isComposite || string.IsNullOrEmpty(binding.overridePath) ||
+                    (actionBindingInfo.UseCompositePart && binding.isPartOfComposite && !actionBindingInfo.CompositePart.Matches(binding)))
+                {
+                    continue;
+                }
+
+                changed = true;
+                action.RemoveBindingOverride(i);
+            }
+
+            if (changed)
+            {
+                InputRuntime.Current.BroadcastBindingsChanged();
+            }
+        }
+
         internal static void ResetBindingToDefaultForControlScheme(ActionBindingInfo actionBindingInfo, ControlSchemeId controlSchemeId)
         {
             bool compositeCondition(InputBinding binding) => actionBindingInfo.DontUseCompositePart || actionBindingInfo.CompositePart.Matches(binding);
