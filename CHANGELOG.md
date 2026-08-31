@@ -1,6 +1,10 @@
 # Input System Wrapper
 ## Changelog
 
+9.0.1
+- The generator notice is on every generated file, including the actions classes, `InputPlayerRef` and `ISW`, which were written without one
+- The generated binding data menu items share one selection method instead of repeating the same lookup per asset
+
 9.0.0
 - `BindingSerializationMode` on the input data asset chooses where saved bindings live: a JSON file per player, the project's own storage through events, both, or neither
 - `ISW.OnBindingsSaveRequested` hands out a player's bindings as JSON to store; `ISW.OnBindingsLoadRequested` asks for them back
