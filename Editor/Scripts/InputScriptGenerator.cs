@@ -58,11 +58,14 @@ namespace NPTP.InputSystemWrapper.Editor
             GenerationReport.LogAndEnd("Input wrapper generation complete");
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
-
-        private static void WriteType(string fileName, GeneratableBase generatable, string outputFolder)
+        
+        private static void WriteType(string fileName, GeneratableDefinition generatable, string outputFolder)
         {
-            string assetPath = $"{outputFolder}/{fileName}.cs";
-            GenerationReport.RecordWrite(assetPath, SourceGen.WriteToPath(assetPath, generatable));
+            GeneratableFile file = SourceGen.NewFile()
+                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .Containing(generatable);
+
+            WriteFile(fileName, file, outputFolder);
         }
 
         private static void WriteFile(string fileName, GeneratableFile file, string outputFolder)
