@@ -15,6 +15,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     internal static class BindingDataMenuEmitter
     {
         private const string MENU_PATH = "Input/Binding Data/";
+        private const string SELECT_METHOD = "Select";
+        private const string GUID_PARAMETER = "assetGuid";
         private const string EDITOR_ONLY = "UNITY_EDITOR";
 
         internal static GeneratableFile BuildFile()
@@ -26,9 +28,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             HashSet<string> usedMethodNames = new();
             foreach ((string name, string guid) in FindBindingDataAssets())
             {
-                // Selection is by GUID rather than path, so moving or renaming the asset does not break
-                // the shortcut until the next generation run.
-                menuItems.WithMethod(SourceGen.NewMethod($"Select{UniqueMethodName(name, usedMethodNames)}")
+                menuItems.WithMethod(SourceGen.NewMethod($"{SELECT_METHOD}{UniqueMethodName(name, usedMethodNames)}")
                     .Private()
                     .Static()
                     .ReturningVoid()
@@ -36,14 +36,30 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                         AddableAttribute.StringArgument(MENU_PATH + name),
                         "isValidateFunction: false",
                         "100")
-                    .Expression($"Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(\"{guid}\"))"));
+                    .Expression($"{SELECT_METHOD}(\"{guid}\")"));
             }
+
+            menuItems.WithMethod(BuildSelectMethod());
 
             // The whole file is editor-only, but lives in the generated runtime assembly.
             return SourceGen.NewFile()
                 .OnlyIf(EDITOR_ONLY)
                 .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
                 .Containing(menuItems);
+        }
+
+        /// <summary>
+        /// The one method every menu item calls. Selection is by GUID rather than path, so moving or
+        /// renaming an asset does not break its shortcut until the next generation run.
+        /// </summary>
+        private static GeneratableMethod BuildSelectMethod()
+        {
+            return SourceGen.NewMethod(SELECT_METHOD)
+                .Private()
+                .Static()
+                .ReturningVoid()
+                .Taking(GeneratableParameter.Of<string>(GUID_PARAMETER))
+                .Expression($"Selection.activeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath({GUID_PARAMETER}))");
         }
 
         /// <summary>
