@@ -137,14 +137,16 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         }
 
         /// <summary>
-        /// A square object field. Given a rect this tall, Unity draws its large object field - a preview of
-        /// the sprite inside a bordered square, keeping the same square when nothing is assigned - which is
-        /// the same control its own inspectors use for sprite and texture slots.
+        /// A large object field: a preview of the sprite inside a bordered box, keeping the same box when
+        /// nothing is assigned, which is the same control Unity's own inspectors use for sprite slots.
+        /// <para>
+        /// It fills the row's height, so it stays level with however many fields the column beside it has.
+        /// </para>
         /// </summary>
         private static void DrawSpriteField(SerializedProperty sprite)
         {
             Rect spriteRect = GUILayoutUtility.GetRect(SPRITE_SIZE, SPRITE_SIZE,
-                GUILayout.Width(SPRITE_SIZE), GUILayout.Height(SPRITE_SIZE));
+                GUILayout.Width(SPRITE_SIZE), GUILayout.MinHeight(SPRITE_SIZE), GUILayout.ExpandHeight(true));
 
             EditorGUI.ObjectField(spriteRect, sprite, typeof(Sprite), GUIContent.none);
         }
