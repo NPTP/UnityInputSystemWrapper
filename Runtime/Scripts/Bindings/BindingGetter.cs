@@ -18,7 +18,8 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// </para>
         /// </summary>
         internal static IReadOnlyList<BindingInfo> GetBindingInfos(InputData inputData, ReadOnlyArray<InputBinding> bindings,
-            InputBinding bindingMask, int startIndex, int count, List<AssetReference> held)
+            InputBinding bindingMask, int startIndex, int count, List<AssetReference> held,
+            Dictionary<string, BindingData> loadedByDevice)
         {
             List<BindingInfo> bindingInfos = new();
 
@@ -30,7 +31,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                     continue;
                 }
 
-                BindingData bindingData = AcquireBindingData(inputData, controlPath.DeviceLayoutName, held);
+                BindingData bindingData = AcquireBindingDataOnce(inputData, controlPath.DeviceLayoutName, held, loadedByDevice);
                 if (bindingData == null)
                 {
                     continue;
@@ -44,6 +45,24 @@ namespace NPTP.InputSystemWrapper.Bindings
             }
 
             return bindingInfos;
+        }
+
+        /// <summary>
+        /// A device's binding data, taken once however many of these bindings are on that device. Every
+        /// part of a composite shares one device, so acquiring per binding would take the same asset over
+        /// and over for nothing.
+        /// </summary>
+        private static BindingData AcquireBindingDataOnce(InputData inputData, string deviceLayoutName,
+            List<AssetReference> held, Dictionary<string, BindingData> loadedByDevice)
+        {
+            if (loadedByDevice.TryGetValue(deviceLayoutName, out BindingData alreadyLoaded))
+            {
+                return alreadyLoaded;
+            }
+
+            BindingData bindingData = AcquireBindingData(inputData, deviceLayoutName, held);
+            loadedByDevice[deviceLayoutName] = bindingData;
+            return bindingData;
         }
 
         /// <summary>

@@ -111,6 +111,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         {
             List<BindingSlot> resolved = new();
             List<AssetReference> held = new();
+
+            // One device's data serves every binding on it, so it is taken once for the whole resolve.
+            Dictionary<string, BindingData> loadedByDevice = new();
             InputBinding bindingMask = controlSchemeId.ToBindingMask();
             ReadOnlyArray<InputBinding> bindings = action.bindings;
 
@@ -128,7 +131,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                     if (AnyMatches(bindings, bindingMask, i + 1, partCount))
                     {
                         resolved.Add(new BindingSlot(resolved.Count, i, isComposite: true, partCount + 1,
-                            BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i + 1, partCount, held)));
+                            BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i + 1, partCount, held, loadedByDevice)));
                     }
 
                     i += partCount;
@@ -136,7 +139,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 else if (bindingMask.Matches(binding))
                 {
                     resolved.Add(new BindingSlot(resolved.Count, i, isComposite: false, 1,
-                        BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i, 1, held)));
+                        BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i, 1, held, loadedByDevice)));
                 }
             }
 
