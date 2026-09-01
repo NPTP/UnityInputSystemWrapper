@@ -41,6 +41,9 @@ namespace NPTP.InputSystemWrapper.Player
             onPlayerRemoved = playerRemovedListener;
         }
 
+        /// <summary>How many players exist, which is not the same as the size of the backing array.</summary>
+        internal int Count => Players.Count();
+
         public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

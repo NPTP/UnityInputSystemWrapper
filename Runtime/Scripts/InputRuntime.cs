@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
@@ -425,6 +426,30 @@ namespace NPTP.InputSystemWrapper
         internal bool DoesPlayerExist(int playerID)
         {
             return playerCollection.TryGetPlayer(playerID, out _);
+        }
+
+        /// <summary>How many players exist right now.</summary>
+        internal int PlayerCount => playerCollection.Count;
+
+        /// <summary>
+        /// The IDs of the players that exist, so a lobby or a split screen can be laid out without
+        /// asking for players by number and creating them by accident.
+        /// </summary>
+        internal IEnumerable<int> GetPlayerIDs()
+        {
+            foreach (InputPlayer player in playerCollection)
+            {
+                yield return player.ID;
+            }
+        }
+
+        /// <summary>
+        /// The player a device is paired to, for working out who a button press belongs to. False when
+        /// no player has taken that device yet.
+        /// </summary>
+        internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
+        {
+            return playerCollection.TryGetPlayerPairedWithDevice(device, out player);
         }
 
         #endregion

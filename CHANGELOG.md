@@ -2,6 +2,8 @@
 ## Changelog
 
 10.0.0
+- `ISW.PlayerCount`, `ISW.PlayerExists` and `ISW.GetPlayerIDs` ask which players exist without creating one, which `GetPlayer` does
+- `ISW.TryGetPlayerPairedWithDevice` says which player a device belongs to, so a press can be attributed to a player
 - `CompositePart` gains Modifier, Modifier1, Modifier2, Button and Binding, so the modifier composites can be isolated like any other
 - Composite parts are matched case-insensitively. The input system names a part after its field - "up", "modifier1" - so comparing against the enum name never matched and part isolation did not work
 - `BindingSlot.TryGetBindingInfo(CompositePart)` gets the entry for one part, and `InputBindingDisplay` uses it so a display wired to a composite part shows that part rather than the binding's first control

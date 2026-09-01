@@ -124,9 +124,21 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             isw
                 .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
+                .WithProperty(SourceGen.NewProperty<int>("PlayerCount").Public().Static().Expression("Runtime.PlayerCount"))
                 .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER_REF)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("PlayerExists").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
+                    .Expression($"Runtime.DoesPlayerExist({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("GetPlayerIDs").Public().Static().Returning("IEnumerable<int>")
+                    .Expression("Runtime.GetPlayerIDs()"))
+                .WithMethod(SourceGen.NewMethod("TryGetPlayerPairedWithDevice").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of("InputDevice", "device"),
+                        GeneratableParameter.Out(INPUT_PLAYER_REF, "player"))
+                    .Body($"bool paired = Runtime.TryGetPlayerPairedWithDevice(device, out {INPUT_PLAYER} pairedPlayer);",
+                        "player = pairedPlayer;",
+                        "return paired;"))
                 .WithMethod(SourceGen.NewMethod("RemovePlayer").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.RemovePlayer({PLAYER_ID})"))
