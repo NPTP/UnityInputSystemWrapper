@@ -40,6 +40,22 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
+        /// The folder holding one binding data asset's entries, named for that asset so the entries sit
+        /// beside the binding data they belong to.
+        /// </summary>
+        internal static string GetOrCreateBindingEntryFolder(string bindingDataAssetName)
+        {
+            string bindingDataFolder = GetOrCreateBindingDataFolder();
+            string folderAssetPath = bindingDataFolder + "/" + bindingDataAssetName;
+            if (!AssetDatabase.IsValidFolder(folderAssetPath))
+            {
+                AssetDatabase.CreateFolder(bindingDataFolder, bindingDataAssetName);
+            }
+
+            return folderAssetPath;
+        }
+
+        /// <summary>
         /// Copy the package's default assets into the project if they are not there yet, and return the
         /// project's InputData. Existing project assets are never overwritten.
         /// </summary>

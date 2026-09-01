@@ -36,7 +36,8 @@ namespace NPTP.InputSystemWrapper.Bindings
                     continue;
                 }
 
-                if (bindingData.TryGetBindingInfo(controlPath.PathOnDevice, out BindingInfo bindingInfo))
+                BindingInfo bindingInfo = AcquireBindingInfo(bindingData, controlPath.PathOnDevice, held);
+                if (bindingInfo != null)
                 {
                     bindingInfos.Add(bindingInfo);
                 }
@@ -58,7 +59,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 return null;
             }
 
-            BindingData bindingData = BindingDataCache.Acquire(reference);
+            BindingData bindingData = BindingDataCache.Acquire<BindingData>(reference);
             if (bindingData == null)
             {
                 return null;
@@ -66,6 +67,28 @@ namespace NPTP.InputSystemWrapper.Bindings
 
             held.Add(reference);
             return bindingData;
+        }
+
+        /// <summary>
+        /// One control's entry, loaded and recorded so it can be given back later. Null when the device
+        /// has no entry for that control.
+        /// </summary>
+        private static BindingInfo AcquireBindingInfo(BindingData bindingData, string pathOnDevice, List<AssetReference> held)
+        {
+            if (!bindingData.TryGetBindingReference(pathOnDevice, out AssetReference reference) ||
+                reference == null || !reference.RuntimeKeyIsValid())
+            {
+                return null;
+            }
+
+            BindingInfo bindingInfo = BindingDataCache.Acquire<BindingInfo>(reference);
+            if (bindingInfo == null)
+            {
+                return null;
+            }
+
+            held.Add(reference);
+            return bindingInfo;
         }
 
         /// <summary>

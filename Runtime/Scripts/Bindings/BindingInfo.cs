@@ -1,4 +1,3 @@
-using System;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -9,9 +8,12 @@ namespace NPTP.InputSystemWrapper.Bindings
     /// Tells us which strings and icons to display for a single binding.
     /// E.g. Given the binding "dpad/up", this might show a sprite with a
     /// D-Pad pointing up and use the display name "D-Pad Up".
+    /// <para>
+    /// One asset per control path, addressable, so a device's entries are in memory only while something
+    /// is showing them.
+    /// </para>
     /// </summary>
-    [Serializable]
-    public struct BindingInfo
+    public class BindingInfo : ScriptableObject
     {
         [FormerlySerializedAs("displayName")]
         [SerializeField]
@@ -48,28 +50,27 @@ namespace NPTP.InputSystemWrapper.Bindings
         internal const string EDITOR_SpriteField = nameof(sprite);
 
         /// <summary>
-        /// Starts a binding off with a key and a readable name, so a generated asset works and reads
-        /// properly before anyone edits it.
+        /// Fill in anything blank, leaving whatever has already been authored alone. Says whether
+        /// anything changed, so an asset is only written when it has to be.
         /// </summary>
-        internal BindingInfo(string localizationKey, string defaultDisplayName)
+        internal bool EDITOR_FillBlanks(string localizationKey, string defaultDisplayName)
         {
-            this.localizationKey = localizationKey;
-            this.defaultDisplayName = defaultDisplayName;
-            sprite = null;
-        }
+            bool changed = false;
 
-        /// <summary>
-        /// A copy with anything blank filled in, leaving whatever has already been authored alone.
-        /// </summary>
-        internal BindingInfo EDITOR_WithBlanksFilled(string localizationKey, string defaultDisplayName)
-        {
-            BindingInfo copy = this;
-            if (string.IsNullOrEmpty(copy.localizationKey)) copy.localizationKey = localizationKey;
-            if (string.IsNullOrEmpty(copy.defaultDisplayName)) copy.defaultDisplayName = defaultDisplayName;
-            return copy;
-        }
+            if (string.IsNullOrEmpty(this.localizationKey))
+            {
+                this.localizationKey = localizationKey;
+                changed = true;
+            }
 
-        internal bool EDITOR_HasBlanks => string.IsNullOrEmpty(localizationKey) || string.IsNullOrEmpty(defaultDisplayName);
+            if (string.IsNullOrEmpty(this.defaultDisplayName))
+            {
+                this.defaultDisplayName = defaultDisplayName;
+                changed = true;
+            }
+
+            return changed;
+        }
 #endif
     }
 }

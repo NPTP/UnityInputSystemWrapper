@@ -277,22 +277,73 @@ namespace NPTP.InputSystemWrapper.Editor
 
             if (!Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
-                BindingData created = ScriptableObject.CreateInstance<BindingData>();
-                foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
-                {
-                    // Qualified by device, so a key names one control across the whole project: two
-                    // gamepads can have their own name for the same path.
-                    created.EDITOR_AddBinding(controlPath, $"{deviceLayoutName}/{controlPath}",
-                        Generation.ControlPathDisplayName.FromControlPath(controlPath));
-                }
-
+                existing = ScriptableObject.CreateInstance<BindingData>();
                 string createdPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
-                AssetDatabase.CreateAsset(created, createdPath);
+                AssetDatabase.CreateAsset(existing, createdPath);
                 Generation.GenerationReport.Record($"{createdPath} (created for device '{deviceLayoutName}')");
-                existing = created;
             }
 
+            SyncBindingEntries(existing, deviceLayoutName, assetName);
+            EditorUtility.SetDirty(existing);
+
             return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(existing));
+        }
+
+        /// <summary>
+        /// Give a device an entry asset per control path, in a folder named for its binding data. Each is
+        /// addressable in its own right, so a screen loads only the bindings it shows.
+        /// </summary>
+        private static void SyncBindingEntries(BindingData bindingData, string deviceLayoutName, string assetName)
+        {
+            string folder = Generation.ProjectAssets.GetOrCreateBindingEntryFolder(assetName);
+            HashSet<string> currentPaths = new();
+
+            foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+            {
+                currentPaths.Add(controlPath);
+
+                // Qualified by device, so a key names one control across the whole project: two gamepads
+                // can have their own name for the same path.
+                string address = $"{deviceLayoutName}/{controlPath}";
+                string entryGuid = GetOrCreateBindingInfo(folder, controlPath, address);
+
+                bindingData.EDITOR_SetBinding(controlPath, entryGuid);
+                Generation.AddressableSetup.MarkAddressable(entryGuid, address);
+            }
+
+            // A control the device no longer has leaves its key behind, which would resolve to nothing.
+            foreach (string stalePath in new List<string>(bindingData.EDITOR_ControlPaths))
+            {
+                if (!currentPaths.Contains(stalePath))
+                {
+                    bindingData.EDITOR_RemoveBinding(stalePath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// One control's entry asset, created if it is not there yet and topped up if it is missing
+        /// anything. Whatever has been authored on an existing entry is left as it is.
+        /// </summary>
+        private static string GetOrCreateBindingInfo(string folder, string controlPath, string address)
+        {
+            string assetPath = $"{folder}/{Generation.BindingEntryAssetName.FromControlPath(controlPath)}.asset";
+            BindingInfo bindingInfo = AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath);
+            string defaultDisplayName = Generation.ControlPathDisplayName.FromControlPath(controlPath);
+
+            if (bindingInfo == null)
+            {
+                bindingInfo = ScriptableObject.CreateInstance<BindingInfo>();
+                bindingInfo.EDITOR_FillBlanks(address, defaultDisplayName);
+                AssetDatabase.CreateAsset(bindingInfo, assetPath);
+                Generation.GenerationReport.Record($"{assetPath} (created for control '{controlPath}')");
+            }
+            else if (bindingInfo.EDITOR_FillBlanks(address, defaultDisplayName))
+            {
+                EditorUtility.SetDirty(bindingInfo);
+            }
+
+            return AssetDatabase.AssetPathToGUID(assetPath);
         }
 
         /// <summary>

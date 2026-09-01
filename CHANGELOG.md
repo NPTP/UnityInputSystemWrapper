@@ -3,6 +3,7 @@
 
 9.1.0
 - `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+- Each binding entry is its own addressable asset, in a folder named for the binding data asset it belongs to, so a screen loads only the bindings it shows. `BindingInfo` is a ScriptableObject rather than a struct
 - Binding data is addressable and loads per device only when something asks to display that device's controls, instead of every device's data being resident because the input data asset references it
 - Generation marks each binding data asset addressable in an "ISW Data Group" of its own, so nothing has to be set up by hand and the assets stay out of the project default group
 - `BindingSlots` holds the binding data its slots were built from and implements IDisposable: dispose it when the screen showing it closes. A set dropped without being disposed releases its data when the garbage collector reaches it

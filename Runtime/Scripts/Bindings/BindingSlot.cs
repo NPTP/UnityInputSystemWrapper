@@ -23,7 +23,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         public IReadOnlyList<BindingInfo> BindingInfos { get; }
 
         /// <summary>The single entry to display, or null if there is none.</summary>
-        public BindingInfo? BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
+        public BindingInfo BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
 
         /// <summary>
         /// Index in the action's own binding list. For a composite this is the composite itself, whose

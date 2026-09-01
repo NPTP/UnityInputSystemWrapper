@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
@@ -19,6 +21,10 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     internal class BindingDataEditor : UnityEditor.Editor
     {
         private const float MIN_SPRITE_SIZE = 64f;
+        private const string ASSET_GUID_FIELD = "m_AssetGUID";
+
+        /// <summary>One per entry asset, keyed by its GUID, so each is built once rather than per repaint.</summary>
+        private readonly Dictionary<string, SerializedObject> entrySerializedObjects = new();
 
         /// <summary>
         /// The square's side, and with it the row's height. Sized to the column beside it - a control path,
@@ -47,7 +53,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             searchField = new SearchField();
 
             SerializedProperty dictionary = serializedObject.FindProperty(BindingData.EDITOR_DictionaryField);
-            keyValueCombos = dictionary?.FindPropertyRelative(SerializableDictionary<string, BindingInfo>.EDITOR_KeyValueCombosField);
+            keyValueCombos = dictionary?.FindPropertyRelative(SerializableDictionary<string, AssetReference>.EDITOR_KeyValueCombosField);
         }
 
         public override void OnInspectorGUI()
@@ -65,14 +71,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             for (int i = 0; i < keyValueCombos.arraySize; i++)
             {
                 SerializedProperty combo = keyValueCombos.GetArrayElementAtIndex(i);
-                SerializedProperty key = combo.FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_KeyField);
+                SerializedProperty key = combo.FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_KeyField);
 
                 if (!MatchesFilter(key.stringValue))
                 {
                     continue;
                 }
 
-                DrawEntry(key, combo.FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_ValueField));
+                DrawEntry(key, combo.FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_ValueField));
             }
 
             if (shownCount == 0)
@@ -92,7 +98,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             for (int i = 0; i < keyValueCombos.arraySize; i++)
             {
                 SerializedProperty key = keyValueCombos.GetArrayElementAtIndex(i)
-                    .FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_KeyField);
+                    .FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_KeyField);
                 if (MatchesFilter(key.stringValue)) shownCount++;
             }
 
@@ -116,9 +122,19 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void DrawEntry(SerializedProperty key, SerializedProperty value)
         {
-            SerializedProperty localizationKey = value.FindPropertyRelative(BindingInfo.EDITOR_LocalizationKeyField);
-            SerializedProperty defaultDisplayName = value.FindPropertyRelative(BindingInfo.EDITOR_DefaultDisplayNameField);
-            SerializedProperty sprite = value.FindPropertyRelative(BindingInfo.EDITOR_SpriteField);
+            // Each entry is its own asset now, so its fields are edited through its own SerializedObject
+            // rather than as part of this one.
+            SerializedObject entry = GetEntrySerializedObject(value);
+            if (entry == null)
+            {
+                DrawMissingEntry(key);
+                return;
+            }
+
+            entry.Update();
+            SerializedProperty localizationKey = entry.FindProperty(BindingInfo.EDITOR_LocalizationKeyField);
+            SerializedProperty defaultDisplayName = entry.FindProperty(BindingInfo.EDITOR_DefaultDisplayNameField);
+            SerializedProperty sprite = entry.FindProperty(BindingInfo.EDITOR_SpriteField);
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
 
@@ -141,6 +157,46 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             DrawSpriteField(sprite);
 
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(ROW_SPACING);
+
+            entry.ApplyModifiedProperties();
+        }
+
+        /// <summary>
+        /// The entry asset an AssetReference points at, or null when it points at nothing. Kept between
+        /// frames, since building one per entry per repaint would be wasteful on a device with a hundred
+        /// of them.
+        /// </summary>
+        private SerializedObject GetEntrySerializedObject(SerializedProperty value)
+        {
+            string assetGuid = value.FindPropertyRelative(ASSET_GUID_FIELD).stringValue;
+            if (string.IsNullOrEmpty(assetGuid))
+            {
+                return null;
+            }
+
+            if (entrySerializedObjects.TryGetValue(assetGuid, out SerializedObject cached) && cached.targetObject != null)
+            {
+                return cached;
+            }
+
+            BindingInfo bindingInfo = AssetDatabase.LoadAssetAtPath<BindingInfo>(AssetDatabase.GUIDToAssetPath(assetGuid));
+            if (bindingInfo == null)
+            {
+                return null;
+            }
+
+            SerializedObject entry = new(bindingInfo);
+            entrySerializedObjects[assetGuid] = entry;
+            return entry;
+        }
+
+        private static void DrawMissingEntry(SerializedProperty key)
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);
+            EditorGUILayout.LabelField("Missing entry asset. Regenerate to recreate it.", EditorStyles.miniLabel);
             EditorGUILayout.EndHorizontal();
             GUILayout.Space(ROW_SPACING);
         }

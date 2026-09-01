@@ -1,20 +1,22 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Utilities;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
     /// <summary>
-    /// Loads a device's binding data on demand and keeps one handle per asset however many callers want
-    /// it. An asset stays in memory until every caller that took it has given it back.
+    /// Loads addressable binding assets on demand and keeps one handle per asset however many callers
+    /// want it. An asset stays in memory until every caller that took it has given it back.
     /// </summary>
     internal static class BindingDataCache
     {
         private class Entry
         {
-            internal AsyncOperationHandle<BindingData> Handle;
+            internal AsyncOperationHandle Handle;
+            internal Object Asset;
             internal int ReferenceCount;
         }
 
@@ -27,10 +29,10 @@ namespace NPTP.InputSystemWrapper.Bindings
         private static readonly ConcurrentQueue<object> pendingReleases = new();
 
         /// <summary>
-        /// The binding data for a reference, loaded synchronously if it is not already in memory. Null when
-        /// the reference names nothing loadable, so a missing asset costs display names rather than throwing.
+        /// The asset for a reference, loaded synchronously if it is not already in memory. Null when the
+        /// reference names nothing loadable, so a missing asset costs display names rather than throwing.
         /// </summary>
-        internal static BindingData Acquire(AssetReference reference)
+        internal static T Acquire<T>(AssetReference reference) where T : Object
         {
             DrainPendingReleases();
 
@@ -43,21 +45,21 @@ namespace NPTP.InputSystemWrapper.Bindings
             if (entriesByKey.TryGetValue(key, out Entry existing))
             {
                 existing.ReferenceCount++;
-                return existing.Handle.Result;
+                return existing.Asset as T;
             }
 
-            AsyncOperationHandle<BindingData> handle = Addressables.LoadAssetAsync<BindingData>(reference.RuntimeKey);
+            AsyncOperationHandle<T> handle = Addressables.LoadAssetAsync<T>(reference.RuntimeKey);
             handle.WaitForCompletion();
 
             if (handle.Status != AsyncOperationStatus.Succeeded)
             {
-                ISWDebug.LogWarning($"{nameof(BindingData)} {reference.RuntimeKey} could not be loaded. " +
-                                    "Check that the asset is still marked addressable.");
+                ISWDebug.LogWarning($"Binding asset {reference.RuntimeKey} could not be loaded. " +
+                                    "Check that it is still marked addressable.");
                 Addressables.Release(handle);
                 return null;
             }
 
-            entriesByKey.Add(key, new Entry { Handle = handle, ReferenceCount = 1 });
+            entriesByKey.Add(key, new Entry { Handle = handle, Asset = handle.Result, ReferenceCount = 1 });
             return handle.Result;
         }
 
