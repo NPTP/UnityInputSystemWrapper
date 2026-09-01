@@ -35,7 +35,7 @@ namespace NPTP.InputSystemWrapper.Components
         /// </summary>
         public int PlayerID
         {
-            get => actionReference == null ? 0 : actionReference.PlayerID;
+            get => actionReference?.PlayerID ?? 0;
             set
             {
                 if (actionReference == null || actionReference.PlayerID == value)

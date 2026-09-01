@@ -35,20 +35,22 @@ namespace NPTP.InputSystemWrapper.Actions
 
         /// <summary>
         /// Which player's copy of the action this refers to. Settable, so one screen can be pointed at
-        /// each player in turn rather than needing a reference per player.
+        /// each player in turn rather than needing a reference per player. Player IDs start at 0.
         /// </summary>
+        [Min(0)]
         [SerializeField] private int playerID;
         public int PlayerID
         {
             get => playerID;
             set
             {
-                if (playerID == value)
+                int clamped = Mathf.Max(0, value);
+                if (playerID == clamped)
                 {
                     return;
                 }
 
-                playerID = value;
+                playerID = clamped;
 
                 // Every player has their own wrapper for the action, so the one held here belongs to
                 // the player this used to point at.
