@@ -76,12 +76,12 @@ namespace NPTP.InputSystemWrapper.Actions
             }
         }
 
-        public string ActionName => ActionWrapper != null ? ActionWrapper.InputAction.name : "Not found";
+        public string ActionName => ActionWrapper?.InputAction.name ?? "Not found";
 
         /// <summary>Every slot of the referenced action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots()
         {
-            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetCurrentBindingSlots();
+            return ActionWrapper?.GetCurrentBindingSlots() ?? BindingSlots.Empty;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace NPTP.InputSystemWrapper.Actions
 
         internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId)
         {
-            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetBindingSlots(controlSchemeId);
+            return ActionWrapper?.GetBindingSlots(controlSchemeId) ?? BindingSlots.Empty;
         }
 
         internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, int uiIndex, Action<RebindInfo> callback = null)

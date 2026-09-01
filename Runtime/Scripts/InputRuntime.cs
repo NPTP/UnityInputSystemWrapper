@@ -263,7 +263,7 @@ namespace NPTP.InputSystemWrapper
         // An ActionReference carries its own composite part and player ID.
         private static CompositePart GetCompositePart(ActionReference actionReference)
         {
-            return actionReference == null ? CompositePart.DontIsolatePart : actionReference.CompositePart;
+            return actionReference?.CompositePart ?? CompositePart.DontIsolatePart;
         }
 
         internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)

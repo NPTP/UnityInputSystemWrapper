@@ -67,7 +67,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 
 		private static string ContextName(InputContextId inputContextId)
 		{
-			return InputRuntime.Current == null ? inputContextId.Index.ToString() : InputRuntime.Current.EDITOR_GetContextName(inputContextId);
+			return InputRuntime.Current?.EDITOR_GetContextName(inputContextId) ?? inputContextId.Index.ToString();
 		}
 
 		private void HandlePlayerInputContextChanged(int playerID, InputContextId inputContextId)
