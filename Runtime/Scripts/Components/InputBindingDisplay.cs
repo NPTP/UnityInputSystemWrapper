@@ -21,6 +21,7 @@ namespace NPTP.InputSystemWrapper.Components
         [SerializeField] private ActionReference actionReference;
 
         [Tooltip("Which of the action's bindings on the current control scheme to show, as laid out on a rebinding screen.")]
+        [Min(0)]
         [SerializeField] private int uiIndex;
 
         [Tooltip("Handle to put the binding's name on a text component, TextMeshPro or otherwise.")]
@@ -49,6 +50,29 @@ namespace NPTP.InputSystemWrapper.Components
                 if (isActiveAndEnabled)
                 {
                     Refresh();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Which of the action's bindings is shown. Setting it repaints from what is already loaded
+        /// rather than loading again, since the slots hold every binding the action has.
+        /// </summary>
+        public int UIIndex
+        {
+            get => uiIndex;
+            set
+            {
+                int clamped = Mathf.Max(0, value);
+                if (uiIndex == clamped)
+                {
+                    return;
+                }
+
+                uiIndex = clamped;
+                if (bindingSlots != null)
+                {
+                    Display(bindingSlots);
                 }
             }
         }
@@ -108,6 +132,10 @@ namespace NPTP.InputSystemWrapper.Components
         {
             if (!slots.TryGetAtUIIndex(uiIndex, out BindingSlot slot) || slot.BindingInfo == null)
             {
+                // Cleared rather than left as it was, so moving to a binding the action does not have
+                // does not leave the previous one on screen.
+                onDisplayName?.Invoke(string.Empty);
+                onSprite?.Invoke(null);
                 return;
             }
 
