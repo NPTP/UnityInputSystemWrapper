@@ -143,6 +143,140 @@ namespace NPTP.InputSystemWrapper.Bindings
             return new BindingSlots(resolved, action.name, controlSchemeId.Name, held);
         }
 
+        /// <summary>
+        /// The same slots as <see cref="Resolve"/>, without stalling the frame: the assets load in the
+        /// background and the callback runs once they are all in. A screen full of glyphs can open on time
+        /// and fill in as each one arrives.
+        /// </summary>
+        internal static void ResolveAsync(InputData inputData, InputAction action, ControlSchemeId controlSchemeId,
+            Action<BindingSlots> onResolved)
+        {
+            List<AssetReference> held = new();
+            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice)> needed = new();
+            List<BindingSlot> resolved = PlanSlots(action, controlSchemeId, needed);
+
+            if (needed.Count == 0)
+            {
+                onResolved?.Invoke(new BindingSlots(resolved, action.name, controlSchemeId.Name, held));
+                return;
+            }
+
+            LoadDeviceData(inputData, needed, held, loadedByDevice =>
+            {
+                List<List<BindingInfo>> infosBySlot = new();
+                for (int i = 0; i < resolved.Count; i++) infosBySlot.Add(new List<BindingInfo>());
+
+                foreach ((int slotIndex, string deviceLayoutName, string pathOnDevice) in needed)
+                {
+                    loadedByDevice.TryGetValue(deviceLayoutName, out BindingData bindingData);
+                    BindingInfo bindingInfo = BindingGetter.TakeLoadedBindingInfo(bindingData, pathOnDevice, held);
+                    if (bindingInfo != null)
+                    {
+                        infosBySlot[slotIndex].Add(bindingInfo);
+                    }
+                }
+
+                for (int i = 0; i < resolved.Count; i++)
+                {
+                    resolved[i] = resolved[i].WithBindingInfos(infosBySlot[i]);
+                }
+
+                onResolved?.Invoke(new BindingSlots(resolved, action.name, controlSchemeId.Name, held));
+            });
+        }
+
+        /// <summary>
+        /// The slots an action has on a control scheme, with no display info on them yet, and what each one
+        /// will need loading. Shares its walk with <see cref="Resolve"/> through the same helpers, so the
+        /// two cannot disagree about what counts as a slot.
+        /// </summary>
+        private static List<BindingSlot> PlanSlots(InputAction action, ControlSchemeId controlSchemeId,
+            List<(int, string, string)> needed)
+        {
+            List<BindingSlot> planned = new();
+            InputBinding bindingMask = controlSchemeId.ToBindingMask();
+            ReadOnlyArray<InputBinding> bindings = action.bindings;
+
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                InputBinding binding = bindings[i];
+                if (binding.isPartOfComposite)
+                {
+                    continue;
+                }
+
+                int startIndex = i;
+                int count = 1;
+                bool isComposite = binding.isComposite;
+
+                if (isComposite)
+                {
+                    int partCount = CountParts(bindings, i);
+                    startIndex = i + 1;
+                    count = partCount;
+                    i += partCount;
+
+                    if (!AnyMatches(bindings, bindingMask, startIndex, partCount))
+                    {
+                        continue;
+                    }
+                }
+                else if (!bindingMask.Matches(binding))
+                {
+                    continue;
+                }
+
+                int slotIndex = planned.Count;
+                planned.Add(new BindingSlot(slotIndex, isComposite ? startIndex - 1 : startIndex, isComposite,
+                    isComposite ? count + 1 : 1, null));
+
+                foreach ((string deviceLayoutName, string pathOnDevice) in
+                         BindingGetter.GetNeededEntries(bindings, bindingMask, startIndex, count))
+                {
+                    needed.Add((slotIndex, deviceLayoutName, pathOnDevice));
+                }
+            }
+
+            return planned;
+        }
+
+        /// <summary>
+        /// Load the binding data for every device the slots touch, once each, then hand them over together.
+        /// </summary>
+        private static void LoadDeviceData(InputData inputData,
+            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice)> needed, List<AssetReference> held,
+            Action<Dictionary<string, BindingData>> onLoaded)
+        {
+            HashSet<string> deviceLayoutNames = new();
+            foreach ((int _, string deviceLayoutName, string _) in needed) deviceLayoutNames.Add(deviceLayoutName);
+
+            Dictionary<string, BindingData> loadedByDevice = new();
+            int remaining = deviceLayoutNames.Count;
+
+            foreach (string deviceLayoutName in deviceLayoutNames)
+            {
+                AssetReference reference = BindingGetter.GetBindingDataReference(inputData, deviceLayoutName);
+                if (reference == null)
+                {
+                    ISWDebug.LogWarning($"Device {deviceLayoutName} has no {nameof(BindingData)} and cannot produce display names/sprites!");
+                    if (--remaining == 0) onLoaded(loadedByDevice);
+                    continue;
+                }
+
+                string capturedName = deviceLayoutName;
+                BindingDataCache.AcquireAsync<BindingData>(reference, bindingData =>
+                {
+                    if (bindingData != null)
+                    {
+                        loadedByDevice[capturedName] = bindingData;
+                        held.Add(reference);
+                    }
+
+                    if (--remaining == 0) onLoaded(loadedByDevice);
+                });
+            }
+        }
+
         private static int CountParts(ReadOnlyArray<InputBinding> bindings, int compositeIndex)
         {
             int partCount = 0;

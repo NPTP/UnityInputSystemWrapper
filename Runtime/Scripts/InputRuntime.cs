@@ -396,6 +396,20 @@ namespace NPTP.InputSystemWrapper
             return BindingSlots.Resolve(inputData, actionWrapper.InputAction, controlSchemeId);
         }
 
+        /// <summary>
+        /// The slots of an action on the player's current control scheme, loaded in the background.
+        /// </summary>
+        internal void GetCurrentBindingSlotsAsync(ActionWrapper actionWrapper, Action<BindingSlots> onResolved)
+        {
+            if (!playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player))
+            {
+                onResolved?.Invoke(BindingSlots.Empty);
+                return;
+            }
+
+            BindingSlots.ResolveAsync(inputData, actionWrapper.InputAction, player.CurrentControlSchemeId, onResolved);
+        }
+
         internal bool TryGetActionWrapper(int playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
             return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);

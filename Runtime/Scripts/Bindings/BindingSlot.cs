@@ -44,6 +44,13 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
+        /// The same slot carrying its display entries, for a resolve that works out its slots before the
+        /// assets describing them have finished loading.
+        /// </summary>
+        internal BindingSlot WithBindingInfos(IReadOnlyList<BindingInfo> bindingInfos) =>
+            new(UIIndex, BindingIndex, IsComposite, BindingCount, bindingInfos);
+
+        /// <summary>
         /// The binding to rebind for a part. A composite picks out that part; a plain binding ignores it.
         /// </summary>
         internal bool TryGetBindingIndexForPart(InputAction action, CompositePart compositePart, out int bindingIndex)

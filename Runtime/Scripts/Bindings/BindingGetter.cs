@@ -47,6 +47,43 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
+        /// What a run of bindings will need, worked out without loading anything: the device and the
+        /// path on it for each binding that has one. Feeding both the loading paths from this keeps them
+        /// describing the same set of entries.
+        /// </summary>
+        internal static List<(string DeviceLayoutName, string PathOnDevice)> GetNeededEntries(
+            ReadOnlyArray<InputBinding> bindings, InputBinding bindingMask, int startIndex, int count)
+        {
+            List<(string, string)> needed = new();
+
+            for (int i = startIndex; i < startIndex + count; i++)
+            {
+                InputBinding binding = bindings[i];
+                if (bindingMask.Matches(binding) && ControlPath.TryParse(binding.effectivePath, out ControlPath controlPath))
+                {
+                    needed.Add((controlPath.DeviceLayoutName, controlPath.PathOnDevice));
+                }
+            }
+
+            return needed;
+        }
+
+        /// <summary>
+        /// The entry for a control whose device data is already loaded, recorded so it can be given back.
+        /// </summary>
+        internal static BindingInfo TakeLoadedBindingInfo(BindingData bindingData, string pathOnDevice, List<AssetReference> held)
+        {
+            return bindingData == null ? null : AcquireBindingInfo(bindingData, pathOnDevice, held);
+        }
+
+        /// <summary>The reference to a device's binding data, without loading it.</summary>
+        internal static AssetReference GetBindingDataReference(InputData inputData, string deviceLayoutName)
+        {
+            AssetReference reference = inputData.GetBindingData(deviceLayoutName);
+            return reference != null && reference.RuntimeKeyIsValid() ? reference : null;
+        }
+
+        /// <summary>
         /// A device's binding data, loaded and recorded so it can be given back later. Null when the
         /// device has no data to display its controls with.
         /// </summary>
