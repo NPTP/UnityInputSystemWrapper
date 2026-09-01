@@ -3,8 +3,6 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-using NPTP.InputSystemWrapper;
-
 namespace NPTP.InputSystemWrapper.Bindings
 {
     /// <summary>
