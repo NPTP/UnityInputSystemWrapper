@@ -1,6 +1,23 @@
 # Input System Wrapper
 ## Changelog
 
+10.0.0
+- `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+- Upgrading: `BindingInfo` is a ScriptableObject rather than a struct, so `BindingSlot.BindingInfo` is a reference instead of a nullable. Existing binding data assets do not carry over and are rebuilt by a regenerate, which also marks everything addressable
+- Binding data moved out of the generated Resources folder to `ISW.Generated/BindingData`, since a Resources folder ships everything in it and these are reached through Addressables. Existing assets are moved there on the next generation
+- `InputBindingDisplay`, a component that shows one binding of an action: handle its events to fill a TextMeshPro label, a sprite renderer, a UI Image, or anything else. Its assets load in the background, so a screen full of glyphs opens without stalling the frame, and they are released when it is disabled
+- `BindingDiagnostics` reports how many binding assets are loaded and how many references are outstanding, for checking that loads and disposals balance
+- `GetCurrentBindingSlotsAsync` on `ActionReference` and `ActionWrapper` loads binding slots without blocking
+- Binding data for a device no longer used by any control scheme is deleted, along with its entry assets and all of their addressable entries. An entry asset for a control a device no longer has goes the same way
+- Each binding entry is its own addressable asset, in a folder named for the binding data asset it belongs to, so a screen loads only the bindings it shows. `BindingInfo` is a ScriptableObject rather than a struct
+- Binding data is addressable and loads per device only when something asks to display that device's controls, instead of every device's data being resident because the input data asset references it
+- Generation marks each binding data asset addressable in an "ISW Data Group" of its own, so nothing has to be set up by hand and the assets stay out of the project default group
+- `BindingSlots` holds the binding data its slots were built from and implements IDisposable: dispose it when the screen showing it closes. A set dropped without being disposed releases its data when the garbage collector reaches it
+- Binding data wanted by several slot sets is loaded once and released when the last of them lets go
+- A binding entry has a default display name, shown when no localization request comes back fulfilled. `BindingInfo.DisplayName` used to fall back to the raw localization key
+- Generated entries start with a localization key qualified by device, e.g. `Gamepad/leftStick/x`, and a display name parsed from the control path, e.g. "Left Stick Up", with "dpad" in any casing reading as "D-Pad". Both are editable, and a regenerate fills in blanks without touching anything already authored
+- `InputActionUpdater` owns the slots it hands to its event and replaces them on each update, so its handler should read what it needs rather than holding on
+
 9.0.1
 - The generator notice is on every generated file, including the actions classes, `InputPlayerRef` and `ISW`, which were written without one
 - The generated binding data menu items share one selection method instead of repeating the same lookup per asset

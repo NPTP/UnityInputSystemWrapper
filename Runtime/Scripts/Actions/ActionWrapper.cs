@@ -65,6 +65,12 @@ namespace NPTP.InputSystemWrapper.Actions
         /// <summary>Every slot of this action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots() => InputRuntime.Current.GetCurrentBindingSlots(this);
 
+        /// <summary>
+        /// The same slots, loaded in the background: the callback runs once they are ready.
+        /// </summary>
+        public void GetCurrentBindingSlotsAsync(Action<BindingSlots> onResolved) =>
+            InputRuntime.Current.GetCurrentBindingSlotsAsync(this, onResolved);
+
         internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId) =>
             InputRuntime.Current.GetBindingSlots(this, controlSchemeId);
 

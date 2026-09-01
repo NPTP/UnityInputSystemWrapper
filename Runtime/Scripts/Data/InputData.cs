@@ -4,6 +4,7 @@ using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 
@@ -167,10 +168,10 @@ namespace NPTP.InputSystemWrapper.Data
         }
 
         /// <summary>
-        /// The binding data for a device layout, e.g. "Keyboard". Null when that device has none, which
-        /// means its controls cannot produce display names or sprites.
+        /// The reference to a device layout's binding data, e.g. "Keyboard". Null when that device has
+        /// none, which means its controls cannot produce display names or sprites.
         /// </summary>
-        internal BindingData GetBindingData(string deviceLayoutName)
+        internal AssetReference GetBindingData(string deviceLayoutName)
         {
             if (deviceBindingData == null || string.IsNullOrEmpty(deviceLayoutName))
             {

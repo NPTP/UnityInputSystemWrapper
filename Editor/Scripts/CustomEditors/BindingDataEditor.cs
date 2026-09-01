@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Utilities.Collections;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 {
@@ -18,7 +20,20 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     [CustomEditor(typeof(BindingData))]
     internal class BindingDataEditor : UnityEditor.Editor
     {
-        private const float SPRITE_SIZE = 64f;
+        private const float MIN_SPRITE_SIZE = 64f;
+        private const string ASSET_GUID_FIELD = "m_AssetGUID";
+
+        /// <summary>One per entry asset, keyed by its GUID, so each is built once rather than per repaint.</summary>
+        private readonly Dictionary<string, SerializedObject> entrySerializedObjects = new();
+
+        /// <summary>
+        /// The square's side, and with it the row's height. Sized to the column beside it - a control path,
+        /// then a label and a field each for the localization key and the display name - so the two line up.
+        /// </summary>
+        private static float SpriteSize => Mathf.Max(MIN_SPRITE_SIZE,
+            EditorStyles.miniLabel.lineHeight * 2 +
+            EditorGUIUtility.singleLineHeight * 3 +
+            EditorGUIUtility.standardVerticalSpacing * 4);
         private const float ROW_SPACING = 2f;
 
         private SerializedProperty keyValueCombos;
@@ -38,7 +53,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             searchField = new SearchField();
 
             SerializedProperty dictionary = serializedObject.FindProperty(BindingData.EDITOR_DictionaryField);
-            keyValueCombos = dictionary?.FindPropertyRelative(SerializableDictionary<string, BindingInfo>.EDITOR_KeyValueCombosField);
+            keyValueCombos = dictionary?.FindPropertyRelative(SerializableDictionary<string, AssetReference>.EDITOR_KeyValueCombosField);
         }
 
         public override void OnInspectorGUI()
@@ -56,14 +71,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             for (int i = 0; i < keyValueCombos.arraySize; i++)
             {
                 SerializedProperty combo = keyValueCombos.GetArrayElementAtIndex(i);
-                SerializedProperty key = combo.FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_KeyField);
+                SerializedProperty key = combo.FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_KeyField);
 
                 if (!MatchesFilter(key.stringValue))
                 {
                     continue;
                 }
 
-                DrawEntry(key, combo.FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_ValueField));
+                DrawEntry(key, combo.FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_ValueField));
             }
 
             if (shownCount == 0)
@@ -83,7 +98,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             for (int i = 0; i < keyValueCombos.arraySize; i++)
             {
                 SerializedProperty key = keyValueCombos.GetArrayElementAtIndex(i)
-                    .FindPropertyRelative(KeyValueCombo<string, BindingInfo>.EDITOR_KeyField);
+                    .FindPropertyRelative(KeyValueCombo<string, AssetReference>.EDITOR_KeyField);
                 if (MatchesFilter(key.stringValue)) shownCount++;
             }
 
@@ -107,8 +122,19 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private void DrawEntry(SerializedProperty key, SerializedProperty value)
         {
-            SerializedProperty localizationKey = value.FindPropertyRelative(BindingInfo.EDITOR_LocalizationKeyField);
-            SerializedProperty sprite = value.FindPropertyRelative(BindingInfo.EDITOR_SpriteField);
+            // Each entry is its own asset now, so its fields are edited through its own SerializedObject
+            // rather than as part of this one.
+            SerializedObject entry = GetEntrySerializedObject(value);
+            if (entry == null)
+            {
+                DrawMissingEntry(key);
+                return;
+            }
+
+            entry.Update();
+            SerializedProperty localizationKey = entry.FindProperty(BindingInfo.EDITOR_LocalizationKeyField);
+            SerializedProperty defaultDisplayName = entry.FindProperty(BindingInfo.EDITOR_DefaultDisplayNameField);
+            SerializedProperty sprite = entry.FindProperty(BindingInfo.EDITOR_SpriteField);
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
 
@@ -118,9 +144,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 // than edited.
                 EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);
 
-                // Label above the field rather than beside it, so the field gets the column's full width.
+                // Labels above the fields rather than beside them, so each gets the column's full width.
                 EditorGUILayout.LabelField("Localization Key", EditorStyles.miniLabel);
                 EditorGUILayout.PropertyField(localizationKey, GUIContent.none);
+
+                EditorGUILayout.LabelField("Default Display Name", EditorStyles.miniLabel);
+                EditorGUILayout.PropertyField(defaultDisplayName, GUIContent.none);
 
                 GUILayout.FlexibleSpace();
             }
@@ -130,17 +159,59 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             EditorGUILayout.EndHorizontal();
             GUILayout.Space(ROW_SPACING);
+
+            entry.ApplyModifiedProperties();
         }
 
         /// <summary>
-        /// A square object field. Given a rect this tall, Unity draws its large object field - a preview of
-        /// the sprite inside a bordered square, keeping the same square when nothing is assigned - which is
-        /// the same control its own inspectors use for sprite and texture slots.
+        /// The entry asset an AssetReference points at, or null when it points at nothing. Kept between
+        /// frames, since building one per entry per repaint would be wasteful on a device with a hundred
+        /// of them.
+        /// </summary>
+        private SerializedObject GetEntrySerializedObject(SerializedProperty value)
+        {
+            string assetGuid = value.FindPropertyRelative(ASSET_GUID_FIELD).stringValue;
+            if (string.IsNullOrEmpty(assetGuid))
+            {
+                return null;
+            }
+
+            if (entrySerializedObjects.TryGetValue(assetGuid, out SerializedObject cached) && cached.targetObject != null)
+            {
+                return cached;
+            }
+
+            BindingInfo bindingInfo = AssetDatabase.LoadAssetAtPath<BindingInfo>(AssetDatabase.GUIDToAssetPath(assetGuid));
+            if (bindingInfo == null)
+            {
+                return null;
+            }
+
+            SerializedObject entry = new(bindingInfo);
+            entrySerializedObjects[assetGuid] = entry;
+            return entry;
+        }
+
+        private void DrawMissingEntry(SerializedProperty key)
+        {
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);
+            EditorGUILayout.LabelField("Missing entry asset. Regenerate to recreate it.", EditorStyles.miniLabel);
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(ROW_SPACING);
+        }
+
+        /// <summary>
+        /// A large object field: a preview of the sprite inside a bordered box, keeping the same box when
+        /// nothing is assigned, which is the same control Unity's own inspectors use for sprite slots.
+        /// <para>
+        /// It is square, and its side sets the row's height.
+        /// </para>
         /// </summary>
         private static void DrawSpriteField(SerializedProperty sprite)
         {
-            Rect spriteRect = GUILayoutUtility.GetRect(SPRITE_SIZE, SPRITE_SIZE,
-                GUILayout.Width(SPRITE_SIZE), GUILayout.Height(SPRITE_SIZE));
+            float size = SpriteSize;
+            Rect spriteRect = GUILayoutUtility.GetRect(size, size, GUILayout.Width(size), GUILayout.Height(size));
 
             EditorGUI.ObjectField(spriteRect, sprite, typeof(Sprite), GUIContent.none);
         }

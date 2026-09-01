@@ -92,6 +92,20 @@ namespace NPTP.InputSystemWrapper.Actions
             return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetCurrentBindingSlots();
         }
 
+        /// <summary>
+        /// The same slots, loaded in the background: the callback runs once they are ready.
+        /// </summary>
+        public void GetCurrentBindingSlotsAsync(Action<BindingSlots> onResolved)
+        {
+            if (ActionWrapper == null)
+            {
+                onResolved?.Invoke(BindingSlots.Empty);
+                return;
+            }
+
+            ActionWrapper.GetCurrentBindingSlotsAsync(onResolved);
+        }
+
         internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId)
         {
             return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetBindingSlots(controlSchemeId);

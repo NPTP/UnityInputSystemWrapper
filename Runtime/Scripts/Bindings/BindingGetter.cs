@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities;
+using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
@@ -11,9 +12,14 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// <summary>
         /// What to display for a run of bindings. Each binding names its own device, so a scheme spanning
         /// a keyboard and a mouse reads each control from the data for the device it belongs to.
+        /// <para>
+        /// A device's binding data is loaded here and recorded in held, so whatever owns the result knows
+        /// what to give back.
+        /// </para>
         /// </summary>
         internal static IReadOnlyList<BindingInfo> GetBindingInfos(InputData inputData, ReadOnlyArray<InputBinding> bindings,
-            InputBinding bindingMask, int startIndex, int count)
+            InputBinding bindingMask, int startIndex, int count, List<AssetReference> held,
+            Dictionary<string, BindingData> loadedByDevice)
         {
             List<BindingInfo> bindingInfos = new();
 
@@ -25,20 +31,120 @@ namespace NPTP.InputSystemWrapper.Bindings
                     continue;
                 }
 
-                BindingData bindingData = inputData.GetBindingData(controlPath.DeviceLayoutName);
+                BindingData bindingData = AcquireBindingDataOnce(inputData, controlPath.DeviceLayoutName, held, loadedByDevice);
                 if (bindingData == null)
                 {
-                    ISWDebug.LogWarning($"Device {controlPath.DeviceLayoutName} has no {nameof(BindingData)} and cannot produce display names/sprites!");
                     continue;
                 }
 
-                if (bindingData.TryGetBindingInfo(controlPath.PathOnDevice, out BindingInfo bindingInfo))
+                BindingInfo bindingInfo = AcquireBindingInfo(bindingData, controlPath.PathOnDevice, held);
+                if (bindingInfo != null)
                 {
                     bindingInfos.Add(bindingInfo);
                 }
             }
 
             return bindingInfos;
+        }
+
+        /// <summary>
+        /// A device's binding data, taken once however many of these bindings are on that device. Every
+        /// part of a composite shares one device, so acquiring per binding would take the same asset over
+        /// and over for nothing.
+        /// </summary>
+        private static BindingData AcquireBindingDataOnce(InputData inputData, string deviceLayoutName,
+            List<AssetReference> held, Dictionary<string, BindingData> loadedByDevice)
+        {
+            if (loadedByDevice.TryGetValue(deviceLayoutName, out BindingData alreadyLoaded))
+            {
+                return alreadyLoaded;
+            }
+
+            BindingData bindingData = AcquireBindingData(inputData, deviceLayoutName, held);
+            loadedByDevice[deviceLayoutName] = bindingData;
+            return bindingData;
+        }
+
+        /// <summary>
+        /// What a run of bindings will need, worked out without loading anything: the device and the
+        /// path on it for each binding that has one. Feeding both the loading paths from this keeps them
+        /// describing the same set of entries.
+        /// </summary>
+        internal static List<(string DeviceLayoutName, string PathOnDevice)> GetNeededEntries(
+            ReadOnlyArray<InputBinding> bindings, InputBinding bindingMask, int startIndex, int count)
+        {
+            List<(string, string)> needed = new();
+
+            for (int i = startIndex; i < startIndex + count; i++)
+            {
+                InputBinding binding = bindings[i];
+                if (bindingMask.Matches(binding) && ControlPath.TryParse(binding.effectivePath, out ControlPath controlPath))
+                {
+                    needed.Add((controlPath.DeviceLayoutName, controlPath.PathOnDevice));
+                }
+            }
+
+            return needed;
+        }
+
+        /// <summary>
+        /// The entry for a control whose device data is already loaded, recorded so it can be given back.
+        /// </summary>
+        internal static BindingInfo TakeLoadedBindingInfo(BindingData bindingData, string pathOnDevice, List<AssetReference> held)
+        {
+            return bindingData == null ? null : AcquireBindingInfo(bindingData, pathOnDevice, held);
+        }
+
+        /// <summary>The reference to a device's binding data, without loading it.</summary>
+        internal static AssetReference GetBindingDataReference(InputData inputData, string deviceLayoutName)
+        {
+            AssetReference reference = inputData.GetBindingData(deviceLayoutName);
+            return reference != null && reference.RuntimeKeyIsValid() ? reference : null;
+        }
+
+        /// <summary>
+        /// A device's binding data, loaded and recorded so it can be given back later. Null when the
+        /// device has no data to display its controls with.
+        /// </summary>
+        private static BindingData AcquireBindingData(InputData inputData, string deviceLayoutName, List<AssetReference> held)
+        {
+            AssetReference reference = inputData.GetBindingData(deviceLayoutName);
+            if (reference == null || !reference.RuntimeKeyIsValid())
+            {
+                ISWDebug.LogWarning($"Device {deviceLayoutName} has no {nameof(BindingData)} and cannot produce display names/sprites!");
+                return null;
+            }
+
+            BindingData bindingData = BindingDataCache.Acquire<BindingData>(reference);
+            if (bindingData == null)
+            {
+                return null;
+            }
+
+            held.Add(reference);
+            return bindingData;
+        }
+
+        /// <summary>
+        /// One control's entry, loaded and recorded so it can be given back later. Null when the device
+        /// has no entry for that control.
+        /// </summary>
+        private static BindingInfo AcquireBindingInfo(BindingData bindingData, string pathOnDevice, List<AssetReference> held)
+        {
+            if (!bindingData.TryGetBindingReference(pathOnDevice, out AssetReference reference) ||
+                reference == null || !reference.RuntimeKeyIsValid())
+            {
+                return null;
+            }
+
+            BindingInfo bindingInfo = BindingDataCache.Acquire<BindingInfo>(reference);
+            if (bindingInfo == null)
+            {
+                return null;
+            }
+
+            held.Add(reference);
+            return bindingInfo;
         }
 
         /// <summary>

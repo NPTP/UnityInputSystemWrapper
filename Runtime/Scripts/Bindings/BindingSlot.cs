@@ -23,7 +23,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         public IReadOnlyList<BindingInfo> BindingInfos { get; }
 
         /// <summary>The single entry to display, or null if there is none.</summary>
-        public BindingInfo? BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
+        public BindingInfo BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
 
         /// <summary>
         /// Index in the action's own binding list. For a composite this is the composite itself, whose
@@ -42,6 +42,13 @@ namespace NPTP.InputSystemWrapper.Bindings
             BindingCount = bindingCount;
             BindingInfos = bindingInfos;
         }
+
+        /// <summary>
+        /// The same slot carrying its display entries, for a resolve that works out its slots before the
+        /// assets describing them have finished loading.
+        /// </summary>
+        internal BindingSlot WithBindingInfos(IReadOnlyList<BindingInfo> bindingInfos) =>
+            new(UIIndex, BindingIndex, IsComposite, BindingCount, bindingInfos);
 
         /// <summary>
         /// The binding to rebind for a part. A composite picks out that part; a plain binding ignores it.
