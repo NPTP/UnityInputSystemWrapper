@@ -55,6 +55,27 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
+        /// Drop an asset's addressable entry, for an asset that is being deleted. An entry left behind
+        /// points at nothing and shows as missing in the Addressables window.
+        /// </summary>
+        internal static void RemoveAddressable(string assetGuid)
+        {
+            if (string.IsNullOrEmpty(assetGuid))
+            {
+                return;
+            }
+
+            // Nothing is created here: with no settings there is no entry to remove either.
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null || settings.FindAssetEntry(assetGuid) == null)
+            {
+                return;
+            }
+
+            settings.RemoveAssetEntry(assetGuid);
+        }
+
+        /// <summary>
         /// The group the generator's assets live in, created with the schemas a group needs to build if it
         /// is not there yet. A group the user has since reconfigured is used as they left it.
         /// </summary>

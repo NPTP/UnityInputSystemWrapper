@@ -7,6 +7,7 @@
 - `InputBindingDisplay`, a component that shows one binding of an action: handle its events to fill a TextMeshPro label, a sprite renderer, a UI Image, or anything else. Its assets load in the background, so a screen full of glyphs opens without stalling the frame, and they are released when it is disabled
 - `BindingDiagnostics` reports how many binding assets are loaded and how many references are outstanding, for checking that loads and disposals balance
 - `GetCurrentBindingSlotsAsync` on `ActionReference` and `ActionWrapper` loads binding slots without blocking
+- Binding data for a device no longer used by any control scheme is deleted, along with its entry assets and all of their addressable entries. An entry asset for a control a device no longer has goes the same way
 - Each binding entry is its own addressable asset, in a folder named for the binding data asset it belongs to, so a screen loads only the bindings it shows. `BindingInfo` is a ScriptableObject rather than a struct
 - Binding data is addressable and loads per device only when something asks to display that device's controls, instead of every device's data being resident because the input data asset references it
 - Generation marks each binding data asset addressable in an "ISW Data Group" of its own, so nothing has to be set up by hand and the assets stay out of the project default group

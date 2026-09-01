@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Editor.Utilities;
@@ -229,6 +230,57 @@ namespace NPTP.InputSystemWrapper.Editor
                 SetAssetGuid(entry, assetGuid);
                 Generation.AddressableSetup.MarkAddressable(assetGuid, deviceLayoutName.AsType());
             }
+
+            PruneOrphanedBindingData(deviceLayouts);
+        }
+
+        /// <summary>
+        /// Delete the binding data of any device no longer used by a control scheme, along with its
+        /// entry assets and their addressable entries. Changing every scheme's devices would otherwise
+        /// leave the old ones behind for good, since nothing points at them any more.
+        /// </summary>
+        private static void PruneOrphanedBindingData(List<string> deviceLayouts)
+        {
+            HashSet<string> inUse = new();
+            foreach (string deviceLayoutName in deviceLayouts) inUse.Add(deviceLayoutName.AsType());
+
+            string bindingDataFolder = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
+            foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(BindingData)}", new[] { bindingDataFolder }))
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                string assetName = Path.GetFileNameWithoutExtension(assetPath);
+                if (inUse.Contains(assetName))
+                {
+                    continue;
+                }
+
+                DeleteBindingEntryFolder(bindingDataFolder, assetName);
+
+                Generation.AddressableSetup.RemoveAddressable(guid);
+                AssetDatabase.DeleteAsset(assetPath);
+                Generation.GenerationReport.Record($"{assetPath} (deleted, no control scheme uses this device)");
+            }
+        }
+
+        /// <summary>
+        /// Delete a device's entry assets and the folder holding them, dropping each one's addressable
+        /// entry on the way out.
+        /// </summary>
+        private static void DeleteBindingEntryFolder(string bindingDataFolder, string assetName)
+        {
+            string folder = bindingDataFolder + "/" + assetName;
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                return;
+            }
+
+            foreach (string entryGuid in AssetDatabase.FindAssets($"t:{nameof(BindingInfo)}", new[] { folder }))
+            {
+                Generation.AddressableSetup.RemoveAddressable(entryGuid);
+            }
+
+            AssetDatabase.DeleteAsset(folder);
+            Generation.GenerationReport.Record($"{folder} (deleted with its device's binding data)");
         }
 
         private static string GetAssetGuid(SerializedProperty entry)
@@ -339,14 +391,31 @@ namespace NPTP.InputSystemWrapper.Editor
                 Generation.AddressableSetup.MarkAddressable(entryGuid, address);
             }
 
-            // A control the device no longer has leaves its key behind, which would resolve to nothing.
+            // A control the device no longer has leaves its key behind, which would resolve to nothing,
+            // and its asset behind, which nothing would point at.
             foreach (string stalePath in new List<string>(bindingData.EDITOR_ControlPaths))
             {
-                if (!currentPaths.Contains(stalePath))
+                if (currentPaths.Contains(stalePath))
                 {
-                    bindingData.EDITOR_RemoveBinding(stalePath);
+                    continue;
                 }
+
+                bindingData.EDITOR_RemoveBinding(stalePath);
+                DeleteBindingInfo(folder, stalePath);
             }
+        }
+
+        private static void DeleteBindingInfo(string folder, string controlPath)
+        {
+            string assetPath = $"{folder}/{Generation.BindingEntryAssetName.FromControlPath(controlPath)}.asset";
+            if (AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath) == null)
+            {
+                return;
+            }
+
+            Generation.AddressableSetup.RemoveAddressable(AssetDatabase.AssetPathToGUID(assetPath));
+            AssetDatabase.DeleteAsset(assetPath);
+            Generation.GenerationReport.Record($"{assetPath} (deleted, device no longer has this control)");
         }
 
         /// <summary>
