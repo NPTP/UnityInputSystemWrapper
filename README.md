@@ -3,7 +3,8 @@
 
 A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and more readable API.
 
-The minimum required `com.unity.inputsystem` version is due to bugs in some core functionality of earlier versions of that package.
+Requires `com.unity.inputsystem` and `com.unity.addressables`. The minimum required `com.unity.inputsystem`
+version is due to bugs in some core functionality of earlier versions of that package.
 
 #### Installation
 
@@ -16,10 +17,12 @@ Install via the Package Manager using **Add package from git URL**, or by adding
 
 Both are required. Unity's Package Manager cannot resolve a git URL listed inside another package's dependencies, so `com.nptp.unity-source-gen` has to be added to your project manifest yourself, before or alongside this package.
 
+`com.unity.addressables` comes from Unity's registry and is resolved automatically, so it needs nothing from you.
+
 Then run **Input > Regenerate Input Wrapper Code and Assets**. This creates `Assets/ISW.Generated/`, containing:
 
 - the generated API (`ISW`, the actions classes, the `ControlScheme` and `InputContext` enums), in its own assembly
-- `Resources/`, holding your own editable copies of `OfflineInputData`, `RuntimeInputData` and the binding data assets
+- `Resources/`, holding your own editable copies of `InputData` and the binding data assets
 
 Edit the assets in `Assets/ISW.Generated/Resources/`. The copies inside the package are read-only defaults, and are only used to seed your project the first time. Both folders are yours to commit or to gitignore and regenerate.
 

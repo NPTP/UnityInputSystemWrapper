@@ -1,6 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
+9.1.0
+- `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+
 9.0.1
 - The generator notice is on every generated file, including the actions classes, `InputPlayerRef` and `ISW`, which were written without one
 - The generated binding data menu items share one selection method instead of repeating the same lookup per asset
