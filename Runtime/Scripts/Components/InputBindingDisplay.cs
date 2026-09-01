@@ -29,6 +29,30 @@ namespace NPTP.InputSystemWrapper.Components
         [Tooltip("Handle to put the binding's sprite on a sprite renderer, a UI Image, or anywhere else.")]
         [SerializeField] private UnityEvent<Sprite> onSprite;
 
+        /// <summary>
+        /// Which player's bindings are shown. Setting it points the reference at that player and loads
+        /// again, so one screen can be walked through the players in turn.
+        /// </summary>
+        public int PlayerID
+        {
+            get => actionReference == null ? 0 : actionReference.PlayerID;
+            set
+            {
+                if (actionReference == null || actionReference.PlayerID == value)
+                {
+                    return;
+                }
+
+                actionReference.PlayerID = value;
+
+                // Enabling loads anyway, so a change while disabled needs nothing more than the new value.
+                if (isActiveAndEnabled)
+                {
+                    Refresh();
+                }
+            }
+        }
+
         /// <summary>What is on screen now, held so its assets can be given back.</summary>
         private BindingSlots bindingSlots;
 
