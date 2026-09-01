@@ -1,6 +1,6 @@
 using System;
-using NPTP.InputSystemWrapper.Bindings;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace NPTP.InputSystemWrapper.Data
 {
@@ -19,8 +19,11 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private string deviceLayoutName;
         internal string DeviceLayoutName => deviceLayoutName;
 
-        [SerializeField] private BindingData bindingData;
-        internal BindingData BindingData => bindingData;
+        /// <summary>
+        /// Addressable, so a device's display data is in memory only while something is showing it.
+        /// </summary>
+        [SerializeField] private AssetReference bindingData;
+        internal AssetReference BindingData => bindingData;
 
 #if UNITY_EDITOR
         internal const string EDITOR_DeviceLayoutNameField = nameof(deviceLayoutName);

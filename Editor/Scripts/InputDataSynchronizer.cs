@@ -15,6 +15,9 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal static class InputDataSynchronizer
     {
+        /// <summary>The GUID an AssetReference serializes its asset by.</summary>
+        private const string ASSET_GUID_FIELD = "m_AssetGUID";
+
         /// <summary>
         /// Every device layout the input system registers directly under InputDevice, against the family
         /// it stands for. Anything else is derived from one of these, so matching by inheritance puts
@@ -197,14 +200,14 @@ namespace NPTP.InputSystemWrapper.Editor
         {
             SerializedProperty entries = serializedObject.FindProperty(InputData.EDITOR_DeviceBindingDataField);
 
-            Dictionary<string, BindingData> existingByDevice = new();
+            Dictionary<string, string> existingByDevice = new();
             for (int i = 0; i < entries.arraySize; i++)
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 string deviceLayoutName = entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue;
                 if (!string.IsNullOrEmpty(deviceLayoutName))
                 {
-                    existingByDevice[deviceLayoutName] = entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue as BindingData;
+                    existingByDevice[deviceLayoutName] = GetAssetGuid(entry);
                 }
             }
 
@@ -216,9 +219,28 @@ namespace NPTP.InputSystemWrapper.Editor
                 string deviceLayoutName = deviceLayouts[i];
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue = deviceLayoutName;
-                entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByDevice.GetValueOrDefault(deviceLayoutName) ?? GetOrCreateBindingData(deviceLayoutName);
+
+                string assetGuid = existingByDevice.GetValueOrDefault(deviceLayoutName);
+                if (string.IsNullOrEmpty(assetGuid))
+                {
+                    assetGuid = GetOrCreateBindingData(deviceLayoutName);
+                }
+
+                SetAssetGuid(entry, assetGuid);
+                Generation.AddressableSetup.MarkAddressable(assetGuid, deviceLayoutName.AsType());
             }
+        }
+
+        private static string GetAssetGuid(SerializedProperty entry)
+        {
+            return entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField)
+                .FindPropertyRelative(ASSET_GUID_FIELD).stringValue;
+        }
+
+        private static void SetAssetGuid(SerializedProperty entry, string assetGuid)
+        {
+            entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField)
+                .FindPropertyRelative(ASSET_GUID_FIELD).stringValue = assetGuid;
         }
 
         /// <summary>
@@ -249,26 +271,25 @@ namespace NPTP.InputSystemWrapper.Editor
         /// the device is reused; otherwise one is created, populated with every control that device can
         /// produce so it is useful before anyone edits it.
         /// </summary>
-        private static BindingData GetOrCreateBindingData(string deviceLayoutName)
+        private static string GetOrCreateBindingData(string deviceLayoutName)
         {
             string assetName = deviceLayoutName.AsType();
 
-            if (Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
+            if (!Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
-                return existing;
+                BindingData created = ScriptableObject.CreateInstance<BindingData>();
+                foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+                {
+                    created.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
+                }
+
+                string createdPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
+                AssetDatabase.CreateAsset(created, createdPath);
+                Generation.GenerationReport.Record($"{createdPath} (created for device '{deviceLayoutName}')");
+                existing = created;
             }
 
-            BindingData created = ScriptableObject.CreateInstance<BindingData>();
-            foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
-            {
-                created.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
-            }
-
-            string assetPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
-            AssetDatabase.CreateAsset(created, assetPath);
-            Generation.GenerationReport.Record($"{assetPath} (created for device '{deviceLayoutName}')");
-
-            return created;
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(existing));
         }
 
         /// <summary>

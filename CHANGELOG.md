@@ -3,6 +3,11 @@
 
 9.1.0
 - `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+- Binding data is addressable and loads per device only when something asks to display that device's controls, instead of every device's data being resident because the input data asset references it
+- Generation marks each binding data asset addressable, so nothing has to be set up by hand. An asset already marked is left in whatever group and address it was given
+- `BindingSlots` holds the binding data its slots were built from and implements IDisposable: dispose it when the screen showing it closes. A set dropped without being disposed releases its data when the garbage collector reaches it
+- Binding data wanted by several slot sets is loaded once and released when the last of them lets go
+- `InputActionUpdater` owns the slots it hands to its event and replaces them on each update, so its handler should read what it needs rather than holding on
 
 9.0.1
 - The generator notice is on every generated file, including the actions classes, `InputPlayerRef` and `ISW`, which were written without one
