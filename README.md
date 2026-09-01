@@ -36,5 +36,4 @@ Edit the assets in `Assets/ISW.Generated/Resources/`. The copies inside the pack
 TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
 
 #### Future nice-to-haves:
-- Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
