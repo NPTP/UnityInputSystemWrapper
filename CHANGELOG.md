@@ -2,6 +2,10 @@
 ## Changelog
 
 10.0.0
+- `CompositePart` gains Modifier, Modifier1, Modifier2, Button and Binding, so the modifier composites can be isolated like any other
+- Composite parts are matched case-insensitively. The input system names a part after its field - "up", "modifier1" - so comparing against the enum name never matched and part isolation did not work
+- `BindingSlot.TryGetBindingInfo(CompositePart)` gets the entry for one part, and `InputBindingDisplay` uses it so a display wired to a composite part shows that part rather than the binding's first control
+- `ActionReference.TryConvert` is gone. Both overloads were unused, and `ISW.TryConvert` already hands back the ActionWrapper that is actually useful
 - The composite part on an ActionReference offers only the parts the action can have, matching how the input system decides which composites an action may be given: an action read as a float comes from an axis composite, so positive and negative, while a Vector2 action's composite has up, down, left and right
 - `InputBindingDisplay.PlayerID` points its reference at a player and loads again in one call, and `UIIndex` switches which of the action's bindings is shown, repainting from what is already loaded
 - `InputBindingDisplay` clears its outputs when the binding it is asked for does not exist, instead of leaving the previous one on screen

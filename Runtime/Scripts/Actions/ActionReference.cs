@@ -78,31 +78,6 @@ namespace NPTP.InputSystemWrapper.Actions
 
         public string ActionName => ActionWrapper != null ? ActionWrapper.InputAction.name : "Not found";
 
-        public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
-        {
-            if (inputActionReference != null && inputActionReference.action != null &&
-                InputRuntime.Current.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
-            {
-                actionReference = new ActionReference(inputActionReference.action) { actionWrapper = actionWrapper };
-                return true;
-            }
-
-            actionReference = null;
-            return false;
-        }
-
-        public static bool TryConvert(InputAction inputAction, int playerID, out ActionReference actionReference)
-        {
-            if (inputAction != null && InputRuntime.Current.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
-            {
-                actionReference = new ActionReference(inputAction) { actionWrapper = actionWrapper };
-                return true;
-            }
-
-            actionReference = null;
-            return false;
-        }
-
         /// <summary>Every slot of the referenced action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots()
         {
@@ -144,11 +119,6 @@ namespace NPTP.InputSystemWrapper.Actions
 
         internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
             InputRuntime.Current.ResetAllBindingsForAction(this, controlSchemeId);
-
-        private ActionReference(InputAction action)
-        {
-            reference = InputActionReference.Create(action);
-        }
 
         protected ActionReference()
         {
