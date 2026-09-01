@@ -1,9 +1,11 @@
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Enums
 {
     public enum CompositePart
     {
+        [InspectorName("Don't Isolate Part")]
         DontIsolatePart = 0,
         Positive,
         Negative,

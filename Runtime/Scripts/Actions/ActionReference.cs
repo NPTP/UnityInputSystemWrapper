@@ -27,9 +27,9 @@ namespace NPTP.InputSystemWrapper.Actions
 
         [SerializeField] private InputActionReference reference;
 
-        [SerializeField] private bool useCompositePart;
-        public bool UseCompositePart => useCompositePart;
-
+        /// <summary>
+        /// Which part of a composite this refers to, or DontIsolatePart for the binding as a whole.
+        /// </summary>
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
 
@@ -118,10 +118,8 @@ namespace NPTP.InputSystemWrapper.Actions
                 return;
             }
 
-            if (useCompositePart)
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, uiIndex, callback);
-            else
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, uiIndex, callback);
+            // DontIsolatePart means the whole binding, so there is no second path to take.
+            ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, uiIndex, callback);
         }
 
         internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
