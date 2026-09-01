@@ -3,6 +3,7 @@
 
 10.0.0
 - The composite part on an ActionReference offers only the parts the action can have: an action read as a float comes from an axis composite, so positive and negative, while a Vector2 action's composite has up, down, left and right
+- `ActionReference.PlayerID` is public and settable, so one screen can be pointed at each player in turn instead of needing a reference per player. Setting it drops the cached action wrapper, which belongs to the player it pointed at before
 - `ActionReference.useCompositePart` is gone. `CompositePart.DontIsolatePart` already meant the whole binding, so the bool only restated it
 - `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
 - Upgrading: `BindingInfo` is a ScriptableObject rather than a struct, so `BindingSlot.BindingInfo` is a reference instead of a nullable. Existing binding data assets do not carry over and are rebuilt by a regenerate, which also marks everything addressable

@@ -36,8 +36,28 @@ namespace NPTP.InputSystemWrapper.Actions
         [SerializeField] private bool applyToAllPlayers;
         internal bool ApplyToAllPlayers => applyToAllPlayers;
 
+        /// <summary>
+        /// Which player's copy of the action this refers to. Settable, so one screen can be pointed at
+        /// each player in turn rather than needing a reference per player.
+        /// </summary>
         [SerializeField] private int playerID;
-        internal int PlayerID => playerID;
+        public int PlayerID
+        {
+            get => playerID;
+            set
+            {
+                if (playerID == value)
+                {
+                    return;
+                }
+
+                playerID = value;
+
+                // Every player has their own wrapper for the action, so the one held here belongs to
+                // the player this used to point at.
+                actionWrapper = null;
+            }
+        }
 
         private ActionWrapper actionWrapper;
         internal ActionWrapper ActionWrapper
