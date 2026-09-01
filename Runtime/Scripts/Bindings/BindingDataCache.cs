@@ -114,6 +114,23 @@ namespace NPTP.InputSystemWrapper.Bindings
             };
         }
 
+        /// <summary>How many binding assets are loaded right now.</summary>
+        internal static int LoadedAssetCount => entriesByKey.Count;
+
+        /// <summary>
+        /// The sum of every asset's reference count: how many takes are outstanding across all callers.
+        /// Back to zero means everything has been given back.
+        /// </summary>
+        internal static int OutstandingReferenceCount
+        {
+            get
+            {
+                int total = 0;
+                foreach (Entry entry in entriesByKey.Values) total += entry.ReferenceCount;
+                return total;
+            }
+        }
+
         /// <summary>Gives an asset back. The last caller to do so unloads it.</summary>
         internal static void Release(AssetReference reference)
         {
