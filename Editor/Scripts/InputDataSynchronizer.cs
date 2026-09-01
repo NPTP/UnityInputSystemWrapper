@@ -275,18 +275,46 @@ namespace NPTP.InputSystemWrapper.Editor
         {
             string assetName = deviceLayoutName.AsType();
 
+            string bindingDataFolder = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
+            string expectedPath = $"{bindingDataFolder}/{assetName}.asset";
+
             if (!Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
                 existing = ScriptableObject.CreateInstance<BindingData>();
-                string createdPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
-                AssetDatabase.CreateAsset(existing, createdPath);
-                Generation.GenerationReport.Record($"{createdPath} (created for device '{deviceLayoutName}')");
+                AssetDatabase.CreateAsset(existing, expectedPath);
+                Generation.GenerationReport.Record($"{expectedPath} (created for device '{deviceLayoutName}')");
+            }
+            else
+            {
+                MoveIfElsewhere(existing, expectedPath);
             }
 
             SyncBindingEntries(existing, deviceLayoutName, assetName);
             EditorUtility.SetDirty(existing);
 
             return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(existing));
+        }
+
+        /// <summary>
+        /// Bring an asset from a previous layout to where it belongs now, so the folder move does not
+        /// leave binding data behind in Resources.
+        /// </summary>
+        private static void MoveIfElsewhere(BindingData bindingData, string expectedPath)
+        {
+            string currentPath = AssetDatabase.GetAssetPath(bindingData);
+            if (currentPath == expectedPath)
+            {
+                return;
+            }
+
+            string error = AssetDatabase.MoveAsset(currentPath, expectedPath);
+            if (string.IsNullOrEmpty(error))
+            {
+                Generation.GenerationReport.Record($"{currentPath} (moved to {expectedPath})");
+                return;
+            }
+
+            ISWDebug.LogWarning($"Could not move {currentPath} to {expectedPath}: {error}");
         }
 
         /// <summary>

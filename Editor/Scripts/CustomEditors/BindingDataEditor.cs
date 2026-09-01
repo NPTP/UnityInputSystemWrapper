@@ -192,7 +192,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             return entry;
         }
 
-        private static void DrawMissingEntry(SerializedProperty key)
+        private void DrawMissingEntry(SerializedProperty key)
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);

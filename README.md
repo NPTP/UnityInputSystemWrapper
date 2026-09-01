@@ -22,7 +22,8 @@ Both are required. Unity's Package Manager cannot resolve a git URL listed insid
 Then run **Input > Regenerate Input Wrapper Code and Assets**. This creates `Assets/ISW.Generated/`, containing:
 
 - the generated API (`ISW`, the actions classes, the `ControlScheme` and `InputContext` enums), in its own assembly
-- `Resources/`, holding your own editable copies of `InputData` and the binding data assets
+- `Resources/`, holding your own editable copy of `InputData`
+- `BindingData/`, holding a binding data asset per device and a folder of entry assets for each, reached through Addressables rather than Resources
 
 The copies inside the package are read-only defaults, and are only used to seed your project the first time. Both folders are yours to commit or to gitignore and regenerate.
 

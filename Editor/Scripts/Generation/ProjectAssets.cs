@@ -11,6 +11,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     /// The package may be installed read-only (from a git URL, resolved into Library/PackageCache), so any
     /// asset the user or the generator has to write to must live in the project instead. This copies the
     /// package's default assets into a Resources folder alongside the generated code on first use.
+    /// Binding data lives outside Resources, since it is reached through Addressables.
     /// </summary>
     internal static class ProjectAssets
     {
@@ -25,15 +26,17 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         internal static string ResourcesFolderAssetPath => GeneratedAssembly.GetOrCreateFolderAssetPath() + "/" + RESOURCES_FOLDER_NAME;
 
         /// <summary>
-        /// Where binding data assets live, both the copies seeded from the package and any created for a
-        /// control scheme that did not have one. Created if it is not there yet.
+        /// Where binding data assets and their entries live. Outside Resources, since they are reached
+        /// through Addressables: a Resources folder ships everything in it, which would put a second copy
+        /// of all of this in the build. Created if it is not there yet.
         /// </summary>
         internal static string GetOrCreateBindingDataFolder()
         {
-            string folderAssetPath = ResourcesFolderAssetPath + "/" + BINDING_DATA_FOLDER_NAME;
+            string generatedFolder = GeneratedAssembly.GetOrCreateFolderAssetPath();
+            string folderAssetPath = generatedFolder + "/" + BINDING_DATA_FOLDER_NAME;
             if (!AssetDatabase.IsValidFolder(folderAssetPath))
             {
-                AssetDatabase.CreateFolder(ResourcesFolderAssetPath, BINDING_DATA_FOLDER_NAME);
+                AssetDatabase.CreateFolder(generatedFolder, BINDING_DATA_FOLDER_NAME);
             }
 
             return folderAssetPath;
