@@ -8,7 +8,7 @@
 - `BindingSlots` holds the binding data its slots were built from and implements IDisposable: dispose it when the screen showing it closes. A set dropped without being disposed releases its data when the garbage collector reaches it
 - Binding data wanted by several slot sets is loaded once and released when the last of them lets go
 - A binding entry has a default display name, shown when no localization request comes back fulfilled. `BindingInfo.DisplayName` used to fall back to the raw localization key
-- Generated entries start with a localization key qualified by device, e.g. `Gamepad/leftStick/x`, and a display name parsed from the control path, e.g. "Left Stick Up". Both are editable, and a regenerate fills in blanks without touching anything already authored
+- Generated entries start with a localization key qualified by device, e.g. `Gamepad/leftStick/x`, and a display name parsed from the control path, e.g. "Left Stick Up", with "dpad" in any casing reading as "D-Pad". Both are editable, and a regenerate fills in blanks without touching anything already authored
 - `InputActionUpdater` owns the slots it hands to its event and replaces them on each update, so its handler should read what it needs rather than holding on
 
 9.0.1

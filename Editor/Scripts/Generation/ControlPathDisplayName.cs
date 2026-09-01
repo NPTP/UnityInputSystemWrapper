@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -10,6 +11,15 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     internal static class ControlPathDisplayName
     {
         /// <summary>
+        /// Words the input system spells one way and players read another, matched however they are
+        /// capitalized in a path.
+        /// </summary>
+        private static readonly Dictionary<string, string> specialCasedWords = new(System.StringComparer.OrdinalIgnoreCase)
+        {
+            { "dpad", "D-Pad" }
+        };
+
+        /// <summary>
         /// A control path as words, e.g. "leftStick/up" becomes "Left Stick Up". Path separators and
         /// camel case both start a new word, and every word is capitalized.
         /// </summary>
@@ -21,7 +31,28 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             }
 
             StringBuilder displayName = new();
-            bool startOfWord = true;
+
+            foreach (string word in SplitIntoWords(controlPath))
+            {
+                if (displayName.Length > 0)
+                {
+                    displayName.Append(' ');
+                }
+
+                displayName.Append(specialCasedWords.TryGetValue(word, out string specialCased) ? specialCased : Capitalize(word));
+            }
+
+            return displayName.ToString();
+        }
+
+        private static string Capitalize(string word)
+        {
+            return word.Length == 1 ? word.ToUpperInvariant() : char.ToUpperInvariant(word[0]) + word.Substring(1);
+        }
+
+        private static IEnumerable<string> SplitIntoWords(string controlPath)
+        {
+            StringBuilder word = new();
 
             for (int i = 0; i < controlPath.Length; i++)
             {
@@ -29,31 +60,28 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
                 if (character == '/')
                 {
-                    startOfWord = true;
-                    continue;
-                }
-
-                if (!startOfWord && StartsNewWord(controlPath, i))
-                {
-                    startOfWord = true;
-                }
-
-                if (startOfWord)
-                {
-                    if (displayName.Length > 0)
+                    if (word.Length > 0)
                     {
-                        displayName.Append(' ');
+                        yield return word.ToString();
+                        word.Clear();
                     }
 
-                    displayName.Append(char.ToUpperInvariant(character));
-                    startOfWord = false;
                     continue;
                 }
 
-                displayName.Append(character);
+                if (word.Length > 0 && StartsNewWord(controlPath, i))
+                {
+                    yield return word.ToString();
+                    word.Clear();
+                }
+
+                word.Append(character);
             }
 
-            return displayName.ToString();
+            if (word.Length > 0)
+            {
+                yield return word.ToString();
+            }
         }
 
         /// <summary>
