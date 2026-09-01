@@ -49,7 +49,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static void AddActions(GeneratableTypeDefinition playerRef, InputActionAsset asset)
         {
-            foreach (string mapName in Helper.GetMapNames(asset))
+            foreach (string mapName in ISWEditorHelper.GetMapNames(asset))
             {
                 string actionsType = $"{mapName.AsType()}Actions";
                 playerRef.WithProperty(SourceGen.NewProperty(mapName.AsType(), actionsType)

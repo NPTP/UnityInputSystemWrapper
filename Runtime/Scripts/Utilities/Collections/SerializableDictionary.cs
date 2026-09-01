@@ -84,24 +84,6 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             return false;
         }
 
-        internal void EDITOR_SetKey(TValue value, TKey newKey)
-        {
-            for (int i = 0; i < keyValueCombos.Count; i++)
-            {
-                KeyValueCombo<TKey, TValue> keyValueCombo = keyValueCombos[i];
-                if (keyValueCombo.Value.Equals(value))
-                {
-                    keyValueCombos[i] = new KeyValueCombo<TKey, TValue>(newKey, value);
-                    break;
-                }
-            }
-        }
-
-        internal void EDITOR_Clear()
-        {
-            keyValueCombos.Clear();
-        }
-
         internal void EDITOR_Add(TKey key, TValue value)
         {
             foreach (KeyValueCombo<TKey,TValue> keyValueCombo in keyValueCombos)
@@ -114,22 +96,6 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             }
 
             keyValueCombos.Add(new KeyValueCombo<TKey, TValue>(key, value));
-        }
-
-        /// <summary>The serialized value for a key, read the same way as <see cref="EDITOR_ContainsKey"/>.</summary>
-        internal bool EDITOR_TryGetValue(TKey key, out TValue value)
-        {
-            foreach (KeyValueCombo<TKey, TValue> keyValueCombo in keyValueCombos)
-            {
-                if (EqualityComparer<TKey>.Default.Equals(keyValueCombo.Key, key))
-                {
-                    value = keyValueCombo.Value;
-                    return true;
-                }
-            }
-
-            value = default;
-            return false;
         }
 
         /// <summary>Replace an existing key's value, doing nothing when the key is not there.</summary>

@@ -25,7 +25,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         internal static GeneratableFile BuildFile()
         {
             return SourceGen.NewFile()
-                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .WithHeaderComment(ISWEditorHelper.GetGeneratorNoticeLines().ToArray())
                 .Containing(BuildUserChangeExtensions(),
                     BuildActionExtensions("ActionWrapperExtensions", ACTION_WRAPPER, "actionWrapper", withCompositePart: true),
                     BuildActionExtensions("ActionReferenceExtensions", ACTION_REFERENCE, "actionReference", withCompositePart: false));

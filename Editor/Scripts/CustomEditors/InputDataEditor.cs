@@ -1,6 +1,5 @@
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEditor;
@@ -152,7 +151,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 DrawWarning("An Input Action Asset is required. Nothing can be generated without one.");
             }
 
-            EditorInspectorUtility.DrawHorizontalLine();
+            ISWEditorHelper.DrawHorizontalLine();
 
             DrawHeader("Custom Setups");
             DrawSpecialNote("Layouts, bindings and interactions registered with the input system before any player is set up.");
@@ -160,19 +159,19 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(customBindings);
             EditorGUILayout.PropertyField(customInteractions);
 
-            EditorInspectorUtility.DrawHorizontalLine();
+            ISWEditorHelper.DrawHorizontalLine();
 
             DrawHeader("Initialization");
             EditorGUILayout.PropertyField(initializationMode);
 
-            EditorInspectorUtility.DrawHorizontalLine();
+            ISWEditorHelper.DrawHorizontalLine();
 
             DrawHeader("Input Contexts");
             DrawDefaultContextPopup();
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(authoredContexts);
 
-            EditorInspectorUtility.DrawHorizontalLine();
+            ISWEditorHelper.DrawHorizontalLine();
 
             DrawHeader("Bindings");
             EditorGUILayout.PropertyField(loadAllBindingOverridesOnInitialize);
@@ -186,7 +185,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(bindingExcludedPaths);
             EditorGUILayout.PropertyField(bindingCancelPaths);
 
-            EditorInspectorUtility.DrawHorizontalLine();
+            ISWEditorHelper.DrawHorizontalLine();
 
             DrawHeader("Event System");
             EditorGUILayout.PropertyField(moveRepeatDelay);

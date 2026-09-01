@@ -24,10 +24,8 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// Input.OnLocalizedStringRequested, or when the request comes back unfulfilled.
         /// </summary>
         [SerializeField] private string defaultDisplayName;
-        public string DefaultDisplayName => defaultDisplayName;
-
         /// <summary>
-        /// The localized name for this binding, falling back to <see cref="DefaultDisplayName"/>.
+        /// The localized name for this binding, falling back to the default display name.
         /// </summary>
         public string DisplayName
         {

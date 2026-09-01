@@ -20,7 +20,7 @@ namespace NPTP.InputSystemWrapper.Editor
         [MenuItem(INPUT_DATA, isValidateFunction: false, 100)]
         private static void InputData()
         {
-            SelectAsset(Helper.InputData);
+            SelectAsset(ISWEditorHelper.InputData);
         }
 
         [MenuItem(OPEN_DEBUGGER_WINDOW, isValidateFunction: false, 200)]

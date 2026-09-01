@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 using UnityEngine;
 

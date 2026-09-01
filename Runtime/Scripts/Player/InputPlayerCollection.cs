@@ -118,11 +118,6 @@ namespace NPTP.InputSystemWrapper.Player
             return Players.Any(player => player.LastUsedDevice == device);
         }
 
-        internal bool AnyPlayerDisabled()
-        {
-            return Players.Any(player => !player.Enabled);
-        }
-
         internal bool TryGetPlayer(int playerID, out InputPlayer player)
         {
             if (!players.IndexIsValid(playerID) || players[playerID] == null)

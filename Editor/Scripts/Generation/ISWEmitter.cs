@@ -44,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset)
         {
-            foreach (string mapName in Helper.GetMapNames(asset))
+            foreach (string mapName in ISWEditorHelper.GetMapNames(asset))
             {
                 isw.WithProperty(SourceGen.NewProperty(mapName.AsType(), $"{mapName.AsType()}Actions")
                     .Public()

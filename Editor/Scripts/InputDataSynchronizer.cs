@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
 using UnityEngine;
@@ -405,9 +404,19 @@ namespace NPTP.InputSystemWrapper.Editor
             }
         }
 
+        /// <summary>
+        /// Names a binding entry's asset file after its control path. Paths nest with slashes, which a
+        /// file name cannot contain, so those become underscores: "leftStick/x" is stored as
+        /// "leftStick_x".
+        /// </summary>
+        private static string ToAssetName(string controlPath)
+        {
+            return string.IsNullOrEmpty(controlPath) ? "Unnamed" : controlPath.Replace('/', '_');
+        }
+
         private static void DeleteBindingInfo(string folder, string controlPath)
         {
-            string assetPath = $"{folder}/{Generation.BindingEntryAssetName.FromControlPath(controlPath)}.asset";
+            string assetPath = $"{folder}/{ToAssetName(controlPath)}.asset";
             if (AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath) == null)
             {
                 return;
@@ -424,7 +433,7 @@ namespace NPTP.InputSystemWrapper.Editor
         /// </summary>
         private static string GetOrCreateBindingInfo(string folder, string controlPath, string address)
         {
-            string assetPath = $"{folder}/{Generation.BindingEntryAssetName.FromControlPath(controlPath)}.asset";
+            string assetPath = $"{folder}/{ToAssetName(controlPath)}.asset";
             BindingInfo bindingInfo = AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath);
             string defaultDisplayName = Generation.ControlPathDisplayName.FromControlPath(controlPath);
 

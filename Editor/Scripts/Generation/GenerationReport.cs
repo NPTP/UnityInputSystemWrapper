@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.UnitySourceGen.Editor.ScriptWriting;
-using UnityEngine;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
 {
@@ -54,11 +52,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// <summary>True if this run produced the file, whether it changed or was already correct.</summary>
         internal static bool WasWritten(string assetPath) => writtenPaths.Contains(assetPath);
 
-        internal static void RecordFile(string systemFilePath)
-        {
-            entries?.Add(ToProjectRelativePath(systemFilePath));
-        }
-
         internal static void Record(string entry)
         {
             entries?.Add(entry);
@@ -81,13 +74,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             ISWDebug.Log($"{header} ({entries.Count}):\n  {string.Join("\n  ", entries)}");
             entries = null;
-        }
-
-        private static string ToProjectRelativePath(string systemFilePath)
-        {
-            string path = systemFilePath.Replace('\\', '/');
-            string assetsPath = Application.dataPath;
-            return path.StartsWith(assetsPath) ? "Assets" + path.Substring(assetsPath.Length) : path;
         }
     }
 }

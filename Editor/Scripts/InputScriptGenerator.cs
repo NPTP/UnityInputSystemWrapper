@@ -62,7 +62,7 @@ namespace NPTP.InputSystemWrapper.Editor
         private static void WriteType(string fileName, GeneratableDefinition generatable, string outputFolder)
         {
             GeneratableFile file = SourceGen.NewFile()
-                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .WithHeaderComment(ISWEditorHelper.GetGeneratorNoticeLines().ToArray())
                 .Containing(generatable);
 
             WriteFile(fileName, file, outputFolder);
