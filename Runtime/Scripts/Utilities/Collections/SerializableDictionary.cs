@@ -116,6 +116,35 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             keyValueCombos.Add(new KeyValueCombo<TKey, TValue>(key, value));
         }
 
+        /// <summary>The serialized value for a key, read the same way as <see cref="EDITOR_ContainsKey"/>.</summary>
+        internal bool EDITOR_TryGetValue(TKey key, out TValue value)
+        {
+            foreach (KeyValueCombo<TKey, TValue> keyValueCombo in keyValueCombos)
+            {
+                if (EqualityComparer<TKey>.Default.Equals(keyValueCombo.Key, key))
+                {
+                    value = keyValueCombo.Value;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>Replace an existing key's value, doing nothing when the key is not there.</summary>
+        internal void EDITOR_SetValue(TKey key, TValue value)
+        {
+            for (int i = 0; i < keyValueCombos.Count; i++)
+            {
+                if (EqualityComparer<TKey>.Default.Equals(keyValueCombos[i].Key, key))
+                {
+                    keyValueCombos[i] = new KeyValueCombo<TKey, TValue>(key, value);
+                    return;
+                }
+            }
+        }
+
         internal void EDITOR_Remove(TKey key)
         {
             int remove = -1;

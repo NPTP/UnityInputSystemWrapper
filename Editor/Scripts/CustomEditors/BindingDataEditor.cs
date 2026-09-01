@@ -108,6 +108,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private void DrawEntry(SerializedProperty key, SerializedProperty value)
         {
             SerializedProperty localizationKey = value.FindPropertyRelative(BindingInfo.EDITOR_LocalizationKeyField);
+            SerializedProperty defaultDisplayName = value.FindPropertyRelative(BindingInfo.EDITOR_DefaultDisplayNameField);
             SerializedProperty sprite = value.FindPropertyRelative(BindingInfo.EDITOR_SpriteField);
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
@@ -118,9 +119,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 // than edited.
                 EditorGUILayout.LabelField(key.stringValue, ControlPathStyle);
 
-                // Label above the field rather than beside it, so the field gets the column's full width.
+                // Labels above the fields rather than beside them, so each gets the column's full width.
                 EditorGUILayout.LabelField("Localization Key", EditorStyles.miniLabel);
                 EditorGUILayout.PropertyField(localizationKey, GUIContent.none);
+
+                EditorGUILayout.LabelField("Default Display Name", EditorStyles.miniLabel);
+                EditorGUILayout.PropertyField(defaultDisplayName, GUIContent.none);
 
                 GUILayout.FlexibleSpace();
             }

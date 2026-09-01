@@ -20,8 +20,14 @@ namespace NPTP.InputSystemWrapper.Bindings
         private string localizationKey;
 
         /// <summary>
-        /// If no localization is hooked into Input.OnLocalizedStringRequested, this
-        /// will simply return the localization key string itself.
+        /// What to show for this binding when no localization is hooked into
+        /// Input.OnLocalizedStringRequested, or when the request comes back unfulfilled.
+        /// </summary>
+        [SerializeField] private string defaultDisplayName;
+        public string DefaultDisplayName => defaultDisplayName;
+
+        /// <summary>
+        /// The localized name for this binding, falling back to <see cref="DefaultDisplayName"/>.
         /// </summary>
         public string DisplayName
         {
@@ -30,7 +36,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 LocalizedStringRequest localizedStringRequest = new(localizationKey);
                 InputRuntime.Current.BroadcastLocalizedStringRequested(localizedStringRequest);
                 return string.IsNullOrEmpty(localizedStringRequest.localizedString)
-                    ? localizationKey
+                    ? defaultDisplayName
                     : localizedStringRequest.localizedString;
             }
         }
@@ -40,17 +46,32 @@ namespace NPTP.InputSystemWrapper.Bindings
 
 #if UNITY_EDITOR
         internal const string EDITOR_LocalizationKeyField = nameof(localizationKey);
+        internal const string EDITOR_DefaultDisplayNameField = nameof(defaultDisplayName);
         internal const string EDITOR_SpriteField = nameof(sprite);
 
         /// <summary>
-        /// Starts a binding off with the display name the input system gives the control, so a generated
-        /// asset is readable before anyone edits it.
+        /// Starts a binding off with a key and a readable name, so a generated asset works and reads
+        /// properly before anyone edits it.
         /// </summary>
-        internal BindingInfo(string localizationKey)
+        internal BindingInfo(string localizationKey, string defaultDisplayName)
         {
             this.localizationKey = localizationKey;
+            this.defaultDisplayName = defaultDisplayName;
             sprite = null;
         }
+
+        /// <summary>
+        /// A copy with anything blank filled in, leaving whatever has already been authored alone.
+        /// </summary>
+        internal BindingInfo EDITOR_WithBlanksFilled(string localizationKey, string defaultDisplayName)
+        {
+            BindingInfo copy = this;
+            if (string.IsNullOrEmpty(copy.localizationKey)) copy.localizationKey = localizationKey;
+            if (string.IsNullOrEmpty(copy.defaultDisplayName)) copy.defaultDisplayName = defaultDisplayName;
+            return copy;
+        }
+
+        internal bool EDITOR_HasBlanks => string.IsNullOrEmpty(localizationKey) || string.IsNullOrEmpty(defaultDisplayName);
 #endif
     }
 }

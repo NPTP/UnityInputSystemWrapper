@@ -18,19 +18,19 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const int MAX_DEPTH = 6;
 
         /// <summary>
-        /// Every control path a device of this layout can produce, relative to the device, mapped to the
-        /// display name the input system gives it. Relative is the form binding data is keyed by, since
-        /// the runtime strips the "&lt;Device&gt;/" prefix before looking a binding up.
+        /// Every control path a device of this layout can produce, relative to the device. Relative is
+        /// the form binding data is keyed by, since the runtime strips the "&lt;Device&gt;/" prefix before
+        /// looking a binding up.
         /// <para>
         /// Paths are ordered as the layout declares them, so a generated asset reads in the same order as
         /// the device's own documentation rather than alphabetically.
         /// </para>
         /// </summary>
-        internal static Dictionary<string, string> GetControlPaths(string layoutName)
+        internal static List<string> GetControlPaths(string layoutName)
         {
-            Dictionary<string, string> pathsToDisplayNames = new();
-            Collect(layoutName, parentPath: string.Empty, new HashSet<string>(), pathsToDisplayNames, depth: 0);
-            return pathsToDisplayNames;
+            List<string> paths = new();
+            Collect(layoutName, parentPath: string.Empty, new HashSet<string>(), paths, new HashSet<string>(), depth: 0);
+            return paths;
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         private static void Collect(string layoutName, string parentPath, HashSet<string> visitedLayouts,
-            IDictionary<string, string> pathsToDisplayNames, int depth)
+            List<string> paths, HashSet<string> addedPaths, int depth)
         {
             if (depth >= MAX_DEPTH || string.IsNullOrEmpty(layoutName) || !visitedLayouts.Add(layoutName))
             {
@@ -83,10 +83,13 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     }
 
                     string path = string.IsNullOrEmpty(parentPath) ? controlName : $"{parentPath}/{controlName}";
-                    pathsToDisplayNames[path] = string.IsNullOrEmpty(control.displayName) ? controlName : control.displayName;
+                    if (addedPaths.Add(path))
+                    {
+                        paths.Add(path);
+                    }
 
                     // The control's own layout describes its children, e.g. a Stick's x, y, up and down.
-                    Collect(control.layout, path, visitedLayouts, pathsToDisplayNames, depth + 1);
+                    Collect(control.layout, path, visitedLayouts, paths, addedPaths, depth + 1);
                 }
             }
 

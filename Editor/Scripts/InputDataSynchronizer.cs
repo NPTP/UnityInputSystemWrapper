@@ -278,9 +278,12 @@ namespace NPTP.InputSystemWrapper.Editor
             if (!Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
                 BindingData created = ScriptableObject.CreateInstance<BindingData>();
-                foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+                foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
                 {
-                    created.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
+                    // Qualified by device, so a key names one control across the whole project: two
+                    // gamepads can have their own name for the same path.
+                    created.EDITOR_AddBinding(controlPath, $"{deviceLayoutName}/{controlPath}",
+                        Generation.ControlPathDisplayName.FromControlPath(controlPath));
                 }
 
                 string createdPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";

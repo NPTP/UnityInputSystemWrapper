@@ -20,17 +20,28 @@ namespace NPTP.InputSystemWrapper.Bindings
         internal bool EDITOR_Contains(string controlPath) => bindingDataDictionary.EDITOR_ContainsKey(controlPath);
 
         /// <summary>
-        /// Add a control path with a starting localization key. Existing entries are left alone, so
-        /// anything already filled in - a sprite, an edited key - survives being repopulated.
+        /// Add a control path with its starting localization key and display name. An existing entry keeps
+        /// everything already authored on it, and only has blank fields filled in.
         /// </summary>
-        internal void EDITOR_AddBinding(string controlPath, string localizationKey)
+        internal void EDITOR_AddBinding(string controlPath, string localizationKey, string defaultDisplayName)
         {
-            if (string.IsNullOrEmpty(controlPath) || EDITOR_Contains(controlPath))
+            if (string.IsNullOrEmpty(controlPath))
             {
                 return;
             }
 
-            bindingDataDictionary.EDITOR_Add(controlPath, new BindingInfo(localizationKey));
+            if (!EDITOR_Contains(controlPath))
+            {
+                bindingDataDictionary.EDITOR_Add(controlPath, new BindingInfo(localizationKey, defaultDisplayName));
+                return;
+            }
+
+            // An entry from before these fields existed has them filled in, without touching an entry
+            // someone has already authored.
+            if (bindingDataDictionary.EDITOR_TryGetValue(controlPath, out BindingInfo existing) && existing.EDITOR_HasBlanks)
+            {
+                bindingDataDictionary.EDITOR_SetValue(controlPath, existing.EDITOR_WithBlanksFilled(localizationKey, defaultDisplayName));
+            }
         }
 #endif
     }

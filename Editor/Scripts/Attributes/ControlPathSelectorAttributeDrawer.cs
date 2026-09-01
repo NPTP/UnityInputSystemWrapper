@@ -66,7 +66,7 @@ namespace NPTP.InputSystemWrapper.Editor.Attributes
 
             foreach (string device in deviceLayouts)
             {
-                foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(device).Keys)
+                foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(device))
                 {
                     string fullPath = $"/{device}/{controlPath}";
                     if (!alreadyUsed.Contains(fullPath)) selectable.Add((device, fullPath));
