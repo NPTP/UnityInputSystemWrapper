@@ -1,8 +1,9 @@
 # Input System Wrapper
 ## Changelog
 
-9.1.0
+10.0.0
 - `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+- Upgrading: `BindingInfo` is a ScriptableObject rather than a struct, so `BindingSlot.BindingInfo` is a reference instead of a nullable. Existing binding data assets do not carry over and are rebuilt by a regenerate, which also marks everything addressable
 - Binding data moved out of the generated Resources folder to `ISW.Generated/BindingData`, since a Resources folder ships everything in it and these are reached through Addressables. Existing assets are moved there on the next generation
 - `InputBindingDisplay`, a component that shows one binding of an action: handle its events to fill a TextMeshPro label, a sprite renderer, a UI Image, or anything else. Its assets load in the background, so a screen full of glyphs opens without stalling the frame, and they are released when it is disabled
 - `BindingDiagnostics` reports how many binding assets are loaded and how many references are outstanding, for checking that loads and disposals balance
