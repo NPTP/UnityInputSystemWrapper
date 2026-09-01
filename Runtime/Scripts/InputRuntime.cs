@@ -106,7 +106,11 @@ namespace NPTP.InputSystemWrapper
 
         internal static void Initialize()
         {
-            Current = new InputRuntime();
+            // Current is set before anything is set up, because setting up reaches back through it: a
+            // player's saved bindings can be asked for through an event, which is broadcast from here.
+            InputRuntime runtime = new();
+            Current = runtime;
+            runtime.SetUp();
         }
 
         private InputRuntime()
@@ -118,7 +122,10 @@ namespace NPTP.InputSystemWrapper
             {
                 throw new Exception($"{nameof(InputData)} is null or its input action asset is null - input will not work! Did you move the asset from its original location in 'Resources'?");
             }
+        }
 
+        private void SetUp()
+        {
             // Clear out anything in the scene that would interfere with the ISW's autonomous operation.
             ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
 
