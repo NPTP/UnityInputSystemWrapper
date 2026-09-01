@@ -33,9 +33,6 @@ namespace NPTP.InputSystemWrapper.Actions
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
 
-        [SerializeField] private bool applyToAllPlayers;
-        internal bool ApplyToAllPlayers => applyToAllPlayers;
-
         /// <summary>
         /// Which player's copy of the action this refers to. Settable, so one screen can be pointed at
         /// each player in turn rather than needing a reference per player.
