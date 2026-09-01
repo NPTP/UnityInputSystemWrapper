@@ -33,7 +33,7 @@ Everything you need is under **Input** in the menu bar, which is the easiest way
 - **Input > Regenerate Input Wrapper Code and Assets** rebuilds the generated API and creates any project assets that are missing. Run it after changing your input action asset, your input contexts, or your control schemes.
 - **Input > Input Data** selects your `InputData` asset, where the input action asset, input contexts, custom setups, binding settings and event system actions are all authored.
 - **Input > Binding Data > ...** selects the binding data asset for one device, where you give each of that device's controls a display name and a sprite. This submenu is generated, so it lists exactly the devices your control schemes use.
-- **Input > Input Wrapper Debugger Window** opens a window for inspecting players, their devices and their current control scheme and context at runtime.
+- **Input > Input Wrapper Debugger Window** opens a play-mode window showing the first player's current control scheme, current input context, the maps that context has active, and the last few contexts it moved through with the frame each change happened on.
 
 #### Advantages
 - Subscribe to any player's input events at any time in Awake or later without running into race conditions or null references. Don’t need to know whether the player exists or not. In singleplayer mode, the API is automatically simplified so you don’t even need to specify which player.
