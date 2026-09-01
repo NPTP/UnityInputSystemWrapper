@@ -18,7 +18,16 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
     [CustomEditor(typeof(BindingData))]
     internal class BindingDataEditor : UnityEditor.Editor
     {
-        private const float SPRITE_SIZE = 64f;
+        private const float MIN_SPRITE_SIZE = 64f;
+
+        /// <summary>
+        /// The square's side, and with it the row's height. Sized to the column beside it - a control path,
+        /// then a label and a field each for the localization key and the display name - so the two line up.
+        /// </summary>
+        private static float SpriteSize => Mathf.Max(MIN_SPRITE_SIZE,
+            EditorStyles.miniLabel.lineHeight * 2 +
+            EditorGUIUtility.singleLineHeight * 3 +
+            EditorGUIUtility.standardVerticalSpacing * 4);
         private const float ROW_SPACING = 2f;
 
         private SerializedProperty keyValueCombos;
@@ -140,13 +149,13 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         /// A large object field: a preview of the sprite inside a bordered box, keeping the same box when
         /// nothing is assigned, which is the same control Unity's own inspectors use for sprite slots.
         /// <para>
-        /// It fills the row's height, so it stays level with however many fields the column beside it has.
+        /// It is square, and its side sets the row's height.
         /// </para>
         /// </summary>
         private static void DrawSpriteField(SerializedProperty sprite)
         {
-            Rect spriteRect = GUILayoutUtility.GetRect(SPRITE_SIZE, SPRITE_SIZE,
-                GUILayout.Width(SPRITE_SIZE), GUILayout.MinHeight(SPRITE_SIZE), GUILayout.ExpandHeight(true));
+            float size = SpriteSize;
+            Rect spriteRect = GUILayoutUtility.GetRect(size, size, GUILayout.Width(size), GUILayout.Height(size));
 
             EditorGUI.ObjectField(spriteRect, sprite, typeof(Sprite), GUIContent.none);
         }
