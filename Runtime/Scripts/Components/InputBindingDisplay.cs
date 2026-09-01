@@ -130,7 +130,10 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void Display(BindingSlots slots)
         {
-            if (!slots.TryGetAtUIIndex(uiIndex, out BindingSlot slot) || slot.BindingInfo == null)
+            // The reference says which part of a composite it means, so a display wired to the up part of
+            // a movement composite shows that part rather than the whole binding's first control.
+            if (!slots.TryGetAtUIIndex(uiIndex, out BindingSlot slot) ||
+                !slot.TryGetBindingInfo(actionReference.CompositePart, out BindingInfo bindingInfo))
             {
                 // Cleared rather than left as it was, so moving to a binding the action does not have
                 // does not leave the previous one on screen.
@@ -139,7 +142,6 @@ namespace NPTP.InputSystemWrapper.Components
                 return;
             }
 
-            BindingInfo bindingInfo = slot.BindingInfo;
             onDisplayName?.Invoke(bindingInfo.DisplayName);
             onSprite?.Invoke(bindingInfo.Sprite);
         }

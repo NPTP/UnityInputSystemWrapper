@@ -22,6 +22,12 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// </summary>
         public IReadOnlyList<BindingInfo> BindingInfos { get; }
 
+        /// <summary>
+        /// Which composite part each entry above describes, in the same order. A slot that is not a
+        /// composite has one entry, for the binding as a whole.
+        /// </summary>
+        public IReadOnlyList<CompositePart> CompositeParts { get; }
+
         /// <summary>The single entry to display, or null if there is none.</summary>
         public BindingInfo BindingInfo => BindingInfos is { Count: > 0 } ? BindingInfos[0] : null;
 
@@ -34,21 +40,54 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// <summary>How many bindings this slot occupies in the action, including a composite's parts.</summary>
         internal int BindingCount { get; }
 
-        internal BindingSlot(int uiIndex, int bindingIndex, bool isComposite, int bindingCount, IReadOnlyList<BindingInfo> bindingInfos)
+        internal BindingSlot(int uiIndex, int bindingIndex, bool isComposite, int bindingCount,
+            IReadOnlyList<BindingInfo> bindingInfos, IReadOnlyList<CompositePart> compositeParts)
         {
             UIIndex = uiIndex;
             BindingIndex = bindingIndex;
             IsComposite = isComposite;
             BindingCount = bindingCount;
             BindingInfos = bindingInfos;
+            CompositeParts = compositeParts;
+        }
+
+        /// <summary>
+        /// The entry for one part of this slot, so a display showing a single direction of a composite
+        /// shows that direction. DontIsolatePart gives the slot's first entry, which is the whole
+        /// binding when the slot is not a composite.
+        /// </summary>
+        public bool TryGetBindingInfo(CompositePart compositePart, out BindingInfo bindingInfo)
+        {
+            bindingInfo = null;
+            if (BindingInfos == null || BindingInfos.Count == 0)
+            {
+                return false;
+            }
+
+            if (compositePart is CompositePart.DontIsolatePart)
+            {
+                bindingInfo = BindingInfos[0];
+                return true;
+            }
+
+            for (int i = 0; i < BindingInfos.Count && i < CompositeParts.Count; i++)
+            {
+                if (CompositeParts[i] == compositePart)
+                {
+                    bindingInfo = BindingInfos[i];
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
         /// The same slot carrying its display entries, for a resolve that works out its slots before the
         /// assets describing them have finished loading.
         /// </summary>
-        internal BindingSlot WithBindingInfos(IReadOnlyList<BindingInfo> bindingInfos) =>
-            new(UIIndex, BindingIndex, IsComposite, BindingCount, bindingInfos);
+        internal BindingSlot WithBindingInfos(IReadOnlyList<BindingInfo> bindingInfos, IReadOnlyList<CompositePart> compositeParts) =>
+            new(UIIndex, BindingIndex, IsComposite, BindingCount, bindingInfos, compositeParts);
 
         /// <summary>
         /// The binding to rebind for a part. A composite picks out that part; a plain binding ignores it.

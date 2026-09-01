@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine.AddressableAssets;
@@ -9,6 +11,9 @@ namespace NPTP.InputSystemWrapper.Bindings
 {
     internal static class BindingGetter
     {
+        private static readonly CompositePart[] compositeParts =
+            (CompositePart[])Enum.GetValues(typeof(CompositePart));
+
         /// <summary>
         /// What to display for a run of bindings. Each binding names its own device, so a scheme spanning
         /// a keyboard and a mouse reads each control from the data for the device it belongs to.
@@ -19,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// </summary>
         internal static IReadOnlyList<BindingInfo> GetBindingInfos(InputData inputData, ReadOnlyArray<InputBinding> bindings,
             InputBinding bindingMask, int startIndex, int count, List<AssetReference> held,
-            Dictionary<string, BindingData> loadedByDevice)
+            Dictionary<string, BindingData> loadedByDevice, List<CompositePart> parts)
         {
             List<BindingInfo> bindingInfos = new();
 
@@ -41,6 +46,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 if (bindingInfo != null)
                 {
                     bindingInfos.Add(bindingInfo);
+                    parts?.Add(GetCompositePart(binding));
                 }
             }
 
@@ -66,21 +72,42 @@ namespace NPTP.InputSystemWrapper.Bindings
         }
 
         /// <summary>
+        /// Which part of its composite a binding is, or DontIsolatePart when it is not part of one.
+        /// </summary>
+        internal static CompositePart GetCompositePart(InputBinding binding)
+        {
+            if (!binding.isPartOfComposite)
+            {
+                return CompositePart.DontIsolatePart;
+            }
+
+            foreach (CompositePart compositePart in compositeParts)
+            {
+                if (compositePart.Matches(binding))
+                {
+                    return compositePart;
+                }
+            }
+
+            return CompositePart.DontIsolatePart;
+        }
+
+        /// <summary>
         /// What a run of bindings will need, worked out without loading anything: the device and the
         /// path on it for each binding that has one. Feeding both the loading paths from this keeps them
         /// describing the same set of entries.
         /// </summary>
-        internal static List<(string DeviceLayoutName, string PathOnDevice)> GetNeededEntries(
+        internal static List<(string DeviceLayoutName, string PathOnDevice, CompositePart Part)> GetNeededEntries(
             ReadOnlyArray<InputBinding> bindings, InputBinding bindingMask, int startIndex, int count)
         {
-            List<(string, string)> needed = new();
+            List<(string, string, CompositePart)> needed = new();
 
             for (int i = startIndex; i < startIndex + count; i++)
             {
                 InputBinding binding = bindings[i];
                 if (bindingMask.Matches(binding) && ControlPath.TryParse(binding.effectivePath, out ControlPath controlPath))
                 {
-                    needed.Add((controlPath.DeviceLayoutName, controlPath.PathOnDevice));
+                    needed.Add((controlPath.DeviceLayoutName, controlPath.PathOnDevice, GetCompositePart(binding)));
                 }
             }
 

@@ -130,16 +130,20 @@ namespace NPTP.InputSystemWrapper.Bindings
                     int partCount = CountParts(bindings, i);
                     if (AnyMatches(bindings, bindingMask, i + 1, partCount))
                     {
+                        List<CompositePart> parts = new();
                         resolved.Add(new BindingSlot(resolved.Count, i, isComposite: true, partCount + 1,
-                            BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i + 1, partCount, held, loadedByDevice)));
+                            BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i + 1, partCount, held, loadedByDevice, parts),
+                            parts));
                     }
 
                     i += partCount;
                 }
                 else if (bindingMask.Matches(binding))
                 {
+                    List<CompositePart> parts = new();
                     resolved.Add(new BindingSlot(resolved.Count, i, isComposite: false, 1,
-                        BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i, 1, held, loadedByDevice)));
+                        BindingGetter.GetBindingInfos(inputData, bindings, bindingMask, i, 1, held, loadedByDevice, parts),
+                        parts));
                 }
             }
 
@@ -155,7 +159,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             Action<BindingSlots> onResolved)
         {
             List<AssetReference> held = new();
-            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice)> needed = new();
+            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice, CompositePart Part)> needed = new();
             List<BindingSlot> resolved = PlanSlots(action, controlSchemeId, needed);
 
             if (needed.Count == 0)
@@ -167,21 +171,27 @@ namespace NPTP.InputSystemWrapper.Bindings
             LoadDeviceData(inputData, needed, held, loadedByDevice =>
             {
                 List<List<BindingInfo>> infosBySlot = new();
-                for (int i = 0; i < resolved.Count; i++) infosBySlot.Add(new List<BindingInfo>());
+                List<List<CompositePart>> partsBySlot = new();
+                for (int i = 0; i < resolved.Count; i++)
+                {
+                    infosBySlot.Add(new List<BindingInfo>());
+                    partsBySlot.Add(new List<CompositePart>());
+                }
 
-                foreach ((int slotIndex, string deviceLayoutName, string pathOnDevice) in needed)
+                foreach ((int slotIndex, string deviceLayoutName, string pathOnDevice, CompositePart part) in needed)
                 {
                     loadedByDevice.TryGetValue(deviceLayoutName, out BindingData bindingData);
                     BindingInfo bindingInfo = BindingGetter.TakeLoadedBindingInfo(bindingData, pathOnDevice, held);
                     if (bindingInfo != null)
                     {
                         infosBySlot[slotIndex].Add(bindingInfo);
+                        partsBySlot[slotIndex].Add(part);
                     }
                 }
 
                 for (int i = 0; i < resolved.Count; i++)
                 {
-                    resolved[i] = resolved[i].WithBindingInfos(infosBySlot[i]);
+                    resolved[i] = resolved[i].WithBindingInfos(infosBySlot[i], partsBySlot[i]);
                 }
 
                 onResolved?.Invoke(new BindingSlots(resolved, action.name, controlSchemeId.Name, held));
@@ -194,7 +204,7 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// two cannot disagree about what counts as a slot.
         /// </summary>
         private static List<BindingSlot> PlanSlots(InputAction action, ControlSchemeId controlSchemeId,
-            List<(int, string, string)> needed)
+            List<(int, string, string, CompositePart)> needed)
         {
             List<BindingSlot> planned = new();
             InputBinding bindingMask = controlSchemeId.ToBindingMask();
@@ -231,12 +241,12 @@ namespace NPTP.InputSystemWrapper.Bindings
 
                 int slotIndex = planned.Count;
                 planned.Add(new BindingSlot(slotIndex, isComposite ? startIndex - 1 : startIndex, isComposite,
-                    isComposite ? count + 1 : 1, null));
+                    isComposite ? count + 1 : 1, null, null));
 
-                foreach ((string deviceLayoutName, string pathOnDevice) in
+                foreach ((string deviceLayoutName, string pathOnDevice, CompositePart part) in
                          BindingGetter.GetNeededEntries(bindings, bindingMask, startIndex, count))
                 {
-                    needed.Add((slotIndex, deviceLayoutName, pathOnDevice));
+                    needed.Add((slotIndex, deviceLayoutName, pathOnDevice, part));
                 }
             }
 
@@ -247,11 +257,11 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// Load the binding data for every device the slots touch, once each, then hand them over together.
         /// </summary>
         private static void LoadDeviceData(InputData inputData,
-            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice)> needed, List<AssetReference> held,
+            List<(int SlotIndex, string DeviceLayoutName, string PathOnDevice, CompositePart Part)> needed, List<AssetReference> held,
             Action<Dictionary<string, BindingData>> onLoaded)
         {
             HashSet<string> deviceLayoutNames = new();
-            foreach ((int _, string deviceLayoutName, string _) in needed) deviceLayoutNames.Add(deviceLayoutName);
+            foreach ((int _, string deviceLayoutName, string _, CompositePart _) in needed) deviceLayoutNames.Add(deviceLayoutName);
 
             Dictionary<string, BindingData> loadedByDevice = new();
             int remaining = deviceLayoutNames.Count;

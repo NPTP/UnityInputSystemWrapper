@@ -4,8 +4,6 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using NPTP.InputSystemWrapper;
-
 namespace NPTP.InputSystemWrapper.Actions
 {
     /// <summary>
