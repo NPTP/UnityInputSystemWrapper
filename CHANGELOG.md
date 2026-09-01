@@ -2,7 +2,7 @@
 ## Changelog
 
 10.0.0
-- The composite part on an ActionReference offers only the parts the action can have: an action read as a float comes from an axis composite, so positive and negative, while a Vector2 action's composite has up, down, left and right
+- The composite part on an ActionReference offers only the parts the action can have, matching how the input system decides which composites an action may be given: an action read as a float comes from an axis composite, so positive and negative, while a Vector2 action's composite has up, down, left and right
 - `InputBindingDisplay.PlayerID` points its reference at a player and loads again in one call, and `UIIndex` switches which of the action's bindings is shown, repainting from what is already loaded
 - `InputBindingDisplay` clears its outputs when the binding it is asked for does not exist, instead of leaving the previous one on screen
 - `ActionReference.PlayerID` is public and settable, so one screen can be pointed at each player in turn instead of needing a reference per player. Setting it drops the cached action wrapper, which belongs to the player it pointed at before

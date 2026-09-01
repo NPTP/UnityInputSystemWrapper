@@ -25,6 +25,7 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
         private const string COMPOSITE_PART = "compositePart";
         private const string PLAYER_ID = "playerID";
         private const string NO_ASSET_NOTE = "No input action asset is assigned.";
+        private const string FLOAT = "float";
 
         private static GUIStyle NoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
 
@@ -84,18 +85,18 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
 
         /// <summary>
         /// The composite parts a popup offers, always including the whole binding. Which parts exist
-        /// follows from what the action reads: a float action can only come from an axis composite, whose
-        /// parts are positive and negative, while a Vector2 action's composite has up, down, left and
-        /// right. Unlike the bindings themselves, an action's value type is fixed at edit time.
+        /// follows from what its composites produce: a float comes from an axis composite, whose parts are
+        /// positive and negative, while a Vector2 composite has up, down, left and right. Unlike the
+        /// bindings themselves, an action's value type is fixed at edit time.
         /// </summary>
         private static CompositePart[] GetIsolatableParts(SerializedProperty reference)
         {
             InputAction action = (reference.objectReferenceValue as InputActionReference)?.action;
-            string valueTypeName = action == null ? null : ControlValueTypeNames.FromAction(action);
+            string valueTypeName = GetCompositeValueTypeName(action);
 
             return valueTypeName switch
             {
-                "float" or "int" or "double" => new[]
+                FLOAT or "int" or "double" => new[]
                 {
                     CompositePart.DontIsolatePart, CompositePart.Positive, CompositePart.Negative
                 },
@@ -115,6 +116,28 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
                 null => (CompositePart[])Enum.GetValues(typeof(CompositePart)),
                 _ => new[] { CompositePart.DontIsolatePart }
             };
+        }
+
+        /// <summary>
+        /// What an action's composites produce, which is not the same question as what its values are
+        /// read as: a button has no ReadValue of its own, but its composites still yield a float, so an
+        /// axis composite's positive and negative parts apply to it.
+        /// </summary>
+        private static string GetCompositeValueTypeName(InputAction action)
+        {
+            if (action == null)
+            {
+                return null;
+            }
+
+            if (action.type is InputActionType.Button)
+            {
+                return FLOAT;
+            }
+
+            return string.IsNullOrEmpty(action.expectedControlType)
+                ? null
+                : ControlValueTypeNames.FromControlType(action.expectedControlType);
         }
 
         private static bool HasIsolatableParts(SerializedProperty reference) => GetIsolatableParts(reference).Length > 1;
