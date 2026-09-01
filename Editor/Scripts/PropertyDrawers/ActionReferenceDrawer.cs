@@ -49,13 +49,13 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
             currentRect.x += INDENT;
             currentRect.width -= INDENT;
 
-            SerializedProperty reference = property.FindPropertyRelative(REFERENCE);
-            currentRect.y += lineHeight;
-            DrawReference(currentRect, reference);
-
             SerializedProperty playerID = property.FindPropertyRelative(PLAYER_ID);
             currentRect.y += lineHeight;
             EditorGUI.PropertyField(currentRect, playerID);
+
+            SerializedProperty reference = property.FindPropertyRelative(REFERENCE);
+            currentRect.y += lineHeight;
+            DrawReference(currentRect, reference);
 
             CompositePart[] parts = GetIsolatableParts(reference);
             if (parts.Length > 1)
