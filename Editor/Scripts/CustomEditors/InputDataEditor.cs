@@ -167,15 +167,23 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             }
 
             EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
+            DrawVirtualMouseMapProblems(asset);
+
             EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
+
             EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
             if (virtualMouseCursorPrefab.objectReferenceValue == null)
             {
                 DrawSpecialNote("With no cursor prefab the mouse still moves and clicks, but nothing is drawn for it.");
             }
+        }
 
-            EditorGUILayout.Space();
-
+        /// <summary>
+        /// What the chosen map is missing, and the button that writes it, or nothing at all when the map
+        /// holds what it should.
+        /// </summary>
+        private void DrawVirtualMouseMapProblems(InputActionAsset asset)
+        {
             string mapName = virtualMouseActionMapName.stringValue;
             if (string.IsNullOrEmpty(mapName))
             {
@@ -187,7 +195,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             List<string> problems = VirtualMouseMapSpec.Problems(actionMap);
             if (problems.Count == 0)
             {
-                DrawSpecialNote($"\"{mapName}\" holds everything a virtual mouse map needs.");
                 return;
             }
 
@@ -196,11 +203,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 DrawWarning(problem);
             }
 
-            EditorGUILayout.Space(2);
             if (GUILayout.Button(actionMap == null ? $"Create \"{mapName}\" Map" : $"Add What \"{mapName}\" Is Missing"))
             {
                 VirtualMouseMapWriter.CreateOrComplete(asset, mapName);
             }
+
+            EditorGUILayout.Space(2);
         }
 
         public override void OnInspectorGUI()
