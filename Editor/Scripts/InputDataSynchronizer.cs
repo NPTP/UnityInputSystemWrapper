@@ -46,6 +46,7 @@ namespace NPTP.InputSystemWrapper.Editor
             SyncDeviceBindingData(serializedObject, inputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, inputData);
             SyncInputContexts(serializedObject, inputData);
+            SyncDefaultsNotSetYet(serializedObject);
             WarnAboutUnknownMapNames(inputData, inputData.InputActionAsset);
 
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
@@ -62,6 +63,27 @@ namespace NPTP.InputSystemWrapper.Editor
             {
                 arrayProperty.GetArrayElementAtIndex(i).stringValue = source[i];
             }
+        }
+
+        /// <summary>
+        /// Fill in anything the project's input data leaves empty that the package has a default for, so a
+        /// project set up before a default existed picks it up. Anything already set is left alone.
+        /// </summary>
+        private static void SyncDefaultsNotSetYet(SerializedObject serializedObject)
+        {
+            SerializedProperty cursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
+            if (cursorPrefab == null || cursorPrefab.objectReferenceValue != null)
+            {
+                return;
+            }
+
+            InputData packageDefault = Generation.ProjectAssets.FindPackageDefaultInputData();
+            if (packageDefault == null || packageDefault.VirtualMouseCursorPrefab == null)
+            {
+                return;
+            }
+
+            cursorPrefab.objectReferenceValue = Generation.ProjectAssets.EnsureProjectCopyOfDefault(packageDefault.VirtualMouseCursorPrefab);
         }
 
         private static void SyncEventSystemOptions(SerializedObject serializedObject, InputData inputData)

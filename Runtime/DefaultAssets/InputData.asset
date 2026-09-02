@@ -20,33 +20,80 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cbc07a2735103854da8062de8ce7547f, type: 2}
   - {fileID: 11400000, guid: f941eee3f8e1c4e4e9f33b1ab63d95b4, type: 2}
   customInteractions: []
-  controlSchemes:
-  - controlSchemeName: Keyboard&Mouse
-    basis: 0
-  - controlSchemeName: Gamepad
-    basis: 0
-  - controlSchemeName: Touch
-    basis: 0
-  - controlSchemeName: Joystick
-    basis: 0
-  - controlSchemeName: XR
-    basis: 0
-  deviceBindingData:
-  - deviceLayoutName: Keyboard
-    bindingData: {fileID: 11400000, guid: 5f09eeb46fa5d824693aa90c6e28db1b, type: 2}
-  - deviceLayoutName: Mouse
-    bindingData: {fileID: 11400000, guid: e3237326c3dc69b41b36e821f4428859, type: 2}
-  - deviceLayoutName: Gamepad
-    bindingData: {fileID: 11400000, guid: ac71e3bea7814754cb46b25eb4ba79b0, type: 2}
-  - deviceLayoutName: Touchscreen
-    bindingData: {fileID: 11400000, guid: 7beb8025558e2434b96f040c07565278, type: 2}
-  - deviceLayoutName: Joystick
-    bindingData: {fileID: 11400000, guid: 4f5e8bd00dcda674baa89064f58b6713, type: 2}
-  - deviceLayoutName: XRController
-    bindingData: {fileID: 11400000, guid: 2775955cedea9854f96a69c9a016b0de, type: 2}
   bindingExcludedPaths: []
   bindingCancelPaths:
   - /Keyboard/escape
+  virtualMouseActionMapName: VirtualMouse
+  virtualMouseCursorMode: 0
+  virtualMouseCursorPrefab: {fileID: 8902196083450860466, guid: 6fe1eabfebca89e4dad51178726eab76, type: 3}
+  defaultContextIndex: 0
+  loadAllBindingOverridesOnInitialize: 1
+  bindingSerializationMode: 1
+  initializationMode: 0
+  authoredContexts: []
+  moveRepeatDelay: 0.5
+  moveRepeatRate: 0.1
+  deselectOnBackgroundClick: 0
+  pointerBehavior: 0
+  cursorLockBehavior: 0
+  point: {fileID: 0}
+  leftClick: {fileID: 0}
+  middleClick: {fileID: 0}
+  rightClick: {fileID: 0}
+  scrollWheel: {fileID: 0}
+  move: {fileID: 0}
+  submit: {fileID: 0}
+  cancel: {fileID: 0}
+  trackedDevicePosition: {fileID: 0}
+  trackedDeviceOrientation: {fileID: 0}
+  controlSchemes:
+  - controlSchemeName: Keyboard&Mouse
+    deviceFamilies: 0
+  - controlSchemeName: Gamepad
+    deviceFamilies: 0
+  - controlSchemeName: Touch
+    deviceFamilies: 0
+  - controlSchemeName: Joystick
+    deviceFamilies: 0
+  - controlSchemeName: XR
+    deviceFamilies: 0
+  deviceBindingData:
+  - deviceLayoutName: Keyboard
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - deviceLayoutName: Mouse
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - deviceLayoutName: Gamepad
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - deviceLayoutName: Touchscreen
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - deviceLayoutName: Joystick
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - deviceLayoutName: XRController
+    bindingData:
+      m_AssetGUID: 
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
   eventSystemOptions:
     moveRepeatDelay: 0.5
     moveRepeatRate: 0.1
@@ -80,5 +127,3 @@ MonoBehaviour:
     activeMapNames:
     - Player
     eventSystemActionOverrides: []
-  defaultContextIndex: 0
-  loadAllBindingOverridesOnInitialize: 1
