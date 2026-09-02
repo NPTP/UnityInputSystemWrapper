@@ -2,6 +2,10 @@
 ## Changelog
 
 10.0.0
+- Bindings can be written into a line of text where it names one: "Press <isw action=\"Fire\"> to shoot" shows the button the player would press. Only the action is required, and the fullest form names everything: `<isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2>`. An action name on its own is enough unless two action maps share it, in which case write "Map.Action"
+- `InputGlyphText`, a component that writes those glyphs into a TextMeshPro label. Sprites are drawn through sprite assets built at runtime, since binding sprites are loaded rather than authored into a sprite sheet
+- `InlineGlyphTagParser` and `InlineGlyphResolver` read those elements and resolve them to binding info on their own, for text components other than TextMeshPro
+- `InputDisplayBehaviour<T>`, the shared base for anything that shows bindings and has to load them: it reloads when the bindings or the device in use change, holds what it loaded, releases it when disabled, and drops the result of a load that is no longer wanted
 - `ISW.PlayerCount`, `ISW.PlayerExists` and `ISW.GetPlayerIDs` ask which players exist without creating one, which `GetPlayer` does
 - `ISW.TryGetPlayerPairedWithDevice` says which player a device belongs to, so a press can be attributed to a player
 - `CompositePart` gains Modifier, Modifier1, Modifier2, Button and Binding, so the modifier composites can be isolated like any other
