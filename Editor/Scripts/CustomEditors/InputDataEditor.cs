@@ -159,7 +159,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             DrawHeader("Virtual Mouse");
             DrawSpecialNote("A mouse a player drives with these actions, for pointing at a UI with a gamepad.");
-            DrawSpecialNote("Switch one on per player with VirtualMouseEnabled.");
 
             InputActionAsset asset = ((InputData)target).InputActionAsset;
             if (asset == null)
