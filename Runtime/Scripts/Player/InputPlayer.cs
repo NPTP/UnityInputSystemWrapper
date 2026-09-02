@@ -9,7 +9,6 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 using Object = UnityEngine.Object;
@@ -168,7 +167,11 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal void Terminate()
         {
-            virtualMouse?.Disable();
+            if (virtualMouse != null)
+            {
+                virtualMouse.Enabled = false;
+            }
+
             Enabled = false;
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
@@ -473,23 +476,14 @@ namespace NPTP.InputSystemWrapper.Player
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
         }
 
-        /// <summary>Whether this player is driving a virtual mouse right now.</summary>
-        public bool VirtualMouseEnabled => virtualMouse != null && virtualMouse.Enabled;
-
         /// <summary>
-        /// Start driving a mouse from this player's virtual mouse actions, for pointing at a UI with a
-        /// gamepad. The cursor transform is the graphic to move, if there is one to move.
+        /// Whether this player is driving a mouse with the virtual mouse map's actions, for pointing at a
+        /// UI with a gamepad. The cursor and how it behaves are set on the input data.
         /// </summary>
-        public void EnableVirtualMouse(RectTransform cursorTransform = null, Graphic cursorGraphic = null,
-            VirtualMouseInput.CursorMode cursorMode = VirtualMouseInput.CursorMode.SoftwareCursor)
+        public bool VirtualMouseEnabled
         {
-            VirtualMouse.Enable(cursorTransform, cursorGraphic, cursorMode);
-        }
-
-        /// <summary>Stop driving a virtual mouse and take its device away.</summary>
-        public void DisableVirtualMouse()
-        {
-            virtualMouse?.Disable();
+            get => virtualMouse != null && virtualMouse.Enabled;
+            set => VirtualMouse.Enabled = value;
         }
 
         /// <summary>

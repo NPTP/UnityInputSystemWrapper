@@ -25,7 +25,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableTypeDefinition isw = SourceGen.NewClass("ISW").Public().Static()
                 .InNamespace(GeneratedNamespaces.ROOT)
                 .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.InputSystem",
-                    "UnityEngine.InputSystem.UI", "UnityEngine.UI",
                     GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS, GeneratedNamespaces.BINDINGS,
                     GeneratedNamespaces.ENUMS, GeneratedNamespaces.PLAYER, GeneratedNamespaces.UTILITIES)
                 .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
@@ -59,15 +58,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Expression("DefaultPlayer.CurrentControlScheme"));
 
             isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
-                    .Expression("DefaultPlayer.VirtualMouseEnabled"))
-                .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().Static().ReturningVoid()
-                    .Taking(GeneratableParameter.Of("RectTransform", "cursorTransform", "null"),
-                        GeneratableParameter.Of("Graphic", "cursorGraphic", "null"),
-                        GeneratableParameter.Of("VirtualMouseInput.CursorMode", "cursorMode",
-                            "VirtualMouseInput.CursorMode.SoftwareCursor"))
-                    .Expression("DefaultPlayer.EnableVirtualMouse(cursorTransform, cursorGraphic, cursorMode)"))
-                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().Static().ReturningVoid()
-                    .Expression("DefaultPlayer.DisableVirtualMouse()"));
+                .WithAccessors("DefaultPlayer.VirtualMouseEnabled", "DefaultPlayer.VirtualMouseEnabled = value"));
         }
 
         private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)

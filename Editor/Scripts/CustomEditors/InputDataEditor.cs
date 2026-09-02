@@ -24,6 +24,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty initializationMode;
 
         private SerializedProperty virtualMouseActionMapName;
+        private SerializedProperty virtualMouseCursorMode;
+        private SerializedProperty virtualMouseCursorPrefab;
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
@@ -59,6 +61,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
             virtualMouseActionMapName = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseActionMapNameField);
+            virtualMouseCursorMode = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorModeField);
+            virtualMouseCursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
@@ -155,6 +159,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             DrawHeader("Virtual Mouse");
             DrawSpecialNote("A mouse a player drives with these actions, for pointing at a UI with a gamepad.");
+            DrawSpecialNote("Switch one on per player with VirtualMouseEnabled.");
 
             InputActionAsset asset = ((InputData)target).InputActionAsset;
             if (asset == null)
@@ -164,6 +169,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             }
 
             EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
+            EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
+            EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
+            if (virtualMouseCursorPrefab.objectReferenceValue == null)
+            {
+                DrawSpecialNote("With no cursor prefab the mouse still moves and clicks, but nothing is drawn for it.");
+            }
+
+            EditorGUILayout.Space();
 
             string mapName = virtualMouseActionMapName.stringValue;
             if (string.IsNullOrEmpty(mapName))

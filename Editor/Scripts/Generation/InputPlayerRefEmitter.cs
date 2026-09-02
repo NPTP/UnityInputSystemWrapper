@@ -29,8 +29,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableTypeDefinition playerRef = SourceGen.NewStruct(TYPE_NAME).Public().ReadOnly()
                 .InNamespace(GeneratedNamespaces.PLAYER)
                 .WithDirectives("System", GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS,
-                    GeneratedNamespaces.ENUMS, "UnityEngine", "UnityEngine.InputSystem", "UnityEngine.InputSystem.UI",
-                    "UnityEngine.UI")
+                    GeneratedNamespaces.ENUMS, "UnityEngine.InputSystem")
                 .WithField(SourceGen.NewField(FIELD, INPUT_PLAYER).Private().ReadOnly())
                 .WithMethod(SourceGen.NewMethod(TYPE_NAME).Private().AsConstructor()
                     .Taking(GeneratableParameter.Of(INPUT_PLAYER, FIELD))
@@ -86,17 +85,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static void AddVirtualMouse(GeneratableTypeDefinition playerRef)
         {
-            playerRef
-                .WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
-                    .Expression($"{FIELD}.VirtualMouseEnabled"))
-                .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid()
-                    .Taking(GeneratableParameter.Of("RectTransform", "cursorTransform", "null"),
-                        GeneratableParameter.Of("Graphic", "cursorGraphic", "null"),
-                        GeneratableParameter.Of("VirtualMouseInput.CursorMode", "cursorMode",
-                            "VirtualMouseInput.CursorMode.SoftwareCursor"))
-                    .Expression($"{FIELD}.EnableVirtualMouse(cursorTransform, cursorGraphic, cursorMode)"))
-                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().ReturningVoid()
-                    .Expression($"{FIELD}.DisableVirtualMouse()"));
+            playerRef.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
+                .WithAccessors($"{FIELD}.VirtualMouseEnabled", $"{FIELD}.VirtualMouseEnabled = value"));
         }
 
         /// <summary>

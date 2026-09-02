@@ -3,9 +3,9 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.UI;
-using VirtualMouseInput = UnityEngine.InputSystem.UI.VirtualMouseInput;
 
 namespace NPTP.InputSystemWrapper.Player
 {
@@ -19,12 +19,27 @@ namespace NPTP.InputSystemWrapper.Player
         private readonly InputData inputData;
 
         private GameObject gameObject;
+        private GameObject cursor;
         private VirtualMouseInput virtualMouseInput;
 
         /// <summary>The device being driven, or null while this is off.</summary>
         internal Mouse Device => virtualMouseInput == null ? null : virtualMouseInput.virtualMouse;
 
-        internal bool Enabled => gameObject != null;
+        internal bool Enabled
+        {
+            get => gameObject != null;
+            set
+            {
+                if (value)
+                {
+                    Enable();
+                }
+                else
+                {
+                    Disable();
+                }
+            }
+        }
 
         internal PlayerVirtualMouse(InputPlayer player, InputData inputData)
         {
@@ -36,7 +51,7 @@ namespace NPTP.InputSystemWrapper.Player
         /// Start driving a mouse from the player's virtual mouse actions. Does nothing when the map named
         /// on the input data is missing or does not hold what a virtual mouse map must.
         /// </summary>
-        internal void Enable(RectTransform cursorTransform, Graphic cursorGraphic, VirtualMouseInput.CursorMode cursorMode)
+        private void Enable()
         {
             if (Enabled)
             {
@@ -56,16 +71,15 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
-            // Built inactive so its actions are in place before it adds its device and starts reading them,
-            // which it does the moment it is enabled.
+            // Built inactive so its actions and cursor are in place before it adds its device and starts
+            // reading them, which it does the moment it is enabled.
             gameObject = new GameObject($"Player[{player.ID.ToString()}]VirtualMouse");
             gameObject.transform.SetParent(player.PlayerInputTransform, worldPositionStays: false);
             gameObject.SetActive(false);
 
             virtualMouseInput = gameObject.AddComponent<VirtualMouseInput>();
-            virtualMouseInput.cursorMode = cursorMode;
-            virtualMouseInput.cursorTransform = cursorTransform;
-            virtualMouseInput.cursorGraphic = cursorGraphic;
+            virtualMouseInput.cursorMode = inputData.VirtualMouseCursorMode;
+            SetUpCursor();
 
             virtualMouseInput.stickAction = PropertyFor(actionMap, VirtualMouseMapSpec.MOVE);
             virtualMouseInput.leftButtonAction = PropertyFor(actionMap, VirtualMouseMapSpec.LEFT_BUTTON);
@@ -83,8 +97,8 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
-        /// <summary>Stop driving the mouse and take its device away.</summary>
-        internal void Disable()
+        /// <summary>Stop driving the mouse, take its device away and put its cursor away.</summary>
+        private void Disable()
         {
             if (!Enabled)
             {
@@ -102,6 +116,38 @@ namespace NPTP.InputSystemWrapper.Player
             Object.Destroy(gameObject);
             gameObject = null;
             virtualMouseInput = null;
+
+            if (cursor != null)
+            {
+                Object.Destroy(cursor);
+                cursor = null;
+            }
+        }
+
+        /// <summary>
+        /// Put this player's own copy of the cursor on screen. A cursor lives at the root of the scene
+        /// rather than under the player, since it draws through a canvas of its own.
+        /// </summary>
+        private void SetUpCursor()
+        {
+            GameObject prefab = inputData.VirtualMouseCursorPrefab;
+            if (prefab == null)
+            {
+                return;
+            }
+
+            cursor = Object.Instantiate(prefab);
+            cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
+
+            RectTransform cursorTransform = cursor.transform as RectTransform;
+            if (cursorTransform == null)
+            {
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no RectTransform at its " +
+                                    "root, so it cannot be moved with the mouse.");
+            }
+
+            virtualMouseInput.cursorTransform = cursorTransform;
+            virtualMouseInput.cursorGraphic = cursor.GetComponentInChildren<Graphic>();
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)

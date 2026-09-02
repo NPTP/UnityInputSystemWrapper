@@ -49,6 +49,16 @@ namespace NPTP.InputSystemWrapper.Data
         [InputMapSelector][SerializeField] private string virtualMouseActionMapName = VirtualMouseMapSpec.DEFAULT_MAP_NAME;
         internal string VirtualMouseActionMapName => virtualMouseActionMapName;
 
+        [Tooltip("Software draws a cursor graphic and leaves the system mouse alone. Hardware takes the system " +
+                 "mouse over and moves the operating system's cursor, disabling the real mouse while it is on.")]
+        [SerializeField] private VirtualMouseInput.CursorMode virtualMouseCursorMode = VirtualMouseInput.CursorMode.SoftwareCursor;
+        internal VirtualMouseInput.CursorMode VirtualMouseCursorMode => virtualMouseCursorMode;
+
+        [Tooltip("The cursor to show while a player's virtual mouse is on, instantiated per player and destroyed " +
+                 "with it. Its root needs a RectTransform, and it needs a Canvas of its own to be drawn on.")]
+        [SerializeField] private GameObject virtualMouseCursorPrefab;
+        internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
+
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
 
@@ -205,6 +215,8 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_ContextDefinitionsField = nameof(contextDefinitions);
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
         internal const string EDITOR_VirtualMouseActionMapNameField = nameof(virtualMouseActionMapName);
+        internal const string EDITOR_VirtualMouseCursorModeField = nameof(virtualMouseCursorMode);
+        internal const string EDITOR_VirtualMouseCursorPrefabField = nameof(virtualMouseCursorPrefab);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_BindingSerializationModeField = nameof(bindingSerializationMode);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
