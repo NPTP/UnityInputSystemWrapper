@@ -9,6 +9,7 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.Utilities;
 using Object = UnityEngine.Object;
@@ -123,6 +124,19 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal InputActionAsset Asset { get; }
 
+        /// <summary>Where the virtual mouse hangs, so it goes away with the player.</summary>
+        internal Transform PlayerInputTransform => playerInputGameObject == null ? null : playerInputGameObject.transform;
+
+        internal InputUser User => playerInput == null ? default : playerInput.user;
+
+        private PlayerVirtualMouse virtualMouse;
+
+        /// <summary>
+        /// A mouse this player drives with the actions of the virtual mouse map, for pointing at a UI with
+        /// a gamepad. Off until it is switched on.
+        /// </summary>
+        internal PlayerVirtualMouse VirtualMouse => virtualMouse ??= new PlayerVirtualMouse(this, inputData);
+
         internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
 
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
@@ -154,6 +168,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal void Terminate()
         {
+            virtualMouse?.Disable();
             Enabled = false;
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
@@ -456,6 +471,25 @@ namespace NPTP.InputSystemWrapper.Player
             }
 
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
+        }
+
+        /// <summary>Whether this player is driving a virtual mouse right now.</summary>
+        public bool VirtualMouseEnabled => virtualMouse != null && virtualMouse.Enabled;
+
+        /// <summary>
+        /// Start driving a mouse from this player's virtual mouse actions, for pointing at a UI with a
+        /// gamepad. The cursor transform is the graphic to move, if there is one to move.
+        /// </summary>
+        public void EnableVirtualMouse(RectTransform cursorTransform = null, Graphic cursorGraphic = null,
+            VirtualMouseInput.CursorMode cursorMode = VirtualMouseInput.CursorMode.SoftwareCursor)
+        {
+            VirtualMouse.Enable(cursorTransform, cursorGraphic, cursorMode);
+        }
+
+        /// <summary>Stop driving a virtual mouse and take its device away.</summary>
+        public void DisableVirtualMouse()
+        {
+            virtualMouse?.Disable();
         }
 
         /// <summary>

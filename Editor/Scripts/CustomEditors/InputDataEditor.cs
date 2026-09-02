@@ -1,5 +1,7 @@
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEditor;
@@ -21,6 +23,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private SerializedProperty initializationMode;
 
+        private SerializedProperty virtualMouseActionMapName;
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
@@ -55,6 +58,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             customInteractions = serializedObject.FindProperty(nameof(customInteractions));
 
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
+            virtualMouseActionMapName = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseActionMapNameField);
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
@@ -140,6 +144,54 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             InputActionReferenceDropdown.Draw(trackedDeviceOrientation, asset);
         }
 
+        /// <summary>
+        /// The map a player's virtual mouse is driven by, what is wrong with it, and a button to write the
+        /// actions it is missing.
+        /// </summary>
+        private void DrawVirtualMouse()
+        {
+            EditorGUILayout.Space();
+            ISWEditorHelper.DrawHorizontalLine();
+
+            DrawHeader("Virtual Mouse");
+            DrawSpecialNote("A mouse a player drives with these actions, for pointing at a UI with a gamepad.");
+
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
+            if (asset == null)
+            {
+                DrawSpecialNote("No input action asset is assigned.");
+                return;
+            }
+
+            EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
+
+            string mapName = virtualMouseActionMapName.stringValue;
+            if (string.IsNullOrEmpty(mapName))
+            {
+                DrawWarning("No action map is chosen, so no player can drive a virtual mouse.");
+                return;
+            }
+
+            InputActionMap actionMap = asset.FindActionMap(mapName, throwIfNotFound: false);
+            List<string> problems = VirtualMouseMapSpec.Problems(actionMap);
+            if (problems.Count == 0)
+            {
+                DrawSpecialNote($"\"{mapName}\" holds everything a virtual mouse map needs.");
+                return;
+            }
+
+            foreach (string problem in problems)
+            {
+                DrawWarning(problem);
+            }
+
+            EditorGUILayout.Space(2);
+            if (GUILayout.Button(actionMap == null ? $"Create \"{mapName}\" Map" : $"Add What \"{mapName}\" Is Missing"))
+            {
+                VirtualMouseMapWriter.CreateOrComplete(asset, mapName);
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -195,6 +247,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(cursorLockBehavior);
 
             DrawDefaultEventSystemActions();
+
+            DrawVirtualMouse();
 
             serializedObject.ApplyModifiedProperties();
         }

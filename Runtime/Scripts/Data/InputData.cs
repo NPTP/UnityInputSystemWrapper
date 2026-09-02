@@ -3,6 +3,7 @@ using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
@@ -43,6 +44,10 @@ namespace NPTP.InputSystemWrapper.Data
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
+
+        [Tooltip("The action map whose actions drive a player's virtual mouse.")]
+        [InputMapSelector][SerializeField] private string virtualMouseActionMapName = VirtualMouseMapSpec.DEFAULT_MAP_NAME;
+        internal string VirtualMouseActionMapName => virtualMouseActionMapName;
 
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
@@ -199,6 +204,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
         internal const string EDITOR_ContextDefinitionsField = nameof(contextDefinitions);
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
+        internal const string EDITOR_VirtualMouseActionMapNameField = nameof(virtualMouseActionMapName);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_BindingSerializationModeField = nameof(bindingSerializationMode);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);
