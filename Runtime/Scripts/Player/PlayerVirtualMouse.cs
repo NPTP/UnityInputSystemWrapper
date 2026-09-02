@@ -139,15 +139,22 @@ namespace NPTP.InputSystemWrapper.Player
             cursor = Object.Instantiate(prefab);
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
-            RectTransform cursorTransform = cursor.transform as RectTransform;
+            // What moves is the graphic's own transform, not the prefab's root: a cursor carries its own
+            // canvas, and a canvas drives its rect transform itself, overwriting anything moving it. The
+            // graphic also decides which canvas the cursor is held inside the bounds of.
+            Graphic cursorGraphic = cursor.GetComponentInChildren<Graphic>();
+            RectTransform cursorTransform = cursorGraphic == null
+                ? cursor.transform as RectTransform
+                : cursorGraphic.rectTransform;
+
             if (cursorTransform == null)
             {
-                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no RectTransform at its " +
-                                    "root, so it cannot be moved with the mouse.");
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no graphic and no " +
+                                    "RectTransform at its root, so nothing in it can be moved with the mouse.");
             }
 
+            virtualMouseInput.cursorGraphic = cursorGraphic;
             virtualMouseInput.cursorTransform = cursorTransform;
-            virtualMouseInput.cursorGraphic = cursor.GetComponentInChildren<Graphic>();
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)
