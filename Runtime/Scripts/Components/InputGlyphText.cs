@@ -1,6 +1,6 @@
 #if ISW_TEXTMESHPRO
+using System;
 using System.Collections.Generic;
-using NPTP.InputSystemWrapper.Player;
 using NPTP.InputSystemWrapper.Text;
 using TMPro;
 using UnityEngine;
@@ -21,7 +21,7 @@ namespace NPTP.InputSystemWrapper.Components
     /// </para>
     /// </summary>
     [RequireComponent(typeof(TMP_Text))]
-    public class InputGlyphText : MonoBehaviour
+    public class InputGlyphText : InputDisplayBehaviour<InlineGlyphResolutions>
     {
         [Tooltip("The line to show, with an <isw ...> element wherever a binding should appear.")]
         [TextArea(2, 6)]
@@ -43,7 +43,7 @@ namespace NPTP.InputSystemWrapper.Components
 
                 sourceText = value;
 
-                // Enabling writes the line anyway, so a change while disabled needs nothing more.
+                // Enabling loads anyway, so a change while disabled needs nothing more than the new value.
                 if (isActiveAndEnabled)
                 {
                     Refresh();
@@ -53,64 +53,21 @@ namespace NPTP.InputSystemWrapper.Components
 
         private TMP_Text text;
 
-        /// <summary>The bindings on screen now, held so their assets can be given back.</summary>
-        private InlineGlyphResolutions resolutions;
-
         /// <summary>The sprite assets the sprite tags in the written line point at.</summary>
         private RuntimeSpriteAssets runtimeSpriteAssets;
 
         /// <summary>Which sprite tag name each glyph was written as, by where the glyph sat in the line.</summary>
         private readonly Dictionary<int, string> spriteNamesByTagStart = new();
 
-        /// <summary>
-        /// Tells a load that finishes after this was disabled or asked to load again that its result is no
-        /// longer wanted, so it is released rather than shown.
-        /// </summary>
-        private int loadGeneration;
-
         private void Awake()
         {
             text = GetComponent<TMP_Text>();
         }
 
-        private void OnEnable()
-        {
-            InputRuntime.Current.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
-            InputRuntime.Current.OnBindingsChanged += HandleBindingsChanged;
-            Refresh();
-        }
+        protected override void Load(Action<InlineGlyphResolutions> onLoaded) =>
+            InlineGlyphResolver.ResolveAsync(sourceText, onLoaded);
 
-        private void OnDisable()
-        {
-            InputRuntime.Current.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
-            InputRuntime.Current.OnBindingsChanged -= HandleBindingsChanged;
-
-            loadGeneration++;
-            Release();
-        }
-
-        /// <summary>Write the line again, e.g. after changing which player a glyph in it names.</summary>
-        public void Refresh()
-        {
-            int generation = ++loadGeneration;
-            InlineGlyphResolver.ResolveAsync(sourceText, resolved =>
-            {
-                if (generation != loadGeneration)
-                {
-                    resolved.Dispose();
-                    return;
-                }
-
-                Release();
-                resolutions = resolved;
-                Display(resolved);
-            });
-        }
-
-        private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo) => Refresh();
-        private void HandleBindingsChanged() => Refresh();
-
-        private void Display(InlineGlyphResolutions resolved)
+        protected override void Display(InlineGlyphResolutions resolved)
         {
             BuildSpriteAssets(resolved);
 
@@ -120,13 +77,21 @@ namespace NPTP.InputSystemWrapper.Components
             text.text = resolved.BuildText(FormatSprite);
         }
 
+        protected override void OnReleased()
+        {
+            runtimeSpriteAssets?.Dispose();
+            runtimeSpriteAssets = null;
+            spriteNamesByTagStart.Clear();
+        }
+
         /// <summary>
         /// Gather the sprites the line asks for into sprite assets TextMeshPro can draw from, and remember
         /// the name each glyph is written as.
         /// </summary>
         private void BuildSpriteAssets(InlineGlyphResolutions resolved)
         {
-            spriteNamesByTagStart.Clear();
+            // Showing again without loading again rebuilds these, so the previous ones are given back.
+            OnReleased();
 
             List<Sprite> sprites = new();
             List<int> tagStarts = new();
@@ -166,16 +131,6 @@ namespace NPTP.InputSystemWrapper.Components
             return spriteNamesByTagStart.TryGetValue(resolution.Tag.StartIndex, out string spriteName)
                 ? $"<sprite name=\"{spriteName}\">"
                 : string.Empty;
-        }
-
-        private void Release()
-        {
-            resolutions?.Dispose();
-            resolutions = null;
-
-            runtimeSpriteAssets?.Dispose();
-            runtimeSpriteAssets = null;
-            spriteNamesByTagStart.Clear();
         }
     }
 }
