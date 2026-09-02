@@ -66,8 +66,9 @@ namespace NPTP.InputSystemWrapper.Editor
         }
 
         /// <summary>
-        /// Fill in anything the project's input data leaves empty that the package has a default for, so a
-        /// project set up before a default existed picks it up. Anything already set is left alone.
+        /// Fill in anything the project's input data leaves empty that the package has a default for. The
+        /// package's own asset is referenced, so customizing means assigning one of your own. Anything
+        /// already set is left alone.
         /// </summary>
         private static void SyncDefaultsNotSetYet(SerializedObject serializedObject)
         {
@@ -83,7 +84,7 @@ namespace NPTP.InputSystemWrapper.Editor
                 return;
             }
 
-            cursorPrefab.objectReferenceValue = Generation.ProjectAssets.EnsureProjectCopyOfDefault(packageDefault.VirtualMouseCursorPrefab);
+            cursorPrefab.objectReferenceValue = packageDefault.VirtualMouseCursorPrefab;
         }
 
         private static void SyncEventSystemOptions(SerializedObject serializedObject, InputData inputData)

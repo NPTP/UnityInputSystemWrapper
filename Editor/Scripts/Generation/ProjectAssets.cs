@@ -110,52 +110,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 : AssetDatabase.LoadAssetAtPath<InputData>(defaultsFolder + "/" + INPUT_DATA_NAME + ".asset");
         }
 
-        /// <summary>
-        /// The project's own copy of one of the package's default assets, copied in if it is not there yet.
-        /// A project set up before the package gained a default has none of it, so it is brought over on
-        /// the next generation rather than the project referencing an asset it cannot edit.
-        /// </summary>
-        internal static T EnsureProjectCopyOfDefault<T>(T packageDefault) where T : Object
-        {
-            string packagePath = AssetDatabase.GetAssetPath(packageDefault);
-            string defaultsFolder = FindPackageDefaultsFolder();
-            if (string.IsNullOrEmpty(packagePath) || string.IsNullOrEmpty(defaultsFolder) ||
-                !packagePath.StartsWith(defaultsFolder + "/"))
-            {
-                return packageDefault;
-            }
-
-            string relativePath = packagePath.Substring(defaultsFolder.Length + 1);
-            string destination = ResourcesFolderAssetPath + "/" + relativePath;
-            if (!File.Exists(destination))
-            {
-                CreateFoldersFor(destination);
-                AssetDatabase.CopyAsset(packagePath, destination);
-                AssetDatabase.ImportAsset(destination);
-                GenerationReport.Record($"{destination} (default copied into the project)");
-            }
-
-            T copy = AssetDatabase.LoadAssetAtPath<T>(destination);
-            return copy == null ? packageDefault : copy;
-        }
-
-        /// <summary>Make every folder an asset path needs, from the top down.</summary>
-        private static void CreateFoldersFor(string assetPath)
-        {
-            string[] parts = assetPath.Split('/');
-            string built = parts[0];
-            for (int i = 1; i < parts.Length - 1; i++)
-            {
-                string next = built + "/" + parts[i];
-                if (!AssetDatabase.IsValidFolder(next))
-                {
-                    AssetDatabase.CreateFolder(built, parts[i]);
-                }
-
-                built = next;
-            }
-        }
-
         private static void CopyContents(string sourceFolder, string destinationFolder)
         {
             foreach (string subfolder in AssetDatabase.GetSubFolders(sourceFolder))
