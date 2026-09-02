@@ -8,17 +8,10 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Components
 {
     /// <summary>
-    /// Writes bindings into a line of text, in place, wherever it names one:
-    /// "Press &lt;isw action="Fire"&gt; to shoot" shows the button the player would press.
-    /// <para>
-    /// The fullest form of the element names everything: &lt;isw type="sprite" player=1
-    /// action="Gameplay.Fire" composite="positive" index=2&gt;. Only the action is required, and an action
-    /// name on its own is enough unless two action maps share it, in which case write "Map.Action".
-    /// </para>
-    /// <para>
-    /// The bindings load in the background and the line is written once they are all in, so it appears
-    /// whole rather than filling in a glyph at a time. Their assets are released when this is disabled.
-    /// </para>
+    /// Writes bindings into a line of TextMeshPro text wherever it names one, as
+    /// &lt;isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2&gt;. Only the
+    /// action is required, and an action name alone is enough unless two maps share it, in which case write
+    /// "Map.Action". The line is written once every binding in it has loaded.
     /// </summary>
     [RequireComponent(typeof(TMP_Text))]
     public class InputGlyphText : InputDisplayBehaviour<InlineGlyphResolutions>
@@ -43,7 +36,7 @@ namespace NPTP.InputSystemWrapper.Components
 
                 sourceText = value;
 
-                // Enabling loads anyway, so a change while disabled needs nothing more than the new value.
+                // Enabling loads anyway, so a change while disabled needs nothing more.
                 if (isActiveAndEnabled)
                 {
                     Refresh();
@@ -71,8 +64,7 @@ namespace NPTP.InputSystemWrapper.Components
         {
             BuildSpriteAssets(resolved);
 
-            // The sprite asset has to be in place before the line naming its sprites is set, or the first
-            // draw of that line finds no sprite by those names.
+            // In place before the line naming its sprites, so the first draw of that line can find them.
             text.spriteAsset = runtimeSpriteAssets?.Primary;
             text.text = resolved.BuildText(FormatSprite);
         }
@@ -85,12 +77,12 @@ namespace NPTP.InputSystemWrapper.Components
         }
 
         /// <summary>
-        /// Gather the sprites the line asks for into sprite assets TextMeshPro can draw from, and remember
-        /// the name each glyph is written as.
+        /// Gather the sprites the line asks for into sprite assets to draw from, and remember the name each
+        /// glyph is written as.
         /// </summary>
         private void BuildSpriteAssets(InlineGlyphResolutions resolved)
         {
-            // Showing again without loading again rebuilds these, so the previous ones are given back.
+            // Rebuilt on every display, so the previous ones are given back first.
             OnReleased();
 
             List<Sprite> sprites = new();
@@ -124,7 +116,7 @@ namespace NPTP.InputSystemWrapper.Components
         }
 
         /// <summary>
-        /// The sprite tag for a glyph, or nothing when it has no sprite, which leaves its display name.
+        /// The sprite tag for a glyph, or nothing when it has no sprite, leaving its display name.
         /// </summary>
         private string FormatSprite(InlineGlyphResolution resolution)
         {

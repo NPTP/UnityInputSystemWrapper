@@ -7,13 +7,9 @@ using UnityEngine.Events;
 namespace NPTP.InputSystemWrapper.Components
 {
     /// <summary>
-    /// Shows one binding of an action: its name and its sprite. Place it, choose an action, and handle
-    /// whichever of the events you need - anything left unhandled is simply not shown.
-    /// <para>
-    /// The binding's assets load in the background, so a screen full of these opens on time and each glyph
-    /// appears as it arrives rather than every one of them stalling the frame. They are released when this
-    /// is disabled, so a rebinding screen costs nothing once closed.
-    /// </para>
+    /// Shows one binding of an action: its name and its sprite. Choose an action and handle whichever of the
+    /// events you need - anything left unhandled is not shown. Its assets load in the background and are
+    /// released when this is disabled.
     /// </summary>
     public class InputBindingDisplay : InputDisplayBehaviour<BindingSlots>
     {
@@ -46,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Components
 
                 actionReference.PlayerID = value;
 
-                // Enabling loads anyway, so a change while disabled needs nothing more than the new value.
+                // Enabling loads anyway, so a change while disabled needs nothing more.
                 if (isActiveAndEnabled)
                 {
                     Refresh();
@@ -80,13 +76,11 @@ namespace NPTP.InputSystemWrapper.Components
 
         protected override void Display(BindingSlots slots)
         {
-            // The reference says which part of a composite it means, so a display wired to the up part of
-            // a movement composite shows that part rather than the whole binding's first control.
+            // The reference says which part of a composite to show, if any.
             if (!slots.TryGetAtUIIndex(uiIndex, out BindingSlot slot) ||
                 !slot.TryGetBindingInfo(actionReference.CompositePart, out BindingInfo bindingInfo))
             {
-                // Cleared rather than left as it was, so moving to a binding the action does not have
-                // does not leave the previous one on screen.
+                // Cleared, so a binding the action does not have leaves nothing behind on screen.
                 onDisplayName?.Invoke(string.Empty);
                 onSprite?.Invoke(null);
                 return;

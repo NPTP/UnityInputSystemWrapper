@@ -7,9 +7,9 @@ using NPTP.InputSystemWrapper.Utilities;
 namespace NPTP.InputSystemWrapper.Text
 {
     /// <summary>
-    /// Reads "&lt;isw ...&gt;" elements out of a string. Only the action is required, so the shortest form
-    /// is &lt;isw action="Fire"&gt;, and the fullest names the player, the composite part and the binding:
-    /// &lt;isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2&gt;.
+    /// Reads "&lt;isw ...&gt;" elements out of a string, the fullest being
+    /// &lt;isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2&gt;. Only the
+    /// action is required.
     /// </summary>
     public static class InlineGlyphTagParser
     {
@@ -19,17 +19,15 @@ namespace NPTP.InputSystemWrapper.Text
             @"(?<name>[A-Za-z][A-Za-z0-9_]*)\s*=\s*(?:""(?<value>[^""]*)""|'(?<value>[^']*)'|(?<value>[^\s>]+))",
             RegexOptions.Compiled);
 
-        /// <summary>
-        /// Whether a string is worth parsing at all, so text with no glyphs in it costs one search.
-        /// </summary>
+        /// <summary>Whether a string holds any glyph element, so a line without one costs a single search.</summary>
         public static bool ContainsTag(string text)
         {
             return !string.IsNullOrEmpty(text) && text.IndexOf(TAG_OPENING, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>
-        /// Every glyph element in the string, in the order they appear. An element naming no action is
-        /// left out with a warning, so it stays in the text as written rather than showing a wrong glyph.
+        /// Every glyph element in the string, in the order they appear. An element naming no action is left
+        /// out with a warning, and stays in the text as written.
         /// </summary>
         public static List<InlineGlyphTag> Parse(string text)
         {
@@ -50,7 +48,7 @@ namespace NPTP.InputSystemWrapper.Text
 
                 int afterName = start + TAG_OPENING.Length;
 
-                // A longer name that merely starts with this one, like <iswitch>, is not one of these.
+                // A longer name starting the same way, like <iswitch>, is not a glyph element.
                 if (afterName < text.Length && text[afterName] != '>' && !char.IsWhiteSpace(text[afterName]))
                 {
                     searchFrom = afterName;

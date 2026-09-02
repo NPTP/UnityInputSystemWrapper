@@ -9,13 +9,9 @@ using Object = UnityEngine.Object;
 namespace NPTP.InputSystemWrapper.Text
 {
     /// <summary>
-    /// Sprite assets built at runtime so binding sprites, which are loaded rather than authored into a
-    /// sprite sheet, can be written into text as sprite tags.
-    /// <para>
-    /// TextMeshPro reads all of a sprite asset's characters from one texture, so the sprites are grouped
-    /// by the texture they come from: the first group is the asset the text uses, and the rest are its
-    /// fallbacks, which are searched by name in turn.
-    /// </para>
+    /// Sprite assets built at runtime, so loaded binding sprites can be written into text as sprite tags.
+    /// A sprite asset draws from one texture, so the first texture's group is the asset the text uses and
+    /// the rest are its fallbacks.
     /// </summary>
     internal sealed class RuntimeSpriteAssets : IDisposable
     {
@@ -55,9 +51,9 @@ namespace NPTP.InputSystemWrapper.Text
         }
 
         /// <summary>
-        /// Sprite assets covering the given sprites, and the name each one answers to in a sprite tag.
-        /// Names are positional rather than taken from the sprites, so two sprites sharing a name in the
-        /// project cannot shadow one another. Returns null when there is nothing to show.
+        /// Sprite assets covering the given sprites, and the name each answers to in a sprite tag. Names
+        /// are positional, so two sprites sharing a project name cannot shadow one another. Null when there
+        /// is nothing to show.
         /// </summary>
         internal static RuntimeSpriteAssets Build(IReadOnlyList<Sprite> sprites, out string[] spriteNames)
         {
@@ -116,7 +112,7 @@ namespace NPTP.InputSystemWrapper.Text
             spriteAsset.hideFlags = HideFlags.HideAndDontSave;
             spriteAsset.spriteSheet = texture;
 
-            // The sprite tables can only be added to, not replaced, and are empty on a new asset.
+            // The legacy list an upgrade would read from, which must not be null.
             spriteAsset.spriteInfoList = new List<TMP_Sprite>();
             created.Add(spriteAsset);
 
@@ -137,8 +133,7 @@ namespace NPTP.InputSystemWrapper.Text
 
                 spriteAsset.spriteGlyphTable.Add(spriteGlyph);
 
-                // 0xFFFE is the unicode TextMeshPro gives sprites that are addressed by name rather than
-                // standing in for a character.
+                // 0xFFFE is the unicode for a sprite addressed by name rather than standing in for a character.
                 TMP_SpriteCharacter spriteCharacter = new(0xFFFE, spriteGlyph)
                 {
                     name = spriteNames[spriteIndices[i]],
@@ -148,9 +143,8 @@ namespace NPTP.InputSystemWrapper.Text
                 spriteAsset.spriteCharacterTable.Add(spriteCharacter);
             }
 
-            // The lookups are built while the asset still has no material, because TextMeshPro reads a
-            // material with no version stamped on the asset as one saved by an older version of itself,
-            // and would answer by clearing the tables just filled in above.
+            // The material goes on after the lookups are built: a material on an asset with no version
+            // stamp reads as one saved by an older TextMeshPro, which clears the tables to rebuild them.
             spriteAsset.UpdateLookupTables();
 
             Material material = new(Shader.Find(SPRITE_SHADER_NAME))

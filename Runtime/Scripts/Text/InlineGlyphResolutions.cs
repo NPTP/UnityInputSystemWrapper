@@ -7,12 +7,8 @@ using NPTP.InputSystemWrapper.Bindings;
 namespace NPTP.InputSystemWrapper.Text
 {
     /// <summary>
-    /// Every glyph element of one string and the binding each names, in the order they appear.
-    /// <para>
-    /// Holds the binding data the glyphs were read from, so dispose it when the text showing them goes
-    /// away. A set dropped without being disposed releases its data when the garbage collector reaches
-    /// it, which frees it eventually rather than promptly.
-    /// </para>
+    /// Every glyph element of one string and the binding each names, in the order they appear. Holds the
+    /// binding data they were read from, so dispose it when the text showing them goes away.
     /// </summary>
     public sealed class InlineGlyphResolutions : IReadOnlyList<InlineGlyphResolution>, IDisposable
     {
@@ -58,9 +54,9 @@ namespace NPTP.InputSystemWrapper.Text
         }
 
         /// <summary>
-        /// The source string with each glyph element replaced. Sprites are handed to the formatter, which
-        /// writes whatever the text component in use understands; anything else becomes its display name.
-        /// A glyph that resolved to nothing becomes the action's name, so the text still reads.
+        /// The source string with each glyph element replaced. A sprite goes to the formatter, which writes
+        /// whatever the text component understands; anything else becomes a display name, and a glyph that
+        /// resolved to nothing becomes the action's name.
         /// </summary>
         public string BuildText(Func<InlineGlyphResolution, string> spriteFormatter)
         {

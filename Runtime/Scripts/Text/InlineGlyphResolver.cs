@@ -25,8 +25,8 @@ namespace NPTP.InputSystemWrapper.Text
                 return;
             }
 
-            // Sized up front so each glyph can be written at its own place as it arrives, whatever order
-            // the loads finish in, and the results stay in the order the glyphs appear in the text.
+            // Indexed by glyph, so results keep the order they appear in the text whatever order the
+            // loads finish in.
             InlineGlyphResolution[] resolved = new InlineGlyphResolution[tags.Count];
             List<BindingSlots> held = new();
             int remaining = tags.Count;

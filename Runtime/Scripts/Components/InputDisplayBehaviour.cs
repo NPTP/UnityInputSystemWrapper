@@ -5,13 +5,8 @@ using UnityEngine;
 namespace NPTP.InputSystemWrapper.Components
 {
     /// <summary>
-    /// Base for anything that shows bindings and has to load them to do it. It keeps what was loaded,
-    /// gives it back when this is disabled or loads again, and loads afresh whenever the bindings or the
-    /// device in use change.
-    /// <para>
-    /// A load that finishes after this was disabled or asked to load again is released rather than shown,
-    /// so a screen paged quickly through players cannot end up displaying an earlier page's result.
-    /// </para>
+    /// Base for anything that shows bindings and has to load them to do it. Holds what was loaded, gives it
+    /// back on disable or reload, and loads again whenever the bindings or the device in use change.
     /// </summary>
     /// <typeparam name="T">What one load produces, which owns the assets it was built from.</typeparam>
     public abstract class InputDisplayBehaviour<T> : MonoBehaviour where T : class, IDisposable
@@ -23,8 +18,7 @@ namespace NPTP.InputSystemWrapper.Components
         private int loadGeneration;
 
         /// <summary>
-        /// Whether there is anything to load. A display with no action chosen yet keeps what it has rather
-        /// than clearing itself.
+        /// Whether there is anything to load. A display with no action chosen keeps what it has.
         /// </summary>
         protected virtual bool CanLoad => true;
 
@@ -70,7 +64,7 @@ namespace NPTP.InputSystemWrapper.Components
         /// <summary>Start one load, calling back with its result once it is ready.</summary>
         protected abstract void Load(Action<T> onLoaded);
 
-        /// <summary>Put a loaded result on screen. Called again, without loading, when only what to show changes.</summary>
+        /// <summary>Put a loaded result on screen. Called again without loading when only what to show changes.</summary>
         protected abstract void Display(T loaded);
 
         /// <summary>Anything a subclass built alongside the loaded result and has to give back with it.</summary>

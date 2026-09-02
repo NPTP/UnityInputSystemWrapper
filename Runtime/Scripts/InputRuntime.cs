@@ -425,7 +425,7 @@ namespace NPTP.InputSystemWrapper
 
         /// <summary>
         /// A player's wrapper for an action named in text rather than referenced as an asset. Without a map
-        /// name the first action found by that name is taken, which is enough unless two maps share a name.
+        /// name, the first action found by that name is taken.
         /// </summary>
         internal bool TryGetActionWrapperByName(int playerID, string actionMapName, string actionName, out ActionWrapper actionWrapper)
         {
