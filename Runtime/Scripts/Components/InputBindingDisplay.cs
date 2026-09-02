@@ -1,21 +1,17 @@
+using System;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Bindings;
-using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace NPTP.InputSystemWrapper.Components
 {
     /// <summary>
-    /// Shows one binding of an action: its name and its sprite. Place it, choose an action, and handle
-    /// whichever of the events you need - anything left unhandled is simply not shown.
-    /// <para>
-    /// The binding's assets load in the background, so a screen full of these opens on time and each glyph
-    /// appears as it arrives rather than every one of them stalling the frame. They are released when this
-    /// is disabled, so a rebinding screen costs nothing once closed.
-    /// </para>
+    /// Shows one binding of an action: its name and its sprite. Choose an action and handle whichever of the
+    /// events you need - anything left unhandled is not shown. Its assets load in the background and are
+    /// released when this is disabled.
     /// </summary>
-    public class InputBindingDisplay : MonoBehaviour
+    public class InputBindingDisplay : InputDisplayBehaviour<BindingSlots>
     {
         [Tooltip("The action to display a binding for.")]
         [SerializeField] private ActionReference actionReference;
@@ -46,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Components
 
                 actionReference.PlayerID = value;
 
-                // Enabling loads anyway, so a change while disabled needs nothing more than the new value.
+                // Enabling loads anyway, so a change while disabled needs nothing more.
                 if (isActiveAndEnabled)
                 {
                     Refresh();
@@ -70,73 +66,21 @@ namespace NPTP.InputSystemWrapper.Components
                 }
 
                 uiIndex = clamped;
-                if (bindingSlots != null)
-                {
-                    Display(bindingSlots);
-                }
+                Redisplay();
             }
         }
 
-        /// <summary>What is on screen now, held so its assets can be given back.</summary>
-        private BindingSlots bindingSlots;
+        protected override bool CanLoad => actionReference != null;
 
-        /// <summary>
-        /// Tells a load that finishes after this was disabled or asked to load again that its result is no
-        /// longer wanted, so it is released rather than shown.
-        /// </summary>
-        private int loadGeneration;
+        protected override void Load(Action<BindingSlots> onLoaded) => actionReference.GetCurrentBindingSlotsAsync(onLoaded);
 
-        private void OnEnable()
+        protected override void Display(BindingSlots slots)
         {
-            InputRuntime.Current.OnAnyPlayerInputUserChange += HandleAnyPlayerInputUserChange;
-            InputRuntime.Current.OnBindingsChanged += HandleBindingsChanged;
-            Refresh();
-        }
-
-        private void OnDisable()
-        {
-            InputRuntime.Current.OnAnyPlayerInputUserChange -= HandleAnyPlayerInputUserChange;
-            InputRuntime.Current.OnBindingsChanged -= HandleBindingsChanged;
-
-            loadGeneration++;
-            Release();
-        }
-
-        /// <summary>Load this binding again, e.g. after changing which action is shown in code.</summary>
-        public void Refresh()
-        {
-            if (actionReference == null)
-            {
-                return;
-            }
-
-            int generation = ++loadGeneration;
-            actionReference.GetCurrentBindingSlotsAsync(slots =>
-            {
-                if (generation != loadGeneration)
-                {
-                    slots.Dispose();
-                    return;
-                }
-
-                Release();
-                bindingSlots = slots;
-                Display(slots);
-            });
-        }
-
-        private void HandleAnyPlayerInputUserChange(InputUserChangeInfo inputUserChangeInfo) => Refresh();
-        private void HandleBindingsChanged() => Refresh();
-
-        private void Display(BindingSlots slots)
-        {
-            // The reference says which part of a composite it means, so a display wired to the up part of
-            // a movement composite shows that part rather than the whole binding's first control.
+            // The reference says which part of a composite to show, if any.
             if (!slots.TryGetAtUIIndex(uiIndex, out BindingSlot slot) ||
                 !slot.TryGetBindingInfo(actionReference.CompositePart, out BindingInfo bindingInfo))
             {
-                // Cleared rather than left as it was, so moving to a binding the action does not have
-                // does not leave the previous one on screen.
+                // Cleared, so a binding the action does not have leaves nothing behind on screen.
                 onDisplayName?.Invoke(string.Empty);
                 onSprite?.Invoke(null);
                 return;
@@ -144,12 +88,6 @@ namespace NPTP.InputSystemWrapper.Components
 
             onDisplayName?.Invoke(bindingInfo.DisplayName);
             onSprite?.Invoke(bindingInfo.Sprite);
-        }
-
-        private void Release()
-        {
-            bindingSlots?.Dispose();
-            bindingSlots = null;
         }
     }
 }
