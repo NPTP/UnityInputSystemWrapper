@@ -57,8 +57,10 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme"));
 
+            // Set through the runtime's own player rather than DefaultPlayer, which hands back a struct:
+            // assigning through that would only write to a copy, which C# refuses outright.
             isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
-                .WithAccessors("DefaultPlayer.VirtualMouseEnabled", "DefaultPlayer.VirtualMouseEnabled = value"));
+                .WithAccessors("DefaultPlayer.VirtualMouseEnabled", "Runtime.DefaultPlayer.VirtualMouseEnabled = value"));
         }
 
         private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
