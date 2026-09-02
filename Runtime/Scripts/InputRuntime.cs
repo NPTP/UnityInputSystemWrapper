@@ -423,6 +423,38 @@ namespace NPTP.InputSystemWrapper
             return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
 
+        /// <summary>
+        /// A player's wrapper for an action named in text rather than referenced as an asset. Without a map
+        /// name the first action found by that name is taken, which is enough unless two maps share a name.
+        /// </summary>
+        internal bool TryGetActionWrapperByName(int playerID, string actionMapName, string actionName, out ActionWrapper actionWrapper)
+        {
+            actionWrapper = null;
+            if (!playerCollection.TryGetPlayer(playerID, out InputPlayer player))
+            {
+                return false;
+            }
+
+            foreach (InputActionMap actionMap in player.Asset.actionMaps)
+            {
+                if (!string.IsNullOrEmpty(actionMapName) &&
+                    !string.Equals(actionMap.name, actionMapName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                foreach (InputAction inputAction in actionMap.actions)
+                {
+                    if (string.Equals(inputAction.name, actionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return player.TryGetMatchingActionWrapper(inputAction, out actionWrapper);
+                    }
+                }
+            }
+
+            return false;
+        }
+
         internal bool DoesPlayerExist(int playerID)
         {
             return playerCollection.TryGetPlayer(playerID, out _);
