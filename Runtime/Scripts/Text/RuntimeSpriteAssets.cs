@@ -115,16 +115,10 @@ namespace NPTP.InputSystemWrapper.Text
             spriteAsset.name = $"ISW Runtime Sprite Asset ({texture.name})";
             spriteAsset.hideFlags = HideFlags.HideAndDontSave;
             spriteAsset.spriteSheet = texture;
-            spriteAsset.spriteCharacterTable = new List<TMP_SpriteCharacter>();
-            spriteAsset.spriteGlyphTable = new List<TMP_SpriteGlyph>();
-            created.Add(spriteAsset);
 
-            Material material = new(Shader.Find(SPRITE_SHADER_NAME));
-            material.name = spriteAsset.name;
-            material.hideFlags = HideFlags.HideAndDontSave;
-            material.SetTexture(ShaderUtilities.ID_MainTex, texture);
-            spriteAsset.material = material;
-            created.Add(material);
+            // The sprite tables can only be added to, not replaced, and are empty on a new asset.
+            spriteAsset.spriteInfoList = new List<TMP_Sprite>();
+            created.Add(spriteAsset);
 
             for (int i = 0; i < spriteIndices.Count; i++)
             {
@@ -154,7 +148,21 @@ namespace NPTP.InputSystemWrapper.Text
                 spriteAsset.spriteCharacterTable.Add(spriteCharacter);
             }
 
+            // The lookups are built while the asset still has no material, because TextMeshPro reads a
+            // material with no version stamped on the asset as one saved by an older version of itself,
+            // and would answer by clearing the tables just filled in above.
             spriteAsset.UpdateLookupTables();
+
+            Material material = new(Shader.Find(SPRITE_SHADER_NAME))
+            {
+                name = spriteAsset.name,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+
+            material.SetTexture(ShaderUtilities.ID_MainTex, texture);
+            spriteAsset.material = material;
+            created.Add(material);
+
             return spriteAsset;
         }
     }
