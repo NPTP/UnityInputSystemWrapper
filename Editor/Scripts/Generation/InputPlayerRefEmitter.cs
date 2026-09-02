@@ -29,7 +29,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableTypeDefinition playerRef = SourceGen.NewStruct(TYPE_NAME).Public().ReadOnly()
                 .InNamespace(GeneratedNamespaces.PLAYER)
                 .WithDirectives("System", GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS,
-                    GeneratedNamespaces.ENUMS, "UnityEngine.InputSystem")
+                    GeneratedNamespaces.ENUMS, "UnityEngine", "UnityEngine.InputSystem", "UnityEngine.InputSystem.UI",
+                    "UnityEngine.UI")
                 .WithField(SourceGen.NewField(FIELD, INPUT_PLAYER).Private().ReadOnly())
                 .WithMethod(SourceGen.NewMethod(TYPE_NAME).Private().AsConstructor()
                     .Taking(GeneratableParameter.Of(INPUT_PLAYER, FIELD))
@@ -37,6 +38,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             AddActions(playerRef, asset);
             AddState(playerRef);
+            AddVirtualMouse(playerRef);
             AddEvents(playerRef);
             AddConversions(playerRef);
 
@@ -76,6 +78,25 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Generic(GeneratableTypeParameter.Of("TDevice", "InputDevice"))
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
                     .Expression($"{FIELD}.ControlSchemeHas<TDevice>(controlScheme.ToId())"));
+        }
+
+        /// <summary>
+        /// The mouse this player drives with the virtual mouse map's actions, for pointing at a UI with a
+        /// gamepad.
+        /// </summary>
+        private static void AddVirtualMouse(GeneratableTypeDefinition playerRef)
+        {
+            playerRef
+                .WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
+                    .Expression($"{FIELD}.VirtualMouseEnabled"))
+                .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid()
+                    .Taking(GeneratableParameter.Of("RectTransform", "cursorTransform", "null"),
+                        GeneratableParameter.Of("Graphic", "cursorGraphic", "null"),
+                        GeneratableParameter.Of("VirtualMouseInput.CursorMode", "cursorMode",
+                            "VirtualMouseInput.CursorMode.SoftwareCursor"))
+                    .Expression($"{FIELD}.EnableVirtualMouse(cursorTransform, cursorGraphic, cursorMode)"))
+                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().ReturningVoid()
+                    .Expression($"{FIELD}.DisableVirtualMouse()"));
         }
 
         /// <summary>
