@@ -155,6 +155,13 @@ namespace NPTP.InputSystemWrapper.Player
 
             virtualMouseInput.cursorGraphic = cursorGraphic;
             virtualMouseInput.cursorTransform = cursorTransform;
+
+            // Only the one graphic handed over is hidden when the hardware cursor takes over drawing, so
+            // the rest of the cursor is kept in step with it.
+            if (cursorGraphic != null)
+            {
+                cursorGraphic.gameObject.AddComponent<VirtualMouseCursorGraphics>().Follow(cursorGraphic);
+            }
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)
