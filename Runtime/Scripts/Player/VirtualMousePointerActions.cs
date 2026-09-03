@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using Object = UnityEngine.Object;
 
@@ -18,6 +19,12 @@ namespace NPTP.InputSystemWrapper.Player
     {
         private const string MAP_NAME = "ISWVirtualMousePointer";
 
+        /// <summary>
+        /// An asset of their own, because a reference can only be made to an action that lives in one, and
+        /// because a device list set here covers every map in it.
+        /// </summary>
+        private readonly InputActionAsset asset;
+
         private readonly InputActionMap actionMap;
 
         internal InputActionReference Point { get; }
@@ -30,7 +37,10 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal VirtualMousePointerActions(Mouse device)
         {
-            actionMap = new InputActionMap(MAP_NAME);
+            asset = ScriptableObject.CreateInstance<InputActionAsset>();
+            asset.name = MAP_NAME;
+            asset.hideFlags = HideFlags.HideAndDontSave;
+            actionMap = asset.AddActionMap(MAP_NAME);
 
             Point = Add("Point", InputActionType.Value, "<Mouse>/position", "Vector2");
             LeftClick = Add("LeftClick", InputActionType.Button, "<Mouse>/leftButton", "Button");
@@ -40,8 +50,8 @@ namespace NPTP.InputSystemWrapper.Player
 
             // The one device these read, so the bindings above resolve to the virtual mouse rather than to
             // every mouse present.
-            actionMap.devices = new[] { (InputDevice)device };
-            actionMap.Enable();
+            asset.devices = new[] { (InputDevice)device };
+            asset.Enable();
         }
 
         public void Dispose()
@@ -52,7 +62,7 @@ namespace NPTP.InputSystemWrapper.Player
             }
 
             disposed = true;
-            actionMap.Disable();
+            asset.Disable();
 
             // Each reference is an object of its own, made to hand an action to the event system.
             Object.Destroy(Point);
@@ -60,6 +70,7 @@ namespace NPTP.InputSystemWrapper.Player
             Object.Destroy(RightClick);
             Object.Destroy(MiddleClick);
             Object.Destroy(ScrollWheel);
+            Object.Destroy(asset);
         }
 
         private InputActionReference Add(string name, InputActionType actionType, string binding, string expectedControlType)
