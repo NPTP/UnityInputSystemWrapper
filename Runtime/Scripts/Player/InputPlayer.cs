@@ -511,6 +511,12 @@ namespace NPTP.InputSystemWrapper.Player
         public bool VirtualMouseEnabled => virtualMouse != null && virtualMouse.Enabled;
 
         /// <summary>
+        /// Where this player's virtual mouse is, in screen pixels, or zero while they are not driving one.
+        /// Separate from the system mouse's position, which it does not touch.
+        /// </summary>
+        public Vector2 VirtualMousePosition => virtualMouse == null ? Vector2.zero : virtualMouse.Position;
+
+        /// <summary>
         /// Start driving a mouse from this player's virtual mouse actions. The cursor is put under the
         /// given parent, or left at the scene's root when there is none.
         /// </summary>

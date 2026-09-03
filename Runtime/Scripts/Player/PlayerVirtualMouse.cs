@@ -27,6 +27,9 @@ namespace NPTP.InputSystemWrapper.Player
         /// <summary>The device being driven, or null while this is off.</summary>
         internal Mouse Device => virtualMouseInput == null ? null : virtualMouseInput.virtualMouse;
 
+        /// <summary>Where the cursor is, in screen pixels, or zero while this is off.</summary>
+        internal Vector2 Position => Device == null ? Vector2.zero : Device.position.ReadValue();
+
         internal bool Enabled => gameObject != null;
 
         internal PlayerVirtualMouse(InputPlayer player, InputData inputData)

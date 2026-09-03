@@ -59,6 +59,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
                     .Expression("DefaultPlayer.VirtualMouseEnabled"))
+                .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public().Static()
+                    .Expression("DefaultPlayer.VirtualMousePosition"))
                 .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of("RectTransform", "cursorParent", "null"))
                     .Expression("DefaultPlayer.EnableVirtualMouse(cursorParent)"))

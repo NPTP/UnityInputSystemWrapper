@@ -88,6 +88,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             playerRef
                 .WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
                     .Expression($"{FIELD}.VirtualMouseEnabled"))
+                .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public()
+                    .Expression($"{FIELD}.VirtualMousePosition"))
                 .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid()
                     .Taking(GeneratableParameter.Of("RectTransform", "cursorParent", "null"))
                     .Expression($"{FIELD}.EnableVirtualMouse(cursorParent)"))
