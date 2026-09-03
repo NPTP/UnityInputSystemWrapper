@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Components;
 using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
@@ -130,38 +131,29 @@ namespace NPTP.InputSystemWrapper.Player
         /// </summary>
         private void SetUpCursor()
         {
-            GameObject prefab = inputData.VirtualMouseCursorPrefab;
+            ISWVirtualMouseUI prefab = inputData.VirtualMouseCursorPrefab;
             if (prefab == null)
             {
                 return;
             }
 
-            cursor = Object.Instantiate(prefab);
+            ISWVirtualMouseUI instance = Object.Instantiate(prefab);
+            cursor = instance.gameObject;
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
-            // What moves is the graphic's own transform, not the prefab's root: a cursor carries its own
+            Graphic cursorGraphic = instance.CursorGraphic;
+            if (cursorGraphic == null)
+            {
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" names no cursor graphic, " +
+                                    "so nothing in it can be moved with the mouse.");
+                return;
+            }
+
+            // What moves is the graphic's own transform, not the cursor's root: a cursor carries its own
             // canvas, and a canvas drives its rect transform itself, overwriting anything moving it. The
             // graphic also decides which canvas the cursor is held inside the bounds of.
-            Graphic cursorGraphic = cursor.GetComponentInChildren<Graphic>();
-            RectTransform cursorTransform = cursorGraphic == null
-                ? cursor.transform as RectTransform
-                : cursorGraphic.rectTransform;
-
-            if (cursorTransform == null)
-            {
-                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no graphic and no " +
-                                    "RectTransform at its root, so nothing in it can be moved with the mouse.");
-            }
-
             virtualMouseInput.cursorGraphic = cursorGraphic;
-            virtualMouseInput.cursorTransform = cursorTransform;
-
-            // Only the one graphic handed over is hidden when the hardware cursor takes over drawing, so
-            // the rest of the cursor is kept in step with it.
-            if (cursorGraphic != null)
-            {
-                cursorGraphic.gameObject.AddComponent<VirtualMouseCursorGraphics>().Follow(cursorGraphic);
-            }
+            virtualMouseInput.cursorTransform = cursorGraphic.rectTransform;
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)

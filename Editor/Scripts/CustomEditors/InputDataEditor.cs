@@ -1,4 +1,5 @@
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Components;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Player;
 using System.Collections.Generic;
@@ -172,6 +173,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
 
             EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
+            DrawSpecialNote($"Needs an {nameof(ISWVirtualMouseUI)} on its root. A prefab without one cannot be assigned here.");
             if (virtualMouseCursorPrefab.objectReferenceValue == null)
             {
                 DrawSpecialNote("With no cursor prefab the mouse still moves and clicks, but nothing is drawn for it.");

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Components;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Player;
@@ -55,9 +56,9 @@ namespace NPTP.InputSystemWrapper.Data
         internal VirtualMouseInput.CursorMode VirtualMouseCursorMode => virtualMouseCursorMode;
 
         [Tooltip("The cursor to show while a player's virtual mouse is on, instantiated per player and destroyed " +
-                 "with it. Its root needs a RectTransform, and it needs a Canvas of its own to be drawn on.")]
-        [SerializeField] private GameObject virtualMouseCursorPrefab;
-        internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
+                 "with it. Needs an ISWVirtualMouseUI on its root, and a Canvas of its own to be drawn on.")]
+        [SerializeField] private ISWVirtualMouseUI virtualMouseCursorPrefab;
+        internal ISWVirtualMouseUI VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
 
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
