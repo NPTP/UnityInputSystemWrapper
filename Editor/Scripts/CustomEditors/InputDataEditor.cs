@@ -193,10 +193,16 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 return;
             }
 
+            if (cursorUI.CursorTransform == null)
+            {
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor transform, so " +
+                            "nothing in it can be moved with the mouse.");
+            }
+
             if (cursorUI.CursorGraphic == null)
             {
-                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor graphic, so " +
-                            "nothing in it can be moved with the mouse.");
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor graphic, so it " +
+                            "cannot be hidden when the hardware cursor draws instead.");
             }
         }
 

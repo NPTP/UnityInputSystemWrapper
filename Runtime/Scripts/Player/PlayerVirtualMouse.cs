@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
-using UnityEngine.UI;
 
 namespace NPTP.InputSystemWrapper.Player
 {
@@ -148,19 +147,17 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
-            Graphic cursorGraphic = cursorUI.CursorGraphic;
-            if (cursorGraphic == null)
+            if (cursorUI.CursorTransform == null)
             {
-                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" names no cursor graphic, " +
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" names no cursor transform, " +
                                     "so nothing in it can be moved with the mouse.");
                 return;
             }
 
-            // What moves is the graphic's own transform, not the cursor's root: a cursor carries its own
-            // canvas, and a canvas drives its rect transform itself, overwriting anything moving it. The
-            // graphic also decides which canvas the cursor is held inside the bounds of.
-            virtualMouseInput.cursorGraphic = cursorGraphic;
-            virtualMouseInput.cursorTransform = cursorGraphic.rectTransform;
+            // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
+            // mouse hides when the hardware cursor draws instead.
+            virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
+            virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)

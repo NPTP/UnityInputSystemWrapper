@@ -16,12 +16,20 @@ namespace NPTP.InputSystemWrapper.Components
     [DisallowMultipleComponent]
     public class ISWVirtualMouseUI : MonoBehaviour
     {
-        [Tooltip("The graphic the virtual mouse moves. Its pivot is the point that clicks, so put it on the " +
-                 "cursor's tip, and anchor it to the bottom left.")]
+        [Tooltip("The graphic the virtual mouse shows and hides. Everything else drawn in this cursor is shown " +
+                 "and hidden along with it.")]
         [SerializeField] private Graphic cursorGraphic;
 
-        /// <summary>The graphic the mouse moves and draws its position with.</summary>
+        /// <summary>The graphic the mouse draws its position with.</summary>
         public Graphic CursorGraphic => cursorGraphic;
+
+        [Tooltip("The transform the virtual mouse moves. Usually the cursor graphic's own, and never the canvas " +
+                 "above it, which drives its own position. Its pivot is the point that clicks, so put it on the " +
+                 "cursor's tip, and anchor it to the bottom left.")]
+        [SerializeField] private RectTransform cursorTransform;
+
+        /// <summary>The transform the mouse moves to its position each update.</summary>
+        public RectTransform CursorTransform => cursorTransform;
 
         /// <summary>Everything else drawn in this cursor, shown and hidden along with the graphic above.</summary>
         private readonly List<Graphic> followers = new();
