@@ -136,26 +136,29 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
+            // Checked on the prefab rather than on a copy of it, so a cursor that could not work is never
+            // built. What it names is what the copy's own component names, so the copy needs no checking.
+            ISWVirtualMouseUI prefabCursorUI = prefab.GetComponent<ISWVirtualMouseUI>();
+            if (prefabCursorUI == null)
+            {
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no " +
+                                    $"{nameof(ISWVirtualMouseUI)} on its root, so no cursor is shown.");
+                return;
+            }
+
+            if (prefabCursorUI.CursorTransform == null || prefabCursorUI.CursorGraphic == null)
+            {
+                ISWDebug.LogWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" needs both a cursor " +
+                                    "transform and a cursor graphic, so no cursor is shown.");
+                return;
+            }
+
             cursor = Object.Instantiate(prefab);
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
-            ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
-            if (cursorUI == null)
-            {
-                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no " +
-                                    $"{nameof(ISWVirtualMouseUI)} on its root, so nothing in it can be moved with the mouse.");
-                return;
-            }
-
-            if (cursorUI.CursorTransform == null)
-            {
-                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" names no cursor transform, " +
-                                    "so nothing in it can be moved with the mouse.");
-                return;
-            }
-
             // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
             // mouse hides when the hardware cursor draws instead.
+            ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
             virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
             virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
         }

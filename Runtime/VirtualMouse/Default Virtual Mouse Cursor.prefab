@@ -130,6 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cursorGraphic: {fileID: 3506011793772850255}
+  cursorTransform: {fileID: 5083782559602188555}
 --- !u!223 &170443950949622399
 Canvas:
   m_ObjectHideFlags: 0
