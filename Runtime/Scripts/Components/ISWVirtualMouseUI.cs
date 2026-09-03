@@ -26,18 +26,15 @@ namespace NPTP.InputSystemWrapper.Components
             GetComponentsInChildren(includeInactive: true, cursorGraphicFollowers);
             cursorGraphicFollowers.Remove(cursorGraphic);
 
-            if (cursorGraphic == null)
-            {
-                return;
-            }
-
             drawnLastFrame = cursorGraphic.enabled;
             Apply();
         }
 
         private void LateUpdate()
         {
-            if (cursorGraphic == null || cursorGraphic.enabled == drawnLastFrame)
+            // Nothing here checks the graphic is there: a cursor is only built with one, and comparing
+            // against a Unity object every frame costs more than reading a bool.
+            if (cursorGraphic.enabled == drawnLastFrame)
             {
                 return;
             }
@@ -50,10 +47,7 @@ namespace NPTP.InputSystemWrapper.Components
         {
             foreach (Graphic follower in cursorGraphicFollowers)
             {
-                if (follower != null)
-                {
-                    follower.enabled = drawnLastFrame;
-                }
+                follower.enabled = drawnLastFrame;
             }
         }
     }
