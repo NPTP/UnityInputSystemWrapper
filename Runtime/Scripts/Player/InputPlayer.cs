@@ -320,6 +320,38 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
+        /// <summary>
+        /// Point this player's event system at a virtual mouse's own actions, so its pointer drives their UI.
+        /// </summary>
+        internal void ApplyVirtualMousePointerActions(VirtualMousePointerActions pointerActions)
+        {
+            ApplyEventSystemAction(EventSystemActionType.Point, pointerActions.Point);
+            ApplyEventSystemAction(EventSystemActionType.LeftClick, pointerActions.LeftClick);
+            ApplyEventSystemAction(EventSystemActionType.RightClick, pointerActions.RightClick);
+            ApplyEventSystemAction(EventSystemActionType.MiddleClick, pointerActions.MiddleClick);
+            ApplyEventSystemAction(EventSystemActionType.ScrollWheel, pointerActions.ScrollWheel);
+        }
+
+        /// <summary>
+        /// Put the event system back on the player's own actions: the defaults, then whatever the context
+        /// they are in overrides, which is the same order a context change applies them in.
+        /// </summary>
+        internal void RestoreEventSystemActions()
+        {
+            SetDefaultEventSystemActions();
+
+            InputContextDefinition contextDefinition = inputData.GetContextDefinition(inputContextId);
+            if (contextDefinition == null)
+            {
+                return;
+            }
+
+            foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+            {
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
+            }
+        }
+
         private void DisableAllMapsAndRemoveCallbacks()
         {
             foreach (IActionMapWrapper actionMapWrapper in actionMapWrappers.Values)

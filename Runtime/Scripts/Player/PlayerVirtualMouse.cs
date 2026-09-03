@@ -5,7 +5,6 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.InputSystem.Users;
 
 namespace NPTP.InputSystemWrapper.Player
 {
@@ -22,8 +21,8 @@ namespace NPTP.InputSystemWrapper.Player
         private GameObject cursor;
         private VirtualMouseInput virtualMouseInput;
 
-        /// <summary>The player's other mice, set aside while the virtual one drives their UI.</summary>
-        private readonly List<InputDevice> unpairedMice = new();
+        /// <summary>The actions this mouse drives the player's UI with, held so they can be given back.</summary>
+        private VirtualMousePointerActions pointerActions;
 
         /// <summary>The device being driven, or null while this is off.</summary>
         internal Mouse Device => virtualMouseInput == null ? null : virtualMouseInput.virtualMouse;
@@ -79,12 +78,12 @@ namespace NPTP.InputSystemWrapper.Player
 
             gameObject.SetActive(true);
 
-            // Paired so its input reaches this player's actions and counts as theirs rather than as a stray
-            // device, which is what would otherwise move them onto a control scheme wanting a mouse.
-            if (Device != null && player.User.valid)
+            // Never paired to the player: the control scheme decides what they are paired with and drops
+            // anything it does not name. The event system reads the device through actions of its own.
+            if (Device != null)
             {
-                InputUser.PerformPairingWithDevice(Device, player.User);
-                UnpairOtherMice();
+                pointerActions = new VirtualMousePointerActions(Device);
+                player.ApplyVirtualMousePointerActions(pointerActions);
             }
         }
 
@@ -96,13 +95,12 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
-            Mouse device = Device;
-            if (device != null && player.User.valid)
+            if (pointerActions != null)
             {
-                player.User.UnpairDevice(device);
+                player.RestoreEventSystemActions();
+                pointerActions.Dispose();
+                pointerActions = null;
             }
-
-            RepairOtherMice();
 
             // Destroying the object disables the component, which removes the device and gives the system
             // mouse back if it had taken it.
@@ -159,44 +157,6 @@ namespace NPTP.InputSystemWrapper.Player
 
             virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
             virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
-        }
-
-        /// <summary>
-        /// Take the player's other mice off them for as long as the virtual one is driving their UI.
-        /// Left as the player's only mouse, the action binds to a single control and reads it live,
-        /// which is what makes its actions land - otherwise it conflicts with the other mice.
-        /// </summary>
-        private void UnpairOtherMice()
-        {
-            foreach (InputDevice pairedDevice in player.User.pairedDevices)
-            {
-                if (pairedDevice is Mouse && pairedDevice != Device)
-                {
-                    unpairedMice.Add(pairedDevice);
-                }
-            }
-
-            foreach (InputDevice mouse in unpairedMice)
-            {
-                player.User.UnpairDevice(mouse);
-            }
-        }
-
-        /// <summary>Give the player back the mice taken from them, if they are still around.</summary>
-        private void RepairOtherMice()
-        {
-            if (player.User.valid)
-            {
-                foreach (InputDevice mouse in unpairedMice)
-                {
-                    if (mouse.added)
-                    {
-                        InputUser.PerformPairingWithDevice(mouse, player.User);
-                    }
-                }
-            }
-
-            unpairedMice.Clear();
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)
