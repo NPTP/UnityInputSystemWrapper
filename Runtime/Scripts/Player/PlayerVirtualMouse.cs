@@ -131,17 +131,24 @@ namespace NPTP.InputSystemWrapper.Player
         /// </summary>
         private void SetUpCursor()
         {
-            ISWVirtualMouseUI prefab = inputData.VirtualMouseCursorPrefab;
+            GameObject prefab = inputData.VirtualMouseCursorPrefab;
             if (prefab == null)
             {
                 return;
             }
 
-            ISWVirtualMouseUI instance = Object.Instantiate(prefab);
-            cursor = instance.gameObject;
+            cursor = Object.Instantiate(prefab);
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
-            Graphic cursorGraphic = instance.CursorGraphic;
+            ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
+            if (cursorUI == null)
+            {
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no " +
+                                    $"{nameof(ISWVirtualMouseUI)} on its root, so nothing in it can be moved with the mouse.");
+                return;
+            }
+
+            Graphic cursorGraphic = cursorUI.CursorGraphic;
             if (cursorGraphic == null)
             {
                 ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" names no cursor graphic, " +

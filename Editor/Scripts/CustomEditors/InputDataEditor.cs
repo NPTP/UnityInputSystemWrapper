@@ -173,10 +173,30 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
 
             EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
-            DrawSpecialNote($"Needs an {nameof(ISWVirtualMouseUI)} on its root. A prefab without one cannot be assigned here.");
-            if (virtualMouseCursorPrefab.objectReferenceValue == null)
+            DrawVirtualMouseCursorProblems();
+        }
+
+        /// <summary>What stops the chosen prefab from drawing a cursor, or nothing when it can.</summary>
+        private void DrawVirtualMouseCursorProblems()
+        {
+            if (virtualMouseCursorPrefab.objectReferenceValue is not GameObject prefab)
             {
                 DrawSpecialNote("With no cursor prefab the mouse still moves and clicks, but nothing is drawn for it.");
+                return;
+            }
+
+            ISWVirtualMouseUI cursorUI = prefab.GetComponent<ISWVirtualMouseUI>();
+            if (cursorUI == null)
+            {
+                DrawWarning($"\"{prefab.name}\" has no {nameof(ISWVirtualMouseUI)} on its root. Add one there and " +
+                            "point it at the graphic the cursor moves.");
+                return;
+            }
+
+            if (cursorUI.CursorGraphic == null)
+            {
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor graphic, so " +
+                            "nothing in it can be moved with the mouse.");
             }
         }
 

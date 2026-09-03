@@ -57,8 +57,8 @@ namespace NPTP.InputSystemWrapper.Data
 
         [Tooltip("The cursor to show while a player's virtual mouse is on, instantiated per player and destroyed " +
                  "with it. Needs an ISWVirtualMouseUI on its root, and a Canvas of its own to be drawn on.")]
-        [SerializeField] private ISWVirtualMouseUI virtualMouseCursorPrefab;
-        internal ISWVirtualMouseUI VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
+        [SerializeField] private GameObject virtualMouseCursorPrefab;
+        internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
 
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
