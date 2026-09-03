@@ -194,14 +194,12 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             if (cursorUI.CursorTransform == null)
             {
-                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor transform, so " +
-                            "nothing in it can be moved with the mouse.");
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" has no cursor transform assigned.");
             }
 
             if (cursorUI.CursorGraphic == null)
             {
-                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" names no cursor graphic, so it " +
-                            "cannot be hidden when the hardware cursor draws instead.");
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" has no cursor graphic assigned.");
             }
         }
 

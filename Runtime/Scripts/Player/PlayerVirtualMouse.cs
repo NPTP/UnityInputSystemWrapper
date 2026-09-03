@@ -159,6 +159,11 @@ namespace NPTP.InputSystemWrapper.Player
             // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
             // mouse hides when the hardware cursor draws instead.
             ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
+
+            // Started in the middle of the screen rather than in the corner its anchors put it, since the
+            // mouse takes the cursor's position as its own when it starts driving it.
+            cursorUI.CursorTransform.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
             virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
             virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
         }
