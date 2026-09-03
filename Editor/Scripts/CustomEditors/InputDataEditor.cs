@@ -188,8 +188,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             ISWVirtualMouseUI cursorUI = prefab.GetComponent<ISWVirtualMouseUI>();
             if (cursorUI == null)
             {
-                DrawWarning($"\"{prefab.name}\" has no {nameof(ISWVirtualMouseUI)} on its root. Add one there and " +
-                            "point it at the graphic the cursor moves.");
+                DrawWarning($"\"{prefab.name}\" has no {nameof(ISWVirtualMouseUI)} on its root.");
                 return;
             }
 

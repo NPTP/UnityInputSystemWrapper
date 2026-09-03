@@ -7,6 +7,8 @@ namespace NPTP.InputSystemWrapper.Components
     /// <summary>
     /// The root of a virtual mouse cursor. Put it on a cursor prefab, point it at the graphic the mouse
     /// should move, and name that prefab on the input data.
+    /// Components are null-validated before instantiation so we can avoidant unperformant UnityEngine.Object
+    /// null checks in our per-frame polling.
     /// </summary>
     [DisallowMultipleComponent]
     public class ISWVirtualMouseUI : MonoBehaviour
@@ -32,8 +34,6 @@ namespace NPTP.InputSystemWrapper.Components
 
         private void LateUpdate()
         {
-            // Nothing here checks the graphic is there: a cursor is only built with one, and comparing
-            // against a Unity object every frame costs more than reading a bool.
             if (cursorGraphic.enabled == drawnLastFrame)
             {
                 return;
