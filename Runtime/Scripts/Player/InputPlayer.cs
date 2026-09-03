@@ -167,11 +167,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal void Terminate()
         {
-            if (virtualMouse != null)
-            {
-                virtualMouse.Enabled = false;
-            }
-
+            virtualMouse?.Disable();
             Enabled = false;
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
@@ -480,10 +476,21 @@ namespace NPTP.InputSystemWrapper.Player
         /// Whether this player is driving a mouse with the virtual mouse map's actions, for pointing at a
         /// UI with a gamepad. The cursor and how it behaves are set on the input data.
         /// </summary>
-        public bool VirtualMouseEnabled
+        public bool VirtualMouseEnabled => virtualMouse != null && virtualMouse.Enabled;
+
+        /// <summary>
+        /// Start driving a mouse from this player's virtual mouse actions. The cursor is put under the
+        /// given parent, or left at the scene's root when there is none.
+        /// </summary>
+        public void EnableVirtualMouse(RectTransform cursorParent = null)
         {
-            get => virtualMouse != null && virtualMouse.Enabled;
-            set => VirtualMouse.Enabled = value;
+            VirtualMouse.Enable(cursorParent);
+        }
+
+        /// <summary>Stop driving a virtual mouse and take its device away.</summary>
+        public void DisableVirtualMouse()
+        {
+            virtualMouse?.Disable();
         }
 
         /// <summary>

@@ -25,21 +25,7 @@ namespace NPTP.InputSystemWrapper.Player
         /// <summary>The device being driven, or null while this is off.</summary>
         internal Mouse Device => virtualMouseInput == null ? null : virtualMouseInput.virtualMouse;
 
-        internal bool Enabled
-        {
-            get => gameObject != null;
-            set
-            {
-                if (value)
-                {
-                    Enable();
-                }
-                else
-                {
-                    Disable();
-                }
-            }
-        }
+        internal bool Enabled => gameObject != null;
 
         internal PlayerVirtualMouse(InputPlayer player, InputData inputData)
         {
@@ -51,7 +37,8 @@ namespace NPTP.InputSystemWrapper.Player
         /// Start driving a mouse from the player's virtual mouse actions. Does nothing when the map named
         /// on the input data is missing or does not hold what a virtual mouse map must.
         /// </summary>
-        private void Enable()
+        /// <param name="cursorParent">Where the cursor is put, or null to leave it at the scene's root.</param>
+        internal void Enable(RectTransform cursorParent)
         {
             if (Enabled)
             {
@@ -79,7 +66,7 @@ namespace NPTP.InputSystemWrapper.Player
 
             virtualMouseInput = gameObject.AddComponent<VirtualMouseInput>();
             virtualMouseInput.cursorMode = inputData.VirtualMouseCursorMode;
-            SetUpCursor();
+            SetUpCursor(cursorParent);
 
             virtualMouseInput.stickAction = PropertyFor(actionMap, VirtualMouseMapSpec.MOVE);
             virtualMouseInput.leftButtonAction = PropertyFor(actionMap, VirtualMouseMapSpec.LEFT_BUTTON);
@@ -98,7 +85,7 @@ namespace NPTP.InputSystemWrapper.Player
         }
 
         /// <summary>Stop driving the mouse, take its device away and put its cursor away.</summary>
-        private void Disable()
+        internal void Disable()
         {
             if (!Enabled)
             {
@@ -125,10 +112,10 @@ namespace NPTP.InputSystemWrapper.Player
         }
 
         /// <summary>
-        /// Put this player's own copy of the cursor on screen. A cursor lives at the root of the scene
-        /// rather than under the player, since it draws through a canvas of its own.
+        /// Put this player's own copy of the cursor on screen. Left at the scene's root unless a parent is
+        /// given, since a cursor draws through a canvas of its own.
         /// </summary>
-        private void SetUpCursor()
+        private void SetUpCursor(RectTransform cursorParent)
         {
             GameObject prefab = inputData.VirtualMouseCursorPrefab;
             if (prefab == null)
@@ -153,7 +140,7 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
-            cursor = Object.Instantiate(prefab);
+            cursor = cursorParent == null ? Object.Instantiate(prefab) : Object.Instantiate(prefab, cursorParent);
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
             // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
