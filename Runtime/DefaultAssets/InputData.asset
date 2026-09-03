@@ -25,7 +25,7 @@ MonoBehaviour:
   - /Keyboard/escape
   virtualMouseActionMapName: VirtualMouse
   virtualMouseCursorMode: 0
-  virtualMouseCursorPrefab: {fileID: 8902196083450860466, guid: 6fe1eabfebca89e4dad51178726eab76, type: 3}
+  virtualMouseCursorPrefab: {fileID: 7383994551822807121, guid: 2bb02d5d8e84b7946b8bec8b48ba795a, type: 3}
   defaultContextIndex: 0
   loadAllBindingOverridesOnInitialize: 1
   bindingSerializationMode: 1
