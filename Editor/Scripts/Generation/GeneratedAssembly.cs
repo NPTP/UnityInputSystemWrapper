@@ -58,12 +58,6 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             return DEFAULT_ASSETS_FOLDER;
         }
 
-        internal static string GetOrCreateFolderSystemPath()
-        {
-            string assetPath = GetOrCreateFolderAssetPath();
-            return Application.dataPath + assetPath.Substring("Assets".Length) + Path.DirectorySeparatorChar;
-        }
-
         /// <summary>
         /// Delete generated scripts this run did not produce, so renaming an action map does not leave its
         /// old actions class behind. Only .cs files are touched, never the assembly definition or assets.

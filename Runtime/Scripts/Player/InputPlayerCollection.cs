@@ -41,6 +41,9 @@ namespace NPTP.InputSystemWrapper.Player
             onPlayerRemoved = playerRemovedListener;
         }
 
+        /// <summary>How many players exist, which is not the same as the size of the backing array.</summary>
+        internal int Count => Players.Count();
+
         public IEnumerator<InputPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -116,11 +119,6 @@ namespace NPTP.InputSystemWrapper.Player
         internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
         {
             return Players.Any(player => player.LastUsedDevice == device);
-        }
-
-        internal bool AnyPlayerDisabled()
-        {
-            return Players.Any(player => !player.Enabled);
         }
 
         internal bool TryGetPlayer(int playerID, out InputPlayer player)

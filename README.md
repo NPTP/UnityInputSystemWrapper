@@ -3,7 +3,8 @@
 
 A wrapper for Unity's "new" input system to make usage simpler and more convenient with a foolproof and more readable API.
 
-The minimum required `com.unity.inputsystem` version is due to bugs in some core functionality of earlier versions of that package.
+Requires `com.unity.inputsystem` and `com.unity.addressables`. The minimum required `com.unity.inputsystem`
+version is due to bugs in some core functionality of earlier versions of that package.
 
 #### Installation
 
@@ -16,12 +17,24 @@ Install via the Package Manager using **Add package from git URL**, or by adding
 
 Both are required. Unity's Package Manager cannot resolve a git URL listed inside another package's dependencies, so `com.nptp.unity-source-gen` has to be added to your project manifest yourself, before or alongside this package.
 
+`com.unity.addressables` comes from Unity's registry and is resolved automatically, so it needs nothing from you.
+
 Then run **Input > Regenerate Input Wrapper Code and Assets**. This creates `Assets/ISW.Generated/`, containing:
 
 - the generated API (`ISW`, the actions classes, the `ControlScheme` and `InputContext` enums), in its own assembly
-- `Resources/`, holding your own editable copies of `OfflineInputData`, `RuntimeInputData` and the binding data assets
+- `Resources/`, holding your own editable copy of `InputData`
+- `BindingData/`, holding a binding data asset per device and a folder of entry assets for each, reached through Addressables rather than Resources
 
-Edit the assets in `Assets/ISW.Generated/Resources/`. The copies inside the package are read-only defaults, and are only used to seed your project the first time. Both folders are yours to commit or to gitignore and regenerate.
+The copies inside the package are read-only defaults, and are only used to seed your project the first time. Both folders are yours to commit or to gitignore and regenerate.
+
+#### The Input menu
+
+Everything you need is under **Input** in the menu bar, which is the easiest way to reach the assets worth editing:
+
+- **Input > Regenerate Input Wrapper Code and Assets** rebuilds the generated API and creates any project assets that are missing. Run it after changing your input action asset, your input contexts, or your control schemes.
+- **Input > Input Data** selects your `InputData` asset, where the input action asset, input contexts, custom setups, binding settings and event system actions are all authored.
+- **Input > Binding Data > ...** selects the binding data asset for one device, where you give each of that device's controls a display name and a sprite. This submenu is generated, so it lists exactly the devices your control schemes use.
+- **Input > Input Wrapper Debugger Window** opens a play-mode window showing the first player's current control scheme, current input context, the maps that context has active, and the last few contexts it moved through with the frame each change happened on.
 
 #### Advantages
 - Subscribe to any player's input events at any time in Awake or later without running into race conditions or null references. Don’t need to know whether the player exists or not. In singleplayer mode, the API is automatically simplified so you don’t even need to specify which player.
@@ -36,5 +49,4 @@ Edit the assets in `Assets/ISW.Generated/Resources/`. The copies inside the pack
 TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
 
 #### Future nice-to-haves:
-- Support multiple re-binds per action, per player. Let developer choose how many bindings an action is allowed to have per control scheme (runtime settings?).
 - Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.

@@ -1,6 +1,46 @@
 # Input System Wrapper
 ## Changelog
 
+10.0.0
+- A virtual mouse per player, driven by an action map of your own naming, so a gamepad can point at a UI. `EnableVirtualMouse` and `DisableVirtualMouse` on `ISW` and on a player handle, with `VirtualMouseEnabled` and `VirtualMousePosition` to read it back
+- The virtual mouse section on the input data names the map that drives it, reports every action that map is missing or has wrong, and offers a button that writes a map with all of them bound to a gamepad
+- `ISWVirtualMouseUI` on a cursor prefab names the graphic the mouse shows and the transform it moves. Everything else drawn in the cursor is shown and hidden along with that graphic, which the mouse hides on its own when the hardware cursor draws instead
+- A cursor gets a canvas of its own, made and torn down with the mouse, or goes on one you name. Which of those applies is a setting, and the generated `EnableVirtualMouse` takes the canvas as an argument only when one is needed
+- `Allow Enabling Virtual Mouse` on the input data turns the whole feature off: its settings are greyed out and none of the virtual mouse API is generated
+- A virtual mouse is never paired to its player. Its device would be dropped by the control scheme anyway, so the event system reads it through actions restricted to that one device - which also means a virtual mouse cannot help satisfy a control scheme wanting a mouse
+- `ISW.VirtualMousePosition` always reads the player's own virtual mouse, unlike `ISW.MousePosition`, which follows whichever mouse was used last
+- Bindings can be written into a line of text where it names one: "Press <isw action=\"Fire\"> to shoot" shows the button the player would press. Only the action is required, and the fullest form names everything: `<isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2>`. An action name on its own is enough unless two action maps share it, in which case write "Map.Action"
+- `InputGlyphText`, a component that writes those glyphs into a TextMeshPro label. Sprites are drawn through sprite assets built at runtime, since binding sprites are loaded rather than authored into a sprite sheet
+- `InlineGlyphTagParser` and `InlineGlyphResolver` read those elements and resolve them to binding info on their own, for text components other than TextMeshPro
+- `InputDisplayBehaviour<T>`, the shared base for anything that shows bindings and has to load them: it reloads when the bindings or the device in use change, holds what it loaded, releases it when disabled, and drops the result of a load that is no longer wanted
+- `ISW.PlayerCount`, `ISW.PlayerExists` and `ISW.GetPlayerIDs` ask which players exist without creating one, which `GetPlayer` does
+- `ISW.TryGetPlayerPairedWithDevice` says which player a device belongs to, so a press can be attributed to a player
+- `CompositePart` gains Modifier, Modifier1, Modifier2, Button and Binding, so the modifier composites can be isolated like any other
+- Composite parts are matched case-insensitively. The input system names a part after its field - "up", "modifier1" - so comparing against the enum name never matched and part isolation did not work
+- `BindingSlot.TryGetBindingInfo(CompositePart)` gets the entry for one part, and `InputBindingDisplay` uses it so a display wired to a composite part shows that part rather than the binding's first control
+- `ActionReference.TryConvert` is gone. Both overloads were unused, and `ISW.TryConvert` already hands back the ActionWrapper that is actually useful
+- The composite part on an ActionReference offers only the parts the action can have, matching how the input system decides which composites an action may be given: an action read as a float comes from an axis composite, so positive and negative, while a Vector2 action's composite has up, down, left and right
+- `InputBindingDisplay.PlayerID` points its reference at a player and loads again in one call, and `UIIndex` switches which of the action's bindings is shown, repainting from what is already loaded
+- `InputBindingDisplay` clears its outputs when the binding it is asked for does not exist, instead of leaving the previous one on screen
+- `ActionReference.PlayerID` is public and settable, so one screen can be pointed at each player in turn instead of needing a reference per player. Setting it drops the cached action wrapper, which belongs to the player it pointed at before
+- `ActionReference.applyToAllPlayers` is gone. It was serialized but never read by anything
+- `ActionReference.useCompositePart` is gone. `CompositePart.DontIsolatePart` already meant the whole binding, so the bool only restated it
+- `com.unity.addressables` is a required dependency, resolved automatically from Unity's registry
+- Upgrading: `BindingInfo` is a ScriptableObject rather than a struct, so `BindingSlot.BindingInfo` is a reference instead of a nullable. Existing binding data assets do not carry over and are rebuilt by a regenerate, which also marks everything addressable
+- Binding data moved out of the generated Resources folder to `ISW.Generated/BindingData`, since a Resources folder ships everything in it and these are reached through Addressables. Existing assets are moved there on the next generation
+- `InputBindingDisplay`, a component that shows one binding of an action: handle its events to fill a TextMeshPro label, a sprite renderer, a UI Image, or anything else. Its assets load in the background, so a screen full of glyphs opens without stalling the frame, and they are released when it is disabled
+- `BindingDiagnostics` reports how many binding assets are loaded and how many references are outstanding, for checking that loads and disposals balance
+- `GetCurrentBindingSlotsAsync` on `ActionReference` and `ActionWrapper` loads binding slots without blocking
+- Binding data for a device no longer used by any control scheme is deleted, along with its entry assets and all of their addressable entries. An entry asset for a control a device no longer has goes the same way
+- Each binding entry is its own addressable asset, in a folder named for the binding data asset it belongs to, so a screen loads only the bindings it shows. `BindingInfo` is a ScriptableObject rather than a struct
+- Binding data is addressable and loads per device only when something asks to display that device's controls, instead of every device's data being resident because the input data asset references it
+- Generation marks each binding data asset addressable in an "ISW Data Group" of its own, so nothing has to be set up by hand and the assets stay out of the project default group
+- `BindingSlots` holds the binding data its slots were built from and implements IDisposable: dispose it when the screen showing it closes. A set dropped without being disposed releases its data when the garbage collector reaches it
+- Binding data wanted by several slot sets is loaded once and released when the last of them lets go
+- A binding entry has a default display name, shown when no localization request comes back fulfilled. `BindingInfo.DisplayName` used to fall back to the raw localization key
+- Generated entries start with a localization key qualified by device, e.g. `Gamepad/leftStick/x`, and a display name parsed from the control path, e.g. "Left Stick Up", with "dpad" in any casing reading as "D-Pad". Both are editable, and a regenerate fills in blanks without touching anything already authored
+- `InputActionUpdater` owns the slots it hands to its event and replaces them on each update, so its handler should read what it needs rather than holding on
+
 9.0.1
 - The generator notice is on every generated file, including the actions classes, `InputPlayerRef` and `ISW`, which were written without one
 - The generated binding data menu items share one selection method instead of repeating the same lookup per asset

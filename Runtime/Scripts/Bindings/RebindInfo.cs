@@ -19,6 +19,7 @@ namespace NPTP.InputSystemWrapper.Bindings
 
         /// <summary>
         /// Every slot of the action on the control scheme that was rebound, not just the one that changed.
+        /// Holds the binding data it was built from, so dispose it once the callback has read what it needs.
         /// </summary>
         public BindingSlots BindingSlots { get; }
 

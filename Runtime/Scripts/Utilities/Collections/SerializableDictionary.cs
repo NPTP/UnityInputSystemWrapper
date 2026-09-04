@@ -84,24 +84,6 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             return false;
         }
 
-        internal void EDITOR_SetKey(TValue value, TKey newKey)
-        {
-            for (int i = 0; i < keyValueCombos.Count; i++)
-            {
-                KeyValueCombo<TKey, TValue> keyValueCombo = keyValueCombos[i];
-                if (keyValueCombo.Value.Equals(value))
-                {
-                    keyValueCombos[i] = new KeyValueCombo<TKey, TValue>(newKey, value);
-                    break;
-                }
-            }
-        }
-
-        internal void EDITOR_Clear()
-        {
-            keyValueCombos.Clear();
-        }
-
         internal void EDITOR_Add(TKey key, TValue value)
         {
             foreach (KeyValueCombo<TKey,TValue> keyValueCombo in keyValueCombos)
@@ -114,6 +96,19 @@ namespace NPTP.InputSystemWrapper.Utilities.Collections
             }
 
             keyValueCombos.Add(new KeyValueCombo<TKey, TValue>(key, value));
+        }
+
+        /// <summary>Replace an existing key's value, doing nothing when the key is not there.</summary>
+        internal void EDITOR_SetValue(TKey key, TValue value)
+        {
+            for (int i = 0; i < keyValueCombos.Count; i++)
+            {
+                if (EqualityComparer<TKey>.Default.Equals(keyValueCombos[i].Key, key))
+                {
+                    keyValueCombos[i] = new KeyValueCombo<TKey, TValue>(key, value);
+                    return;
+                }
+            }
         }
 
         internal void EDITOR_Remove(TKey key)

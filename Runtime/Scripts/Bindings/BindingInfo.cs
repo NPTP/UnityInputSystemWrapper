@@ -1,9 +1,6 @@
-using System;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
-
-using NPTP.InputSystemWrapper;
 
 namespace NPTP.InputSystemWrapper.Bindings
 {
@@ -11,17 +8,24 @@ namespace NPTP.InputSystemWrapper.Bindings
     /// Tells us which strings and icons to display for a single binding.
     /// E.g. Given the binding "dpad/up", this might show a sprite with a
     /// D-Pad pointing up and use the display name "D-Pad Up".
+    /// <para>
+    /// One asset per control path, addressable, so a device's entries are in memory only while something
+    /// is showing them.
+    /// </para>
     /// </summary>
-    [Serializable]
-    public struct BindingInfo
+    public class BindingInfo : ScriptableObject
     {
         [FormerlySerializedAs("displayName")]
         [SerializeField]
         private string localizationKey;
 
         /// <summary>
-        /// If no localization is hooked into Input.OnLocalizedStringRequested, this
-        /// will simply return the localization key string itself.
+        /// What to show for this binding when no localization is hooked into
+        /// Input.OnLocalizedStringRequested, or when the request comes back unfulfilled.
+        /// </summary>
+        [SerializeField] private string defaultDisplayName;
+        /// <summary>
+        /// The localized name for this binding, falling back to the default display name.
         /// </summary>
         public string DisplayName
         {
@@ -30,7 +34,7 @@ namespace NPTP.InputSystemWrapper.Bindings
                 LocalizedStringRequest localizedStringRequest = new(localizationKey);
                 InputRuntime.Current.BroadcastLocalizedStringRequested(localizedStringRequest);
                 return string.IsNullOrEmpty(localizedStringRequest.localizedString)
-                    ? localizationKey
+                    ? defaultDisplayName
                     : localizedStringRequest.localizedString;
             }
         }
@@ -40,16 +44,30 @@ namespace NPTP.InputSystemWrapper.Bindings
 
 #if UNITY_EDITOR
         internal const string EDITOR_LocalizationKeyField = nameof(localizationKey);
+        internal const string EDITOR_DefaultDisplayNameField = nameof(defaultDisplayName);
         internal const string EDITOR_SpriteField = nameof(sprite);
 
         /// <summary>
-        /// Starts a binding off with the display name the input system gives the control, so a generated
-        /// asset is readable before anyone edits it.
+        /// Fill in anything blank, leaving whatever has already been authored alone. Says whether
+        /// anything changed, so an asset is only written when it has to be.
         /// </summary>
-        internal BindingInfo(string localizationKey)
+        internal bool EDITOR_FillBlanks(string localizationKey, string defaultDisplayName)
         {
-            this.localizationKey = localizationKey;
-            sprite = null;
+            bool changed = false;
+
+            if (string.IsNullOrEmpty(this.localizationKey))
+            {
+                this.localizationKey = localizationKey;
+                changed = true;
+            }
+
+            if (string.IsNullOrEmpty(this.defaultDisplayName))
+            {
+                this.defaultDisplayName = defaultDisplayName;
+                changed = true;
+            }
+
+            return changed;
         }
 #endif
     }

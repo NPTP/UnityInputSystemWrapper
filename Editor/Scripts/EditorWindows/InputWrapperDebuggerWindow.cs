@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Player;
 using UnityEditor;
@@ -35,7 +34,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 		{
 			get
 			{
-				if (inputData == null) inputData = Helper.InputData;
+				if (inputData == null) inputData = ISWEditorHelper.InputData;
 				return inputData;
 			}
 		}
@@ -68,7 +67,7 @@ namespace NPTP.InputSystemWrapper.Editor.EditorWindows
 
 		private static string ContextName(InputContextId inputContextId)
 		{
-			return InputRuntime.Current == null ? inputContextId.Index.ToString() : InputRuntime.Current.EDITOR_GetContextName(inputContextId);
+			return InputRuntime.Current?.EDITOR_GetContextName(inputContextId) ?? inputContextId.Index.ToString();
 		}
 
 		private void HandlePlayerInputContextChanged(int playerID, InputContextId inputContextId)

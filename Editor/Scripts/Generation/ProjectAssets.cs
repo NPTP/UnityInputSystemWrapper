@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +9,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
     /// The package may be installed read-only (from a git URL, resolved into Library/PackageCache), so any
     /// asset the user or the generator has to write to must live in the project instead. This copies the
     /// package's default assets into a Resources folder alongside the generated code on first use.
+    /// Binding data lives outside Resources, since it is reached through Addressables.
     /// </summary>
     internal static class ProjectAssets
     {
@@ -25,15 +24,33 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         internal static string ResourcesFolderAssetPath => GeneratedAssembly.GetOrCreateFolderAssetPath() + "/" + RESOURCES_FOLDER_NAME;
 
         /// <summary>
-        /// Where binding data assets live, both the copies seeded from the package and any created for a
-        /// control scheme that did not have one. Created if it is not there yet.
+        /// Where binding data assets and their entries live. Outside Resources, since they are reached
+        /// through Addressables: a Resources folder ships everything in it, which would put a second copy
+        /// of all of this in the build. Created if it is not there yet.
         /// </summary>
         internal static string GetOrCreateBindingDataFolder()
         {
-            string folderAssetPath = ResourcesFolderAssetPath + "/" + BINDING_DATA_FOLDER_NAME;
+            string generatedFolder = GeneratedAssembly.GetOrCreateFolderAssetPath();
+            string folderAssetPath = generatedFolder + "/" + BINDING_DATA_FOLDER_NAME;
             if (!AssetDatabase.IsValidFolder(folderAssetPath))
             {
-                AssetDatabase.CreateFolder(ResourcesFolderAssetPath, BINDING_DATA_FOLDER_NAME);
+                AssetDatabase.CreateFolder(generatedFolder, BINDING_DATA_FOLDER_NAME);
+            }
+
+            return folderAssetPath;
+        }
+
+        /// <summary>
+        /// The folder holding one binding data asset's entries, named for that asset so the entries sit
+        /// beside the binding data they belong to.
+        /// </summary>
+        internal static string GetOrCreateBindingEntryFolder(string bindingDataAssetName)
+        {
+            string bindingDataFolder = GetOrCreateBindingDataFolder();
+            string folderAssetPath = bindingDataFolder + "/" + bindingDataAssetName;
+            if (!AssetDatabase.IsValidFolder(folderAssetPath))
+            {
+                AssetDatabase.CreateFolder(bindingDataFolder, bindingDataAssetName);
             }
 
             return folderAssetPath;
@@ -82,6 +99,15 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             GenerationReport.Record($"{resourcesFolder} (project input assets created - edit these, the package's copies are defaults only)");
             return copied;
+        }
+
+        /// <summary>The package's own input data, holding the defaults a project's copy starts from.</summary>
+        internal static InputData FindPackageDefaultInputData()
+        {
+            string defaultsFolder = FindPackageDefaultsFolder();
+            return string.IsNullOrEmpty(defaultsFolder)
+                ? null
+                : AssetDatabase.LoadAssetAtPath<InputData>(defaultsFolder + "/" + INPUT_DATA_NAME + ".asset");
         }
 
         private static void CopyContents(string sourceFolder, string destinationFolder)

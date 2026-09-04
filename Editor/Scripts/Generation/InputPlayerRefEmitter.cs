@@ -1,5 +1,6 @@
 using NPTP.UnitySourceGen.Editor;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -24,12 +25,12 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string INPUT_PLAYER = "InputPlayer";
         private const string FIELD = "inputPlayer";
 
-        internal static GeneratableTypeDefinition Build(InputActionAsset asset)
+        internal static GeneratableTypeDefinition Build(InputActionAsset asset, InputData inputData)
         {
             GeneratableTypeDefinition playerRef = SourceGen.NewStruct(TYPE_NAME).Public().ReadOnly()
                 .InNamespace(GeneratedNamespaces.PLAYER)
                 .WithDirectives("System", GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS,
-                    GeneratedNamespaces.ENUMS, "UnityEngine.InputSystem")
+                    GeneratedNamespaces.ENUMS, "UnityEngine", "UnityEngine.InputSystem")
                 .WithField(SourceGen.NewField(FIELD, INPUT_PLAYER).Private().ReadOnly())
                 .WithMethod(SourceGen.NewMethod(TYPE_NAME).Private().AsConstructor()
                     .Taking(GeneratableParameter.Of(INPUT_PLAYER, FIELD))
@@ -37,6 +38,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             AddActions(playerRef, asset);
             AddState(playerRef);
+            AddVirtualMouse(playerRef, inputData);
             AddEvents(playerRef);
             AddConversions(playerRef);
 
@@ -49,7 +51,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static void AddActions(GeneratableTypeDefinition playerRef, InputActionAsset asset)
         {
-            foreach (string mapName in Helper.GetMapNames(asset))
+            foreach (string mapName in ISWEditorHelper.GetMapNames(asset))
             {
                 string actionsType = $"{mapName.AsType()}Actions";
                 playerRef.WithProperty(SourceGen.NewProperty(mapName.AsType(), actionsType)
@@ -76,6 +78,38 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Generic(GeneratableTypeParameter.Of("TDevice", "InputDevice"))
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
                     .Expression($"{FIELD}.ControlSchemeHas<TDevice>(controlScheme.ToId())"));
+        }
+
+        /// <summary>
+        /// The mouse this player drives with the virtual mouse map's actions, for pointing at a UI with a
+        /// gamepad.
+        /// </summary>
+        private static void AddVirtualMouse(GeneratableTypeDefinition playerRef, InputData inputData)
+        {
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                return;
+            }
+
+            GeneratableMethod enable = SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid();
+            if (inputData.VirtualMouseCreatesOwnCanvas)
+            {
+                enable.Expression($"{FIELD}.EnableVirtualMouse()");
+            }
+            else
+            {
+                enable.Taking(GeneratableParameter.Of("RectTransform", "cursorParent"))
+                    .Expression($"{FIELD}.EnableVirtualMouse(cursorParent)");
+            }
+
+            playerRef
+                .WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
+                    .Expression($"{FIELD}.VirtualMouseEnabled"))
+                .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public()
+                    .Expression($"{FIELD}.VirtualMousePosition"))
+                .WithMethod(enable)
+                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().ReturningVoid()
+                    .Expression($"{FIELD}.DisableVirtualMouse()"));
         }
 
         /// <summary>

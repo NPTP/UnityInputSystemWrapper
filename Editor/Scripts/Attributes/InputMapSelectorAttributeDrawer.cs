@@ -1,6 +1,5 @@
 using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 using UnityEngine.InputSystem;
 

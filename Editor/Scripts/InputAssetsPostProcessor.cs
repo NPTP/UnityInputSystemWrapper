@@ -1,6 +1,5 @@
 using System.Linq;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 
 namespace NPTP.InputSystemWrapper.Editor

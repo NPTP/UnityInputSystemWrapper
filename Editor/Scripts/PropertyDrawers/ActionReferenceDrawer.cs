@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Editor.CustomEditors;
 using NPTP.InputSystemWrapper.Editor.Generation;
 using UnityEditor;
@@ -20,19 +22,19 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
     {
         private const float INDENT = 15f;
         private const string REFERENCE = "reference";
-        private const string USE_COMPOSITE_PART = "useCompositePart";
         private const string COMPOSITE_PART = "compositePart";
         private const string PLAYER_ID = "playerID";
         private const string NO_ASSET_NOTE = "No input action asset is assigned.";
+        private const string FLOAT = "float";
 
         private static GUIStyle NoteStyle => new(EditorStyles.label) { fontStyle = FontStyle.Italic, fontSize = 10 };
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            // The number of lines is dependent on this bool value (showing composite part of action/binding).
-            bool useCompositePart = property.FindPropertyRelative(USE_COMPOSITE_PART).boolValue;
-            float multiplier = useCompositePart ? 5 : 4;
-            return multiplier * EditorGUIUtility.singleLineHeight;
+            // A label, the reference, the player ID, and the composite part when the action has parts
+            // that can be isolated.
+            float lines = HasIsolatableParts(property.FindPropertyRelative(REFERENCE)) ? 4 : 3;
+            return lines * EditorGUIUtility.singleLineHeight;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -48,23 +50,20 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
             currentRect.x += INDENT;
             currentRect.width -= INDENT;
 
-            SerializedProperty reference = property.FindPropertyRelative(REFERENCE);
-            currentRect.y += lineHeight;
-            DrawReference(currentRect, reference);
-
-            SerializedProperty useCompositePart = property.FindPropertyRelative(USE_COMPOSITE_PART);
-            currentRect.y += lineHeight;
-            EditorGUI.PropertyField(currentRect, useCompositePart);
-
             SerializedProperty playerID = property.FindPropertyRelative(PLAYER_ID);
             currentRect.y += lineHeight;
             EditorGUI.PropertyField(currentRect, playerID);
 
-            if (useCompositePart.boolValue)
+            SerializedProperty reference = property.FindPropertyRelative(REFERENCE);
+            currentRect.y += lineHeight;
+            DrawReference(currentRect, reference);
+
+            CompositePart[] parts = GetIsolatableParts(reference);
+            if (parts.Length > 1)
             {
                 SerializedProperty compositePart = property.FindPropertyRelative(COMPOSITE_PART);
                 currentRect.y += lineHeight;
-                EditorGUI.PropertyField(currentRect, compositePart);
+                DrawCompositePart(currentRect, compositePart, parts);
             }
 
             EditorGUI.EndProperty();
@@ -82,6 +81,91 @@ namespace NPTP.InputSystemWrapper.Editor.PropertyDrawers
             }
 
             InputActionReferenceDropdown.DrawWithoutLabel(fieldRect, reference, inputData.InputActionAsset, BuildValueTypeFilter());
+        }
+
+        /// <summary>
+        /// The composite parts a popup offers, always including the whole binding. Which parts exist
+        /// follows from what its composites produce: a float comes from an axis composite, whose parts are
+        /// positive and negative, while a Vector2 composite has up, down, left and right. Unlike the
+        /// bindings themselves, an action's value type is fixed at edit time.
+        /// </summary>
+        private static CompositePart[] GetIsolatableParts(SerializedProperty reference)
+        {
+            InputAction action = (reference.objectReferenceValue as InputActionReference)?.action;
+            string valueTypeName = GetCompositeValueTypeName(action);
+
+            return valueTypeName switch
+            {
+                FLOAT or "int" or "double" => new[]
+                {
+                    CompositePart.DontIsolatePart, CompositePart.Positive, CompositePart.Negative
+                },
+                "Vector2" => new[]
+                {
+                    CompositePart.DontIsolatePart, CompositePart.Up, CompositePart.Down,
+                    CompositePart.Left, CompositePart.Right
+                },
+                "Vector3" => new[]
+                {
+                    CompositePart.DontIsolatePart, CompositePart.Up, CompositePart.Down,
+                    CompositePart.Left, CompositePart.Right, CompositePart.Forward, CompositePart.Backward
+                },
+
+                // An action with no expected control type gives nothing to narrow by, so everything is
+                // offered rather than guessing wrong and hiding the part someone needs.
+                null => (CompositePart[])Enum.GetValues(typeof(CompositePart)),
+                _ => new[] { CompositePart.DontIsolatePart }
+            };
+        }
+
+        /// <summary>
+        /// What an action's composites produce, which is not the same question as what its values are
+        /// read as: a button has no ReadValue of its own, but its composites still yield a float, so an
+        /// axis composite's positive and negative parts apply to it.
+        /// </summary>
+        private static string GetCompositeValueTypeName(InputAction action)
+        {
+            if (action == null)
+            {
+                return null;
+            }
+
+            if (action.type is InputActionType.Button)
+            {
+                return FLOAT;
+            }
+
+            return string.IsNullOrEmpty(action.expectedControlType)
+                ? null
+                : ControlValueTypeNames.FromControlType(action.expectedControlType);
+        }
+
+        private static bool HasIsolatableParts(SerializedProperty reference) => GetIsolatableParts(reference).Length > 1;
+
+        /// <summary>
+        /// The part popup, offering only what this action can actually be broken into. A value already
+        /// set but no longer offered still shows, so changing an action never silently rewrites it.
+        /// </summary>
+        private static void DrawCompositePart(Rect position, SerializedProperty compositePart, CompositePart[] parts)
+        {
+            List<CompositePart> options = new(parts);
+            // intValue, not enumValueIndex: the popup deals in the enum's values, not their positions.
+            CompositePart current = (CompositePart)compositePart.intValue;
+            if (!options.Contains(current))
+            {
+                options.Add(current);
+            }
+
+            string[] names = new string[options.Count];
+            int[] values = new int[options.Count];
+            for (int i = 0; i < options.Count; i++)
+            {
+                names[i] = ObjectNames.NicifyVariableName(options[i].ToString());
+                values[i] = (int)options[i];
+            }
+
+            compositePart.intValue = EditorGUI.IntPopup(position,
+                ObjectNames.NicifyVariableName(compositePart.name), compositePart.intValue, names, values);
         }
 
         /// <summary>

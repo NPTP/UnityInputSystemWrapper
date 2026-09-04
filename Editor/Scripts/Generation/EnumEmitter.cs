@@ -35,7 +35,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithMethods(BuildDeviceFamilyMethods());
 
             return SourceGen.NewFile()
-                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .WithHeaderComment(ISWEditorHelper.GetGeneratorNoticeLines().ToArray())
                 .Containing(controlScheme, extensions);
         }
 
@@ -44,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableEnum inputContext = SourceGen.NewEnum("InputContext").Public()
                 .InNamespace(GeneratedNamespaces.ENUMS);
 
-            List<string> headerComment = new(Helper.GetGeneratorNoticeLines());
+            List<string> headerComment = new(ISWEditorHelper.GetGeneratorNoticeLines());
 
             if (inputContexts == null || inputContexts.Length == 0)
             {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using NPTP.InputSystemWrapper.Bindings;
 using NPTP.InputSystemWrapper.Data;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using NPTP.InputSystemWrapper.Enums;
 using UnityEditor;
 using UnityEngine;
@@ -15,6 +15,9 @@ namespace NPTP.InputSystemWrapper.Editor
     /// </summary>
     internal static class InputDataSynchronizer
     {
+        /// <summary>The GUID an AssetReference serializes its asset by.</summary>
+        private const string ASSET_GUID_FIELD = "m_AssetGUID";
+
         /// <summary>
         /// Every device layout the input system registers directly under InputDevice, against the family
         /// it stands for. Anything else is derived from one of these, so matching by inheritance puts
@@ -43,6 +46,7 @@ namespace NPTP.InputSystemWrapper.Editor
             SyncDeviceBindingData(serializedObject, inputData.InputActionAsset);
             SyncEventSystemOptions(serializedObject, inputData);
             SyncInputContexts(serializedObject, inputData);
+            SyncDefaultsNotSetYet(serializedObject);
             WarnAboutUnknownMapNames(inputData, inputData.InputActionAsset);
 
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
@@ -59,6 +63,28 @@ namespace NPTP.InputSystemWrapper.Editor
             {
                 arrayProperty.GetArrayElementAtIndex(i).stringValue = source[i];
             }
+        }
+
+        /// <summary>
+        /// Fill in anything the project's input data leaves empty that the package has a default for. The
+        /// package's own asset is referenced, so customizing means assigning one of your own. Anything
+        /// already set is left alone.
+        /// </summary>
+        private static void SyncDefaultsNotSetYet(SerializedObject serializedObject)
+        {
+            SerializedProperty cursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
+            if (cursorPrefab == null || cursorPrefab.objectReferenceValue != null)
+            {
+                return;
+            }
+
+            InputData packageDefault = Generation.ProjectAssets.FindPackageDefaultInputData();
+            if (packageDefault == null || packageDefault.VirtualMouseCursorPrefab == null)
+            {
+                return;
+            }
+
+            cursorPrefab.objectReferenceValue = packageDefault.VirtualMouseCursorPrefab;
         }
 
         private static void SyncEventSystemOptions(SerializedObject serializedObject, InputData inputData)
@@ -197,14 +223,14 @@ namespace NPTP.InputSystemWrapper.Editor
         {
             SerializedProperty entries = serializedObject.FindProperty(InputData.EDITOR_DeviceBindingDataField);
 
-            Dictionary<string, BindingData> existingByDevice = new();
+            Dictionary<string, string> existingByDevice = new();
             for (int i = 0; i < entries.arraySize; i++)
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 string deviceLayoutName = entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue;
                 if (!string.IsNullOrEmpty(deviceLayoutName))
                 {
-                    existingByDevice[deviceLayoutName] = entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue as BindingData;
+                    existingByDevice[deviceLayoutName] = GetAssetGuid(entry);
                 }
             }
 
@@ -216,9 +242,79 @@ namespace NPTP.InputSystemWrapper.Editor
                 string deviceLayoutName = deviceLayouts[i];
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative(DeviceBindingData.EDITOR_DeviceLayoutNameField).stringValue = deviceLayoutName;
-                entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField).objectReferenceValue =
-                    existingByDevice.GetValueOrDefault(deviceLayoutName) ?? GetOrCreateBindingData(deviceLayoutName);
+
+                string assetGuid = existingByDevice.GetValueOrDefault(deviceLayoutName);
+                if (string.IsNullOrEmpty(assetGuid))
+                {
+                    assetGuid = GetOrCreateBindingData(deviceLayoutName);
+                }
+
+                SetAssetGuid(entry, assetGuid);
+                Generation.AddressableSetup.MarkAddressable(assetGuid, deviceLayoutName.AsType());
             }
+
+            PruneOrphanedBindingData(deviceLayouts);
+        }
+
+        /// <summary>
+        /// Delete the binding data of any device no longer used by a control scheme, along with its
+        /// entry assets and their addressable entries. Changing every scheme's devices would otherwise
+        /// leave the old ones behind for good, since nothing points at them any more.
+        /// </summary>
+        private static void PruneOrphanedBindingData(List<string> deviceLayouts)
+        {
+            HashSet<string> inUse = new();
+            foreach (string deviceLayoutName in deviceLayouts) inUse.Add(deviceLayoutName.AsType());
+
+            string bindingDataFolder = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
+            foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(BindingData)}", new[] { bindingDataFolder }))
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                string assetName = Path.GetFileNameWithoutExtension(assetPath);
+                if (inUse.Contains(assetName))
+                {
+                    continue;
+                }
+
+                DeleteBindingEntryFolder(bindingDataFolder, assetName);
+
+                Generation.AddressableSetup.RemoveAddressable(guid);
+                AssetDatabase.DeleteAsset(assetPath);
+                Generation.GenerationReport.Record($"{assetPath} (deleted, no control scheme uses this device)");
+            }
+        }
+
+        /// <summary>
+        /// Delete a device's entry assets and the folder holding them, dropping each one's addressable
+        /// entry on the way out.
+        /// </summary>
+        private static void DeleteBindingEntryFolder(string bindingDataFolder, string assetName)
+        {
+            string folder = bindingDataFolder + "/" + assetName;
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                return;
+            }
+
+            foreach (string entryGuid in AssetDatabase.FindAssets($"t:{nameof(BindingInfo)}", new[] { folder }))
+            {
+                Generation.AddressableSetup.RemoveAddressable(entryGuid);
+            }
+
+            AssetDatabase.DeleteAsset(folder);
+            Generation.GenerationReport.Record($"{folder} (deleted with its device's binding data)");
+        }
+
+        private static string GetAssetGuid(SerializedProperty entry)
+        {
+            return entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField)
+                .FindPropertyRelative(ASSET_GUID_FIELD).stringValue;
+        }
+
+        private static void SetAssetGuid(SerializedProperty entry, string assetGuid)
+        {
+            entry.FindPropertyRelative(DeviceBindingData.EDITOR_BindingDataField)
+                .FindPropertyRelative(ASSET_GUID_FIELD).stringValue = assetGuid;
         }
 
         /// <summary>
@@ -249,26 +345,134 @@ namespace NPTP.InputSystemWrapper.Editor
         /// the device is reused; otherwise one is created, populated with every control that device can
         /// produce so it is useful before anyone edits it.
         /// </summary>
-        private static BindingData GetOrCreateBindingData(string deviceLayoutName)
+        private static string GetOrCreateBindingData(string deviceLayoutName)
         {
             string assetName = deviceLayoutName.AsType();
 
-            if (Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
+            string bindingDataFolder = Generation.ProjectAssets.GetOrCreateBindingDataFolder();
+            string expectedPath = $"{bindingDataFolder}/{assetName}.asset";
+
+            if (!Generation.ProjectAssets.TryFindProjectAsset(assetName, out BindingData existing))
             {
-                return existing;
+                existing = ScriptableObject.CreateInstance<BindingData>();
+                AssetDatabase.CreateAsset(existing, expectedPath);
+                Generation.GenerationReport.Record($"{expectedPath} (created for device '{deviceLayoutName}')");
+            }
+            else
+            {
+                MoveIfElsewhere(existing, expectedPath);
             }
 
-            BindingData created = ScriptableObject.CreateInstance<BindingData>();
-            foreach (KeyValuePair<string, string> pathToDisplayName in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+            SyncBindingEntries(existing, deviceLayoutName, assetName);
+            EditorUtility.SetDirty(existing);
+
+            return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(existing));
+        }
+
+        /// <summary>
+        /// Bring an asset from a previous layout to where it belongs now, so the folder move does not
+        /// leave binding data behind in Resources.
+        /// </summary>
+        private static void MoveIfElsewhere(BindingData bindingData, string expectedPath)
+        {
+            string currentPath = AssetDatabase.GetAssetPath(bindingData);
+            if (currentPath == expectedPath)
             {
-                created.EDITOR_AddBinding(pathToDisplayName.Key, pathToDisplayName.Value);
+                return;
             }
 
-            string assetPath = $"{Generation.ProjectAssets.GetOrCreateBindingDataFolder()}/{assetName}.asset";
-            AssetDatabase.CreateAsset(created, assetPath);
-            Generation.GenerationReport.Record($"{assetPath} (created for device '{deviceLayoutName}')");
+            string error = AssetDatabase.MoveAsset(currentPath, expectedPath);
+            if (string.IsNullOrEmpty(error))
+            {
+                Generation.GenerationReport.Record($"{currentPath} (moved to {expectedPath})");
+                return;
+            }
 
-            return created;
+            ISWDebug.LogWarning($"Could not move {currentPath} to {expectedPath}: {error}");
+        }
+
+        /// <summary>
+        /// Give a device an entry asset per control path, in a folder named for its binding data. Each is
+        /// addressable in its own right, so a screen loads only the bindings it shows.
+        /// </summary>
+        private static void SyncBindingEntries(BindingData bindingData, string deviceLayoutName, string assetName)
+        {
+            string folder = Generation.ProjectAssets.GetOrCreateBindingEntryFolder(assetName);
+            HashSet<string> currentPaths = new();
+
+            foreach (string controlPath in Generation.DeviceControlPathCatalog.GetControlPaths(deviceLayoutName))
+            {
+                currentPaths.Add(controlPath);
+
+                // Qualified by device, so a key names one control across the whole project: two gamepads
+                // can have their own name for the same path.
+                string address = $"{deviceLayoutName}/{controlPath}";
+                string entryGuid = GetOrCreateBindingInfo(folder, controlPath, address);
+
+                bindingData.EDITOR_SetBinding(controlPath, entryGuid);
+                Generation.AddressableSetup.MarkAddressable(entryGuid, address);
+            }
+
+            // A control the device no longer has leaves its key behind, which would resolve to nothing,
+            // and its asset behind, which nothing would point at.
+            foreach (string stalePath in new List<string>(bindingData.EDITOR_ControlPaths))
+            {
+                if (currentPaths.Contains(stalePath))
+                {
+                    continue;
+                }
+
+                bindingData.EDITOR_RemoveBinding(stalePath);
+                DeleteBindingInfo(folder, stalePath);
+            }
+        }
+
+        /// <summary>
+        /// Names a binding entry's asset file after its control path. Paths nest with slashes, which a
+        /// file name cannot contain, so those become underscores: "leftStick/x" is stored as
+        /// "leftStick_x".
+        /// </summary>
+        private static string ToAssetName(string controlPath)
+        {
+            return string.IsNullOrEmpty(controlPath) ? "Unnamed" : controlPath.Replace('/', '_');
+        }
+
+        private static void DeleteBindingInfo(string folder, string controlPath)
+        {
+            string assetPath = $"{folder}/{ToAssetName(controlPath)}.asset";
+            if (AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath) == null)
+            {
+                return;
+            }
+
+            Generation.AddressableSetup.RemoveAddressable(AssetDatabase.AssetPathToGUID(assetPath));
+            AssetDatabase.DeleteAsset(assetPath);
+            Generation.GenerationReport.Record($"{assetPath} (deleted, device no longer has this control)");
+        }
+
+        /// <summary>
+        /// One control's entry asset, created if it is not there yet and topped up if it is missing
+        /// anything. Whatever has been authored on an existing entry is left as it is.
+        /// </summary>
+        private static string GetOrCreateBindingInfo(string folder, string controlPath, string address)
+        {
+            string assetPath = $"{folder}/{ToAssetName(controlPath)}.asset";
+            BindingInfo bindingInfo = AssetDatabase.LoadAssetAtPath<BindingInfo>(assetPath);
+            string defaultDisplayName = Generation.ControlPathDisplayName.FromControlPath(controlPath);
+
+            if (bindingInfo == null)
+            {
+                bindingInfo = ScriptableObject.CreateInstance<BindingInfo>();
+                bindingInfo.EDITOR_FillBlanks(address, defaultDisplayName);
+                AssetDatabase.CreateAsset(bindingInfo, assetPath);
+                Generation.GenerationReport.Record($"{assetPath} (created for control '{controlPath}')");
+            }
+            else if (bindingInfo.EDITOR_FillBlanks(address, defaultDisplayName))
+            {
+                EditorUtility.SetDirty(bindingInfo);
+            }
+
+            return AssetDatabase.AssetPathToGUID(assetPath);
         }
 
         /// <summary>

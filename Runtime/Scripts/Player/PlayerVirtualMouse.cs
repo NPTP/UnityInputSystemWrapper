@@ -1,0 +1,218 @@
+using System.Collections.Generic;
+using NPTP.InputSystemWrapper.Components;
+using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Utilities;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+
+namespace NPTP.InputSystemWrapper.Player
+{
+    /// <summary>
+    /// A mouse one player drives with the actions of the virtual mouse map, so a gamepad can move a cursor.
+    /// The device is paired to that player, so it feeds their UI and nobody else's.
+    /// </summary>
+    internal sealed class PlayerVirtualMouse
+    {
+        private readonly InputPlayer player;
+        private readonly InputData inputData;
+
+        private GameObject gameObject;
+        private GameObject cursor;
+
+        /// <summary>The canvas made for this cursor, when it was not given one to sit on.</summary>
+        private GameObject cursorCanvas;
+        private VirtualMouseInput virtualMouseInput;
+
+        /// <summary>The actions this mouse drives the player's UI with, held so they can be given back.</summary>
+        private VirtualMousePointerActions pointerActions;
+
+        /// <summary>The device being driven, or null while this is off.</summary>
+        internal Mouse Device => virtualMouseInput == null ? null : virtualMouseInput.virtualMouse;
+
+        /// <summary>Where the cursor is, in screen pixels, or zero while this is off.</summary>
+        internal Vector2 Position => Device == null ? Vector2.zero : Device.position.ReadValue();
+
+        internal bool Enabled => gameObject != null;
+
+        internal PlayerVirtualMouse(InputPlayer player, InputData inputData)
+        {
+            this.player = player;
+            this.inputData = inputData;
+        }
+
+        /// <summary>
+        /// Start driving a mouse from the player's virtual mouse actions. Does nothing when the map named
+        /// on the input data is missing or does not hold what a virtual mouse map must.
+        /// </summary>
+        /// <param name="cursorParent">Where the cursor is put, or null to leave it at the scene's root.</param>
+        internal void Enable(RectTransform cursorParent)
+        {
+            if (Enabled)
+            {
+                return;
+            }
+
+            string mapName = inputData.VirtualMouseActionMapName;
+            InputActionMap actionMap = string.IsNullOrEmpty(mapName)
+                ? null
+                : player.Asset.FindActionMap(mapName, throwIfNotFound: false);
+
+            List<string> problems = VirtualMouseMapSpec.Problems(actionMap);
+            if (problems.Count > 0)
+            {
+                ISWDebug.LogWarning($"Player {player.ID.ToString()} cannot drive a virtual mouse from the " +
+                                    $"\"{mapName}\" map: {string.Join(" ", problems)}");
+                return;
+            }
+
+            // Built inactive so its actions and cursor are in place before it adds its device and starts
+            // reading them, which it does the moment it is enabled.
+            gameObject = new GameObject($"Player[{player.ID.ToString()}]VirtualMouse");
+            gameObject.transform.SetParent(player.PlayerInputTransform, worldPositionStays: false);
+            gameObject.SetActive(false);
+
+            virtualMouseInput = gameObject.AddComponent<VirtualMouseInput>();
+            virtualMouseInput.cursorMode = inputData.VirtualMouseCursorMode;
+            SetUpCursor(cursorParent);
+
+            virtualMouseInput.stickAction = PropertyFor(actionMap, VirtualMouseMapSpec.MOVE);
+            virtualMouseInput.leftButtonAction = PropertyFor(actionMap, VirtualMouseMapSpec.LEFT_BUTTON);
+            virtualMouseInput.rightButtonAction = PropertyFor(actionMap, VirtualMouseMapSpec.RIGHT_BUTTON);
+            virtualMouseInput.middleButtonAction = PropertyFor(actionMap, VirtualMouseMapSpec.MIDDLE_BUTTON);
+            virtualMouseInput.scrollWheelAction = PropertyFor(actionMap, VirtualMouseMapSpec.SCROLL_WHEEL);
+
+            gameObject.SetActive(true);
+
+            // Never paired to the player: the control scheme decides what they are paired with and drops
+            // anything it does not name. The event system reads the device through actions of its own.
+            if (Device != null)
+            {
+                pointerActions = new VirtualMousePointerActions(Device);
+                player.ApplyVirtualMousePointerActions(pointerActions);
+            }
+        }
+
+        /// <summary>Stop driving the mouse, take its device away and put its cursor away.</summary>
+        internal void Disable()
+        {
+            if (!Enabled)
+            {
+                return;
+            }
+
+            if (pointerActions != null)
+            {
+                player.RestoreEventSystemActions();
+                pointerActions.Dispose();
+                pointerActions = null;
+            }
+
+            // Destroying the object disables the component, which removes the device and gives the system
+            // mouse back if it had taken it.
+            Object.Destroy(gameObject);
+            gameObject = null;
+            virtualMouseInput = null;
+
+            if (cursor != null)
+            {
+                Object.Destroy(cursor);
+                cursor = null;
+            }
+
+            if (cursorCanvas != null)
+            {
+                Object.Destroy(cursorCanvas);
+                cursorCanvas = null;
+            }
+        }
+
+        /// <summary>
+        /// Put this player's own copy of the cursor on screen. Left at the scene's root unless a parent is
+        /// given, since a cursor draws through a canvas of its own.
+        /// </summary>
+        private void SetUpCursor(RectTransform cursorParent)
+        {
+            GameObject prefab = inputData.VirtualMouseCursorPrefab;
+            if (prefab == null)
+            {
+                return;
+            }
+
+            // Checked on the prefab rather than on a copy of it, so a cursor that could not work is never
+            // built. What it names is what the copy's own component names, so the copy needs no checking.
+            ISWVirtualMouseUI prefabCursorUI = prefab.GetComponent<ISWVirtualMouseUI>();
+            if (prefabCursorUI == null)
+            {
+                ISWDebug.LogWarning($"The virtual mouse cursor prefab \"{prefab.name}\" has no " +
+                                    $"{nameof(ISWVirtualMouseUI)} on its root, so no cursor is shown.");
+                return;
+            }
+
+            if (prefabCursorUI.CursorTransform == null || prefabCursorUI.CursorGraphic == null)
+            {
+                ISWDebug.LogWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" needs both a cursor " +
+                                    "transform and a cursor graphic, so no cursor is shown.");
+                return;
+            }
+
+            if (inputData.VirtualMouseCreatesOwnCanvas)
+            {
+                cursorParent = CreateCursorCanvas();
+            }
+            else if (cursorParent == null)
+            {
+                ISWDebug.LogWarning($"Player {player.ID.ToString()} was given no canvas to put their virtual mouse " +
+                                    "cursor on, and the input data does not make one, so no cursor is shown.");
+                return;
+            }
+
+            cursor = Object.Instantiate(prefab, cursorParent);
+            cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
+
+            // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
+            // mouse hides when the hardware cursor draws instead.
+            ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
+
+            // Anchored to the bottom left whatever the prefab says, because the mouse writes screen pixels
+            // straight into anchoredPosition, and any other anchor reads those as an offset from elsewhere.
+            RectTransform cursorTransform = cursorUI.CursorTransform;
+            cursorTransform.anchorMin = Vector2.zero;
+            cursorTransform.anchorMax = Vector2.zero;
+
+            // Started in the middle of the screen rather than in the corner, since the mouse takes the
+            // cursor's position as its own when it starts driving it.
+            cursorTransform.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
+            virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
+            virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
+        }
+
+        /// <summary>
+        /// A canvas owned by the virtual mouse cursor, drawn above everything else and thrown away with the virtual mouse.
+        /// Kept at a constant pixel size, since the mouse writes screen pixels straight into the cursor's
+        /// position and a scaled canvas would read them as something else.
+        /// </summary>
+        private RectTransform CreateCursorCanvas()
+        {
+            cursorCanvas = new GameObject($"Player[{player.ID.ToString()}]VirtualMouseCanvas", typeof(Canvas), typeof(CanvasScaler));
+
+            Canvas canvas = cursorCanvas.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = short.MaxValue;
+
+            CanvasScaler canvasScaler = cursorCanvas.GetComponent<CanvasScaler>();
+            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            canvasScaler.scaleFactor = 1f;
+
+            return (RectTransform)cursorCanvas.transform;
+        }
+
+        private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)
+        {
+            InputAction action = actionMap.FindAction(actionName, throwIfNotFound: false);
+            return action == null ? default : new InputActionProperty(action);
+        }
+    }
+}

@@ -44,7 +44,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             // The whole file is editor-only, but lives in the generated runtime assembly.
             return SourceGen.NewFile()
                 .OnlyIf(EDITOR_ONLY)
-                .WithHeaderComment(Helper.GetGeneratorNoticeLines().ToArray())
+                .WithHeaderComment(ISWEditorHelper.GetGeneratorNoticeLines().ToArray())
                 .Containing(menuItems);
         }
 

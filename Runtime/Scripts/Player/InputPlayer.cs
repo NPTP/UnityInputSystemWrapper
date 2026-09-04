@@ -123,6 +123,19 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal InputActionAsset Asset { get; }
 
+        /// <summary>Where the virtual mouse hangs, so it goes away with the player.</summary>
+        internal Transform PlayerInputTransform => playerInputGameObject == null ? null : playerInputGameObject.transform;
+
+        internal InputUser User => playerInput == null ? default : playerInput.user;
+
+        private PlayerVirtualMouse virtualMouse;
+
+        /// <summary>
+        /// A mouse this player drives with the actions of the virtual mouse map, for pointing at a UI with
+        /// a gamepad. Off until it is switched on.
+        /// </summary>
+        internal PlayerVirtualMouse VirtualMouse => virtualMouse ??= new PlayerVirtualMouse(this, inputData);
+
         internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
 
         private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
@@ -154,6 +167,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal void Terminate()
         {
+            virtualMouse?.Disable();
             Enabled = false;
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();
@@ -303,6 +317,38 @@ namespace NPTP.InputSystemWrapper.Player
                 case EventSystemActionType.TrackedDevicePosition: uiInputModule.trackedDevicePosition = reference; break;
                 case EventSystemActionType.TrackedDeviceOrientation: uiInputModule.trackedDeviceOrientation = reference; break;
                 default: throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
+            }
+        }
+
+        /// <summary>
+        /// Point this player's event system at a virtual mouse's own actions, so its pointer drives their UI.
+        /// </summary>
+        internal void ApplyVirtualMousePointerActions(VirtualMousePointerActions pointerActions)
+        {
+            ApplyEventSystemAction(EventSystemActionType.Point, pointerActions.Point);
+            ApplyEventSystemAction(EventSystemActionType.LeftClick, pointerActions.LeftClick);
+            ApplyEventSystemAction(EventSystemActionType.RightClick, pointerActions.RightClick);
+            ApplyEventSystemAction(EventSystemActionType.MiddleClick, pointerActions.MiddleClick);
+            ApplyEventSystemAction(EventSystemActionType.ScrollWheel, pointerActions.ScrollWheel);
+        }
+
+        /// <summary>
+        /// Put the event system back on the player's own actions: the defaults, then whatever the context
+        /// they are in overrides, which is the same order a context change applies them in.
+        /// </summary>
+        internal void RestoreEventSystemActions()
+        {
+            SetDefaultEventSystemActions();
+
+            InputContextDefinition contextDefinition = inputData.GetContextDefinition(inputContextId);
+            if (contextDefinition == null)
+            {
+                return;
+            }
+
+            foreach (EventSystemActionBinding binding in contextDefinition.EventSystemActionOverrides)
+            {
+                ApplyEventSystemAction(binding.ActionType, GetPooledEventSystemAction(binding.ActionID));
             }
         }
 
@@ -456,6 +502,45 @@ namespace NPTP.InputSystemWrapper.Player
             }
 
             OnInputUserChange?.Invoke(new InputUserChangeInfo(this, inputUserChange));
+        }
+
+        /// <summary>
+        /// Whether this player is driving a mouse with the virtual mouse map's actions, for pointing at a
+        /// UI with a gamepad. The cursor and how it behaves are set on the input data.
+        /// </summary>
+        public bool VirtualMouseEnabled => virtualMouse != null && virtualMouse.Enabled;
+
+        /// <summary>
+        /// Where this player's virtual mouse is, in screen pixels, or zero while they are not driving one.
+        /// Separate from the system mouse's position, which it does not touch.
+        /// </summary>
+        public Vector2 VirtualMousePosition => virtualMouse == null ? Vector2.zero : virtualMouse.Position;
+
+        /// <summary>
+        /// Start driving a mouse from this player's virtual mouse actions. The cursor is put under the
+        /// given parent, or left at the scene's root when there is none.
+        /// </summary>
+        public void EnableVirtualMouse(RectTransform cursorParent = null)
+        {
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                ISWDebug.LogWarning($"Player {ID.ToString()}: Input data does not allow enabling a virtual mouse.");
+                return;
+            }
+
+            if (cursorParent != null && inputData.VirtualMouseCreatesOwnCanvas)
+            {
+                ISWDebug.LogWarning($"Player {ID.ToString()}: was given a canvas for their virtual mouse cursor, but " +
+                                    "the input data makes one for it, so the canvas given is not used.");
+            }
+
+            VirtualMouse.Enable(cursorParent);
+        }
+
+        /// <summary>Stop driving a virtual mouse and take its device away.</summary>
+        public void DisableVirtualMouse()
+        {
+            virtualMouse?.Disable();
         }
 
         /// <summary>

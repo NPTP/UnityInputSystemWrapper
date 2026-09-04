@@ -30,7 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
                 .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER_REF).Private().Static().Expression("Runtime.DefaultPlayer"));
 
-            AddSinglePlayerAccess(isw, asset);
+            AddSinglePlayerAccess(isw, asset, inputData);
             AddInitialization(isw, asset, inputData);
             AddEvents(isw);
             AddPublicInterface(isw);
@@ -42,9 +42,9 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// The convenience surface for single-player games: the default player's actions, reachable without
         /// naming a player at all.
         /// </summary>
-        private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset)
+        private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
         {
-            foreach (string mapName in Helper.GetMapNames(asset))
+            foreach (string mapName in ISWEditorHelper.GetMapNames(asset))
             {
                 isw.WithProperty(SourceGen.NewProperty(mapName.AsType(), $"{mapName.AsType()}Actions")
                     .Public()
@@ -56,6 +56,32 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Public()
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme"));
+
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                return;
+            }
+
+            isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
+                    .Expression("DefaultPlayer.VirtualMouseEnabled"))
+                .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public().Static()
+                    .Expression("DefaultPlayer.VirtualMousePosition"))
+                .WithMethod(BuildEnableVirtualMouse(inputData))
+                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().Static().ReturningVoid()
+                    .Expression("DefaultPlayer.DisableVirtualMouse()"));
+        }
+
+        /// <summary>
+        /// Enabling asks for a canvas only when the input data does not make one, so a call that could not
+        /// work does not compile.
+        /// </summary>
+        private static GeneratableMethod BuildEnableVirtualMouse(InputData inputData)
+        {
+            GeneratableMethod enable = SourceGen.NewMethod("EnableVirtualMouse").Public().Static().ReturningVoid();
+            return inputData.VirtualMouseCreatesOwnCanvas
+                ? enable.Expression("DefaultPlayer.EnableVirtualMouse()")
+                : enable.Taking(GeneratableParameter.Of("RectTransform", "cursorParent"))
+                    .Expression("DefaultPlayer.EnableVirtualMouse(cursorParent)");
         }
 
         private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
@@ -124,9 +150,21 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             isw
                 .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
+                .WithProperty(SourceGen.NewProperty<int>("PlayerCount").Public().Static().Expression("Runtime.PlayerCount"))
                 .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER_REF)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("PlayerExists").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
+                    .Expression($"Runtime.DoesPlayerExist({PLAYER_ID})"))
+                .WithMethod(SourceGen.NewMethod("GetPlayerIDs").Public().Static().Returning("IEnumerable<int>")
+                    .Expression("Runtime.GetPlayerIDs()"))
+                .WithMethod(SourceGen.NewMethod("TryGetPlayerPairedWithDevice").Public().Static().Returning<bool>()
+                    .Taking(GeneratableParameter.Of("InputDevice", "device"),
+                        GeneratableParameter.Out(INPUT_PLAYER_REF, "player"))
+                    .Body($"bool paired = Runtime.TryGetPlayerPairedWithDevice(device, out {INPUT_PLAYER} pairedPlayer);",
+                        "player = pairedPlayer;",
+                        "return paired;"))
                 .WithMethod(SourceGen.NewMethod("RemovePlayer").Public().Static().ReturningVoid()
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.RemovePlayer({PLAYER_ID})"))

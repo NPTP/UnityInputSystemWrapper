@@ -45,7 +45,7 @@ namespace NPTP.InputSystemWrapper.Actions
         public T ReadValue()
         {
             ValueActionWrapper<T> valueActionWrapper = ValueActionWrapper;
-            return valueActionWrapper == null ? default : valueActionWrapper.ReadValue();
+            return valueActionWrapper?.ReadValue() ?? default;
         }
     }
 }

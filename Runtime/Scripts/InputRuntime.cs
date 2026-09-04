@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Actions;
 using NPTP.InputSystemWrapper.AnyButtonPress;
 using NPTP.InputSystemWrapper.Bindings;
@@ -106,7 +107,11 @@ namespace NPTP.InputSystemWrapper
 
         internal static void Initialize()
         {
-            Current = new InputRuntime();
+            // Current is set before anything is set up, because setting up reaches back through it: a
+            // player's saved bindings can be asked for through an event, which is broadcast from here.
+            InputRuntime runtime = new();
+            Current = runtime;
+            runtime.SetUp();
         }
 
         private InputRuntime()
@@ -118,7 +123,10 @@ namespace NPTP.InputSystemWrapper
             {
                 throw new Exception($"{nameof(InputData)} is null or its input action asset is null - input will not work! Did you move the asset from its original location in 'Resources'?");
             }
+        }
 
+        private void SetUp()
+        {
             // Clear out anything in the scene that would interfere with the ISW's autonomous operation.
             ObjectUtility.DestroyObjectsOfType<PlayerInput, InputSystemUIInputModule, StandaloneInputModule, EventSystem>();
 
@@ -256,7 +264,7 @@ namespace NPTP.InputSystemWrapper
         // An ActionReference carries its own composite part and player ID.
         private static CompositePart GetCompositePart(ActionReference actionReference)
         {
-            return actionReference == null ? CompositePart.DontIsolatePart : actionReference.CompositePart;
+            return actionReference?.CompositePart ?? CompositePart.DontIsolatePart;
         }
 
         internal void ResetAllBindingsForControlScheme(ControlSchemeId controlSchemeId, int? playerID = null)
@@ -396,14 +404,84 @@ namespace NPTP.InputSystemWrapper
             return BindingSlots.Resolve(inputData, actionWrapper.InputAction, controlSchemeId);
         }
 
+        /// <summary>
+        /// The slots of an action on the player's current control scheme, loaded in the background.
+        /// </summary>
+        internal void GetCurrentBindingSlotsAsync(ActionWrapper actionWrapper, Action<BindingSlots> onResolved)
+        {
+            if (!playerCollection.TryGetPlayer(actionWrapper.PlayerID, out InputPlayer player))
+            {
+                onResolved?.Invoke(BindingSlots.Empty);
+                return;
+            }
+
+            BindingSlots.ResolveAsync(inputData, actionWrapper.InputAction, player.CurrentControlSchemeId, onResolved);
+        }
+
         internal bool TryGetActionWrapper(int playerID, InputAction inputAction, out ActionWrapper actionWrapper)
         {
             return GetPlayer(playerID).TryGetMatchingActionWrapper(inputAction, out actionWrapper);
         }
 
+        /// <summary>
+        /// A player's wrapper for an action named in text rather than referenced as an asset. Without a map
+        /// name, the first action found by that name is taken.
+        /// </summary>
+        internal bool TryGetActionWrapperByName(int playerID, string actionMapName, string actionName, out ActionWrapper actionWrapper)
+        {
+            actionWrapper = null;
+            if (!playerCollection.TryGetPlayer(playerID, out InputPlayer player))
+            {
+                return false;
+            }
+
+            foreach (InputActionMap actionMap in player.Asset.actionMaps)
+            {
+                if (!string.IsNullOrEmpty(actionMapName) &&
+                    !string.Equals(actionMap.name, actionMapName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                foreach (InputAction inputAction in actionMap.actions)
+                {
+                    if (string.Equals(inputAction.name, actionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return player.TryGetMatchingActionWrapper(inputAction, out actionWrapper);
+                    }
+                }
+            }
+
+            return false;
+        }
+
         internal bool DoesPlayerExist(int playerID)
         {
             return playerCollection.TryGetPlayer(playerID, out _);
+        }
+
+        /// <summary>How many players exist right now.</summary>
+        internal int PlayerCount => playerCollection.Count;
+
+        /// <summary>
+        /// The IDs of the players that exist, so a lobby or a split screen can be laid out without
+        /// asking for players by number and creating them by accident.
+        /// </summary>
+        internal IEnumerable<int> GetPlayerIDs()
+        {
+            foreach (InputPlayer player in playerCollection)
+            {
+                yield return player.ID;
+            }
+        }
+
+        /// <summary>
+        /// The player a device is paired to, for working out who a button press belongs to. False when
+        /// no player has taken that device yet.
+        /// </summary>
+        internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer player)
+        {
+            return playerCollection.TryGetPlayerPairedWithDevice(device, out player);
         }
 
         #endregion

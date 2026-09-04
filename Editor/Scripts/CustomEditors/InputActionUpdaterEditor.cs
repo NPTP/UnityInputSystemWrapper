@@ -1,5 +1,4 @@
 using NPTP.InputSystemWrapper.Components;
-using NPTP.InputSystemWrapper.Editor.Utilities;
 using UnityEditor;
 
 namespace NPTP.InputSystemWrapper.Editor.CustomEditors
@@ -20,15 +19,15 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         public override void OnInspectorGUI()
         {
-            EditorInspectorUtility.ShowScriptInspector((InputActionUpdater)target);
-            
+            ISWEditorHelper.ShowScriptInspector((InputActionUpdater)target);
+
             EditorGUILayout.PropertyField(setSpriteEvent);
             EditorGUILayout.PropertyField(respondToAllPlayers);
             if (!respondToAllPlayers.boolValue)
             {
                 EditorGUILayout.PropertyField(associatedPlayer);
             }
-            
+
             serializedObject.ApplyModifiedProperties();
         }
     }

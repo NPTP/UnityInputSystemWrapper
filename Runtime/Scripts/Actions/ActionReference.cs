@@ -4,8 +4,6 @@ using NPTP.InputSystemWrapper.Enums;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using NPTP.InputSystemWrapper;
-
 namespace NPTP.InputSystemWrapper.Actions
 {
     /// <summary>
@@ -27,17 +25,36 @@ namespace NPTP.InputSystemWrapper.Actions
 
         [SerializeField] private InputActionReference reference;
 
-        [SerializeField] private bool useCompositePart;
-        public bool UseCompositePart => useCompositePart;
-
+        /// <summary>
+        /// Which part of a composite this refers to, or DontIsolatePart for the binding as a whole.
+        /// </summary>
         [SerializeField] private CompositePart compositePart;
         public CompositePart CompositePart => compositePart;
 
-        [SerializeField] private bool applyToAllPlayers;
-        internal bool ApplyToAllPlayers => applyToAllPlayers;
-
+        /// <summary>
+        /// Which player's copy of the action this refers to. Settable, so one screen can be pointed at
+        /// each player in turn rather than needing a reference per player. Player IDs start at 0.
+        /// </summary>
+        [Min(0)]
         [SerializeField] private int playerID;
-        internal int PlayerID => playerID;
+        public int PlayerID
+        {
+            get => playerID;
+            set
+            {
+                int clamped = Mathf.Max(0, value);
+                if (playerID == clamped)
+                {
+                    return;
+                }
+
+                playerID = clamped;
+
+                // Every player has their own wrapper for the action, so the one held here belongs to
+                // the player this used to point at.
+                actionWrapper = null;
+            }
+        }
 
         private ActionWrapper actionWrapper;
         internal ActionWrapper ActionWrapper
@@ -59,42 +76,31 @@ namespace NPTP.InputSystemWrapper.Actions
             }
         }
 
-        public string ActionName => ActionWrapper != null ? ActionWrapper.InputAction.name : "Not found";
-
-        public static bool TryConvert(InputActionReference inputActionReference, out ActionReference actionReference)
-        {
-            if (inputActionReference != null && inputActionReference.action != null &&
-                InputRuntime.Current.TryConvert(inputActionReference, out ActionWrapper actionWrapper))
-            {
-                actionReference = new ActionReference(inputActionReference.action) { actionWrapper = actionWrapper };
-                return true;
-            }
-
-            actionReference = null;
-            return false;
-        }
-
-        public static bool TryConvert(InputAction inputAction, int playerID, out ActionReference actionReference)
-        {
-            if (inputAction != null && InputRuntime.Current.TryGetActionWrapper(playerID, inputAction, out ActionWrapper actionWrapper))
-            {
-                actionReference = new ActionReference(inputAction) { actionWrapper = actionWrapper };
-                return true;
-            }
-
-            actionReference = null;
-            return false;
-        }
+        public string ActionName => ActionWrapper?.InputAction.name ?? "Not found";
 
         /// <summary>Every slot of the referenced action on the control scheme the player is currently using.</summary>
         public BindingSlots GetCurrentBindingSlots()
         {
-            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetCurrentBindingSlots();
+            return ActionWrapper?.GetCurrentBindingSlots() ?? BindingSlots.Empty;
+        }
+
+        /// <summary>
+        /// The same slots, loaded in the background: the callback runs once they are ready.
+        /// </summary>
+        public void GetCurrentBindingSlotsAsync(Action<BindingSlots> onResolved)
+        {
+            if (ActionWrapper == null)
+            {
+                onResolved?.Invoke(BindingSlots.Empty);
+                return;
+            }
+
+            ActionWrapper.GetCurrentBindingSlotsAsync(onResolved);
         }
 
         internal BindingSlots GetBindingSlots(ControlSchemeId controlSchemeId)
         {
-            return ActionWrapper == null ? BindingSlots.Empty : ActionWrapper.GetBindingSlots(controlSchemeId);
+            return ActionWrapper?.GetBindingSlots(controlSchemeId) ?? BindingSlots.Empty;
         }
 
         internal void StartInteractiveRebind(ControlSchemeId controlSchemeId, int uiIndex, Action<RebindInfo> callback = null)
@@ -104,10 +110,8 @@ namespace NPTP.InputSystemWrapper.Actions
                 return;
             }
 
-            if (useCompositePart)
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, uiIndex, callback);
-            else
-                ActionWrapper.StartInteractiveRebind(controlSchemeId, uiIndex, callback);
+            // DontIsolatePart means the whole binding, so there is no second path to take.
+            ActionWrapper.StartInteractiveRebind(controlSchemeId, compositePart, uiIndex, callback);
         }
 
         internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
@@ -115,11 +119,6 @@ namespace NPTP.InputSystemWrapper.Actions
 
         internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
             InputRuntime.Current.ResetAllBindingsForAction(this, controlSchemeId);
-
-        private ActionReference(InputAction action)
-        {
-            reference = InputActionReference.Create(action);
-        }
 
         protected ActionReference()
         {
