@@ -1,5 +1,8 @@
 using NPTP.InputSystemWrapper.Data;
+using NPTP.InputSystemWrapper.Components;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEditor;
@@ -21,6 +24,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private SerializedProperty initializationMode;
 
+        private SerializedProperty allowEnablingVirtualMouse;
+        private SerializedProperty virtualMouseActionMapName;
+        private SerializedProperty virtualMouseCursorMode;
+        private SerializedProperty virtualMouseCursorPrefab;
+        private SerializedProperty virtualMouseCreatesOwnCanvas;
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
@@ -55,6 +63,11 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             customInteractions = serializedObject.FindProperty(nameof(customInteractions));
 
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
+            allowEnablingVirtualMouse = serializedObject.FindProperty(InputData.EDITOR_AllowEnablingVirtualMouseField);
+            virtualMouseActionMapName = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseActionMapNameField);
+            virtualMouseCursorMode = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorModeField);
+            virtualMouseCursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
+            virtualMouseCreatesOwnCanvas = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCreatesOwnCanvasField);
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
@@ -140,6 +153,103 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             InputActionReferenceDropdown.Draw(trackedDeviceOrientation, asset);
         }
 
+        /// <summary>
+        /// The map a player's virtual mouse is driven by, what is wrong with it, and a button to write the
+        /// actions it is missing.
+        /// </summary>
+        private void DrawVirtualMouse()
+        {
+            EditorGUILayout.Space();
+            ISWEditorHelper.DrawHorizontalLine();
+
+            DrawHeader("Virtual Mouse");
+
+            InputActionAsset asset = ((InputData)target).InputActionAsset;
+            if (asset == null)
+            {
+                DrawSpecialNote("No input action asset is assigned.");
+                return;
+            }
+
+            EditorGUILayout.PropertyField(allowEnablingVirtualMouse, new GUIContent("Allow Enabling Virtual Mouse"));
+
+            EditorGUI.BeginDisabledGroup(!allowEnablingVirtualMouse.boolValue);
+            {
+                EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
+                DrawVirtualMouseMapProblems(asset);
+
+                EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
+
+                EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
+                DrawVirtualMouseCursorProblems();
+
+                EditorGUILayout.PropertyField(virtualMouseCreatesOwnCanvas, new GUIContent("Creates Own Canvas"));
+            }
+            EditorGUI.EndDisabledGroup();
+        }
+
+        /// <summary>What stops the chosen prefab from drawing a cursor, or nothing when it can.</summary>
+        private void DrawVirtualMouseCursorProblems()
+        {
+            if (virtualMouseCursorPrefab.objectReferenceValue is not GameObject prefab)
+            {
+                DrawSpecialNote("With no cursor prefab the mouse still moves and clicks, but nothing is drawn for it.");
+                return;
+            }
+
+            ISWVirtualMouseUI cursorUI = prefab.GetComponent<ISWVirtualMouseUI>();
+            if (cursorUI == null)
+            {
+                DrawWarning($"\"{prefab.name}\" has no {nameof(ISWVirtualMouseUI)} on its root.");
+                return;
+            }
+
+            if (cursorUI.CursorTransform == null)
+            {
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" has no cursor transform assigned.");
+            }
+
+            if (cursorUI.CursorGraphic == null)
+            {
+                DrawWarning($"The {nameof(ISWVirtualMouseUI)} on \"{prefab.name}\" has no cursor graphic assigned.");
+            }
+        }
+
+        /// <summary>
+        /// What the chosen map is missing, and the button that writes it, or nothing at all when the map
+        /// holds what it should.
+        /// </summary>
+        private void DrawVirtualMouseMapProblems(InputActionAsset asset)
+        {
+            string mapName = virtualMouseActionMapName.stringValue;
+            if (string.IsNullOrEmpty(mapName))
+            {
+                DrawWarning("No action map is chosen, so no player can drive a virtual mouse.");
+                return;
+            }
+
+            InputActionMap actionMap = asset.FindActionMap(mapName, throwIfNotFound: false);
+            List<string> problems = VirtualMouseMapSpec.Problems(actionMap);
+            if (problems.Count == 0)
+            {
+                return;
+            }
+
+            DrawWarning("Missing actions or containing actions not belonging in a virtual mouse map. Create a new map:");
+
+            // Always a new map, never a change to one already in the asset, so nothing authored is touched.
+            if (GUILayout.Button("Create Virtual Mouse Map"))
+            {
+                string createdMapName = VirtualMouseMapWriter.Create(asset, mapName);
+                if (!string.IsNullOrEmpty(createdMapName))
+                {
+                    virtualMouseActionMapName.stringValue = createdMapName;
+                }
+            }
+
+            EditorGUILayout.Space(2);
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -195,6 +305,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.PropertyField(cursorLockBehavior);
 
             DrawDefaultEventSystemActions();
+
+            DrawVirtualMouse();
 
             serializedObject.ApplyModifiedProperties();
         }

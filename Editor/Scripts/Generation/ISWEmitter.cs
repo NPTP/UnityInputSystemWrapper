@@ -30,7 +30,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
                 .WithProperty(SourceGen.NewProperty("DefaultPlayer", INPUT_PLAYER_REF).Private().Static().Expression("Runtime.DefaultPlayer"));
 
-            AddSinglePlayerAccess(isw, asset);
+            AddSinglePlayerAccess(isw, asset, inputData);
             AddInitialization(isw, asset, inputData);
             AddEvents(isw);
             AddPublicInterface(isw);
@@ -42,7 +42,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// The convenience surface for single-player games: the default player's actions, reachable without
         /// naming a player at all.
         /// </summary>
-        private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset)
+        private static void AddSinglePlayerAccess(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)
         {
             foreach (string mapName in ISWEditorHelper.GetMapNames(asset))
             {
@@ -56,6 +56,32 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Public()
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme"));
+
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                return;
+            }
+
+            isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
+                    .Expression("DefaultPlayer.VirtualMouseEnabled"))
+                .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public().Static()
+                    .Expression("DefaultPlayer.VirtualMousePosition"))
+                .WithMethod(BuildEnableVirtualMouse(inputData))
+                .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().Static().ReturningVoid()
+                    .Expression("DefaultPlayer.DisableVirtualMouse()"));
+        }
+
+        /// <summary>
+        /// Enabling asks for a canvas only when the input data does not make one, so a call that could not
+        /// work does not compile.
+        /// </summary>
+        private static GeneratableMethod BuildEnableVirtualMouse(InputData inputData)
+        {
+            GeneratableMethod enable = SourceGen.NewMethod("EnableVirtualMouse").Public().Static().ReturningVoid();
+            return inputData.VirtualMouseCreatesOwnCanvas
+                ? enable.Expression("DefaultPlayer.EnableVirtualMouse()")
+                : enable.Taking(GeneratableParameter.Of("RectTransform", "cursorParent"))
+                    .Expression("DefaultPlayer.EnableVirtualMouse(cursorParent)");
         }
 
         private static void AddInitialization(GeneratableTypeDefinition isw, InputActionAsset asset, InputData inputData)

@@ -43,7 +43,7 @@ namespace NPTP.InputSystemWrapper.Editor
             WriteFile("ControlScheme", EnumEmitter.BuildControlSchemeFile(asset), outputFolder);
             WriteFile("InputContext", EnumEmitter.BuildInputContextFile(inputData.AuthoredContexts), outputFolder);
             WriteFile("Extensions", ExtensionsEmitter.BuildFile(), outputFolder);
-            WriteType(InputPlayerRefEmitter.TYPE_NAME, InputPlayerRefEmitter.Build(asset), outputFolder);
+            WriteType(InputPlayerRefEmitter.TYPE_NAME, InputPlayerRefEmitter.Build(asset, inputData), outputFolder);
             WriteType("ISW", ISWEmitter.Build(asset, inputData), outputFolder);
             WriteFile("BindingDataMenuItems", BindingDataMenuEmitter.BuildFile(), outputFolder);
 

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using NPTP.InputSystemWrapper.Attributes;
 using NPTP.InputSystemWrapper.Bindings;
+using NPTP.InputSystemWrapper.Components;
 using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Enums;
+using NPTP.InputSystemWrapper.Player;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
@@ -43,6 +45,25 @@ namespace NPTP.InputSystemWrapper.Data
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
+        
+        [SerializeField] private bool allowEnablingVirtualMouse = true;
+        internal bool AllowEnablingVirtualMouse => allowEnablingVirtualMouse;
+
+        [Tooltip("The action map whose actions drive a player's virtual mouse.")]
+        [InputMapSelector][SerializeField] private string virtualMouseActionMapName = VirtualMouseMapSpec.DEFAULT_MAP_NAME;
+        internal string VirtualMouseActionMapName => virtualMouseActionMapName;
+
+        [Tooltip("Software draws a cursor graphic and leaves the system mouse alone. Hardware takes the system " +
+                 "mouse over and moves the operating system's cursor, disabling the real mouse while it is on.")]
+        [SerializeField] private VirtualMouseInput.CursorMode virtualMouseCursorMode = VirtualMouseInput.CursorMode.SoftwareCursor;
+        internal VirtualMouseInput.CursorMode VirtualMouseCursorMode => virtualMouseCursorMode;
+        
+        [SerializeField] private GameObject virtualMouseCursorPrefab;
+        internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
+
+        [Tooltip("Give each virtual mouse a canvas of its own, drawn above everything else. Otherwise, supply your own parent RectTransform for the mouse.")]
+        [SerializeField] private bool virtualMouseCreatesOwnCanvas = true;
+        internal bool VirtualMouseCreatesOwnCanvas => virtualMouseCreatesOwnCanvas;
 
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
@@ -50,9 +71,7 @@ namespace NPTP.InputSystemWrapper.Data
         [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized.")]
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
         internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
-
-        [Tooltip("Where saved bindings are written to and read back from: a JSON file per player, your own " +
-                 "storage through the ISW binding serialization events, or both.")]
+        
         [SerializeField] private BindingSerializationMode bindingSerializationMode = BindingSerializationMode.File;
         internal BindingSerializationMode BindingSerializationMode => bindingSerializationMode;
 
@@ -199,6 +218,11 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
         internal const string EDITOR_ContextDefinitionsField = nameof(contextDefinitions);
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
+        internal const string EDITOR_AllowEnablingVirtualMouseField = nameof(allowEnablingVirtualMouse);
+        internal const string EDITOR_VirtualMouseActionMapNameField = nameof(virtualMouseActionMapName);
+        internal const string EDITOR_VirtualMouseCursorModeField = nameof(virtualMouseCursorMode);
+        internal const string EDITOR_VirtualMouseCursorPrefabField = nameof(virtualMouseCursorPrefab);
+        internal const string EDITOR_VirtualMouseCreatesOwnCanvasField = nameof(virtualMouseCreatesOwnCanvas);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_BindingSerializationModeField = nameof(bindingSerializationMode);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);

@@ -101,6 +101,15 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             return copied;
         }
 
+        /// <summary>The package's own input data, holding the defaults a project's copy starts from.</summary>
+        internal static InputData FindPackageDefaultInputData()
+        {
+            string defaultsFolder = FindPackageDefaultsFolder();
+            return string.IsNullOrEmpty(defaultsFolder)
+                ? null
+                : AssetDatabase.LoadAssetAtPath<InputData>(defaultsFolder + "/" + INPUT_DATA_NAME + ".asset");
+        }
+
         private static void CopyContents(string sourceFolder, string destinationFolder)
         {
             foreach (string subfolder in AssetDatabase.GetSubFolders(sourceFolder))
