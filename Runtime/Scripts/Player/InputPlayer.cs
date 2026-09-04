@@ -522,9 +522,15 @@ namespace NPTP.InputSystemWrapper.Player
         /// </summary>
         public void EnableVirtualMouse(RectTransform cursorParent = null)
         {
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                ISWDebug.LogWarning($"Player {ID.ToString()}: Input data does not allow enabling a virtual mouse.");
+                return;
+            }
+
             if (cursorParent != null && inputData.VirtualMouseCreatesOwnCanvas)
             {
-                ISWDebug.LogWarning($"Player {ID.ToString()} was given a canvas for their virtual mouse cursor, but " +
+                ISWDebug.LogWarning($"Player {ID.ToString()}: was given a canvas for their virtual mouse cursor, but " +
                                     "the input data makes one for it, so the canvas given is not used.");
             }
 

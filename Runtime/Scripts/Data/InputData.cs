@@ -45,6 +45,9 @@ namespace NPTP.InputSystemWrapper.Data
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
+        
+        [SerializeField] private bool allowEnablingVirtualMouse = true;
+        internal bool AllowEnablingVirtualMouse => allowEnablingVirtualMouse;
 
         [Tooltip("The action map whose actions drive a player's virtual mouse.")]
         [InputMapSelector][SerializeField] private string virtualMouseActionMapName = VirtualMouseMapSpec.DEFAULT_MAP_NAME;
@@ -54,9 +57,7 @@ namespace NPTP.InputSystemWrapper.Data
                  "mouse over and moves the operating system's cursor, disabling the real mouse while it is on.")]
         [SerializeField] private VirtualMouseInput.CursorMode virtualMouseCursorMode = VirtualMouseInput.CursorMode.SoftwareCursor;
         internal VirtualMouseInput.CursorMode VirtualMouseCursorMode => virtualMouseCursorMode;
-
-        [Tooltip("The cursor to show while a player's virtual mouse is on, instantiated per player and destroyed " +
-                 "with it. Needs an ISWVirtualMouseUI on its root, and a Canvas of its own to be drawn on.")]
+        
         [SerializeField] private GameObject virtualMouseCursorPrefab;
         internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
 
@@ -70,9 +71,7 @@ namespace NPTP.InputSystemWrapper.Data
         [Tooltip("When true, all saved bindings for all players are loaded when this system is initialized.")]
         [SerializeField] private bool loadAllBindingOverridesOnInitialize = true;
         internal bool LoadAllBindingOverridesOnInitialize => loadAllBindingOverridesOnInitialize;
-
-        [Tooltip("Where saved bindings are written to and read back from: a JSON file per player, your own " +
-                 "storage through the ISW binding serialization events, or both.")]
+        
         [SerializeField] private BindingSerializationMode bindingSerializationMode = BindingSerializationMode.File;
         internal BindingSerializationMode BindingSerializationMode => bindingSerializationMode;
 
@@ -219,6 +218,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_EventSystemOptionsField = nameof(eventSystemOptions);
         internal const string EDITOR_ContextDefinitionsField = nameof(contextDefinitions);
         internal const string EDITOR_DefaultContextIndexField = nameof(defaultContextIndex);
+        internal const string EDITOR_AllowEnablingVirtualMouseField = nameof(allowEnablingVirtualMouse);
         internal const string EDITOR_VirtualMouseActionMapNameField = nameof(virtualMouseActionMapName);
         internal const string EDITOR_VirtualMouseCursorModeField = nameof(virtualMouseCursorMode);
         internal const string EDITOR_VirtualMouseCursorPrefabField = nameof(virtualMouseCursorPrefab);

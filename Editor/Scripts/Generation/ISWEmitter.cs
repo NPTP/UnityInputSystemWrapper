@@ -57,6 +57,11 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme"));
 
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                return;
+            }
+
             isw.WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public().Static()
                     .Expression("DefaultPlayer.VirtualMouseEnabled"))
                 .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public().Static()

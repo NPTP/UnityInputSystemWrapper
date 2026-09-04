@@ -24,6 +24,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
         private SerializedProperty initializationMode;
 
+        private SerializedProperty allowEnablingVirtualMouse;
         private SerializedProperty virtualMouseActionMapName;
         private SerializedProperty virtualMouseCursorMode;
         private SerializedProperty virtualMouseCursorPrefab;
@@ -62,6 +63,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             customInteractions = serializedObject.FindProperty(nameof(customInteractions));
 
             initializationMode = serializedObject.FindProperty(nameof(initializationMode));
+            allowEnablingVirtualMouse = serializedObject.FindProperty(InputData.EDITOR_AllowEnablingVirtualMouseField);
             virtualMouseActionMapName = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseActionMapNameField);
             virtualMouseCursorMode = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorModeField);
             virtualMouseCursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
@@ -169,15 +171,21 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 return;
             }
 
-            EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
-            DrawVirtualMouseMapProblems(asset);
+            EditorGUILayout.PropertyField(allowEnablingVirtualMouse, new GUIContent("Allow Enabling Virtual Mouse"));
 
-            EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
+            EditorGUI.BeginDisabledGroup(!allowEnablingVirtualMouse.boolValue);
+            {
+                EditorGUILayout.PropertyField(virtualMouseActionMapName, new GUIContent("Action Map"));
+                DrawVirtualMouseMapProblems(asset);
 
-            EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
-            DrawVirtualMouseCursorProblems();
+                EditorGUILayout.PropertyField(virtualMouseCursorMode, new GUIContent("Cursor Mode"));
 
-            EditorGUILayout.PropertyField(virtualMouseCreatesOwnCanvas, new GUIContent("Creates Own Canvas"));
+                EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
+                DrawVirtualMouseCursorProblems();
+
+                EditorGUILayout.PropertyField(virtualMouseCreatesOwnCanvas, new GUIContent("Creates Own Canvas"));
+            }
+            EditorGUI.EndDisabledGroup();
         }
 
         /// <summary>What stops the chosen prefab from drawing a cursor, or nothing when it can.</summary>

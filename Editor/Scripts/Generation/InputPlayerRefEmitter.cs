@@ -86,8 +86,11 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// </summary>
         private static void AddVirtualMouse(GeneratableTypeDefinition playerRef, InputData inputData)
         {
-            // The cursor either goes on a canvas made with it or on one it is given, so enabling asks for
-            // exactly what the input data says it needs and refuses what it does not.
+            if (!inputData.AllowEnablingVirtualMouse)
+            {
+                return;
+            }
+
             GeneratableMethod enable = SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid();
             if (inputData.VirtualMouseCreatesOwnCanvas)
             {
