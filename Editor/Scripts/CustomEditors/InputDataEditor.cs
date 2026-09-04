@@ -240,9 +240,14 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 DrawWarning(problem);
             }
 
-            if (GUILayout.Button(actionMap == null ? $"Create \"{mapName}\" Map" : $"Add What \"{mapName}\" Is Missing"))
+            // Always a new map, never a change to one already in the asset, so nothing authored is touched.
+            if (GUILayout.Button("Create Virtual Mouse Map"))
             {
-                VirtualMouseMapWriter.CreateOrComplete(asset, mapName);
+                string createdMapName = VirtualMouseMapWriter.Create(asset, mapName);
+                if (!string.IsNullOrEmpty(createdMapName))
+                {
+                    virtualMouseActionMapName.stringValue = createdMapName;
+                }
             }
 
             EditorGUILayout.Space(2);

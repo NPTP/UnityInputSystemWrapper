@@ -2,6 +2,13 @@
 ## Changelog
 
 10.0.0
+- A virtual mouse per player, driven by an action map of your own naming, so a gamepad can point at a UI. `EnableVirtualMouse` and `DisableVirtualMouse` on `ISW` and on a player handle, with `VirtualMouseEnabled` and `VirtualMousePosition` to read it back
+- The virtual mouse section on the input data names the map that drives it, reports every action that map is missing or has wrong, and offers a button that writes a map with all of them bound to a gamepad
+- `ISWVirtualMouseUI` on a cursor prefab names the graphic the mouse shows and the transform it moves. Everything else drawn in the cursor is shown and hidden along with that graphic, which the mouse hides on its own when the hardware cursor draws instead
+- A cursor gets a canvas of its own, made and torn down with the mouse, or goes on one you name. Which of those applies is a setting, and the generated `EnableVirtualMouse` takes the canvas as an argument only when one is needed
+- `Allow Enabling Virtual Mouse` on the input data turns the whole feature off: its settings are greyed out and none of the virtual mouse API is generated
+- A virtual mouse is never paired to its player. Its device would be dropped by the control scheme anyway, so the event system reads it through actions restricted to that one device - which also means a virtual mouse cannot help satisfy a control scheme wanting a mouse
+- `ISW.VirtualMousePosition` always reads the player's own virtual mouse, unlike `ISW.MousePosition`, which follows whichever mouse was used last
 - Bindings can be written into a line of text where it names one: "Press <isw action=\"Fire\"> to shoot" shows the button the player would press. Only the action is required, and the fullest form names everything: `<isw type="sprite" player=1 action="Gameplay.Fire" composite="positive" index=2>`. An action name on its own is enough unless two action maps share it, in which case write "Map.Action"
 - `InputGlyphText`, a component that writes those glyphs into a TextMeshPro label. Sprites are drawn through sprite assets built at runtime, since binding sprites are loaded rather than authored into a sprite sheet
 - `InlineGlyphTagParser` and `InlineGlyphResolver` read those elements and resolve them to binding info on their own, for text components other than TextMeshPro
