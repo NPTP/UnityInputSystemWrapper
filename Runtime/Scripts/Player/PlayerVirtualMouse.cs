@@ -154,9 +154,15 @@ namespace NPTP.InputSystemWrapper.Player
             // mouse hides when the hardware cursor draws instead.
             ISWVirtualMouseUI cursorUI = cursor.GetComponent<ISWVirtualMouseUI>();
 
-            // Started in the middle of the screen rather than in the corner its anchors put it, since the
-            // mouse takes the cursor's position as its own when it starts driving it.
-            cursorUI.CursorTransform.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            // Anchored to the bottom left whatever the prefab says, because the mouse writes screen pixels
+            // straight into anchoredPosition, and any other anchor reads those as an offset from elsewhere.
+            RectTransform cursorTransform = cursorUI.CursorTransform;
+            cursorTransform.anchorMin = Vector2.zero;
+            cursorTransform.anchorMax = Vector2.zero;
+
+            // Started in the middle of the screen rather than in the corner, since the mouse takes the
+            // cursor's position as its own when it starts driving it.
+            cursorTransform.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
 
             virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
             virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
