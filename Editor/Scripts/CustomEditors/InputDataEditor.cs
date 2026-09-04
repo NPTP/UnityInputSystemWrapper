@@ -235,10 +235,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                 return;
             }
 
-            foreach (string problem in problems)
-            {
-                DrawWarning(problem);
-            }
+            DrawWarning("Missing actions or containing actions not belonging in a virtual mouse map. Create a new map:");
 
             // Always a new map, never a change to one already in the asset, so nothing authored is touched.
             if (GUILayout.Button("Create Virtual Mouse Map"))
