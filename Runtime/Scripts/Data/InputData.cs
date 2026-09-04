@@ -60,6 +60,10 @@ namespace NPTP.InputSystemWrapper.Data
         [SerializeField] private GameObject virtualMouseCursorPrefab;
         internal GameObject VirtualMouseCursorPrefab => virtualMouseCursorPrefab;
 
+        [Tooltip("Give each virtual mouse a canvas of its own, drawn above everything else. Otherwise, supply your own parent RectTransform for the mouse.")]
+        [SerializeField] private bool virtualMouseCreatesOwnCanvas = true;
+        internal bool VirtualMouseCreatesOwnCanvas => virtualMouseCreatesOwnCanvas;
+
         [SerializeField] private int defaultContextIndex;
         internal InputContextId DefaultContextId => new(defaultContextIndex);
 
@@ -218,6 +222,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_VirtualMouseActionMapNameField = nameof(virtualMouseActionMapName);
         internal const string EDITOR_VirtualMouseCursorModeField = nameof(virtualMouseCursorMode);
         internal const string EDITOR_VirtualMouseCursorPrefabField = nameof(virtualMouseCursorPrefab);
+        internal const string EDITOR_VirtualMouseCreatesOwnCanvasField = nameof(virtualMouseCreatesOwnCanvas);
         internal const string EDITOR_LoadAllBindingOverridesOnInitializeField = nameof(loadAllBindingOverridesOnInitialize);
         internal const string EDITOR_BindingSerializationModeField = nameof(bindingSerializationMode);
         internal const string EDITOR_ControlSchemesField = nameof(controlSchemes);

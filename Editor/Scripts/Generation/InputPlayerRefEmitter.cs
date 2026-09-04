@@ -1,5 +1,6 @@
 using NPTP.UnitySourceGen.Editor;
 using NPTP.UnitySourceGen.Editor.Generatable;
+using NPTP.InputSystemWrapper.Data;
 using UnityEngine.InputSystem;
 
 namespace NPTP.InputSystemWrapper.Editor.Generation
@@ -24,7 +25,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         private const string INPUT_PLAYER = "InputPlayer";
         private const string FIELD = "inputPlayer";
 
-        internal static GeneratableTypeDefinition Build(InputActionAsset asset)
+        internal static GeneratableTypeDefinition Build(InputActionAsset asset, InputData inputData)
         {
             GeneratableTypeDefinition playerRef = SourceGen.NewStruct(TYPE_NAME).Public().ReadOnly()
                 .InNamespace(GeneratedNamespaces.PLAYER)
@@ -37,7 +38,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             AddActions(playerRef, asset);
             AddState(playerRef);
-            AddVirtualMouse(playerRef);
+            AddVirtualMouse(playerRef, inputData);
             AddEvents(playerRef);
             AddConversions(playerRef);
 
@@ -83,16 +84,27 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         /// The mouse this player drives with the virtual mouse map's actions, for pointing at a UI with a
         /// gamepad.
         /// </summary>
-        private static void AddVirtualMouse(GeneratableTypeDefinition playerRef)
+        private static void AddVirtualMouse(GeneratableTypeDefinition playerRef, InputData inputData)
         {
+            // The cursor either goes on a canvas made with it or on one it is given, so enabling asks for
+            // exactly what the input data says it needs and refuses what it does not.
+            GeneratableMethod enable = SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid();
+            if (inputData.VirtualMouseCreatesOwnCanvas)
+            {
+                enable.Expression($"{FIELD}.EnableVirtualMouse()");
+            }
+            else
+            {
+                enable.Taking(GeneratableParameter.Of("RectTransform", "cursorParent"))
+                    .Expression($"{FIELD}.EnableVirtualMouse(cursorParent)");
+            }
+
             playerRef
                 .WithProperty(SourceGen.NewProperty<bool>("VirtualMouseEnabled").Public()
                     .Expression($"{FIELD}.VirtualMouseEnabled"))
                 .WithProperty(SourceGen.NewProperty("VirtualMousePosition", "Vector2").Public()
                     .Expression($"{FIELD}.VirtualMousePosition"))
-                .WithMethod(SourceGen.NewMethod("EnableVirtualMouse").Public().ReturningVoid()
-                    .Taking(GeneratableParameter.Of("RectTransform", "cursorParent", "null"))
-                    .Expression($"{FIELD}.EnableVirtualMouse(cursorParent)"))
+                .WithMethod(enable)
                 .WithMethod(SourceGen.NewMethod("DisableVirtualMouse").Public().ReturningVoid()
                     .Expression($"{FIELD}.DisableVirtualMouse()"));
         }

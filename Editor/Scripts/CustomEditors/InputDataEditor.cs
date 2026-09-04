@@ -27,6 +27,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty virtualMouseActionMapName;
         private SerializedProperty virtualMouseCursorMode;
         private SerializedProperty virtualMouseCursorPrefab;
+        private SerializedProperty virtualMouseCreatesOwnCanvas;
         private SerializedProperty defaultContextIndex;
         private SerializedProperty authoredContexts;
 
@@ -64,6 +65,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             virtualMouseActionMapName = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseActionMapNameField);
             virtualMouseCursorMode = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorModeField);
             virtualMouseCursorPrefab = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCursorPrefabField);
+            virtualMouseCreatesOwnCanvas = serializedObject.FindProperty(InputData.EDITOR_VirtualMouseCreatesOwnCanvasField);
             defaultContextIndex = serializedObject.FindProperty(InputData.EDITOR_DefaultContextIndexField);
             authoredContexts = serializedObject.FindProperty(nameof(authoredContexts));
 
@@ -174,6 +176,8 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             EditorGUILayout.PropertyField(virtualMouseCursorPrefab, new GUIContent("Cursor Prefab"));
             DrawVirtualMouseCursorProblems();
+
+            EditorGUILayout.PropertyField(virtualMouseCreatesOwnCanvas, new GUIContent("Creates Own Canvas"));
         }
 
         /// <summary>What stops the chosen prefab from drawing a cursor, or nothing when it can.</summary>

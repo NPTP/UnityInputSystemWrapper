@@ -5,6 +5,7 @@ using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
 
 namespace NPTP.InputSystemWrapper.Player
 {
@@ -19,6 +20,9 @@ namespace NPTP.InputSystemWrapper.Player
 
         private GameObject gameObject;
         private GameObject cursor;
+
+        /// <summary>The canvas made for this cursor, when it was not given one to sit on.</summary>
+        private GameObject cursorCanvas;
         private VirtualMouseInput virtualMouseInput;
 
         /// <summary>The actions this mouse drives the player's UI with, held so they can be given back.</summary>
@@ -116,6 +120,12 @@ namespace NPTP.InputSystemWrapper.Player
                 Object.Destroy(cursor);
                 cursor = null;
             }
+
+            if (cursorCanvas != null)
+            {
+                Object.Destroy(cursorCanvas);
+                cursorCanvas = null;
+            }
         }
 
         /// <summary>
@@ -147,7 +157,18 @@ namespace NPTP.InputSystemWrapper.Player
                 return;
             }
 
-            cursor = cursorParent == null ? Object.Instantiate(prefab) : Object.Instantiate(prefab, cursorParent);
+            if (inputData.VirtualMouseCreatesOwnCanvas)
+            {
+                cursorParent = CreateCursorCanvas();
+            }
+            else if (cursorParent == null)
+            {
+                ISWDebug.LogWarning($"Player {player.ID.ToString()} was given no canvas to put their virtual mouse " +
+                                    "cursor on, and the input data does not make one, so no cursor is shown.");
+                return;
+            }
+
+            cursor = Object.Instantiate(prefab, cursorParent);
             cursor.name = $"Player[{player.ID.ToString()}]VirtualMouseCursor";
 
             // The graphic decides which canvas the cursor is held inside the bounds of, and is the one the
@@ -166,6 +187,26 @@ namespace NPTP.InputSystemWrapper.Player
 
             virtualMouseInput.cursorGraphic = cursorUI.CursorGraphic;
             virtualMouseInput.cursorTransform = cursorUI.CursorTransform;
+        }
+
+        /// <summary>
+        /// A canvas owned by the virtual mouse cursor, drawn above everything else and thrown away with the virtual mouse.
+        /// Kept at a constant pixel size, since the mouse writes screen pixels straight into the cursor's
+        /// position and a scaled canvas would read them as something else.
+        /// </summary>
+        private RectTransform CreateCursorCanvas()
+        {
+            cursorCanvas = new GameObject($"Player[{player.ID.ToString()}]VirtualMouseCanvas", typeof(Canvas), typeof(CanvasScaler));
+
+            Canvas canvas = cursorCanvas.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = short.MaxValue;
+
+            CanvasScaler canvasScaler = cursorCanvas.GetComponent<CanvasScaler>();
+            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            canvasScaler.scaleFactor = 1f;
+
+            return (RectTransform)cursorCanvas.transform;
         }
 
         private static InputActionProperty PropertyFor(InputActionMap actionMap, string actionName)
