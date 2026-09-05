@@ -45,8 +45,3 @@ Everything you need is under **Input** in the menu bar, which is the easiest way
 - All input actions are centralized for a single source of truth for all input, even when using input action references (via the new ActionReference) in the inspector, so that you know exactly where your input is coming from across your whole project, and can predict how it will behave when enabled/disabled/subscribed/polled/rebound.
 - Dealing with a jungle of input maps turned on and off at any given time is no longer a worry with the new InputContext concept that collects maps in groups. InputContexts can be added, changed & removed quickly in the settings, which then become immediately available in your code. You can even specify particular actions for the event system to use, per InputContext.
 - Easy component and API usage to handle rebinding controls for multiple devices.
-
-TODO's exist in the code for immediate next attention, as well as the following nice-to-haves.
-
-#### Future nice-to-haves:
-- Load binding icon data only when needed, instead of it being always loaded. This can use Addressables & have a package dependency there. It should work just like localization strings do with Addressables.
