@@ -49,7 +49,13 @@ namespace NPTP.InputSystemWrapper.Editor
             SyncDefaultsNotSetYet(serializedObject);
             WarnAboutUnknownMapNames(inputData, inputData.InputActionAsset);
 
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            // Saving re-imports the asset, which runs the postprocessor and synchronizes again, so only
+            // write when something actually changed or the two would re-trigger each other forever.
+            if (!serializedObject.ApplyModifiedPropertiesWithoutUndo())
+            {
+                return;
+            }
+
             EditorUtility.SetDirty(inputData);
             AssetDatabase.SaveAssetIfDirty(inputData);
             Generation.GenerationReport.Record($"{AssetDatabase.GetAssetPath(inputData)} (synchronized)");

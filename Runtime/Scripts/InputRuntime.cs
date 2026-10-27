@@ -14,10 +14,6 @@ using NPTP.InputSystemWrapper.CustomSetups;
 using NPTP.InputSystemWrapper.Player;
 using NPTP.InputSystemWrapper.Utilities;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace NPTP.InputSystemWrapper
 {
     /// <summary>
@@ -107,6 +103,9 @@ namespace NPTP.InputSystemWrapper
 
         internal static void Initialize()
         {
+            // Without a domain reload, the last play session's runtime is still hooked into the input system.
+            Current?.ReleaseGlobalHooks();
+
             // Current is set before anything is set up, because setting up reaches back through it: a
             // player's saved bindings can be asked for through an event, which is broadcast from here.
             InputRuntime runtime = new();
@@ -116,8 +115,6 @@ namespace NPTP.InputSystemWrapper
 
         private InputRuntime()
         {
-            SetUpQuittingConditions();
-
             inputData = Resources.Load<InputData>(INPUT_DATA_RESOURCES_PATH);
             if (inputData == null || inputData.InputActionAsset == null)
             {
@@ -151,33 +148,27 @@ namespace NPTP.InputSystemWrapper
             initialized = true;
         }
 
-        private void SetUpQuittingConditions()
+        /// <summary>
+        /// Unhooks this runtime from the input system's global state,
+        /// which outlives a play session when domain reload is disabled.
+        /// </summary>
+        private void ReleaseGlobalHooks()
         {
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= handlePlayModeStateChanged;
-            EditorApplication.playModeStateChanged += handlePlayModeStateChanged;
-            void handlePlayModeStateChanged(PlayModeStateChange playModeStateChange)
+            if (!initialized)
             {
-                if (playModeStateChange is PlayModeStateChange.ExitingPlayMode)
-                {
-                    OnQuitting();
-                }
+                return;
             }
-#endif
-        }
 
-        private void OnQuitting()
-        {
-#if UNITY_EDITOR
             anyButtonPressListenerCollection.Clear();
-            playerCollection.EDITOR_OnPlayerInputContextChanged -= EDITOR_HandlePlayerInputContextChanged;
-            OnAnyPlayerInputUserChange -= BroadcastControlsUpdated;
-            OnBindingsChanged -= BroadcastControlsUpdated;
-            OnAnyPlayerControlSchemeChanged -= BroadcastControlsUpdated;
             playerCollection.Terminate();
-            --InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange -= HandleInputUserChange;
-#endif
+
+            if (InputUser.listenForUnpairedDeviceActivity > 0)
+            {
+                --InputUser.listenForUnpairedDeviceActivity;
+            }
+
+            initialized = false;
         }
 
         #endregion

@@ -167,7 +167,11 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal void Terminate()
         {
-            virtualMouse?.Disable();
+            if (playerInput != null)
+            {
+                virtualMouse?.Disable();
+            }
+
             Enabled = false;
             anyButtonPressListenerCollection?.Clear();
             DisableKeyboardTextInput();

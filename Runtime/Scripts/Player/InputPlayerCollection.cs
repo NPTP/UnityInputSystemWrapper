@@ -135,7 +135,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal bool TryGetPlayerPairedWithDevice(InputDevice device, out InputPlayer pairedPlayer)
         {
-            foreach (var player in Players)
+            foreach (InputPlayer player in Players)
             {
                 if (player.IsDevicePaired(device))
                 {
@@ -150,7 +150,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal bool TryPairDeviceToFirstDisabledPlayer(InputDevice device, out InputPlayer pairedPlayer)
         {
-            foreach (var player in Players)
+            foreach (InputPlayer player in Players)
             {
                 if (player.Enabled)
                 {

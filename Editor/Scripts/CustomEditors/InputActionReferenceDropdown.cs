@@ -150,9 +150,6 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             private readonly List<(string Map, InputActionReference Reference)> selectableReferences;
             private readonly Action<InputActionReference> onReferenceSelected;
 
-            /// <summary>Maps a dropdown item's id back to the reference it stands for. Index 0 clears the field.</summary>
-            private readonly List<InputActionReference> referencesByItemId = new() { null };
-
             internal ActionReferenceDropdown(AdvancedDropdownState state,
                 List<(string, InputActionReference)> selectableReferences, Action<InputActionReference> onReferenceSelected)
                 : base(state)
@@ -165,7 +162,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             protected override AdvancedDropdownItem BuildRoot()
             {
                 AdvancedDropdownItem root = new(ROOT_NAME);
-                root.AddChild(new AdvancedDropdownItem(NONE_LABEL) { id = 0 });
+                root.AddChild(new ReferenceItem(NONE_LABEL, null));
                 root.AddSeparator();
 
                 string currentMap = null;
@@ -180,8 +177,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
                         root.AddChild(mapItem);
                     }
 
-                    referencesByItemId.Add(reference);
-                    mapItem.AddChild(new AdvancedDropdownItem(reference.action.name) { id = referencesByItemId.Count - 1 });
+                    mapItem.AddChild(new ReferenceItem(reference.action.name, reference));
                 }
 
                 return root;
@@ -189,7 +185,25 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
 
             protected override void ItemSelected(AdvancedDropdownItem item)
             {
-                onReferenceSelected?.Invoke(referencesByItemId[item.id]);
+                // Group and separator items are plain items, so only a reference item stands for a choice.
+                if (item is ReferenceItem referenceItem)
+                {
+                    onReferenceSelected?.Invoke(referenceItem.Reference);
+                }
+            }
+
+            /// <summary>
+            /// A choice in the dropdown, carrying the reference it stands for. Item ids can't be relied on to
+            /// look it up instead: Unity overwrites an assigned id with a hash of the item's name.
+            /// </summary>
+            private class ReferenceItem : AdvancedDropdownItem
+            {
+                internal InputActionReference Reference { get; }
+
+                internal ReferenceItem(string name, InputActionReference reference) : base(name)
+                {
+                    Reference = reference;
+                }
             }
         }
     }
