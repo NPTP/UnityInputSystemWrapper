@@ -1,6 +1,15 @@
 # Input System Wrapper
 ## Changelog
 
+10.1.0
+- `ISW_TEXTMESHPRO` is also defined by `com.unity.ugui` 2.0.0 and newer, which is where TextMeshPro ships from Unity 6 on. The symbol was gated only on the `com.unity.textmeshpro` package, which no longer exists there, so `InputGlyphText` and the runtime sprite assets silently compiled out of Unity 6 projects
+- `ISW.CurrentContext` reads the default player's input context, the counterpart to `ISW.CurrentControlScheme`
+- The runtime unhooks itself from the input system when a new one initializes, so a play session started without a domain reload no longer leaves the last session's runtime listening for device activity and user changes
+- Terminating a player only disables its virtual mouse when the player still has its PlayerInput, so tearing down a player part-way through setup no longer throws
+- The action reference dropdown carries each reference on its own item rather than looking it up by item id. Unity overwrites an assigned id with a hash of the item's name, so picking an action set the wrong one or none at all
+- Synchronizing the input data asset writes only when something actually changed. Saving re-imports the asset, which synchronizes again, so an unconditional write had the two re-triggering each other
+- `FindObjectsOfType` is replaced by `FindObjectsByType`, which also includes inactive objects now, on the Unity versions that have it
+
 10.0.0
 - A virtual mouse per player, driven by an action map of your own naming, so a gamepad can point at a UI. `EnableVirtualMouse` and `DisableVirtualMouse` on `ISW` and on a player handle, with `VirtualMouseEnabled` and `VirtualMousePosition` to read it back
 - The virtual mouse section on the input data names the map that drives it, reports every action that map is missing or has wrong, and offers a button that writes a map with all of them bound to a gamepad
