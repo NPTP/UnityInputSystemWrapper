@@ -57,6 +57,11 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                 .Static()
                 .Expression("DefaultPlayer.CurrentControlScheme"));
 
+            isw.WithProperty(SourceGen.NewProperty("CurrentContext", INPUT_CONTEXT)
+                .Public()
+                .Static()
+                .Expression("DefaultPlayer.InputContext"));
+
             if (!inputData.AllowEnablingVirtualMouse)
             {
                 return;
