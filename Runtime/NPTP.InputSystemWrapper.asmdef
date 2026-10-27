@@ -20,6 +20,11 @@
             "name": "com.unity.textmeshpro",
             "expression": "",
             "define": "ISW_TEXTMESHPRO"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "2.0.0",
+            "define": "ISW_TEXTMESHPRO"
         }
     ],
     "noEngineReferences": false
