@@ -38,6 +38,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
 
             AddActions(playerRef, asset);
             AddState(playerRef);
+            AddEventSystem(playerRef);
+            AddDevices(playerRef);
             AddVirtualMouse(playerRef, inputData);
             AddEvents(playerRef);
             AddConversions(playerRef);
@@ -78,6 +80,41 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Generic(GeneratableTypeParameter.Of("TDevice", "InputDevice"))
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
                     .Expression($"{FIELD}.ControlSchemeHas<TDevice>(controlScheme.ToId())"));
+        }
+
+        /// <summary>
+        /// This player's own event system: what it has selected, and whether the pointer reaches it.
+        /// </summary>
+        private static void AddEventSystem(GeneratableTypeDefinition playerRef)
+        {
+            playerRef
+                .WithProperty(SourceGen.NewProperty("CurrentSelection", "GameObject").Public()
+                    .Expression($"{FIELD}.CurrentSelection"))
+                .WithProperty(SourceGen.NewProperty<bool>("MouseInputEnabled").Public()
+                    .WithAccessors($"{FIELD}.MouseInputEnabled", $"{FIELD}.MouseInputEnabled = value"))
+                .WithMethod(SourceGen.NewMethod("SetSelection").Public().ReturningVoid()
+                    .Taking(GeneratableParameter.Of("GameObject", "selection"))
+                    .Expression($"{FIELD}.SetSelection(selection)"))
+                .WithMethod(SourceGen.NewMethod("Deselect").Public().ReturningVoid()
+                    .Taking(GeneratableParameter.Of("GameObject", "expected"))
+                    .Expression($"{FIELD}.Deselect(expected)"));
+        }
+
+        /// <summary>
+        /// Which devices this player owns, given to them deliberately rather than by who pressed a button
+        /// first, and whether they are allowed to follow a device onto another control scheme.
+        /// </summary>
+        private static void AddDevices(GeneratableTypeDefinition playerRef)
+        {
+            playerRef
+                .WithProperty(SourceGen.NewProperty<bool>("AutoSwitchControlSchemes").Public()
+                    .Expression($"{FIELD}.AutoSwitchControlSchemes"))
+                .WithMethod(SourceGen.NewMethod("SetControlScheme").Public().ReturningVoid()
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Params("InputDevice[]", "devices"))
+                    .Expression($"{FIELD}.SetControlScheme(controlScheme.ToId(), devices)"))
+                .WithMethod(SourceGen.NewMethod("UnpairDevices").Public().ReturningVoid()
+                    .Expression($"{FIELD}.UnpairDevices()"));
         }
 
         /// <summary>

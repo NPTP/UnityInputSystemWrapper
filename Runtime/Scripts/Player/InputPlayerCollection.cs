@@ -6,6 +6,7 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities.Extensions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
@@ -112,13 +113,28 @@ namespace NPTP.InputSystemWrapper.Player
         {
             foreach (InputPlayer player in Players)
             {
-                player.IsMultiplayer = isMultiplayer;
+                player.AutoSwitchControlSchemes = !isMultiplayer;
             }
         }
 
         internal bool IsDeviceLastUsedByAnyPlayer(InputDevice device)
         {
             return Players.Any(player => player.LastUsedDevice == device);
+        }
+
+        internal bool TryGetPlayerWithInputModule(BaseInputModule inputModule, out InputPlayer player)
+        {
+            foreach (InputPlayer candidate in Players)
+            {
+                if (candidate.UsesInputModule(inputModule))
+                {
+                    player = candidate;
+                    return true;
+                }
+            }
+
+            player = default;
+            return false;
         }
 
         internal bool TryGetPlayer(int playerID, out InputPlayer player)
@@ -234,13 +250,13 @@ namespace NPTP.InputSystemWrapper.Player
             {
                 foreach (InputPlayer player in Players)
                 {
-                    player.IsMultiplayer = true;
+                    player.AutoSwitchControlSchemes = false;
                 }
             }
             else if (enabledPlayersCount == 1)
             {
                 InputPlayer soleEnabledPlayer = Players.First(player => player.Enabled);
-                soleEnabledPlayer.IsMultiplayer = false;
+                soleEnabledPlayer.AutoSwitchControlSchemes = true;
             }
         }
 

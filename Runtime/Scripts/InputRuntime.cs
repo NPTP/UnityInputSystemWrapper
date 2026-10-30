@@ -185,6 +185,21 @@ namespace NPTP.InputSystemWrapper
             playerCollection.Remove(playerID);
         }
 
+        /// <summary>
+        /// The player whose event system raised this event, for telling apart the UI callbacks of a
+        /// local multiplayer game. False when the event did not come from a player's event system.
+        /// </summary>
+        public bool TryGetPlayerForEventData(BaseEventData eventData, out InputPlayer player)
+        {
+            if (eventData == null)
+            {
+                player = default;
+                return false;
+            }
+
+            return playerCollection.TryGetPlayerWithInputModule(eventData.currentInputModule, out player);
+        }
+
         internal bool ControlSchemeHas<TDevice>(ControlSchemeId controlSchemeId, int playerID = 0) where TDevice : InputDevice
         {
             return GetPlayer(playerID).ControlSchemeHas<TDevice>(controlSchemeId);

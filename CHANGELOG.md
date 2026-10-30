@@ -1,6 +1,18 @@
 # Input System Wrapper
 ## Changelog
 
+10.2.0
+- A player's own event system is reachable at last. `CurrentSelection`, `SetSelection` and `Deselect` select and clear for one player alone, so a UI shared between players holds a selection per player rather than one between them
+- `SetSelection` is ignored while a selection is already being processed, which is what lets a selectable select something from inside its own `OnSelect` without the event system objecting
+- `Deselect` takes the object the caller expects to be selected and clears only while it still is, so a selectable deselecting itself cannot clear whatever was selected after it
+- `MouseInputEnabled` gates a player's pointer actions - point, left click, middle click, right click and scroll - and leaves navigation and submit alone, so a UI being driven by a gamepad keeps working while the pointer is ignored. The gate sits where event system actions are applied rather than in the property, so a context change does not quietly undo it
+- `SetControlScheme` puts a player on a control scheme with exactly the devices given, for handing devices out deliberately instead of by whichever one was pressed first. Devices the player held and was not given again are released, and the scheme and the pairing change together in one binding resolution
+- `UnpairDevices` is public, for releasing a player's devices without disabling the player
+- `TryGetPlayerForEventData` says which player's event system raised a UI event, so a callback shared between players can tell them apart without reaching for the input module itself
+- `IsMultiplayer` is now `AutoSwitchControlSchemes`, inverted and readable, and still maintained from how many players are enabled - so it is read-only to callers: enable or disable a player to change it
+- The event system added to a player's object is kept rather than discarded. Everything above reads it, and nothing could before
+- Worth knowing, since it is the input system's rule rather than this package's: automatic control scheme switching happens only while a single player is enabled (`PlayerInput.isSinglePlayer`). A player who is present but idle has to be disabled, not merely moved to a context with no maps, or nobody switches
+
 10.1.0
 - `ISW_TEXTMESHPRO` is also defined by `com.unity.ugui` 2.0.0 and newer, which is where TextMeshPro ships from Unity 6 on. The symbol was gated only on the `com.unity.textmeshpro` package, which no longer exists there, so `InputGlyphText` and the runtime sprite assets silently compiled out of Unity 6 projects
 - `ISW.CurrentContext` reads the default player's input context, the counterpart to `ISW.CurrentControlScheme`

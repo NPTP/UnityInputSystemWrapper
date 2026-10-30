@@ -24,7 +24,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         {
             GeneratableTypeDefinition isw = SourceGen.NewClass("ISW").Public().Static()
                 .InNamespace(GeneratedNamespaces.ROOT)
-                .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.InputSystem",
+                .WithDirectives("System", "System.Collections.Generic", "UnityEngine", "UnityEngine.EventSystems", "UnityEngine.InputSystem",
                     GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS, GeneratedNamespaces.BINDINGS,
                     GeneratedNamespaces.ENUMS, GeneratedNamespaces.PLAYER, GeneratedNamespaces.UTILITIES)
                 .WithProperty(SourceGen.NewProperty("Runtime", "InputRuntime").Private().Static().Expression("InputRuntime.Current"))
@@ -213,10 +213,18 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Taking(GeneratableParameter.Of(NULLABLE_PLAYER_ID, PLAYER_ID, "0"))
                     .Expression($"Runtime.ResetAllBindings({PLAYER_ID})"));
 
+            isw.WithMethod(SourceGen.NewMethod("TryGetPlayerForEventData").Public().Static().Returning<bool>()
+                .Taking(GeneratableParameter.Of("BaseEventData", "eventData"),
+                    GeneratableParameter.Out(INPUT_PLAYER_REF, "player"))
+                .Body($"bool found = Runtime.TryGetPlayerForEventData(eventData, out {INPUT_PLAYER} foundPlayer);",
+                    "player = foundPlayer;",
+                    "return found;"));
+
             isw.WithProperty(SourceGen.NewProperty<bool>("AllowPlayerJoining")
                 .Public()
                 .Static()
                 .WithAccessors("Runtime.AllowPlayerJoining", "Runtime.AllowPlayerJoining = value"));
+
         }
     }
 }

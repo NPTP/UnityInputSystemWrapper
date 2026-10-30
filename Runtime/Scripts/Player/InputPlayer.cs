@@ -7,6 +7,7 @@ using NPTP.InputSystemWrapper.Data;
 using NPTP.InputSystemWrapper.Enums;
 using NPTP.InputSystemWrapper.Utilities;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
@@ -110,13 +111,23 @@ namespace NPTP.InputSystemWrapper.Player
             }
         }
 
-        internal bool IsMultiplayer
+        private bool autoSwitchControlSchemes = true;
+
+        /// <summary>
+        /// Whether this player follows the device they just used onto the control scheme that device
+        /// belongs to. Off for a player who has to stay on the devices they were given, which is every
+        /// player in a local multiplayer game. Maintained from how many players are enabled, so it is
+        /// read-only to callers: enable or disable a player to change it.
+        /// </summary>
+        public bool AutoSwitchControlSchemes
         {
-            set
+            get => autoSwitchControlSchemes;
+            internal set
             {
+                autoSwitchControlSchemes = value;
                 if (playerInput != null)
                 {
-                    playerInput.neverAutoSwitchControlSchemes = value;
+                    playerInput.neverAutoSwitchControlSchemes = !value;
                 }
             }
         }
@@ -146,6 +157,7 @@ namespace NPTP.InputSystemWrapper.Player
         private GameObject playerInputGameObject;
         private PlayerInput playerInput;
         private InputSystemUIInputModule uiInputModule;
+        private MultiplayerEventSystem eventSystem;
         private bool keyboardTextInputEnabled;
         private SpecificPlayerAnyButtonPressListenerCollection anyButtonPressListenerCollection;
 
@@ -222,9 +234,9 @@ namespace NPTP.InputSystemWrapper.Player
             };
 
             playerInput = playerInputGameObject.AddComponent<PlayerInput>();
-            playerInput.neverAutoSwitchControlSchemes = isMultiplayer;
+            AutoSwitchControlSchemes = !isMultiplayer;
 
-            playerInputGameObject.AddComponent<MultiplayerEventSystem>();
+            eventSystem = playerInputGameObject.AddComponent<MultiplayerEventSystem>();
             uiInputModule = playerInputGameObject.AddComponent<InputSystemUIInputModule>();
             uiInputModule.actionsAsset = Asset;
             SetEventSystemOptions();
@@ -308,6 +320,11 @@ namespace NPTP.InputSystemWrapper.Player
 
         private void ApplyEventSystemAction(EventSystemActionType actionType, InputActionReference reference)
         {
+            if (!mouseInputEnabled && IsPointerAction(actionType))
+            {
+                reference = null;
+            }
+
             switch (actionType)
             {
                 case EventSystemActionType.Point: uiInputModule.point = reference; break;
@@ -322,6 +339,15 @@ namespace NPTP.InputSystemWrapper.Player
                 case EventSystemActionType.TrackedDeviceOrientation: uiInputModule.trackedDeviceOrientation = reference; break;
                 default: throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null);
             }
+        }
+
+        private static bool IsPointerAction(EventSystemActionType actionType)
+        {
+            return actionType is EventSystemActionType.Point
+                or EventSystemActionType.LeftClick
+                or EventSystemActionType.MiddleClick
+                or EventSystemActionType.RightClick
+                or EventSystemActionType.ScrollWheel;
         }
 
         /// <summary>
@@ -402,6 +428,75 @@ namespace NPTP.InputSystemWrapper.Player
 
         #endregion
 
+        #region Event System
+
+        private bool mouseInputEnabled = true;
+
+        /// <summary>
+        /// Whether the pointer actions reach this player's event system. Turning it off leaves navigation
+        /// and submit alone, so a UI being driven by a gamepad keeps working while the pointer is ignored,
+        /// and it outlives a context change rather than being undone by one.
+        /// </summary>
+        public bool MouseInputEnabled
+        {
+            get => mouseInputEnabled;
+            set
+            {
+                if (mouseInputEnabled == value)
+                {
+                    return;
+                }
+
+                mouseInputEnabled = value;
+                RestoreEventSystemActions();
+            }
+        }
+
+        /// <summary>
+        /// What this player's event system has selected, or null when nothing is.
+        /// </summary>
+        public GameObject CurrentSelection => eventSystem == null ? null : eventSystem.currentSelectedGameObject;
+
+        /// <summary>
+        /// Select an object for this player alone. Ignored while a selection is already being processed,
+        /// which is what lets a selectable select something from inside its own OnSelect without the
+        /// event system objecting.
+        /// </summary>
+        public void SetSelection(GameObject selection)
+        {
+            if (eventSystem == null || eventSystem.alreadySelecting)
+            {
+                return;
+            }
+
+            eventSystem.SetSelectedGameObject(selection);
+        }
+
+        /// <summary>
+        /// Clear this player's selection, but only while it is still the object the caller expects, so a
+        /// selectable deselecting itself cannot clear whatever was selected after it.
+        /// </summary>
+        public void Deselect(GameObject expected)
+        {
+            if (eventSystem == null || eventSystem.currentSelectedGameObject != expected)
+            {
+                return;
+            }
+
+            eventSystem.SetSelectedGameObject(null);
+        }
+
+        /// <summary>
+        /// Whether this is the player whose event system raised an event, which is how a UI callback
+        /// shared between players tells them apart.
+        /// </summary>
+        internal bool UsesInputModule(BaseInputModule inputModule)
+        {
+            return uiInputModule != null && uiInputModule == inputModule;
+        }
+
+        #endregion
+
         #region Internal
 
         /// <summary>
@@ -448,6 +543,21 @@ namespace NPTP.InputSystemWrapper.Player
             return playerInput != null && playerInput.user.id == user.id;
         }
 
+        /// <summary>
+        /// Put this player on a control scheme with exactly these devices, which is how a player is given
+        /// their devices deliberately rather than by whichever one they pressed first. Devices they held
+        /// and are not given again are released. Does nothing without a valid player or scheme.
+        /// </summary>
+        internal void SetControlScheme(ControlSchemeId controlSchemeId, params InputDevice[] devices)
+        {
+            if (playerInput == null || !playerInput.user.valid || controlSchemeId.IsNone || devices == null)
+            {
+                return;
+            }
+
+            playerInput.SwitchCurrentControlScheme(controlSchemeId.Name, devices);
+        }
+
         internal void PairDevice(InputDevice device)
         {
             if (playerInput == null || !playerInput.user.valid)
@@ -470,7 +580,7 @@ namespace NPTP.InputSystemWrapper.Player
             // UpdateLastUsedDevice();
         }
 
-        internal void UnpairDevices()
+        public void UnpairDevices()
         {
             if (playerInput == null || !playerInput.user.valid)
             {
