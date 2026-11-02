@@ -558,6 +558,21 @@ namespace NPTP.InputSystemWrapper.Player
             playerInput.SwitchCurrentControlScheme(controlSchemeId.Name, devices);
         }
 
+        /// <summary>
+        /// Move this player to another control scheme and leave their devices alone, for following a
+        /// player onto the scheme of a device they already hold. Their bindings are masked to the new
+        /// scheme, so devices belonging to the other schemes they hold simply go quiet.
+        /// </summary>
+        internal void SetControlScheme(ControlSchemeId controlSchemeId)
+        {
+            if (playerInput == null || !playerInput.user.valid || controlSchemeId.IsNone)
+            {
+                return;
+            }
+
+            playerInput.user.ActivateControlScheme(controlSchemeId.Name);
+        }
+
         internal void PairDevice(InputDevice device)
         {
             if (playerInput == null || !playerInput.user.valid)

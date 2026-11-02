@@ -113,6 +113,9 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Params("InputDevice[]", "devices"))
                     .Expression($"{FIELD}.SetControlScheme(controlScheme.ToId(), devices)"))
+                .WithMethod(SourceGen.NewMethod("SetControlScheme").Public().ReturningVoid()
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"))
+                    .Expression($"{FIELD}.SetControlScheme(controlScheme.ToId())"))
                 .WithMethod(SourceGen.NewMethod("UnpairDevices").Public().ReturningVoid()
                     .Expression($"{FIELD}.UnpairDevices()"));
         }
