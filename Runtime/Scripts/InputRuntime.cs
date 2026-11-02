@@ -87,6 +87,10 @@ namespace NPTP.InputSystemWrapper
 
         public Vector2 MousePosition => Mouse.current.position.ReadValue();
 
+        private InputAction anyButtonAction;
+
+        public ActionWrapper AnyButton { get; private set; }
+
         internal InputPlayer DefaultPlayer => playerCollection.DefaultPlayer;
 
         private bool initialized;
@@ -98,6 +102,8 @@ namespace NPTP.InputSystemWrapper
         #endregion
 
         #region Setup
+
+        private const int NO_PLAYER_ID = -1;
 
         internal static bool PlayerExists(int playerID) => Current != null && Current.DoesPlayerExist(playerID);
 
@@ -138,6 +144,7 @@ namespace NPTP.InputSystemWrapper
             if (inputData.LoadAllBindingOverridesOnInitialize) LoadBindingsForAllPlayers();
             playerCollection.SetContextForAll(inputData.DefaultContextId);
 
+            SetUpAnyButtonAction();
             anyButtonPressListenerCollection = new AnyButtonPressListenerCollection();
             ++InputUser.listenForUnpairedDeviceActivity;
             InputUser.onChange += HandleInputUserChange;
@@ -146,6 +153,33 @@ namespace NPTP.InputSystemWrapper
             OnAnyPlayerControlSchemeChanged += BroadcastControlsUpdated;
 
             initialized = true;
+        }
+
+        private void SetUpAnyButtonAction()
+        {
+            anyButtonAction = new InputAction("AnyButton", InputActionType.Button);
+            anyButtonAction.AddBinding("<Keyboard>/<Key>");
+            anyButtonAction.AddBinding("<Mouse>/<Button>");
+            anyButtonAction.AddBinding("<Gamepad>/<Button>");
+            anyButtonAction.AddBinding("<Joystick>/<Button>");
+
+            AnyButton = new ActionWrapper(NO_PLAYER_ID, anyButtonAction);
+            AnyButton.RegisterCallbacks();
+            anyButtonAction.Enable();
+        }
+
+        private void TearDownAnyButtonAction()
+        {
+            if (anyButtonAction == null)
+            {
+                return;
+            }
+
+            AnyButton.UnregisterCallbacks();
+            anyButtonAction.Disable();
+            anyButtonAction.Dispose();
+            anyButtonAction = null;
+            AnyButton = null;
         }
 
         /// <summary>
@@ -159,6 +193,7 @@ namespace NPTP.InputSystemWrapper
                 return;
             }
 
+            TearDownAnyButtonAction();
             anyButtonPressListenerCollection.Clear();
             playerCollection.Terminate();
             InputUser.onChange -= HandleInputUserChange;

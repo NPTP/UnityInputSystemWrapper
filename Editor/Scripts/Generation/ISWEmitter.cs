@@ -156,6 +156,7 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             isw
                 .WithProperty(SourceGen.NewProperty("MousePosition", "Vector2").Public().Static().Expression("Mouse.current.position.ReadValue()"))
                 .WithProperty(SourceGen.NewProperty<int>("PlayerCount").Public().Static().Expression("Runtime.PlayerCount"))
+                .WithProperty(SourceGen.NewProperty("AnyButton", ACTION_WRAPPER).Public().Static().Expression("Runtime.AnyButton"))
                 .WithMethod(SourceGen.NewMethod("GetPlayer").Public().Static().Returning(INPUT_PLAYER_REF)
                     .Taking(GeneratableParameter.Of<int>(PLAYER_ID))
                     .Expression($"Runtime.GetPlayer({PLAYER_ID})"))

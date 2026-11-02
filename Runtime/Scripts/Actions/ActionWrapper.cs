@@ -36,6 +36,12 @@ namespace NPTP.InputSystemWrapper.Actions
             table.Add(inputAction.id, this);
         }
 
+        internal ActionWrapper(int playerID, InputAction inputAction)
+        {
+            PlayerID = playerID;
+            InputAction = inputAction;
+        }
+
         internal void RegisterCallbacks()
         {
             InputAction.started += HandleActionEvent;
