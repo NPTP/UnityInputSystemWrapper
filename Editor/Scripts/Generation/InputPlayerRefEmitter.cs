@@ -30,7 +30,8 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             GeneratableTypeDefinition playerRef = SourceGen.NewStruct(TYPE_NAME).Public().ReadOnly()
                 .InNamespace(GeneratedNamespaces.PLAYER)
                 .WithDirectives("System", GeneratedNamespaces.ACTIONS, GeneratedNamespaces.ANY_BUTTON_PRESS,
-                    GeneratedNamespaces.ENUMS, "UnityEngine", "UnityEngine.InputSystem")
+                    GeneratedNamespaces.ENUMS, "UnityEngine", "UnityEngine.InputSystem",
+                    "UnityEngine.InputSystem.Utilities")
                 .WithField(SourceGen.NewField(FIELD, INPUT_PLAYER).Private().ReadOnly())
                 .WithMethod(SourceGen.NewMethod(TYPE_NAME).Private().AsConstructor()
                     .Taking(GeneratableParameter.Of(INPUT_PLAYER, FIELD))
@@ -109,6 +110,10 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
             playerRef
                 .WithProperty(SourceGen.NewProperty<bool>("AutoSwitchControlSchemes").Public()
                     .Expression($"{FIELD}.AutoSwitchControlSchemes"))
+                .WithProperty(SourceGen.NewProperty("PairedDevices", "ReadOnlyArray<InputDevice>").Public()
+                    .Expression($"{FIELD}.PairedDevices"))
+                .WithProperty(SourceGen.NewProperty("LastUsedDevice", "InputDevice").Public()
+                    .Expression($"{FIELD}.LastUsedDevice"))
                 .WithMethod(SourceGen.NewMethod("SetControlScheme").Public().ReturningVoid()
                     .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
                         GeneratableParameter.Params("InputDevice[]", "devices"))

@@ -102,7 +102,7 @@ namespace NPTP.InputSystemWrapper.Player
 
 
         private InputDevice lastUsedDevice;
-        internal InputDevice LastUsedDevice
+        public InputDevice LastUsedDevice
         {
             get
             {
@@ -149,7 +149,7 @@ namespace NPTP.InputSystemWrapper.Player
 
         internal Dictionary<Guid, ActionWrapper> ActionWrapperTable => actionWrapperTable;
 
-        private ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
+        public ReadOnlyArray<InputDevice> PairedDevices => playerInput == null ? new ReadOnlyArray<InputDevice>() : playerInput.devices;
 
         private readonly List<Keyboard> lastPairedKeyboards = new();
         private readonly Dictionary<Guid, ActionWrapper> actionWrapperTable = new();
