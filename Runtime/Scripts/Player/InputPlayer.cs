@@ -550,12 +550,50 @@ namespace NPTP.InputSystemWrapper.Player
         /// </summary>
         internal void SetControlScheme(ControlSchemeId controlSchemeId, params InputDevice[] devices)
         {
-            if (playerInput == null || !playerInput.user.valid || controlSchemeId.IsNone || devices == null)
+            if (playerInput == null || controlSchemeId.IsNone || devices == null)
+            {
+                return;
+            }
+
+            if (!playerInput.user.valid && !TryRecreateUser(devices))
             {
                 return;
             }
 
             playerInput.SwitchCurrentControlScheme(controlSchemeId.Name, devices);
+        }
+
+        /// <summary>
+        /// PlayerInput only builds its InputUser while it can find an unpaired device matching one of its
+        /// schemes, so a player set up once another already holds every device is left without one, and
+        /// refuses devices for good. Free what this player is being given, then let it build one again.
+        /// </summary>
+        private bool TryRecreateUser(InputDevice[] devices)
+        {
+            for (int i = 0; i < devices.Length; i++)
+            {
+                if (devices[i] == null)
+                {
+                    continue;
+                }
+
+                InputUser? pairedUser = InputUser.FindUserPairedToDevice(devices[i]);
+                if (pairedUser.HasValue)
+                {
+                    pairedUser.Value.UnpairDevice(devices[i]);
+                }
+            }
+
+            playerInput.enabled = false;
+            playerInput.enabled = true;
+
+            if (!playerInput.user.valid)
+            {
+                return false;
+            }
+
+            InputContextId = inputContextId;
+            return true;
         }
 
         /// <summary>
