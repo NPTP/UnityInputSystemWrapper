@@ -45,6 +45,11 @@ namespace NPTP.InputSystemWrapper.Data
                  "E.g. pressing the Esc key on keyboard will cancel rebinding of a button, without rebinding it to Esc.")]
         [ControlPathSelector][SerializeField] private string[] bindingCancelPaths;
         internal string[] BindingCancelPaths => bindingCancelPaths;
+
+        [Tooltip("How long an interactive rebinding waits for a press before cancelling itself. " +
+                 "Zero or less waits indefinitely, so a cancel path is the only way out.")]
+        [SerializeField] private float rebindTimeoutSeconds;
+        internal float RebindTimeoutSeconds => rebindTimeoutSeconds;
         
         [SerializeField] private bool allowEnablingVirtualMouse = true;
         internal bool AllowEnablingVirtualMouse => allowEnablingVirtualMouse;
@@ -229,6 +234,7 @@ namespace NPTP.InputSystemWrapper.Data
         internal const string EDITOR_DeviceBindingDataField = nameof(deviceBindingData);
         internal const string EDITOR_BindingExcludedPathsField = nameof(bindingExcludedPaths);
         internal const string EDITOR_BindingCancelPathsField = nameof(bindingCancelPaths);
+        internal const string EDITOR_RebindTimeoutSecondsField = nameof(rebindTimeoutSeconds);
 
         private void OnValidate()
         {

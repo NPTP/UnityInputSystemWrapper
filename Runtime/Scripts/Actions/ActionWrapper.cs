@@ -65,6 +65,9 @@ namespace NPTP.InputSystemWrapper.Actions
         internal void ResetBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
             InputRuntime.Current.ResetBindingForAction(this, CompositePart.DontIsolatePart, controlSchemeId, uiIndex);
 
+        internal void ClearBinding(ControlSchemeId controlSchemeId, int uiIndex) =>
+            InputRuntime.Current.ClearBindingForAction(this, CompositePart.DontIsolatePart, controlSchemeId, uiIndex);
+
         internal void ResetAllBindings(ControlSchemeId controlSchemeId) =>
             InputRuntime.Current.ResetAllBindingsForAction(this, CompositePart.DontIsolatePart, controlSchemeId);
 

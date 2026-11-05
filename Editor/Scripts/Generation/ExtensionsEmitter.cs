@@ -93,13 +93,21 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// Reset one slot, or every binding the action has on a control scheme. Called conditionally on
-        /// the receiver, so an unassigned reference does nothing rather than throwing.
+        /// Empty one slot, reset one slot, or reset every binding the action has on a control scheme.
+        /// Called conditionally on the receiver, so an unassigned reference does nothing rather than
+        /// throwing.
         /// </summary>
         private static GeneratableMethod[] BuildResetMethods(string extendedType, string parameterName)
         {
             return new[]
             {
+                SourceGen.NewMethod("ClearBinding")
+                    .Public()
+                    .ReturningVoid()
+                    .Extending(extendedType, parameterName)
+                    .Taking(GeneratableParameter.Of(CONTROL_SCHEME, "controlScheme"),
+                        GeneratableParameter.Of<int>(UI_INDEX))
+                    .Expression($"{parameterName}?.ClearBinding(controlScheme.ToId(), {UI_INDEX})"),
                 SourceGen.NewMethod("ResetBinding")
                     .Public()
                     .ReturningVoid()

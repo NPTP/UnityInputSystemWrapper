@@ -286,6 +286,22 @@ namespace NPTP.InputSystemWrapper
             ResetBindingForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId, uiIndex);
         }
 
+        /// <summary>Empty one of an action's slots, leaving its others alone.</summary>
+        internal void ClearBindingForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId, int uiIndex)
+        {
+            if (actionWrapper == null)
+            {
+                return;
+            }
+
+            BindingChanger.ClearBindingForSlot(inputData, new ActionBindingInfo(actionWrapper, compositePart, controlSchemeId, uiIndex));
+        }
+
+        internal void ClearBindingForAction(ActionReference actionReference, ControlSchemeId controlSchemeId, int uiIndex)
+        {
+            ClearBindingForAction(actionReference?.ActionWrapper, GetCompositePart(actionReference), controlSchemeId, uiIndex);
+        }
+
         /// <summary>Put every one of an action's bindings on this control scheme back to its default.</summary>
         internal void ResetAllBindingsForAction(ActionWrapper actionWrapper, CompositePart compositePart, ControlSchemeId controlSchemeId)
         {

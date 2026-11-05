@@ -37,6 +37,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
         private SerializedProperty bindingSerializationMode;
         private SerializedProperty bindingExcludedPaths;
         private SerializedProperty bindingCancelPaths;
+        private SerializedProperty rebindTimeoutSeconds;
 
         private SerializedProperty moveRepeatDelay;
         private SerializedProperty moveRepeatRate;
@@ -76,6 +77,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             bindingSerializationMode = serializedObject.FindProperty(InputData.EDITOR_BindingSerializationModeField);
             bindingExcludedPaths = serializedObject.FindProperty(InputData.EDITOR_BindingExcludedPathsField);
             bindingCancelPaths = serializedObject.FindProperty(InputData.EDITOR_BindingCancelPathsField);
+            rebindTimeoutSeconds = serializedObject.FindProperty(InputData.EDITOR_RebindTimeoutSecondsField);
 
             moveRepeatDelay = serializedObject.FindProperty(nameof(moveRepeatDelay));
             moveRepeatRate = serializedObject.FindProperty(nameof(moveRepeatRate));
@@ -294,6 +296,7 @@ namespace NPTP.InputSystemWrapper.Editor.CustomEditors
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(bindingExcludedPaths);
             EditorGUILayout.PropertyField(bindingCancelPaths);
+            EditorGUILayout.PropertyField(rebindTimeoutSeconds);
 
             ISWEditorHelper.DrawHorizontalLine();
 

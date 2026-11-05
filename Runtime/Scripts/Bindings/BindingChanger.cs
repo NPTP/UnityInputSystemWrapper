@@ -31,6 +31,12 @@ namespace NPTP.InputSystemWrapper.Bindings
                 .OnCancel(onCancel)
                 .OnComplete(onComplete);
 
+            // Zero or less is the input system's own way of saying "wait indefinitely".
+            if (inputData.RebindTimeoutSeconds > 0)
+            {
+                rebindingOperation.WithTimeout(inputData.RebindTimeoutSeconds);
+            }
+
             rebindingOperation.Start();
             return rebindingOperation;
 
@@ -105,26 +111,53 @@ namespace NPTP.InputSystemWrapper.Bindings
         /// </summary>
         internal static void ResetBindingToDefaultForSlot(InputData inputData, ActionBindingInfo actionBindingInfo)
         {
+            ChangeSlot(inputData, actionBindingInfo,
+                (action, bindingIndex) => action.RemoveBindingOverride(bindingIndex),
+                binding => binding.overridePath != null);
+        }
+
+        /// <summary>
+        /// Empty one slot, so the action has nothing bound there until it is rebound or reset. An empty
+        /// override path is how the input system disables a binding, and an empty override still counts
+        /// as one, so a cleared slot is saved and loaded like any other.
+        /// </summary>
+        internal static void ClearBindingForSlot(InputData inputData, ActionBindingInfo actionBindingInfo)
+        {
+            ChangeSlot(inputData, actionBindingInfo,
+                (action, bindingIndex) => action.ApplyBindingOverride(bindingIndex, string.Empty),
+                binding => binding.overridePath != string.Empty);
+        }
+
+        /// <summary>
+        /// Apply a change to one slot's bindings: every part of a composite, narrowed to a single part
+        /// when the caller names one, or a single plain binding. Only the bindings the change would
+        /// actually alter are touched, so nothing is broadcast when there was nothing to do.
+        /// </summary>
+        private static void ChangeSlot(InputData inputData, ActionBindingInfo actionBindingInfo,
+            Action<InputAction, int> change, Func<InputBinding, bool> wouldChange)
+        {
             InputAction action = actionBindingInfo.ActionWrapper.InputAction;
-            BindingSlots bindingSlots = BindingSlots.Resolve(inputData, action, actionBindingInfo.ControlSchemeId);
-
-            if (!bindingSlots.TryGetAtUIIndex(actionBindingInfo.UIIndex, out BindingSlot bindingSlot))
-            {
-                return;
-            }
-
             bool changed = false;
-            for (int i = bindingSlot.BindingIndex; i < bindingSlot.BindingIndex + bindingSlot.BindingCount; i++)
+
+            using (BindingSlots bindingSlots = BindingSlots.Resolve(inputData, action, actionBindingInfo.ControlSchemeId))
             {
-                InputBinding binding = action.bindings[i];
-                if (binding.isComposite || string.IsNullOrEmpty(binding.overridePath) ||
-                    (actionBindingInfo.UseCompositePart && binding.isPartOfComposite && !actionBindingInfo.CompositePart.Matches(binding)))
+                if (!bindingSlots.TryGetAtUIIndex(actionBindingInfo.UIIndex, out BindingSlot bindingSlot))
                 {
-                    continue;
+                    return;
                 }
 
-                changed = true;
-                action.RemoveBindingOverride(i);
+                for (int i = bindingSlot.BindingIndex; i < bindingSlot.BindingIndex + bindingSlot.BindingCount; i++)
+                {
+                    InputBinding binding = action.bindings[i];
+                    if (binding.isComposite || !wouldChange(binding) ||
+                        (actionBindingInfo.UseCompositePart && binding.isPartOfComposite && !actionBindingInfo.CompositePart.Matches(binding)))
+                    {
+                        continue;
+                    }
+
+                    changed = true;
+                    change(action, i);
+                }
             }
 
             if (changed)
@@ -171,8 +204,9 @@ namespace NPTP.InputSystemWrapper.Bindings
         {
             for (int i = 0; i < action.bindings.Count; i++)
             {
+                // An empty override is a deliberately cleared binding, not the absence of one.
                 string overridePath = action.bindings[i].overridePath;
-                if (!string.IsNullOrEmpty(overridePath))
+                if (overridePath != null)
                 {
                     return true;
                 }
@@ -191,7 +225,7 @@ namespace NPTP.InputSystemWrapper.Bindings
             {
                 InputBinding binding = action.bindings[i];
                 string overridePath = binding.overridePath;
-                if (bindingMask.Matches(binding) && !string.IsNullOrEmpty(overridePath) &&
+                if (bindingMask.Matches(binding) && overridePath != null &&
                     (additionalRemoveCondition == null || additionalRemoveCondition.Invoke(binding)))
                 {
                     changed = true;
