@@ -430,6 +430,25 @@ namespace NPTP.InputSystemWrapper.Player
 
         #region Event System
 
+        /// <summary>
+        /// Whether this player's event system processes UI events at all. Turned off, they cannot
+        /// navigate, submit or select while another player still can, and nothing about their gameplay
+        /// input or their context changes.
+        /// </summary>
+        public bool EventSystemEnabled
+        {
+            get => eventSystem != null && eventSystem.enabled;
+            set
+            {
+                if (eventSystem == null)
+                {
+                    return;
+                }
+
+                eventSystem.enabled = value;
+            }
+        }
+
         private bool mouseInputEnabled = true;
 
         /// <summary>

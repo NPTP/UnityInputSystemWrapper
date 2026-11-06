@@ -84,13 +84,16 @@ namespace NPTP.InputSystemWrapper.Editor.Generation
         }
 
         /// <summary>
-        /// This player's own event system: what it has selected, and whether the pointer reaches it.
+        /// This player's own event system: what it has selected, whether it processes events at all, and
+        /// whether the pointer reaches it.
         /// </summary>
         private static void AddEventSystem(GeneratableTypeDefinition playerRef)
         {
             playerRef
                 .WithProperty(SourceGen.NewProperty("CurrentSelection", "GameObject").Public()
                     .Expression($"{FIELD}.CurrentSelection"))
+                .WithProperty(SourceGen.NewProperty<bool>("EventSystemEnabled").Public()
+                    .WithAccessors($"{FIELD}.EventSystemEnabled", $"{FIELD}.EventSystemEnabled = value"))
                 .WithProperty(SourceGen.NewProperty<bool>("MouseInputEnabled").Public()
                     .WithAccessors($"{FIELD}.MouseInputEnabled", $"{FIELD}.MouseInputEnabled = value"))
                 .WithMethod(SourceGen.NewMethod("SetSelection").Public().ReturningVoid()
