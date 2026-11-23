@@ -27,7 +27,7 @@ namespace NPTP.InputSystemWrapper.Actions
         }
 
         public bool DownThisFrame => InputAction.WasPerformedThisFrame() && (InputAction.type != InputActionType.PassThrough || !InputAction.WasReleasedThisFrame());
-        public bool IsDown => InputAction.phase == InputActionPhase.Performed;
+        public bool IsDown => InputAction.IsPressed();
 
         internal ActionWrapper(int playerID, InputAction inputAction, Dictionary<Guid, ActionWrapper> table)
         {
